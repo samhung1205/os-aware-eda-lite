@@ -4,7 +4,7 @@ set -euo pipefail
 ROS2_SETUP="${ROS2_SETUP:-}"
 ROS2_PACKAGE="${ROS2_PACKAGE:-mobilevit_uav_pipeline}"
 ROS2_LAUNCH_FILE="${ROS2_LAUNCH_FILE:-mobilevit_uav_pipeline.launch.py}"
-DATASET_PATH="${DATASET_PATH:-data/rosbags/uav_flight_video.db3}"
+DATASET_PATH="${DATASET_PATH:-data/raw/images/coco128/images/train2017}"
 RESULTS_DIR="${RESULTS_DIR:-results/raw/ros2}"
 MODEL_PATH="${MODEL_PATH:-mobilevit_xxs}"
 MODEL_NAME="${MODEL_NAME:-mobilevit_xxs}"

@@ -88,3 +88,24 @@ Important limitation:
 - MobileViT profiles are coarse simulation profiles, not ONNX-derived exact architectures.
 - `runtime_os_profiles.example.json` remains example data only.
 - No teammate ROS2 numbers should be reported as measured in this repo until real ROS2 CSVs are present under `results/raw/ros2/`.
+
+## 2026-05-26 Final Report Planning Stage
+
+Prompt summary:
+
+- Complete the project step by step with the main topic confirmed as Vision Transformer / MobileViT.
+- Avoid YOLO experiments in the mainline.
+- Use a small image-folder dataset such as COCO128 only as ROS2 runtime input.
+
+Implementation decision:
+
+- Add `report/final_report.md` as the Markdown final report draft.
+- Add `report/ros2_pipeline_integration.md` to define the teammate ROS2 pipeline files, launch arguments, and CSV contract needed before reporting measured runtime results.
+- Add `experiments/ros2/prepare_coco128.sh` to prepare COCO128 under `data/raw/images/`.
+- Update ROS2 script defaults to use `data/raw/images/coco128/images/train2017` as the image-folder dataset path.
+- Ignore raw image data and downloaded COCO128 zip in git.
+
+Important limitation:
+
+- The local machine currently has no `ros2` command and this repo still has no measured ROS2 CSVs.
+- COCO128 is an image stream input source only, not a YOLO experiment.

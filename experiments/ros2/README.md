@@ -11,7 +11,7 @@ export ROS2_WORKSPACE="$HOME/ros2-mobilevit-uav-pipeline"
 export ROS2_SETUP="$ROS2_WORKSPACE/install/setup.bash"
 export ROS2_PACKAGE="mobilevit_uav_pipeline"
 export ROS2_LAUNCH_FILE="mobilevit_uav_pipeline.launch.py"
-export DATASET_PATH="$ROS2_WORKSPACE/data/rosbags/uav_flight_video.db3"
+export DATASET_PATH="$PWD/data/raw/images/coco128/images/train2017"
 export RESULTS_DIR="$PWD/results/raw/ros2"
 export MODEL_NAME="mobilevit_xxs"
 export MODEL_PATH="mobilevit_xxs"
@@ -24,6 +24,14 @@ bash experiments/ros2/run_fps_sweep.sh
 bash experiments/ros2/run_qos_sweep.sh
 bash experiments/ros2/run_overload_sweep.sh
 ```
+
+Optional COCO128 image-folder input can be prepared with:
+
+```bash
+bash experiments/ros2/prepare_coco128.sh
+```
+
+COCO128 is used only as a compact image stream source for ROS2 runtime pressure tests. It is not a YOLO training or evaluation experiment in this project.
 
 The scripts build command lines using `ros2 launch`. The launch file is expected to accept arguments such as `dataset_path`, `input_fps`, `qos_depth`, `model_path`, `model_name`, `fake_inference_delay_ms`, `deadline_ms`, `resource_profile`, `scenario`, and `output_csv`. If your adapted launch file uses different argument names, update the variables or launch argument names in the scripts instead of changing the analyzer.
 

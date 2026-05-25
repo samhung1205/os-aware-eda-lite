@@ -6,4 +6,6 @@ __pycache__/
 *.pdf
 *.csv
 *.xlsx
-.DS_Store
+data/raw/images/*
+!data/raw/images/.gitkeep
+data/raw/coco128.zip
