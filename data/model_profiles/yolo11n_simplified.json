@@ -1,0 +1,77 @@
+{
+  "model_name": "yolo11n_simplified_profile_estimate",
+  "layers": [
+    {
+      "name": "stem_conv",
+      "op_type": "Conv",
+      "input_kb": 64,
+      "output_kb": 48,
+      "weight_kb": 48,
+      "compute_macs": 120000000,
+      "fusible": true
+    },
+    {
+      "name": "backbone_c2f_p2",
+      "op_type": "C2fBlock",
+      "input_kb": 48,
+      "output_kb": 64,
+      "weight_kb": 96,
+      "compute_macs": 260000000,
+      "fusible": true
+    },
+    {
+      "name": "backbone_down_p3",
+      "op_type": "ConvDownsample",
+      "input_kb": 64,
+      "output_kb": 80,
+      "weight_kb": 128,
+      "compute_macs": 180000000,
+      "fusible": true
+    },
+    {
+      "name": "backbone_c2f_p3",
+      "op_type": "C2fBlock",
+      "input_kb": 80,
+      "output_kb": 96,
+      "weight_kb": 192,
+      "compute_macs": 420000000,
+      "fusible": true
+    },
+    {
+      "name": "neck_upsample",
+      "op_type": "Upsample",
+      "input_kb": 96,
+      "output_kb": 80,
+      "weight_kb": 32,
+      "compute_macs": 50000000,
+      "fusible": true
+    },
+    {
+      "name": "neck_feature_fusion",
+      "op_type": "ConcatConv",
+      "input_kb": 80,
+      "output_kb": 96,
+      "weight_kb": 128,
+      "compute_macs": 300000000,
+      "fusible": true
+    },
+    {
+      "name": "detect_head_p3",
+      "op_type": "DetectConv",
+      "input_kb": 96,
+      "output_kb": 64,
+      "weight_kb": 96,
+      "compute_macs": 120000000,
+      "fusible": true
+    },
+    {
+      "name": "detect_head_output",
+      "op_type": "DetectOutput",
+      "input_kb": 64,
+      "output_kb": 48,
+      "weight_kb": 160,
+      "compute_macs": 160000000,
+      "fusible": false
+    }
+  ]
+}

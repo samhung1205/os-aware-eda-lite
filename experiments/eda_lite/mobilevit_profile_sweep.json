@@ -1,0 +1,24 @@
+{
+  "profiles": [
+    "../../data/model_profiles/mobilevit_xxs_simplified.json",
+    "../../data/model_profiles/mobilevit_s_simplified.json"
+  ],
+  "simulation": {
+    "sram_kb": [256, 512, 1024, 2048],
+    "schedulers": ["layerwise", "greedy", "dp"],
+    "os_profiles": ["normal", "high_latency", "high_memory_pressure"],
+    "cost_model": {
+      "dram_energy_per_kb": 1.0,
+      "compute_energy_per_mmac": 0.05,
+      "dram_latency_per_kb_ms": 0.001,
+      "compute_latency_per_mmac_ms": 0.01,
+      "subgraph_overhead_ms": 0.02,
+      "weight_tile_kb": 64.0,
+      "alpha": 1.0,
+      "beta": 100.0,
+      "gamma": 50.0,
+      "delta": 75.0,
+      "deadline_ms": 33.3
+    }
+  }
+}

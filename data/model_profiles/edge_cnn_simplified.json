@@ -1,0 +1,59 @@
+{
+  "model_name": "edge_cnn_simplified_profile_estimate",
+  "layers": [
+    {
+      "name": "input_stem",
+      "op_type": "Conv",
+      "input_kb": 48,
+      "output_kb": 40,
+      "weight_kb": 32,
+      "compute_macs": 70000000,
+      "fusible": true
+    },
+    {
+      "name": "feature_block_1",
+      "op_type": "ConvBlock",
+      "input_kb": 40,
+      "output_kb": 48,
+      "weight_kb": 64,
+      "compute_macs": 150000000,
+      "fusible": true
+    },
+    {
+      "name": "downsample_block",
+      "op_type": "ConvDownsample",
+      "input_kb": 48,
+      "output_kb": 56,
+      "weight_kb": 96,
+      "compute_macs": 130000000,
+      "fusible": true
+    },
+    {
+      "name": "feature_block_2",
+      "op_type": "ConvBlock",
+      "input_kb": 56,
+      "output_kb": 64,
+      "weight_kb": 128,
+      "compute_macs": 240000000,
+      "fusible": true
+    },
+    {
+      "name": "projection",
+      "op_type": "PointwiseConv",
+      "input_kb": 64,
+      "output_kb": 48,
+      "weight_kb": 80,
+      "compute_macs": 90000000,
+      "fusible": true
+    },
+    {
+      "name": "classifier_head",
+      "op_type": "ClassifierHead",
+      "input_kb": 48,
+      "output_kb": 16,
+      "weight_kb": 96,
+      "compute_macs": 60000000,
+      "fusible": false
+    }
+  ]
+}

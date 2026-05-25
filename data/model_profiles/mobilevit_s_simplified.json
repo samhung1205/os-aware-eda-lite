@@ -1,0 +1,86 @@
+{
+  "model_name": "mobilevit_s_simplified_profile_estimate",
+  "layers": [
+    {
+      "name": "stem_conv",
+      "op_type": "ConvStem",
+      "input_kb": 64,
+      "output_kb": 56,
+      "weight_kb": 48,
+      "compute_macs": 85000000,
+      "fusible": true
+    },
+    {
+      "name": "mv2_block_1",
+      "op_type": "InvertedResidual",
+      "input_kb": 56,
+      "output_kb": 64,
+      "weight_kb": 72,
+      "compute_macs": 150000000,
+      "fusible": true
+    },
+    {
+      "name": "mobilevit_block_1_local",
+      "op_type": "LocalConvProjection",
+      "input_kb": 64,
+      "output_kb": 76,
+      "weight_kb": 96,
+      "compute_macs": 210000000,
+      "fusible": true
+    },
+    {
+      "name": "mobilevit_block_1_attention",
+      "op_type": "TransformerAttention",
+      "input_kb": 76,
+      "output_kb": 76,
+      "weight_kb": 192,
+      "compute_macs": 420000000,
+      "fusible": false
+    },
+    {
+      "name": "mobilevit_block_2_local",
+      "op_type": "LocalConvProjection",
+      "input_kb": 76,
+      "output_kb": 88,
+      "weight_kb": 128,
+      "compute_macs": 280000000,
+      "fusible": true
+    },
+    {
+      "name": "mobilevit_block_2_attention",
+      "op_type": "TransformerAttention",
+      "input_kb": 88,
+      "output_kb": 88,
+      "weight_kb": 256,
+      "compute_macs": 620000000,
+      "fusible": false
+    },
+    {
+      "name": "mobilevit_block_3_local",
+      "op_type": "LocalConvProjection",
+      "input_kb": 88,
+      "output_kb": 80,
+      "weight_kb": 160,
+      "compute_macs": 320000000,
+      "fusible": true
+    },
+    {
+      "name": "mobilevit_block_3_attention",
+      "op_type": "TransformerAttention",
+      "input_kb": 80,
+      "output_kb": 80,
+      "weight_kb": 288,
+      "compute_macs": 720000000,
+      "fusible": false
+    },
+    {
+      "name": "projection_head",
+      "op_type": "ClassifierHead",
+      "input_kb": 80,
+      "output_kb": 24,
+      "weight_kb": 160,
+      "compute_macs": 100000000,
+      "fusible": false
+    }
+  ]
+}

@@ -1,0 +1,113 @@
+"""Model profile loading for the EDA-Lite simulator.
+
+The profile format is intentionally small and explicit. It represents a
+simplified sequential model, not a full ONNX graph.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+import json
+from pathlib import Path
+from typing import Any
+
+
+REQUIRED_LAYER_FIELDS = {
+    "name",
+    "op_type",
+    "input_kb",
+    "output_kb",
+    "weight_kb",
+    "compute_macs",
+    "fusible",
+}
+
+
+@dataclass(frozen=True)
+class LayerProfile:
+    """Simplified layer/block profile used by EDA-Lite."""
+
+    name: str
+    op_type: str
+    input_kb: float
+    output_kb: float
+    weight_kb: float
+    compute_macs: float
+    fusible: bool
+
+
+@dataclass(frozen=True)
+class ModelProfile:
+    """A sequential model profile made of simplified layer/block entries."""
+
+    model_name: str
+    layers: tuple[LayerProfile, ...]
+
+
+def load_model_profile(path: str | Path) -> ModelProfile:
+    """Load and validate a simplified model profile JSON file."""
+
+    profile_path = Path(path)
+    with profile_path.open("r", encoding="utf-8") as file:
+        raw_profile = json.load(file)
+
+    if not isinstance(raw_profile, dict):
+        raise ValueError("Model profile must be a JSON object.")
+
+    model_name = raw_profile.get("model_name")
+    if not isinstance(model_name, str) or not model_name.strip():
+        raise ValueError("Model profile requires a non-empty string 'model_name'.")
+
+    raw_layers = raw_profile.get("layers")
+    if not isinstance(raw_layers, list) or not raw_layers:
+        raise ValueError("Model profile requires a non-empty 'layers' list.")
+
+    layers = tuple(_parse_layer(index, layer) for index, layer in enumerate(raw_layers))
+    return ModelProfile(model_name=model_name, layers=layers)
+
+
+def _parse_layer(index: int, raw_layer: Any) -> LayerProfile:
+    if not isinstance(raw_layer, dict):
+        raise ValueError(f"Layer {index} must be a JSON object.")
+
+    missing_fields = REQUIRED_LAYER_FIELDS.difference(raw_layer)
+    if missing_fields:
+        fields = ", ".join(sorted(missing_fields))
+        raise ValueError(f"Layer {index} is missing required fields: {fields}.")
+
+    name = _require_non_empty_string(raw_layer["name"], f"layers[{index}].name")
+    op_type = _require_non_empty_string(raw_layer["op_type"], f"layers[{index}].op_type")
+    input_kb = _require_non_negative_number(raw_layer["input_kb"], f"layers[{index}].input_kb")
+    output_kb = _require_non_negative_number(raw_layer["output_kb"], f"layers[{index}].output_kb")
+    weight_kb = _require_non_negative_number(raw_layer["weight_kb"], f"layers[{index}].weight_kb")
+    compute_macs = _require_non_negative_number(
+        raw_layer["compute_macs"], f"layers[{index}].compute_macs"
+    )
+
+    fusible = raw_layer["fusible"]
+    if not isinstance(fusible, bool):
+        raise ValueError(f"layers[{index}].fusible must be a boolean.")
+
+    return LayerProfile(
+        name=name,
+        op_type=op_type,
+        input_kb=input_kb,
+        output_kb=output_kb,
+        weight_kb=weight_kb,
+        compute_macs=compute_macs,
+        fusible=fusible,
+    )
+
+
+def _require_non_empty_string(value: Any, field_name: str) -> str:
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError(f"{field_name} must be a non-empty string.")
+    return value
+
+
+def _require_non_negative_number(value: Any, field_name: str) -> float:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ValueError(f"{field_name} must be a number.")
+    if value < 0:
+        raise ValueError(f"{field_name} must be non-negative.")
+    return float(value)

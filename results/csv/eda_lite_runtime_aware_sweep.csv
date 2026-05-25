@@ -1,0 +1,25 @@
+model_name,scheduler,sram_kb,os_profile,num_subgraphs,max_fusion_depth,peak_sram_kb,dram_traffic_kb,estimated_energy,estimated_latency_ms,os_aware_total_cost,subgraphs
+edge_cnn_simplified_profile_estimate,layerwise,256,runtime_normal_20fps_q5_d0,6,1,184,1072,1109,8.592,1133.76,input_stem | feature_block_1 | downsample_block | feature_block_2 | projection | classifier_head
+edge_cnn_simplified_profile_estimate,greedy,256,runtime_normal_20fps_q5_d0,2,5,224,656,693,8.096,720.784,input_stem+feature_block_1+downsample_block+feature_block_2+projection | classifier_head
+edge_cnn_simplified_profile_estimate,dp,256,runtime_normal_20fps_q5_d0,2,5,224,656,693,8.096,720.784,input_stem+feature_block_1+downsample_block+feature_block_2+projection | classifier_head
+edge_cnn_simplified_profile_estimate,layerwise,256,runtime_overload_20fps_q5_d80,6,1,184,1072,1109,8.592,1151.9,input_stem | feature_block_1 | downsample_block | feature_block_2 | projection | classifier_head
+edge_cnn_simplified_profile_estimate,greedy,256,runtime_overload_20fps_q5_d80,2,5,224,656,693,8.096,739.555,input_stem+feature_block_1+downsample_block+feature_block_2+projection | classifier_head
+edge_cnn_simplified_profile_estimate,dp,256,runtime_overload_20fps_q5_d80,2,5,224,656,693,8.096,739.555,input_stem+feature_block_1+downsample_block+feature_block_2+projection | classifier_head
+edge_cnn_simplified_profile_estimate,layerwise,512,runtime_normal_20fps_q5_d0,6,1,184,1072,1109,8.592,1125.68,input_stem | feature_block_1 | downsample_block | feature_block_2 | projection | classifier_head
+edge_cnn_simplified_profile_estimate,greedy,512,runtime_normal_20fps_q5_d0,2,5,224,656,693,8.096,710.94,input_stem+feature_block_1+downsample_block+feature_block_2+projection | classifier_head
+edge_cnn_simplified_profile_estimate,dp,512,runtime_normal_20fps_q5_d0,2,5,224,656,693,8.096,710.94,input_stem+feature_block_1+downsample_block+feature_block_2+projection | classifier_head
+edge_cnn_simplified_profile_estimate,layerwise,512,runtime_overload_20fps_q5_d80,6,1,184,1072,1109,8.592,1140.76,input_stem | feature_block_1 | downsample_block | feature_block_2 | projection | classifier_head
+edge_cnn_simplified_profile_estimate,greedy,512,runtime_overload_20fps_q5_d80,2,5,224,656,693,8.096,725.993,input_stem+feature_block_1+downsample_block+feature_block_2+projection | classifier_head
+edge_cnn_simplified_profile_estimate,dp,512,runtime_overload_20fps_q5_d80,2,5,224,656,693,8.096,725.993,input_stem+feature_block_1+downsample_block+feature_block_2+projection | classifier_head
+edge_cnn_simplified_profile_estimate,layerwise,1024,runtime_normal_20fps_q5_d0,6,1,184,1072,1109,8.592,1121.63,input_stem | feature_block_1 | downsample_block | feature_block_2 | projection | classifier_head
+edge_cnn_simplified_profile_estimate,greedy,1024,runtime_normal_20fps_q5_d0,2,5,224,656,693,8.096,706.018,input_stem+feature_block_1+downsample_block+feature_block_2+projection | classifier_head
+edge_cnn_simplified_profile_estimate,dp,1024,runtime_normal_20fps_q5_d0,2,5,224,656,693,8.096,706.018,input_stem+feature_block_1+downsample_block+feature_block_2+projection | classifier_head
+edge_cnn_simplified_profile_estimate,layerwise,1024,runtime_overload_20fps_q5_d80,6,1,184,1072,1109,8.592,1135.19,input_stem | feature_block_1 | downsample_block | feature_block_2 | projection | classifier_head
+edge_cnn_simplified_profile_estimate,greedy,1024,runtime_overload_20fps_q5_d80,2,5,224,656,693,8.096,719.212,input_stem+feature_block_1+downsample_block+feature_block_2+projection | classifier_head
+edge_cnn_simplified_profile_estimate,dp,1024,runtime_overload_20fps_q5_d80,2,5,224,656,693,8.096,719.212,input_stem+feature_block_1+downsample_block+feature_block_2+projection | classifier_head
+edge_cnn_simplified_profile_estimate,layerwise,2048,runtime_normal_20fps_q5_d0,6,1,184,1072,1109,8.592,1119.61,input_stem | feature_block_1 | downsample_block | feature_block_2 | projection | classifier_head
+edge_cnn_simplified_profile_estimate,greedy,2048,runtime_normal_20fps_q5_d0,2,5,224,656,693,8.096,703.557,input_stem+feature_block_1+downsample_block+feature_block_2+projection | classifier_head
+edge_cnn_simplified_profile_estimate,dp,2048,runtime_normal_20fps_q5_d0,2,5,224,656,693,8.096,703.557,input_stem+feature_block_1+downsample_block+feature_block_2+projection | classifier_head
+edge_cnn_simplified_profile_estimate,layerwise,2048,runtime_overload_20fps_q5_d80,6,1,184,1072,1109,8.592,1132.41,input_stem | feature_block_1 | downsample_block | feature_block_2 | projection | classifier_head
+edge_cnn_simplified_profile_estimate,greedy,2048,runtime_overload_20fps_q5_d80,2,5,224,656,693,8.096,715.821,input_stem+feature_block_1+downsample_block+feature_block_2+projection | classifier_head
+edge_cnn_simplified_profile_estimate,dp,2048,runtime_overload_20fps_q5_d80,2,5,224,656,693,8.096,715.821,input_stem+feature_block_1+downsample_block+feature_block_2+projection | classifier_head

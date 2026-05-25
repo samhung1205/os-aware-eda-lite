@@ -1,0 +1,393 @@
+# OS-aware EDA-Lite
+
+Lightweight MobileViT simulation for ROS2 OS-level edge AI performance analysis.
+
+本專案是作業系統期末專題實作。目標不是完整重現 EDA compiler，而是建立一個可解釋、可重現的 EDA-inspired 輕量化 simulator，用來觀察 SRAM 限制、layer fusion 策略、ROS2 runtime pressure 與 DDS/掉幀壓力如何影響 edge AI 推論的估計成本。
+
+目前主線是 **MobileViT simplified profile simulation + ROS2 runtime pressure analysis**。LLM 內容作為背景動機；本 repo 目前不執行真實 LLM inference。YOLO 相關路徑保留為早期 legacy work，不作為主流程。
+
+## Project Scope
+
+目前已完成：
+
+- 讀取簡化模型 profile JSON。
+- 支援 MobileViT-XXS 與 MobileViT-S 的 coarse block simulation profiles。
+- 支援單一模型與多模型 profile sweep。
+- 支援三種排程策略：
+  - `layerwise`：每層獨立執行。
+  - `greedy`：由左到右盡量融合可行 layer。
+  - `dp`：使用 dynamic programming 找最低估計成本的融合切分。
+- 支援 SRAM sweep：256KB、512KB、1024KB、2048KB。
+- 支援 OS-aware cost profile：`normal`、`high_latency`、`high_memory_pressure`，以及 runtime-derived custom profiles。
+- 輸出 CSV 結果，包含 DRAM traffic、estimated energy、estimated latency、peak SRAM usage、fusion depth 與 OS-aware total cost。
+- 從 simulation CSV 產生 summary CSV 與 SVG 圖表。
+- 提供 ROS2 FPS/QoS/overload 實驗腳本模板，預設為外部 MobileViT UAV pipeline。
+- 分析 ROS2 runtime CSV，輸出 latency、jitter、drop rate、deadline miss rate 與 SVG 圖表。
+- 在 explicit dropped rows 缺席時，可由 `frame_id` 缺口推估 dropped frames。
+- 將 ROS2 runtime summary 轉成 EDA-Lite 自訂 OS pressure profiles，包含 drop pressure。
+
+目前不包含：
+
+- vendored ROS2 MobileViT/UAV pipeline 原始碼。
+- 本 repo 內的實際 ROS2 runtime measurements。
+- 真實 MobileViT 權重。
+- ONNX parser。
+- 真實 LLM inference 或 KV-cache simulation。
+- 真實硬體 energy measurement。
+- 完整 EDA paper compiler reproduction。
+
+## Repository Layout
+
+```text
+OS_Final/
+  AGENTS.md
+  README.md
+  跨平台輕量化模型效能分析與模擬.pdf
+  src/
+    eda_lite/
+      model_loader.py
+      schedulers.py
+      cost_model.py
+      run_simulation.py
+      run_profile_sweep.py
+      analyze_results.py
+    ros2_runtime/
+      analyze_runtime.py
+      build_os_profiles.py
+    ros2_yolo11/
+      analyze_runtime.py
+      detector_node_notes.md
+  data/
+    model_profiles/
+      mobilevit_xxs_simplified.json
+      mobilevit_s_simplified.json
+      edge_cnn_simplified.json
+      edge_cnn_large_simplified.json
+      yolo11n_simplified.json
+      yolo11s_simplified.json
+  experiments/
+    eda_lite/
+      mobilevit_sram_sweep.json
+      mobilevit_profile_sweep.json
+      mobilevit_runtime_aware_sweep.json
+      runtime_os_profiles.example.json
+      edge_profile_sweep.json
+      yolo11_profile_sweep.json
+    ros2/
+      run_fps_sweep.sh
+      run_qos_sweep.sh
+      run_overload_sweep.sh
+      run_yolo11_comparison.sh
+  results/
+    csv/
+    figures/
+  report/
+    ai_interaction_log.md
+  tests/
+```
+
+## Requirements
+
+目前核心 simulator 與 analyzer 只使用 Python 標準函式庫，不需要額外安裝套件。
+
+建議使用：
+
+```bash
+python3 --version
+```
+
+## Run MobileViT Simulation
+
+Single-profile SRAM sweep:
+
+```bash
+python3 -m src.eda_lite.run_simulation \
+  --profile data/model_profiles/mobilevit_xxs_simplified.json \
+  --config experiments/eda_lite/mobilevit_sram_sweep.json \
+  --output results/csv/eda_lite_mobilevit_xxs_sram_sweep.csv
+```
+
+MobileViT-XXS vs MobileViT-S profile sweep:
+
+```bash
+python3 -m src.eda_lite.run_profile_sweep \
+  --config experiments/eda_lite/mobilevit_profile_sweep.json \
+  --output results/csv/eda_lite_mobilevit_profile_sweep.csv
+```
+
+Analyze MobileViT profile sweep:
+
+```bash
+python3 -m src.eda_lite.analyze_results \
+  --input results/csv/eda_lite_mobilevit_profile_sweep.csv \
+  --summary-output results/csv/eda_lite_mobilevit_profile_summary.csv \
+  --figures-dir results/figures/mobilevit_s \
+  --plot-os-profile normal \
+  --plot-model mobilevit_s_simplified_profile_estimate
+```
+
+When a CSV contains multiple models, always pass `--plot-model`.
+
+## ROS2 Runtime Experiments
+
+ROS2 scripts are stored in:
+
+```text
+experiments/ros2/
+```
+
+These scripts assume you already have an external ROS2 workspace that can launch a MobileViT/UAV or equivalent edge inference pipeline. This repository does not download, vendor, or verify that pipeline.
+
+Common environment variables:
+
+```bash
+export ROS2_WORKSPACE="$HOME/ros2-mobilevit-uav-pipeline"
+export ROS2_SETUP="$ROS2_WORKSPACE/install/setup.bash"
+export ROS2_PACKAGE="mobilevit_uav_pipeline"
+export ROS2_LAUNCH_FILE="mobilevit_uav_pipeline.launch.py"
+export DATASET_PATH="$ROS2_WORKSPACE/data/rosbags/uav_flight_video.db3"
+export RESULTS_DIR="$PWD/results/raw/ros2"
+export MODEL_NAME="mobilevit_xxs"
+export MODEL_PATH="mobilevit_xxs"
+```
+
+Run the main sweeps:
+
+```bash
+bash experiments/ros2/run_fps_sweep.sh
+bash experiments/ros2/run_qos_sweep.sh
+bash experiments/ros2/run_overload_sweep.sh
+```
+
+The launch file is expected to accept arguments such as `dataset_path`, `input_fps`, `qos_depth`, `model_path`, `model_name`, `fake_inference_delay_ms`, `deadline_ms`, `resource_profile`, `scenario`, and `output_csv`. If the adapted ROS2 project uses different launch argument names, update the shell scripts.
+
+Do not report runtime data as measured unless CSVs were generated by a real ROS2 run.
+
+## Analyze ROS2 Runtime CSV
+
+After ROS2 experiments produce CSV files in `results/raw/ros2`, generate a runtime summary and figures:
+
+```bash
+python3 -m src.ros2_runtime.analyze_runtime \
+  --input results/raw/ros2 \
+  --summary-output results/csv/ros2_runtime_summary.csv \
+  --figures-dir results/figures/ros2
+```
+
+Recommended ROS2 logger columns:
+
+```text
+scenario,model_name,input_fps,qos_depth,fake_delay_ms,resource_profile,
+frame_id,published_at_ns,received_at_ns,completed_at_ns,
+latency_ms,inference_ms,deadline_miss,dropped,cpu_percent,memory_mb
+```
+
+Notes:
+
+- `latency_ms` may be provided directly.
+- If `latency_ms` is absent, the analyzer can derive latency from `published_at_ns` and `completed_at_ns`.
+- If explicit dropped rows are absent, the analyzer can infer dropped frames from monotonically increasing `frame_id` gaps.
+- If `deadline_miss` is absent or false and `deadline_ms` exists, the analyzer can infer deadline misses from latency.
+
+Runtime summary columns:
+
+- `scenario`
+- `model_name`
+- `input_fps`
+- `qos_depth`
+- `fake_delay_ms`
+- `resource_profile`
+- `total_rows`
+- `processed_frames`
+- `dropped_frames`
+- `drop_rate_pct`
+- `deadline_misses`
+- `deadline_miss_rate_pct`
+- `avg_latency_ms`
+- `p95_latency_ms`
+- `p99_latency_ms`
+- `jitter_ms`
+- `avg_inference_ms`
+- `avg_cpu_percent`
+- `avg_memory_mb`
+
+## Build Runtime OS Profiles
+
+Convert a ROS2 runtime summary into EDA-Lite OS pressure profiles:
+
+```bash
+python3 -m src.ros2_runtime.build_os_profiles \
+  --input results/csv/ros2_runtime_summary.csv \
+  --output experiments/eda_lite/runtime_os_profiles.json \
+  --profile-prefix measured
+```
+
+Then update `experiments/eda_lite/mobilevit_runtime_aware_sweep.json` so `os_profile_file` points to `runtime_os_profiles.json`, and run:
+
+```bash
+python3 -m src.eda_lite.run_simulation \
+  --profile data/model_profiles/mobilevit_xxs_simplified.json \
+  --config experiments/eda_lite/mobilevit_runtime_aware_sweep.json \
+  --output results/csv/eda_lite_mobilevit_runtime_aware_sweep.csv
+```
+
+`mobilevit_runtime_aware_sweep.json` uses `runtime_os_profiles.example.json` by default. That example file is not measured data.
+
+## Model Profile Format
+
+模型 profile 使用簡化 JSON，不代表完整 ONNX graph。
+
+必要欄位：
+
+```json
+{
+  "model_name": "example_model",
+  "layers": [
+    {
+      "name": "conv1",
+      "op_type": "Conv",
+      "input_kb": 64,
+      "output_kb": 48,
+      "weight_kb": 48,
+      "compute_macs": 120000000,
+      "fusible": true
+    }
+  ]
+}
+```
+
+Main profiles:
+
+```text
+data/model_profiles/mobilevit_xxs_simplified.json
+data/model_profiles/mobilevit_s_simplified.json
+```
+
+Legacy optional profiles:
+
+```text
+data/model_profiles/edge_cnn_simplified.json
+data/model_profiles/edge_cnn_large_simplified.json
+data/model_profiles/yolo11n_simplified.json
+data/model_profiles/yolo11s_simplified.json
+```
+
+## Experiment Config Format
+
+範例 config：
+
+```json
+{
+  "sram_kb": [256, 512, 1024, 2048],
+  "schedulers": ["layerwise", "greedy", "dp"],
+  "os_profiles": ["normal", "high_latency", "high_memory_pressure"],
+  "cost_model": {
+    "dram_energy_per_kb": 1.0,
+    "compute_energy_per_mmac": 0.05,
+    "dram_latency_per_kb_ms": 0.001,
+    "compute_latency_per_mmac_ms": 0.01,
+    "subgraph_overhead_ms": 0.02,
+    "weight_tile_kb": 64.0,
+    "alpha": 1.0,
+    "beta": 100.0,
+    "gamma": 50.0,
+    "delta": 75.0,
+    "deadline_ms": 33.3
+  }
+}
+```
+
+Main configs:
+
+```text
+experiments/eda_lite/mobilevit_sram_sweep.json
+experiments/eda_lite/mobilevit_profile_sweep.json
+experiments/eda_lite/mobilevit_runtime_aware_sweep.json
+experiments/eda_lite/runtime_os_profiles.example.json
+```
+
+## Cost Model Notes
+
+EDA-Lite v1 使用簡化成本模型：
+
+```text
+os_aware_total_cost =
+    estimated_energy
+  + alpha * estimated_latency
+  + beta  * deadline_miss_penalty
+  + gamma * memory_pressure_penalty
+  + delta * communication_drop_penalty
+```
+
+其中：
+
+- DRAM traffic 會計入 subgraph 的第一個 input、最後一個 output 與所有 weights。
+- 融合後的中間 activation read/write 會被省略，用來模擬 layer fusion 減少 DRAM traffic。
+- SRAM usage 以 input、output、最大中間 activation 與 weight tile 估計。
+- `drop_rate` 由 ROS2 runtime summary 的 `drop_rate_pct` 轉換而來，用來表示 DDS/UDP/接收端壓力造成的 communication pressure。
+- OS profile 可使用內建 coarse pressure profile，也可由 ROS2 runtime summary 轉成自訂 profile。
+
+OS profile JSON shape:
+
+```json
+{
+  "os_profiles": ["measured_example"],
+  "os_profile_definitions": {
+    "measured_example": {
+      "latency_multiplier": 1.0,
+      "deadline_miss_rate": 0.02,
+      "memory_pressure": 0.45,
+      "drop_rate": 0.03
+    }
+  }
+}
+```
+
+`drop_rate` is optional for backward compatibility and defaults to `0.0`.
+
+## Run Tests
+
+在專案根目錄執行：
+
+```bash
+python3 -m unittest discover -s tests
+```
+
+目前測試會檢查：
+
+- simulator 可以讀取 JSON model profile。
+- MobileViT profiles and profile sweep configs can run.
+- `layerwise`、`greedy`、`dp` scheduling behavior.
+- analysis summary and SVG generation.
+- multi-model analysis requires `--plot-model`.
+- ROS2 runtime analyzer can derive latency from timestamps.
+- ROS2 runtime analyzer can infer dropped frames from `frame_id` gaps.
+- ROS2 runtime summary can convert deadline, memory, and drop pressure into OS profiles.
+- old OS profile JSON without `drop_rate` remains compatible.
+
+## Reporting Rules
+
+- Clearly separate measured ROS2 runtime results from EDA-Lite simulation estimates.
+- Label EDA-Lite energy and latency as estimates or simulation outputs.
+- Do not present estimated energy as real hardware energy.
+- Do not claim this project fully reproduces the original EDA compiler.
+- Explain the simplified memory, energy, MobileViT block, and communication-drop assumptions.
+- Explain that MobileViT profiles are coarse simulation profiles, not exact ONNX model structures.
+- If using `runtime_os_profiles.example.json`, state that it is an example profile, not measured data.
+- Only call ROS2 data "measured" after it comes from actual ROS2 experiment CSVs.
+- YOLO-related content is paused; do not frame the project as a YOLO project unless the direction explicitly changes.
+
+## Development Notes
+
+- 每新增一個可執行功能，同步更新本 README。
+- 保持 EDA-Lite simulator deterministic，方便報告解釋與測試。
+- 清楚區分 runtime measurement 與 simulation estimate。
+- 不宣稱完整重現 EDA paper，只稱為 EDA-inspired lightweight simulator。
+- ROS2 CSV 只有實際跑過 pipeline 後才能標示為 runtime measurement；synthetic 或測試資料不得當作實測結果。
+
+下一階段建議：
+
+1. 撰寫 report methodology 與 limitations。
+2. 實際 ROS2 workspace 準備完成後，執行 FPS/QoS/overload experiments 並保存 raw CSV。
+3. 用真實 ROS2 summary 產生 `runtime_os_profiles.json`，再重跑 `mobilevit_runtime_aware_sweep.json`。
+4. 產生 final figures 並寫 results discussion。

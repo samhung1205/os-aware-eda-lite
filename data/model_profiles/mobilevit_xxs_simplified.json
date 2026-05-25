@@ -1,0 +1,68 @@
+{
+  "model_name": "mobilevit_xxs_simplified_profile_estimate",
+  "layers": [
+    {
+      "name": "stem_conv",
+      "op_type": "ConvStem",
+      "input_kb": 48,
+      "output_kb": 40,
+      "weight_kb": 24,
+      "compute_macs": 45000000,
+      "fusible": true
+    },
+    {
+      "name": "mv2_block_1",
+      "op_type": "InvertedResidual",
+      "input_kb": 40,
+      "output_kb": 44,
+      "weight_kb": 36,
+      "compute_macs": 70000000,
+      "fusible": true
+    },
+    {
+      "name": "mobilevit_block_1_local",
+      "op_type": "LocalConvProjection",
+      "input_kb": 44,
+      "output_kb": 52,
+      "weight_kb": 48,
+      "compute_macs": 90000000,
+      "fusible": true
+    },
+    {
+      "name": "mobilevit_block_1_attention",
+      "op_type": "TransformerAttention",
+      "input_kb": 52,
+      "output_kb": 52,
+      "weight_kb": 96,
+      "compute_macs": 160000000,
+      "fusible": false
+    },
+    {
+      "name": "mobilevit_block_2_local",
+      "op_type": "LocalConvProjection",
+      "input_kb": 52,
+      "output_kb": 60,
+      "weight_kb": 64,
+      "compute_macs": 120000000,
+      "fusible": true
+    },
+    {
+      "name": "mobilevit_block_2_attention",
+      "op_type": "TransformerAttention",
+      "input_kb": 60,
+      "output_kb": 60,
+      "weight_kb": 128,
+      "compute_macs": 240000000,
+      "fusible": false
+    },
+    {
+      "name": "projection_head",
+      "op_type": "ClassifierHead",
+      "input_kb": 60,
+      "output_kb": 16,
+      "weight_kb": 96,
+      "compute_macs": 50000000,
+      "fusible": false
+    }
+  ]
+}

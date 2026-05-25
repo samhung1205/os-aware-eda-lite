@@ -1,0 +1,20 @@
+{
+  "os_profiles": [
+    "runtime_normal_20fps_q5_d0",
+    "runtime_overload_20fps_q5_d80"
+  ],
+  "os_profile_definitions": {
+    "runtime_normal_20fps_q5_d0": {
+      "latency_multiplier": 1.0,
+      "deadline_miss_rate": 0.02,
+      "memory_pressure": 0.45,
+      "drop_rate": 0.03
+    },
+    "runtime_overload_20fps_q5_d80": {
+      "latency_multiplier": 2.4,
+      "deadline_miss_rate": 0.35,
+      "memory_pressure": 0.62,
+      "drop_rate": 0.28
+    }
+  }
+}

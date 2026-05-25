@@ -1,0 +1,73 @@
+model_name,scheduler,sram_kb,os_profile,num_subgraphs,max_fusion_depth,peak_sram_kb,dram_traffic_kb,estimated_energy,estimated_latency_ms,os_aware_total_cost,subgraphs
+edge_cnn_simplified_profile_estimate,layerwise,256,normal,6,1,184,1072,1109,8.592,1124.78,input_stem | feature_block_1 | downsample_block | feature_block_2 | projection | classifier_head
+edge_cnn_simplified_profile_estimate,greedy,256,normal,2,5,224,656,693,8.096,709.846,input_stem+feature_block_1+downsample_block+feature_block_2+projection | classifier_head
+edge_cnn_simplified_profile_estimate,dp,256,normal,2,5,224,656,693,8.096,709.846,input_stem+feature_block_1+downsample_block+feature_block_2+projection | classifier_head
+edge_cnn_simplified_profile_estimate,layerwise,256,high_latency,6,1,184,1072,1109,8.592,1133.18,input_stem | feature_block_1 | downsample_block | feature_block_2 | projection | classifier_head
+edge_cnn_simplified_profile_estimate,greedy,256,high_latency,2,5,224,656,693,8.096,719.242,input_stem+feature_block_1+downsample_block+feature_block_2+projection | classifier_head
+edge_cnn_simplified_profile_estimate,dp,256,high_latency,2,5,224,656,693,8.096,719.242,input_stem+feature_block_1+downsample_block+feature_block_2+projection | classifier_head
+edge_cnn_simplified_profile_estimate,layerwise,256,high_memory_pressure,6,1,184,1072,1109,8.592,1149,input_stem | feature_block_1 | downsample_block | feature_block_2 | projection | classifier_head
+edge_cnn_simplified_profile_estimate,greedy,256,high_memory_pressure,2,5,224,656,693,8.096,739.093,input_stem+feature_block_1+downsample_block+feature_block_2+projection | classifier_head
+edge_cnn_simplified_profile_estimate,dp,256,high_memory_pressure,2,5,224,656,693,8.096,739.093,input_stem+feature_block_1+downsample_block+feature_block_2+projection | classifier_head
+edge_cnn_simplified_profile_estimate,layerwise,512,normal,6,1,184,1072,1109,8.592,1121.19,input_stem | feature_block_1 | downsample_block | feature_block_2 | projection | classifier_head
+edge_cnn_simplified_profile_estimate,greedy,512,normal,2,5,224,656,693,8.096,705.471,input_stem+feature_block_1+downsample_block+feature_block_2+projection | classifier_head
+edge_cnn_simplified_profile_estimate,dp,512,normal,2,5,224,656,693,8.096,705.471,input_stem+feature_block_1+downsample_block+feature_block_2+projection | classifier_head
+edge_cnn_simplified_profile_estimate,layerwise,512,high_latency,6,1,184,1072,1109,8.592,1126.89,input_stem | feature_block_1 | downsample_block | feature_block_2 | projection | classifier_head
+edge_cnn_simplified_profile_estimate,greedy,512,high_latency,2,5,224,656,693,8.096,711.586,input_stem+feature_block_1+downsample_block+feature_block_2+projection | classifier_head
+edge_cnn_simplified_profile_estimate,dp,512,high_latency,2,5,224,656,693,8.096,711.586,input_stem+feature_block_1+downsample_block+feature_block_2+projection | classifier_head
+edge_cnn_simplified_profile_estimate,layerwise,512,high_memory_pressure,6,1,184,1072,1109,8.592,1133.72,input_stem | feature_block_1 | downsample_block | feature_block_2 | projection | classifier_head
+edge_cnn_simplified_profile_estimate,greedy,512,high_memory_pressure,2,5,224,656,693,8.096,720.499,input_stem+feature_block_1+downsample_block+feature_block_2+projection | classifier_head
+edge_cnn_simplified_profile_estimate,dp,512,high_memory_pressure,2,5,224,656,693,8.096,720.499,input_stem+feature_block_1+downsample_block+feature_block_2+projection | classifier_head
+edge_cnn_simplified_profile_estimate,layerwise,1024,normal,6,1,184,1072,1109,8.592,1119.39,input_stem | feature_block_1 | downsample_block | feature_block_2 | projection | classifier_head
+edge_cnn_simplified_profile_estimate,greedy,1024,normal,2,5,224,656,693,8.096,703.284,input_stem+feature_block_1+downsample_block+feature_block_2+projection | classifier_head
+edge_cnn_simplified_profile_estimate,dp,1024,normal,2,5,224,656,693,8.096,703.284,input_stem+feature_block_1+downsample_block+feature_block_2+projection | classifier_head
+edge_cnn_simplified_profile_estimate,layerwise,1024,high_latency,6,1,184,1072,1109,8.592,1123.74,input_stem | feature_block_1 | downsample_block | feature_block_2 | projection | classifier_head
+edge_cnn_simplified_profile_estimate,greedy,1024,high_latency,2,5,224,656,693,8.096,707.758,input_stem+feature_block_1+downsample_block+feature_block_2+projection | classifier_head
+edge_cnn_simplified_profile_estimate,dp,1024,high_latency,2,5,224,656,693,8.096,707.758,input_stem+feature_block_1+downsample_block+feature_block_2+projection | classifier_head
+edge_cnn_simplified_profile_estimate,layerwise,1024,high_memory_pressure,6,1,184,1072,1109,8.592,1126.09,input_stem | feature_block_1 | downsample_block | feature_block_2 | projection | classifier_head
+edge_cnn_simplified_profile_estimate,greedy,1024,high_memory_pressure,2,5,224,656,693,8.096,711.202,input_stem+feature_block_1+downsample_block+feature_block_2+projection | classifier_head
+edge_cnn_simplified_profile_estimate,dp,1024,high_memory_pressure,2,5,224,656,693,8.096,711.202,input_stem+feature_block_1+downsample_block+feature_block_2+projection | classifier_head
+edge_cnn_simplified_profile_estimate,layerwise,2048,normal,6,1,184,1072,1109,8.592,1118.49,input_stem | feature_block_1 | downsample_block | feature_block_2 | projection | classifier_head
+edge_cnn_simplified_profile_estimate,greedy,2048,normal,2,5,224,656,693,8.096,702.19,input_stem+feature_block_1+downsample_block+feature_block_2+projection | classifier_head
+edge_cnn_simplified_profile_estimate,dp,2048,normal,2,5,224,656,693,8.096,702.19,input_stem+feature_block_1+downsample_block+feature_block_2+projection | classifier_head
+edge_cnn_simplified_profile_estimate,layerwise,2048,high_latency,6,1,184,1072,1109,8.592,1122.17,input_stem | feature_block_1 | downsample_block | feature_block_2 | projection | classifier_head
+edge_cnn_simplified_profile_estimate,greedy,2048,high_latency,2,5,224,656,693,8.096,705.844,input_stem+feature_block_1+downsample_block+feature_block_2+projection | classifier_head
+edge_cnn_simplified_profile_estimate,dp,2048,high_latency,2,5,224,656,693,8.096,705.844,input_stem+feature_block_1+downsample_block+feature_block_2+projection | classifier_head
+edge_cnn_simplified_profile_estimate,layerwise,2048,high_memory_pressure,6,1,184,1072,1109,8.592,1122.27,input_stem | feature_block_1 | downsample_block | feature_block_2 | projection | classifier_head
+edge_cnn_simplified_profile_estimate,greedy,2048,high_memory_pressure,2,5,224,656,693,8.096,706.554,input_stem+feature_block_1+downsample_block+feature_block_2+projection | classifier_head
+edge_cnn_simplified_profile_estimate,dp,2048,high_memory_pressure,2,5,224,656,693,8.096,706.554,input_stem+feature_block_1+downsample_block+feature_block_2+projection | classifier_head
+edge_cnn_large_simplified_profile_estimate,layerwise,256,normal,7,1,232,2168,2253,19.308,2281.37,input_stem | feature_block_1 | downsample_block | feature_block_2 | feature_block_3 | projection | classifier_head
+edge_cnn_large_simplified_profile_estimate,greedy,256,normal,6,2,256,2056,2141,19.176,2170.18,input_stem+feature_block_1 | downsample_block | feature_block_2 | feature_block_3 | projection | classifier_head
+edge_cnn_large_simplified_profile_estimate,dp,256,normal,6,2,256,2056,2141,19.176,2170.18,input_stem+feature_block_1 | downsample_block | feature_block_2 | feature_block_3 | projection | classifier_head
+edge_cnn_large_simplified_profile_estimate,layerwise,256,high_latency,7,1,232,2168,2253,19.308,2294.93,input_stem | feature_block_1 | downsample_block | feature_block_2 | feature_block_3 | projection | classifier_head
+edge_cnn_large_simplified_profile_estimate,greedy,256,high_latency,6,2,256,2056,2141,19.176,2184.39,input_stem+feature_block_1 | downsample_block | feature_block_2 | feature_block_3 | projection | classifier_head
+edge_cnn_large_simplified_profile_estimate,dp,256,high_latency,6,2,256,2056,2141,19.176,2184.39,input_stem+feature_block_1 | downsample_block | feature_block_2 | feature_block_3 | projection | classifier_head
+edge_cnn_large_simplified_profile_estimate,layerwise,256,high_memory_pressure,7,1,232,2168,2253,19.308,2312.75,input_stem | feature_block_1 | downsample_block | feature_block_2 | feature_block_3 | projection | classifier_head
+edge_cnn_large_simplified_profile_estimate,greedy,256,high_memory_pressure,6,2,256,2056,2141,19.176,2204.59,input_stem+feature_block_1 | downsample_block | feature_block_2 | feature_block_3 | projection | classifier_head
+edge_cnn_large_simplified_profile_estimate,dp,256,high_memory_pressure,6,2,256,2056,2141,19.176,2204.59,input_stem+feature_block_1 | downsample_block | feature_block_2 | feature_block_3 | projection | classifier_head
+edge_cnn_large_simplified_profile_estimate,layerwise,512,normal,7,1,232,2168,2253,19.308,2276.84,input_stem | feature_block_1 | downsample_block | feature_block_2 | feature_block_3 | projection | classifier_head
+edge_cnn_large_simplified_profile_estimate,greedy,512,normal,2,6,272,1416,1501,18.456,1524.77,input_stem+feature_block_1+downsample_block+feature_block_2+feature_block_3+projection | classifier_head
+edge_cnn_large_simplified_profile_estimate,dp,512,normal,2,6,272,1416,1501,18.456,1524.77,input_stem+feature_block_1+downsample_block+feature_block_2+feature_block_3+projection | classifier_head
+edge_cnn_large_simplified_profile_estimate,layerwise,512,high_latency,7,1,232,2168,2253,19.308,2287,input_stem | feature_block_1 | downsample_block | feature_block_2 | feature_block_3 | projection | classifier_head
+edge_cnn_large_simplified_profile_estimate,greedy,512,high_latency,2,6,272,1416,1501,18.456,1535.21,input_stem+feature_block_1+downsample_block+feature_block_2+feature_block_3+projection | classifier_head
+edge_cnn_large_simplified_profile_estimate,dp,512,high_latency,2,6,272,1416,1501,18.456,1535.21,input_stem+feature_block_1+downsample_block+feature_block_2+feature_block_3+projection | classifier_head
+edge_cnn_large_simplified_profile_estimate,layerwise,512,high_memory_pressure,7,1,232,2168,2253,19.308,2293.5,input_stem | feature_block_1 | downsample_block | feature_block_2 | feature_block_3 | projection | classifier_head
+edge_cnn_large_simplified_profile_estimate,greedy,512,high_memory_pressure,2,6,272,1416,1501,18.456,1543.88,input_stem+feature_block_1+downsample_block+feature_block_2+feature_block_3+projection | classifier_head
+edge_cnn_large_simplified_profile_estimate,dp,512,high_memory_pressure,2,6,272,1416,1501,18.456,1543.88,input_stem+feature_block_1+downsample_block+feature_block_2+feature_block_3+projection | classifier_head
+edge_cnn_large_simplified_profile_estimate,layerwise,1024,normal,7,1,232,2168,2253,19.308,2274.57,input_stem | feature_block_1 | downsample_block | feature_block_2 | feature_block_3 | projection | classifier_head
+edge_cnn_large_simplified_profile_estimate,greedy,1024,normal,2,6,272,1416,1501,18.456,1522.11,input_stem+feature_block_1+downsample_block+feature_block_2+feature_block_3+projection | classifier_head
+edge_cnn_large_simplified_profile_estimate,dp,1024,normal,2,6,272,1416,1501,18.456,1522.11,input_stem+feature_block_1+downsample_block+feature_block_2+feature_block_3+projection | classifier_head
+edge_cnn_large_simplified_profile_estimate,layerwise,1024,high_latency,7,1,232,2168,2253,19.308,2283.03,input_stem | feature_block_1 | downsample_block | feature_block_2 | feature_block_3 | projection | classifier_head
+edge_cnn_large_simplified_profile_estimate,greedy,1024,high_latency,2,6,272,1416,1501,18.456,1530.56,input_stem+feature_block_1+downsample_block+feature_block_2+feature_block_3+projection | classifier_head
+edge_cnn_large_simplified_profile_estimate,dp,1024,high_latency,2,6,272,1416,1501,18.456,1530.56,input_stem+feature_block_1+downsample_block+feature_block_2+feature_block_3+projection | classifier_head
+edge_cnn_large_simplified_profile_estimate,layerwise,1024,high_memory_pressure,7,1,232,2168,2253,19.308,2283.87,input_stem | feature_block_1 | downsample_block | feature_block_2 | feature_block_3 | projection | classifier_head
+edge_cnn_large_simplified_profile_estimate,greedy,1024,high_memory_pressure,2,6,272,1416,1501,18.456,1532.59,input_stem+feature_block_1+downsample_block+feature_block_2+feature_block_3+projection | classifier_head
+edge_cnn_large_simplified_profile_estimate,dp,1024,high_memory_pressure,2,6,272,1416,1501,18.456,1532.59,input_stem+feature_block_1+downsample_block+feature_block_2+feature_block_3+projection | classifier_head
+edge_cnn_large_simplified_profile_estimate,layerwise,2048,normal,7,1,232,2168,2253,19.308,2273.44,input_stem | feature_block_1 | downsample_block | feature_block_2 | feature_block_3 | projection | classifier_head
+edge_cnn_large_simplified_profile_estimate,greedy,2048,normal,2,6,272,1416,1501,18.456,1520.78,input_stem+feature_block_1+downsample_block+feature_block_2+feature_block_3+projection | classifier_head
+edge_cnn_large_simplified_profile_estimate,dp,2048,normal,2,6,272,1416,1501,18.456,1520.78,input_stem+feature_block_1+downsample_block+feature_block_2+feature_block_3+projection | classifier_head
+edge_cnn_large_simplified_profile_estimate,layerwise,2048,high_latency,7,1,232,2168,2253,19.308,2281.05,input_stem | feature_block_1 | downsample_block | feature_block_2 | feature_block_3 | projection | classifier_head
+edge_cnn_large_simplified_profile_estimate,greedy,2048,high_latency,2,6,272,1416,1501,18.456,1528.24,input_stem+feature_block_1+downsample_block+feature_block_2+feature_block_3+projection | classifier_head
+edge_cnn_large_simplified_profile_estimate,dp,2048,high_latency,2,6,272,1416,1501,18.456,1528.24,input_stem+feature_block_1+downsample_block+feature_block_2+feature_block_3+projection | classifier_head
+edge_cnn_large_simplified_profile_estimate,layerwise,2048,high_memory_pressure,7,1,232,2168,2253,19.308,2279.05,input_stem | feature_block_1 | downsample_block | feature_block_2 | feature_block_3 | projection | classifier_head
+edge_cnn_large_simplified_profile_estimate,greedy,2048,high_memory_pressure,2,6,272,1416,1501,18.456,1526.95,input_stem+feature_block_1+downsample_block+feature_block_2+feature_block_3+projection | classifier_head
+edge_cnn_large_simplified_profile_estimate,dp,2048,high_memory_pressure,2,6,272,1416,1501,18.456,1526.95,input_stem+feature_block_1+downsample_block+feature_block_2+feature_block_3+projection | classifier_head

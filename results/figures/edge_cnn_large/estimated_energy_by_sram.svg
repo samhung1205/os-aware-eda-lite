@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="560" viewBox="0 0 920 560" role="img">
+<style>text{font-family:Arial,sans-serif;fill:#1f2933}.axis{stroke:#334155;stroke-width:1.2}.grid{stroke:#d7dee8;stroke-width:1}.label{font-size:14px}.tick{font-size:12px;fill:#52616f}.title{font-size:20px;font-weight:700}.legend{font-size:13px}</style>
+<rect x="0" y="0" width="920" height="560" fill="#ffffff"/>
+<text class="title" x="460.0" y="34" text-anchor="middle">edge_cnn_large_simplified_profile_estimate - Estimated energy (normal)</text>
+<line class="grid" x1="88" y1="478.0" x2="892" y2="478.0"/>
+<text class="tick" x="78" y="482.0" text-anchor="end">0</text>
+<line class="grid" x1="88" y1="376.5" x2="892" y2="376.5"/>
+<text class="tick" x="78" y="380.5" text-anchor="end">563.25</text>
+<line class="grid" x1="88" y1="275.0" x2="892" y2="275.0"/>
+<text class="tick" x="78" y="279.0" text-anchor="end">1126.5</text>
+<line class="grid" x1="88" y1="173.5" x2="892" y2="173.5"/>
+<text class="tick" x="78" y="177.5" text-anchor="end">1689.75</text>
+<line class="grid" x1="88" y1="72.0" x2="892" y2="72.0"/>
+<text class="tick" x="78" y="76.0" text-anchor="end">2253</text>
+<line class="axis" x1="88" y1="478" x2="892" y2="478"/>
+<line class="axis" x1="88" y1="72" x2="88" y2="478"/>
+<line class="axis" x1="88.0" y1="478" x2="88.0" y2="483"/>
+<text class="tick" x="88.0" y="502" text-anchor="middle">256</text>
+<line class="axis" x1="202.9" y1="478" x2="202.9" y2="483"/>
+<text class="tick" x="202.9" y="502" text-anchor="middle">512</text>
+<line class="axis" x1="432.6" y1="478" x2="432.6" y2="483"/>
+<text class="tick" x="432.6" y="502" text-anchor="middle">1024</text>
+<line class="axis" x1="892.0" y1="478" x2="892.0" y2="483"/>
+<text class="tick" x="892.0" y="502" text-anchor="middle">2048</text>
+<polyline fill="none" stroke="#2f6fbb" stroke-width="2.4" points="88.0,72.0 202.9,72.0 432.6,72.0 892.0,72.0"/>
+<circle cx="88.0" cy="72.0" r="4" fill="#2f6fbb"/>
+<circle cx="202.9" cy="72.0" r="4" fill="#2f6fbb"/>
+<circle cx="432.6" cy="72.0" r="4" fill="#2f6fbb"/>
+<circle cx="892.0" cy="72.0" r="4" fill="#2f6fbb"/>
+<polyline fill="none" stroke="#c4472e" stroke-width="2.4" points="88.0,92.2 202.9,207.5 432.6,207.5 892.0,207.5"/>
+<circle cx="88.0" cy="92.2" r="4" fill="#c4472e"/>
+<circle cx="202.9" cy="207.5" r="4" fill="#c4472e"/>
+<circle cx="432.6" cy="207.5" r="4" fill="#c4472e"/>
+<circle cx="892.0" cy="207.5" r="4" fill="#c4472e"/>
+<polyline fill="none" stroke="#3d8f5a" stroke-width="2.4" points="88.0,92.2 202.9,207.5 432.6,207.5 892.0,207.5"/>
+<circle cx="88.0" cy="92.2" r="4" fill="#3d8f5a"/>
+<circle cx="202.9" cy="207.5" r="4" fill="#3d8f5a"/>
+<circle cx="432.6" cy="207.5" r="4" fill="#3d8f5a"/>
+<circle cx="892.0" cy="207.5" r="4" fill="#3d8f5a"/>
+<rect x="98" y="80" width="14" height="14" fill="#2f6fbb"/>
+<text class="legend" x="120" y="92">layerwise</text>
+<rect x="98" y="102" width="14" height="14" fill="#c4472e"/>
+<text class="legend" x="120" y="114">greedy</text>
+<rect x="98" y="124" width="14" height="14" fill="#3d8f5a"/>
+<text class="legend" x="120" y="136">dp</text>
+<text class="label" x="460.0" y="536" text-anchor="middle">SRAM (KB)</text>
+<text class="label" transform="translate(22 280.0) rotate(-90)" text-anchor="middle">Estimated energy</text>
+</svg>
