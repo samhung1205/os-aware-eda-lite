@@ -203,7 +203,7 @@ def write_metric_svgs(
         svg = build_line_chart_svg(
             rows=selected_rows,
             metric_name=metric_name,
-            title=f"{plot_model_name} - {y_label} ({os_profile})",
+            title=f"{plot_model_name} - {y_label}",
             x_label="SRAM (KB)",
             y_label=y_label,
         )
@@ -301,18 +301,29 @@ def build_line_chart_svg(
             f'text-anchor="middle">{_format_number(x_value)}</text>'
         )
 
+    scheduler_styles = {
+        "layerwise": {"dash": "", "r": 6, "opacity": 0.9},
+        "greedy": {"dash": "6,4", "r": 5, "opacity": 0.8},
+        "dp": {"dash": "2,2", "r": 4, "opacity": 1.0},
+    }
+
     for scheduler, points in series.items():
         color = SCHEDULER_COLORS.get(scheduler, "#64748b")
+        style = scheduler_styles.get(scheduler, {"dash": "", "r": 4, "opacity": 0.8})
+        dash_attr = f' stroke-dasharray="{style["dash"]}"' if style["dash"] else ""
+        
         coordinate_pairs = " ".join(
             f"{x_pos(x):.1f},{y_pos(y):.1f}" for x, y in sorted(points)
         )
         elements.append(
             f'<polyline fill="none" stroke="{color}" stroke-width="2.4" '
+            f'stroke-opacity="{style["opacity"]}"{dash_attr} '
             f'points="{coordinate_pairs}"/>'
         )
         for x, y in sorted(points):
             elements.append(
-                f'<circle cx="{x_pos(x):.1f}" cy="{y_pos(y):.1f}" r="4" fill="{color}"/>'
+                f'<circle cx="{x_pos(x):.1f}" cy="{y_pos(y):.1f}" r="{style["r"]}" '
+                f'fill="{color}" fill-opacity="{style["opacity"]}"/>'
             )
 
     legend_x = left + 10

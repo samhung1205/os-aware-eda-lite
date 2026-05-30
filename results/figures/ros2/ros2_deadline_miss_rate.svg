@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="560" viewBox="0 0 980 560" role="img">
+<style>text{font-family:Arial,sans-serif;fill:#1f2933}.axis{stroke:#334155;stroke-width:1.2}.grid{stroke:#d7dee8;stroke-width:1}.title{font-size:20px;font-weight:700}.tick{font-size:12px;fill:#52616f}.label{font-size:12px}</style>
+<rect x="0" y="0" width="980" height="560" fill="#ffffff"/>
+<text class="title" x="490.0" y="34" text-anchor="middle">Deadline miss rate (%)</text>
+<line class="grid" x1="84" y1="412.0" x2="948" y2="412.0"/>
+<text class="tick" x="74" y="416.0" text-anchor="end">0</text>
+<line class="grid" x1="84" y1="327.0" x2="948" y2="327.0"/>
+<text class="tick" x="74" y="331.0" text-anchor="end">25</text>
+<line class="grid" x1="84" y1="242.0" x2="948" y2="242.0"/>
+<text class="tick" x="74" y="246.0" text-anchor="end">50</text>
+<line class="grid" x1="84" y1="157.0" x2="948" y2="157.0"/>
+<text class="tick" x="74" y="161.0" text-anchor="end">75</text>
+<line class="grid" x1="84" y1="72.0" x2="948" y2="72.0"/>
+<text class="tick" x="74" y="76.0" text-anchor="end">100</text>
+<line class="axis" x1="84" y1="412" x2="948" y2="412"/>
+<line class="axis" x1="84" y1="72" x2="84" y2="412"/>
+<rect x="96.0" y="410.8" width="26.7" height="1.2" fill="#3d8f5a"/>
+<text class="tick" x="109.4" y="404.8" text-anchor="middle">0.36</text>
+<text class="label" transform="translate(109.4 430) rotate(45)" text-anchor="start">fps s 5.0fps q5 d0</text>
+<rect x="134.7" y="412.0" width="26.7" height="0.0" fill="#3d8f5a"/>
+<text class="tick" x="148.1" y="406.0" text-anchor="middle">0.00</text>
+<text class="label" transform="translate(148.1 430) rotate(45)" text-anchor="start">fps s 10.0fps q5 d0</text>
+<rect x="173.5" y="410.8" width="26.7" height="1.2" fill="#3d8f5a"/>
+<text class="tick" x="186.8" y="404.8" text-anchor="middle">0.35</text>
+<text class="label" transform="translate(186.8 430) rotate(45)" text-anchor="start">fps s 20.0fps q5 d0</text>
+<rect x="212.2" y="397.9" width="26.7" height="14.1" fill="#3d8f5a"/>
+<text class="tick" x="225.5" y="391.9" text-anchor="middle">4.15</text>
+<text class="label" transform="translate(225.5 430) rotate(45)" text-anchor="start">fps s 30.0fps q5 d0</text>
+<rect x="250.9" y="412.0" width="26.7" height="0.0" fill="#3d8f5a"/>
+<text class="tick" x="264.3" y="406.0" text-anchor="middle">0.00</text>
+<text class="label" transform="translate(264.3 430) rotate(45)" text-anchor="start">fps xxs 5.0fps q5 d0</text>
+<rect x="289.6" y="412.0" width="26.7" height="0.0" fill="#3d8f5a"/>
+<text class="tick" x="303.0" y="406.0" text-anchor="middle">0.00</text>
+<text class="label" transform="translate(303.0 430) rotate(45)" text-anchor="start">fps xxs 10.0fps q5 d0</text>
+<rect x="328.4" y="412.0" width="26.7" height="0.0" fill="#3d8f5a"/>
+<text class="tick" x="341.7" y="406.0" text-anchor="middle">0.00</text>
+<text class="label" transform="translate(341.7 430) rotate(45)" text-anchor="start">fps xxs 20.0fps q5 d0</text>
+<rect x="367.1" y="412.0" width="26.7" height="0.0" fill="#3d8f5a"/>
+<text class="tick" x="380.5" y="406.0" text-anchor="middle">0.00</text>
+<text class="label" transform="translate(380.5 430) rotate(45)" text-anchor="start">fps xxs 30.0fps q5 d0</text>
+<rect x="405.8" y="412.0" width="26.7" height="0.0" fill="#3d8f5a"/>
+<text class="tick" x="419.2" y="406.0" text-anchor="middle">0.00</text>
+<text class="label" transform="translate(419.2 430) rotate(45)" text-anchor="start">overload s 20.0fps q5 d0</text>
+<rect x="444.5" y="324.1" width="26.7" height="87.9" fill="#3d8f5a"/>
+<text class="tick" x="457.9" y="318.1" text-anchor="middle">25.85</text>
+<text class="label" transform="translate(457.9 430) rotate(45)" text-anchor="start">overload s 20.0fps q5 d30</text>
+<rect x="483.3" y="72.0" width="26.7" height="340.0" fill="#3d8f5a"/>
+<text class="tick" x="496.6" y="66.0" text-anchor="middle">100.00</text>
+<text class="label" transform="translate(496.6 430) rotate(45)" text-anchor="start">overload s 20.0fps q5 d80</text>
+<rect x="522.0" y="72.0" width="26.7" height="340.0" fill="#3d8f5a"/>
+<text class="tick" x="535.4" y="66.0" text-anchor="middle">100.00</text>
+<text class="label" transform="translate(535.4 430) rotate(45)" text-anchor="start">overload s 20.0fps q5 d150</text>
+<rect x="560.7" y="412.0" width="26.7" height="0.0" fill="#3d8f5a"/>
+<text class="tick" x="574.1" y="406.0" text-anchor="middle">0.00</text>
+<text class="label" transform="translate(574.1 430) rotate(45)" text-anchor="start">overload xxs 20.0fps q5 d0</text>
+<rect x="599.5" y="412.0" width="26.7" height="0.0" fill="#3d8f5a"/>
+<text class="tick" x="612.8" y="406.0" text-anchor="middle">0.00</text>
+<text class="label" transform="translate(612.8 430) rotate(45)" text-anchor="start">overload xxs 20.0fps q5 d30</text>
+<rect x="638.2" y="72.0" width="26.7" height="340.0" fill="#3d8f5a"/>
+<text class="tick" x="651.5" y="66.0" text-anchor="middle">100.00</text>
+<text class="label" transform="translate(651.5 430) rotate(45)" text-anchor="start">overload xxs 20.0fps q5 d80</text>
+<rect x="676.9" y="72.0" width="26.7" height="340.0" fill="#3d8f5a"/>
+<text class="tick" x="690.3" y="66.0" text-anchor="middle">100.00</text>
+<text class="label" transform="translate(690.3 430) rotate(45)" text-anchor="start">overload xxs 20.0fps q5 d150</text>
+<rect x="715.6" y="405.7" width="26.7" height="6.3" fill="#3d8f5a"/>
+<text class="tick" x="729.0" y="399.7" text-anchor="middle">1.86</text>
+<text class="label" transform="translate(729.0 430) rotate(45)" text-anchor="start">qos s 20.0fps q1 d0</text>
+<rect x="754.4" y="412.0" width="26.7" height="0.0" fill="#3d8f5a"/>
+<text class="tick" x="767.7" y="406.0" text-anchor="middle">0.00</text>
+<text class="label" transform="translate(767.7 430) rotate(45)" text-anchor="start">qos s 20.0fps q5 d0</text>
+<rect x="793.1" y="407.9" width="26.7" height="4.1" fill="#3d8f5a"/>
+<text class="tick" x="806.5" y="401.9" text-anchor="middle">1.20</text>
+<text class="label" transform="translate(806.5 430) rotate(45)" text-anchor="start">qos s 20.0fps q10 d0</text>
+<rect x="831.8" y="412.0" width="26.7" height="0.0" fill="#3d8f5a"/>
+<text class="tick" x="845.2" y="406.0" text-anchor="middle">0.00</text>
+<text class="label" transform="translate(845.2 430) rotate(45)" text-anchor="start">qos xxs 20.0fps q1 d0</text>
+<rect x="870.5" y="412.0" width="26.7" height="0.0" fill="#3d8f5a"/>
+<text class="tick" x="883.9" y="406.0" text-anchor="middle">0.00</text>
+<text class="label" transform="translate(883.9 430) rotate(45)" text-anchor="start">qos xxs 20.0fps q5 d0</text>
+<rect x="909.3" y="412.0" width="26.7" height="0.0" fill="#3d8f5a"/>
+<text class="tick" x="922.6" y="406.0" text-anchor="middle">0.00</text>
+<text class="label" transform="translate(922.6 430) rotate(45)" text-anchor="start">qos xxs 20.0fps q10 d0</text>
+</svg>

@@ -1,7 +1,7 @@
 {
   "sram_kb": [256, 512, 1024, 2048],
   "schedulers": ["layerwise", "greedy", "dp"],
-  "os_profile_file": "runtime_os_profiles.example.json",
+  "os_profile_file": "runtime_os_profiles.json",
   "cost_model": {
     "dram_energy_per_kb": 1.0,
     "compute_energy_per_mmac": 0.05,

@@ -23,7 +23,8 @@ mkdir -p "$RESULTS_DIR"
 
 for fps in $FPS_VALUES; do
   output_csv="$RESULTS_DIR/fps_sweep_${MODEL_NAME}_${fps}fps_qos${QOS_DEPTH}.csv"
-  ros2 launch "$ROS2_PACKAGE" "$ROS2_LAUNCH_FILE" \
+  echo "Running FPS sweep: ${fps} FPS for 60 seconds..."
+  timeout 60s ros2 launch src/ros2_uav_pipeline/launch/mobilevit_uav_pipeline.launch.py \
     dataset_path:="$DATASET_PATH" \
     input_fps:="$fps" \
     qos_depth:="$QOS_DEPTH" \
@@ -33,5 +34,5 @@ for fps in $FPS_VALUES; do
     deadline_ms:="$DEADLINE_MS" \
     resource_profile:="$RESOURCE_PROFILE" \
     scenario:="fps_sweep" \
-    output_csv:="$output_csv"
+    output_csv:="$output_csv" || true
 done

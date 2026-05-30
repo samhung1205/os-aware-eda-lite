@@ -113,8 +113,14 @@ def build_runtime_summary(rows: Iterable[RuntimeRow]) -> list[dict[str, str]]:
     for row in rows:
         groups.setdefault(row.group_key(), []).append(row)
 
+    def sort_key(k: tuple[str, str, str, str, str, str]):
+        fps = float(k[2]) if k[2].replace(".", "", 1).isdigit() else k[2]
+        qos = float(k[3]) if k[3].isdigit() else k[3]
+        delay = float(k[4]) if k[4].isdigit() else k[4]
+        return (k[0], k[1], fps, qos, delay, k[5])
+
     summary_rows: list[dict[str, str]] = []
-    for key in sorted(groups):
+    for key in sorted(groups, key=sort_key):
         group_rows = groups[key]
         processed_rows = [
             row for row in group_rows if not row.dropped and row.latency_ms is not None
@@ -255,7 +261,7 @@ def build_bar_chart_svg(rows: list[dict[str, str]], metric_name: str, title: str
         )
         elements.append(
             f'<text class="tick" x="{x + bar_width / 2:.1f}" y="{y - 6:.1f}" '
-            f'text-anchor="middle">{_format_number(value)}</text>'
+            f'text-anchor="middle">{value:.2f}</text>'
         )
         elements.append(
             f'<text class="label" transform="translate({x + bar_width / 2:.1f} '
@@ -326,10 +332,9 @@ def _expand_input_paths(input_paths: Iterable[str | Path]) -> list[Path]:
 
 
 def _group_label(row: dict[str, str]) -> str:
-    return (
-        f"{row['scenario']} {row['model_name']} "
-        f"{row['input_fps']}fps q{row['qos_depth']} d{row['fake_delay_ms']}"
-    )
+    model = row['model_name'].replace("mobilevit_", "")
+    scenario = row['scenario'].replace("_sweep", "")
+    return f"{scenario} {model} {row['input_fps']}fps q{row['qos_depth']} d{row['fake_delay_ms']}"
 
 
 def _text_or_default(value: str | None, default: str) -> str:

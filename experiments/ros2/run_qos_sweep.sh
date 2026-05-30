@@ -21,17 +21,18 @@ fi
 
 mkdir -p "$RESULTS_DIR"
 
-for qos_depth in $QOS_VALUES; do
-  output_csv="$RESULTS_DIR/qos_sweep_${MODEL_NAME}_${INPUT_FPS}fps_qos${qos_depth}.csv"
-  ros2 launch "$ROS2_PACKAGE" "$ROS2_LAUNCH_FILE" \
+for qos in $QOS_VALUES; do
+  output_csv="$RESULTS_DIR/qos_sweep_${MODEL_NAME}_${INPUT_FPS}fps_qos${qos}.csv"
+  echo "Running QoS sweep: QoS depth ${qos} for 60 seconds..."
+  timeout 60s ros2 launch src/ros2_uav_pipeline/launch/mobilevit_uav_pipeline.launch.py \
     dataset_path:="$DATASET_PATH" \
     input_fps:="$INPUT_FPS" \
-    qos_depth:="$qos_depth" \
+    qos_depth:="$qos" \
     model_path:="$MODEL_PATH" \
     model_name:="$MODEL_NAME" \
     fake_inference_delay_ms:="$FAKE_DELAY_MS" \
     deadline_ms:="$DEADLINE_MS" \
     resource_profile:="$RESOURCE_PROFILE" \
     scenario:="qos_sweep" \
-    output_csv:="$output_csv"
+    output_csv:="$output_csv" || true
 done

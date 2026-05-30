@@ -23,7 +23,8 @@ mkdir -p "$RESULTS_DIR"
 
 for delay_ms in $DELAY_VALUES_MS; do
   output_csv="$RESULTS_DIR/overload_sweep_${MODEL_NAME}_${INPUT_FPS}fps_delay${delay_ms}ms.csv"
-  ros2 launch "$ROS2_PACKAGE" "$ROS2_LAUNCH_FILE" \
+  echo "Running Overload sweep: Delay ${delay_ms}ms for 60 seconds..."
+  timeout 60s ros2 launch src/ros2_uav_pipeline/launch/mobilevit_uav_pipeline.launch.py \
     dataset_path:="$DATASET_PATH" \
     input_fps:="$INPUT_FPS" \
     qos_depth:="$QOS_DEPTH" \
@@ -33,5 +34,5 @@ for delay_ms in $DELAY_VALUES_MS; do
     deadline_ms:="$DEADLINE_MS" \
     resource_profile:="$RESOURCE_PROFILE" \
     scenario:="overload_sweep" \
-    output_csv:="$output_csv"
+    output_csv:="$output_csv" || true
 done
