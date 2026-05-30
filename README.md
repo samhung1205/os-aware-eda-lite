@@ -36,8 +36,52 @@ Lightweight MobileViT simulation for ROS2 OS-level edge AI performance analysis.
 - 真實硬體 energy measurement。
 - 完整 EDA paper compiler reproduction。
 
-## Repository Layout
+## 🚀 完整端到端執行流程 (End-to-End Pipeline)
 
+本專案所有的 `.sh` 腳本與 Python 模組已經高度自動化。請依照以下四個步驟順序執行，即可完整重現專題的所有數據與圖表：
+
+### 步驟 1：執行 ROS 2 硬體壓力測試 (實機量測)
+確保已設定好 ROS 2 環境變數後，執行自動化總管腳本，它會自動限制 CPU/RAM 資源並連續跑完 FPS、QoS、Overload 三大測試，產出 22 份 CSV 原始數據：
+```bash
+bash scripts/run_baseline_experiments.sh
+```
+
+### 步驟 2：分析 ROS 2 數據與產生長條圖
+將原始 CSV 進行彙整，推估系統 Jitter 與真實掉幀率，並產出視覺化長條圖：
+```bash
+python3 -m src.ros2_runtime.analyze_runtime \
+  --input results/raw/ros2 \
+  --summary-output results/csv/ros2_runtime_summary.csv \
+  --figures-dir results/figures/ros2
+```
+
+### 步驟 3：轉換為 OS-Aware 懲罰特徵
+將上一步的 ROS 2 掉幀與延遲數據，轉換為 EDA 模擬器看得懂的 JSON OS 懲罰設定檔：
+```bash
+python3 -m src.ros2_runtime.build_os_profiles \
+  --input results/csv/ros2_runtime_summary.csv \
+  --output experiments/eda_lite/runtime_os_profiles.json \
+  --profile-prefix measured
+```
+*(註：轉換完成後，請確保 `experiments/eda_lite/mobilevit_runtime_aware_sweep.json` 指向了該設定檔)*
+
+### 步驟 4：執行 EDA-Lite 模擬與產出最終 6 條線比較圖
+依序執行 Pure (無 OS 懲罰) 與 OS-Aware (有 OS 懲罰) 的硬體模擬，最後使用客製化腳本將它們疊加成最終的報告對比圖：
+```bash
+# 1. 跑 Pure 基準模擬
+python3 -m src.eda_lite.run_simulation --profile data/model_profiles/mobilevit_s_simplified.json --config experiments/eda_lite/mobilevit_sram_sweep.json --output results/csv/eda_lite_mobilevit_s_pure.csv
+python3 -m src.eda_lite.run_simulation --profile data/model_profiles/mobilevit_xxs_simplified.json --config experiments/eda_lite/mobilevit_sram_sweep.json --output results/csv/eda_lite_mobilevit_xxs_pure.csv
+
+# 2. 跑 OS-Aware 懲罰模擬
+python3 -m src.eda_lite.run_simulation --profile data/model_profiles/mobilevit_s_simplified.json --config experiments/eda_lite/mobilevit_runtime_aware_sweep.json --output results/csv/eda_lite_mobilevit_s_runtime_aware_sweep.csv
+python3 -m src.eda_lite.run_simulation --profile data/model_profiles/mobilevit_xxs_simplified.json --config experiments/eda_lite/mobilevit_runtime_aware_sweep.json --output results/csv/eda_lite_mobilevit_xxs_runtime_aware_sweep.csv
+
+# 3. 產出完美的 6 條線疊加圖
+python3 -m src.eda_lite.plot_6lines
+```
+完成後，最終報告圖表將全部安穩地躺在 `results/figures/eda_lite/` 底下！
+
+## Repository Layout
 ```text
 OS_Final/
   AGENTS.md
