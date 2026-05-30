@@ -40,8 +40,15 @@ Lightweight MobileViT simulation for ROS2 OS-level edge AI performance analysis.
 
 本專案所有的 `.sh` 腳本與 Python 模組已經高度自動化。請依照以下四個步驟順序執行，即可完整重現專題的所有數據與圖表：
 
+### 步驟 0：環境建置 (Environment Setup)
+本專案為了解決無 `sudo` 權限的伺服器環境，提供了基於 Conda 的 ROS 2 安裝腳本與依賴套件設定檔。請依序執行以下腳本完成環境初始化：
+```bash
+bash scripts/install_ros2_conda.sh
+bash scripts/setup_env.sh
+```
+
 ### 步驟 1：執行 ROS 2 硬體壓力測試 (實機量測)
-確保已設定好 ROS 2 環境變數後，執行自動化總管腳本，它會自動限制 CPU/RAM 資源並連續跑完 FPS、QoS、Overload 三大測試，產出 22 份 CSV 原始數據：
+確保已設定好上述環境與 ROS 2 變數後，執行自動化總管腳本，它會自動限制 CPU/RAM 資源並連續跑完 FPS、QoS、Overload 三大測試，產出 22 份 CSV 原始數據：
 ```bash
 bash scripts/run_baseline_experiments.sh
 ```
