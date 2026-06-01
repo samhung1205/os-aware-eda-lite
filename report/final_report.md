@@ -4,7 +4,7 @@
 
 本專題以 Vision Transformer 類模型在邊緣與 ROS2 場景中的部署瓶頸為主題，建立一個可重現、可解釋的 **OS-aware EDA-Lite** 模擬與分析流程。專題不嘗試完整重現 EDA compiler，也不主張量測真實硬體能耗；目前核心貢獻是用簡化 MobileViT block profile 比較 layer fusion scheduling、SRAM 限制、ROS2 runtime pressure 與 dropped-frame communication pressure 對估計成本的影響。
 
-目前已完成的結果屬於 **EDA-Lite simulation estimates**。ROS2 runtime analysis pipeline 已具備，但本 repo 尚未包含可執行的 ROS2 workspace、launch file、rosbag 或 measured CSV，因此 runtime-aware 結果若使用 `runtime_os_profiles.example.json`，只能視為 example profile 示範，不能稱為實測結果。
+目前已完成的主要結果屬於 **EDA-Lite simulation estimates**。ROS2 MobileViT pipeline 與 runtime-derived `measured_*` OS profiles 已由組員加入 repo；不過目前仍缺 raw ROS2 CSV 與 `ros2_runtime_summary.csv`，因此這些 runtime-derived profiles 可作為組員提供的實驗衍生成果，但在 final report 中應說明其原始資料尚未納入版本庫，避免把不可追溯的 derived artifacts 說成完整可審核的 measured dataset。
 
 ## 1. 背景與動機
 
@@ -34,7 +34,7 @@ YOLO 相關檔案存在於本 repo 中，是早期方向的 legacy work。由於
 1. **MobileViT simplified model profiles**：用 coarse block JSON 描述 MobileViT-XXS 與 MobileViT-S。
 2. **EDA-Lite scheduler simulation**：比較 `layerwise`、`greedy`、`dp` 在不同 SRAM budget 下的 fusion 結果。
 3. **OS-aware cost model**：把 energy/latency estimates 與 deadline miss、memory pressure、drop pressure 合併成 total cost。
-4. **ROS2 runtime analysis**：未來可接收真實 ROS2 CSV，分析 latency、P95/P99、jitter、drop rate，並轉成 runtime-derived OS profiles。
+4. **ROS2 runtime analysis**：接收 ROS2 CSV，分析 latency、P95/P99、jitter、drop rate，並轉成 runtime-derived OS profiles。
 
 目前 repo 中的主要實作：
 
@@ -44,6 +44,7 @@ YOLO 相關檔案存在於本 repo 中，是早期方向的 legacy work。由於
 - `data/model_profiles/mobilevit_s_simplified.json`
 - `experiments/eda_lite/mobilevit_profile_sweep.json`
 - `experiments/eda_lite/mobilevit_runtime_aware_sweep.json`
+- `src/ros2_uav_pipeline/`：組員新增的 ROS2 MobileViT image stream 與 detector pipeline。
 
 ## 4. EDA-Lite 方法
 
@@ -116,12 +117,11 @@ os_aware_total_cost =
 - `high_latency`
 - `high_memory_pressure`
 
-Example runtime profiles：
+Runtime-derived profiles：
 
-- `runtime_normal_20fps_q5_d0`
-- `runtime_overload_20fps_q5_d80`
+- `experiments/eda_lite/runtime_os_profiles.json` contains 22 `measured_*` profiles for MobileViT-XXS and MobileViT-S.
 
-Example runtime profiles 只用於示範 runtime-aware workflow，不是 measured ROS2 data。
+These profiles are derived from teammate runtime artifacts. Because raw ROS2 CSVs are not currently checked in, the report should mention this provenance limitation.
 
 ### 5.4 Reproduction Commands
 
@@ -182,7 +182,25 @@ Interpretation:
 - MobileViT-XXS benefits from early fusion even at 256KB SRAM in the simplified profile.
 - Increasing SRAM does not further improve fusion depth because attention/head barriers dominate the partition.
 
-### 6.3 Figures
+### 6.3 SRAM Saturation Analysis
+
+The SRAM sweep result saturates early because EDA-Lite does not execute MobileViT on image samples. The simulator uses the simplified JSON model profiles in `data/model_profiles/` and estimates memory traffic, energy, latency, and fusion feasibility from block-level fields such as `input_kb`, `output_kb`, `weight_kb`, `compute_macs`, and `fusible`.
+
+Therefore, the plateau after 512KB is not caused by the COCO128 dataset. COCO128 is only the default image-folder input for the ROS2 runtime pipeline. It can affect measured ROS2 latency, drop rate, and deadline miss behavior after real runtime CSVs are collected, but it does not directly change the EDA-Lite SRAM sweep in Chapter 6.
+
+In the current simplified profiles, the effective fusion thresholds are small:
+
+| Model | Candidate fused region | Estimated peak SRAM | Effect |
+|---|---|---:|---|
+| MobileViT-XXS | `stem_conv + mv2_block_1 + mobilevit_block_1_local` | 192KB | Already feasible at 256KB |
+| MobileViT-S | `stem_conv + mv2_block_1` | 248KB | Feasible at 256KB |
+| MobileViT-S | `stem_conv + mv2_block_1 + mobilevit_block_1_local` | 268KB | Not feasible at 256KB, feasible from 512KB |
+
+Once these regions are fused, larger SRAM budgets do not create additional improvements because the remaining MobileViT attention blocks and classifier head are marked `fusible=false`. The scheduler only fuses contiguous regions whose layers are all fusible, so structural barriers dominate after the small SRAM thresholds are crossed. This is why DRAM traffic, estimated energy, estimated latency, and max fusion depth remain flat at larger SRAM budgets.
+
+This behavior should be interpreted as a limitation of the coarse EDA-Lite profile and fusion model, not as evidence that real hardware or real datasets stop benefiting from memory capacity above 512KB. A finer sensitivity study could add SRAM points around the thresholds, such as 128KB, 192KB, 224KB, 248KB, 256KB, 268KB, 320KB, and 512KB, instead of extending the sweep to GB-scale SRAM values.
+
+### 6.4 Figures
 
 Generated figures for MobileViT-S:
 
@@ -193,9 +211,9 @@ Generated figures for MobileViT-S:
 
 These figures are simulation outputs. They are not measured hardware energy or measured runtime latency.
 
-## 7. ROS2 Runtime Measurement Plan
+## 7. ROS2 Runtime Measurement Status
 
-本 repo 目前尚未包含可執行 ROS2 workspace，因此本節是待組員 pipeline 接入後執行的 measurement plan。
+本 repo 目前已包含 ROS2 MobileViT pipeline source code and launch file. It still does not include raw ROS2 runtime CSVs, so measured-result claims must reference the provenance limitation in `report/runtime_result_provenance.md`.
 
 ### 7.1 Dataset
 
@@ -213,16 +231,19 @@ bash experiments/ros2/prepare_coco128.sh
 
 COCO128 is a compact image subset used as ROS2 image stream input. It is not used here as a YOLO experiment.
 
-### 7.2 Required ROS2 Pipeline Inputs
+### 7.2 ROS2 Pipeline Inputs
 
-Need from teammate:
+組員已加入：
 
 - `image_stream_node.py`
 - `mobilevit_detector_node.py`
 - launch file
 - package name
-- requirements/environment notes
-- one sample CSV
+- environment scripts
+
+Still needed for full auditability:
+
+- raw runtime CSVs or `results/csv/ros2_runtime_summary.csv`
 
 Expected launch arguments:
 

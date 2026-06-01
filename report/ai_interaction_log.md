@@ -109,3 +109,40 @@ Important limitation:
 
 - The local machine currently has no `ros2` command and this repo still has no measured ROS2 CSVs.
 - COCO128 is an image stream input source only, not a YOLO experiment.
+
+## 2026-05-31 ROS2 Pipeline Sync Review
+
+Prompt summary:
+
+- Review teammate-pushed ROS2 updates and continue the next stage.
+
+Implementation decision:
+
+- Update tests so `mobilevit_runtime_aware_sweep.json` can use the checked-in 22-profile `runtime_os_profiles.json`.
+- Harden ROS2 node parameter handling by reading typed parameter `.value` fields instead of integer-only values for float launch arguments.
+- Add Python dependency metadata for the ROS2 MobileViT pipeline.
+- Allow ROS2 scripts to use either a direct checked-in launch file path through `ROS2_LAUNCH_TARGET` or an installed package launch through `ROS2_PACKAGE`/`ROS2_LAUNCH_FILE`.
+- Add `report/runtime_result_provenance.md` to separate checked-in runtime-derived artifacts from missing raw ROS2 CSVs.
+
+Important limitation:
+
+- `runtime_os_profiles.json` contains `measured_*` profiles, but raw ROS2 CSVs and `ros2_runtime_summary.csv` are not currently checked in, so final reporting must mention that provenance gap.
+
+## 2026-06-01 Local Reproduction Step
+
+Prompt summary:
+
+- Continue the next stage step by step, including dataset preparation, ROS2 runtime execution, runtime profile regeneration, and EDA-Lite figure rebuild.
+
+Implementation decision:
+
+- Download and extract COCO128 locally through `experiments/ros2/prepare_coco128.sh`; the dataset remains ignored by git.
+- Add preflight checks to ROS2 sweep scripts so missing `ros2` or missing `timeout`/`gtimeout` fails explicitly instead of being hidden by `|| true`.
+- Make baseline and OS-tuned wrapper scripts fall back when Linux-only `taskset` and `systemd-run` are unavailable.
+- Keep OS-tuned UDP buffer adjustment Linux/sudo-only and skip it in unsupported environments.
+- Rebuild MobileViT pure and runtime-aware EDA-Lite CSVs and figures through `scripts/rebuild_eda_lite_figures.sh`.
+
+Important limitation:
+
+- The local machine is macOS and does not currently provide `ros2`, `taskset`, or `systemd-run`. ROS2 raw CSV generation remains blocked until running in a ROS2-capable Linux/RoboStack environment or after installing and activating a working ROS2 stack.
+- `results/raw/ros2/` still has no raw CSVs, and `results/csv/ros2_runtime_summary.csv` is still absent.

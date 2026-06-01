@@ -26,15 +26,27 @@ Lightweight MobileViT simulation for ROS2 OS-level edge AI performance analysis.
 - 在 explicit dropped rows 缺席時，可由 `frame_id` 缺口推估 dropped frames。
 - 將 ROS2 runtime summary 轉成 EDA-Lite 自訂 OS pressure profiles，包含 drop pressure。
 
-目前不包含：
+目前仍不包含或尚未完整追溯：
 
-- vendored ROS2 MobileViT/UAV pipeline 原始碼。
-- 本 repo 內的實際 ROS2 runtime measurements。
+- raw ROS2 runtime CSVs under `results/raw/ros2/`.
+- `results/csv/ros2_runtime_summary.csv`.
 - 真實 MobileViT 權重。
 - ONNX parser。
 - 真實 LLM inference 或 KV-cache simulation。
 - 真實硬體 energy measurement。
 - 完整 EDA paper compiler reproduction。
+
+Current checked-in ROS2 runtime-derived artifacts are documented in:
+
+```text
+report/runtime_result_provenance.md
+```
+
+Check whether runtime artifacts are complete enough for measured-result reporting:
+
+```bash
+python3 scripts/check_runtime_provenance.py
+```
 
 ## 🚀 完整端到端執行流程 (End-to-End Pipeline)
 
@@ -43,9 +55,11 @@ Lightweight MobileViT simulation for ROS2 OS-level edge AI performance analysis.
 ### 步驟 0：環境建置 (Environment Setup)
 本專案為了解決無 `sudo` 權限的伺服器環境，提供了基於 Conda 的 ROS 2 安裝腳本與依賴套件設定檔。請依序執行以下腳本完成環境初始化：
 ```bash
-bash scripts/install_ros2_conda.sh
 bash scripts/setup_env.sh
+bash scripts/install_ros2_conda.sh
 ```
+
+`setup_env.sh` creates or reuses the `eda_lite` conda environment. `install_ros2_conda.sh` should run after that environment exists.
 
 ### 步驟 1：執行 ROS 2 硬體壓力測試 (實機量測)
 確保已設定好上述環境與 ROS 2 變數後，執行自動化總管腳本，它會自動限制 CPU/RAM 資源並連續跑完 FPS、QoS、Overload 三大測試，產出 22 份 CSV 原始數據：
@@ -75,17 +89,10 @@ python3 -m src.ros2_runtime.build_os_profiles \
 ### 步驟 4：執行 EDA-Lite 模擬與產出最終 6 條線比較圖
 依序執行 Pure (無 OS 懲罰) 與 OS-Aware (有 OS 懲罰) 的硬體模擬，最後使用客製化腳本將它們疊加成最終的報告對比圖：
 ```bash
-# 1. 跑 Pure 基準模擬
-python3 -m src.eda_lite.run_simulation --profile data/model_profiles/mobilevit_s_simplified.json --config experiments/eda_lite/mobilevit_sram_sweep.json --output results/csv/eda_lite_mobilevit_s_pure.csv
-python3 -m src.eda_lite.run_simulation --profile data/model_profiles/mobilevit_xxs_simplified.json --config experiments/eda_lite/mobilevit_sram_sweep.json --output results/csv/eda_lite_mobilevit_xxs_pure.csv
-
-# 2. 跑 OS-Aware 懲罰模擬
-python3 -m src.eda_lite.run_simulation --profile data/model_profiles/mobilevit_s_simplified.json --config experiments/eda_lite/mobilevit_runtime_aware_sweep.json --output results/csv/eda_lite_mobilevit_s_runtime_aware_sweep.csv
-python3 -m src.eda_lite.run_simulation --profile data/model_profiles/mobilevit_xxs_simplified.json --config experiments/eda_lite/mobilevit_runtime_aware_sweep.json --output results/csv/eda_lite_mobilevit_xxs_runtime_aware_sweep.csv
-
-# 3. 產出完美的 6 條線疊加圖
-python3 -m src.eda_lite.plot_6lines
+bash scripts/rebuild_eda_lite_figures.sh
 ```
+The script rebuilds MobileViT-S and MobileViT-XXS pure simulation CSVs, runtime-aware simulation CSVs, and the final six-line comparison figures.
+
 完成後，最終報告圖表將全部安穩地躺在 `results/figures/eda_lite/` 底下！
 
 ## Repository Layout
@@ -189,7 +196,7 @@ ROS2 scripts are stored in:
 experiments/ros2/
 ```
 
-These scripts assume you already have an external ROS2 workspace that can launch a MobileViT/UAV or equivalent edge inference pipeline. This repository does not download, vendor, or verify that pipeline.
+This repository now includes a lightweight ROS2 MobileViT/UAV pipeline under `src/ros2_uav_pipeline/`. The scripts can launch the checked-in launch file directly, or use an installed ROS2 package if you set `ROS2_LAUNCH_TARGET=""`.
 
 Common environment variables:
 
@@ -198,6 +205,7 @@ export ROS2_WORKSPACE="$HOME/ros2-mobilevit-uav-pipeline"
 export ROS2_SETUP="$ROS2_WORKSPACE/install/setup.bash"
 export ROS2_PACKAGE="mobilevit_uav_pipeline"
 export ROS2_LAUNCH_FILE="mobilevit_uav_pipeline.launch.py"
+export ROS2_LAUNCH_TARGET="src/ros2_uav_pipeline/launch/mobilevit_uav_pipeline.launch.py"
 export DATASET_PATH="$PWD/data/raw/images/coco128/images/train2017"
 export RESULTS_DIR="$PWD/results/raw/ros2"
 export MODEL_NAME="mobilevit_xxs"
@@ -220,9 +228,19 @@ bash experiments/ros2/run_qos_sweep.sh
 bash experiments/ros2/run_overload_sweep.sh
 ```
 
+By default, the scripts launch the checked-in launch file through `ROS2_LAUNCH_TARGET`. To launch an installed ROS2 package instead, set `ROS2_LAUNCH_TARGET=""` and use `ROS2_PACKAGE` plus `ROS2_LAUNCH_FILE`. The sweep scripts fail early if `ros2` is not available, and require either GNU `timeout` or `gtimeout` so each scenario stops after `RUN_SECONDS` seconds.
+
+Run the two-model baseline wrapper:
+
+```bash
+bash scripts/run_baseline_experiments.sh
+```
+
+On Linux, the wrapper uses `taskset` and `systemd-run` to apply 2-core / 2GB resource limits. On macOS or environments without those tools, it falls back to running the sweep scripts without Linux resource isolation; this is useful for functional checks but should not be reported as the constrained OS measurement condition.
+
 The launch file is expected to accept arguments such as `dataset_path`, `input_fps`, `qos_depth`, `model_path`, `model_name`, `fake_inference_delay_ms`, `deadline_ms`, `resource_profile`, `scenario`, and `output_csv`. If the adapted ROS2 project uses different launch argument names, update the shell scripts.
 
-Do not report runtime data as measured unless CSVs were generated by a real ROS2 run.
+Do not report runtime data as fully auditable measured results unless CSVs were generated by a real ROS2 run and the raw CSVs or runtime summary CSV are available.
 
 The teammate pipeline integration checklist is documented in:
 
@@ -299,6 +317,7 @@ python3 -m src.eda_lite.run_simulation \
 ```
 
 `mobilevit_runtime_aware_sweep.json` uses `runtime_os_profiles.example.json` by default. That example file is not measured data.
+In the current branch, `mobilevit_runtime_aware_sweep.json` points to `runtime_os_profiles.json`, which contains teammate-provided runtime-derived `measured_*` profiles. See `report/runtime_result_provenance.md` before using those numbers in the final report.
 
 ## Model Profile Format
 

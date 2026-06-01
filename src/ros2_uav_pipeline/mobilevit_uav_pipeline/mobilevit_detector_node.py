@@ -17,22 +17,30 @@ class MobileViTDetectorNode(Node):
         
         # 宣告動態參數 (Parameters)
         self.declare_parameter('model_name', 'mobilevit_xxs')
-        self.declare_parameter('input_fps', 30)
+        self.declare_parameter('input_fps', 30.0)
         self.declare_parameter('qos_depth', 10)
         self.declare_parameter('fake_inference_delay_ms', 0)
-        self.declare_parameter('deadline_ms', 100)
+        self.declare_parameter('deadline_ms', 100.0)
         self.declare_parameter('scenario', 'fps_sweep')
         self.declare_parameter('resource_profile', 'normal')
         self.declare_parameter('output_csv', 'results/raw/ros2/latency_log.csv')
 
-        self.model_name = self.get_parameter('model_name').get_parameter_value().string_value
-        self.input_fps = float(self.get_parameter('input_fps').get_parameter_value().integer_value)
-        self.qos_depth = self.get_parameter('qos_depth').get_parameter_value().integer_value
-        self.fake_delay_ms = self.get_parameter('fake_inference_delay_ms').get_parameter_value().integer_value
-        self.deadline_ms = float(self.get_parameter('deadline_ms').get_parameter_value().integer_value)
-        self.scenario = self.get_parameter('scenario').get_parameter_value().string_value
-        self.resource_profile = self.get_parameter('resource_profile').get_parameter_value().string_value
-        self.log_file_path = self.get_parameter('output_csv').get_parameter_value().string_value
+        self.model_name = str(self.get_parameter('model_name').value)
+        self.input_fps = float(self.get_parameter('input_fps').value)
+        self.qos_depth = int(self.get_parameter('qos_depth').value)
+        self.fake_delay_ms = int(self.get_parameter('fake_inference_delay_ms').value)
+        self.deadline_ms = float(self.get_parameter('deadline_ms').value)
+        self.scenario = str(self.get_parameter('scenario').value)
+        self.resource_profile = str(self.get_parameter('resource_profile').value)
+        self.log_file_path = str(self.get_parameter('output_csv').value)
+        if self.input_fps <= 0:
+            raise ValueError('input_fps must be positive.')
+        if self.qos_depth <= 0:
+            raise ValueError('qos_depth must be positive.')
+        if self.deadline_ms <= 0:
+            raise ValueError('deadline_ms must be positive.')
+        if self.fake_delay_ms < 0:
+            raise ValueError('fake_inference_delay_ms must be non-negative.')
 
         qos_profile = QoSProfile(
             reliability=ReliabilityPolicy.BEST_EFFORT, 

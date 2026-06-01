@@ -14,10 +14,12 @@ class ImageStreamNode(Node):
         
         # 宣告參數 (Parameters) 以便接受從 Launch 檔或命令列傳入的數值
         self.declare_parameter('dataset_path', 'data/raw/images/coco128/images/train2017')
-        self.declare_parameter('input_fps', 30)
+        self.declare_parameter('input_fps', 30.0)
         
-        dataset_path = self.get_parameter('dataset_path').get_parameter_value().string_value
-        input_fps = float(self.get_parameter('input_fps').get_parameter_value().integer_value)
+        dataset_path = self.get_parameter('dataset_path').value
+        input_fps = float(self.get_parameter('input_fps').value)
+        if input_fps <= 0:
+            raise ValueError('input_fps must be positive.')
         
         # 開啟資料夾中的第一張圖片作為預設圖片建立 Publisher，模擬網路堆疊中傳送端 (Sender)
         self.publisher_ = self.create_publisher(Image, 'image_raw', 10)

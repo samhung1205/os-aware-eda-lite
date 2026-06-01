@@ -278,16 +278,18 @@ class EdaLiteTest(unittest.TestCase):
 
     def test_mobilevit_runtime_aware_sweep_config_uses_os_profile_file(self):
         repo_root = Path(__file__).resolve().parents[1]
+        os_profile_path = repo_root / "experiments/eda_lite/runtime_os_profiles.json"
+        os_profile_payload = json.loads(os_profile_path.read_text(encoding="utf-8"))
+        os_profile_names = os_profile_payload["os_profiles"]
+
         rows = run_simulation(
             repo_root / "data/model_profiles/mobilevit_xxs_simplified.json",
             repo_root / "experiments/eda_lite/mobilevit_runtime_aware_sweep.json",
         )
 
-        self.assertEqual(len(rows), 24)
-        self.assertEqual(
-            {row["os_profile"] for row in rows},
-            {"runtime_normal_20fps_q5_d0", "runtime_overload_20fps_q5_d80"},
-        )
+        self.assertEqual(len(rows), 4 * 3 * len(os_profile_names))
+        self.assertEqual({row["os_profile"] for row in rows}, set(os_profile_names))
+        self.assertTrue(all(name.startswith("measured_") for name in os_profile_names))
 
 
 def _small_layers():

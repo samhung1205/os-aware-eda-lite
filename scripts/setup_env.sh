@@ -7,8 +7,12 @@ echo "Setting up OS-aware EDA-Lite Environment..."
 # Since you don't have sudo access, we can install stress-ng, htop, sysstat via conda
 # instead of the standard apt-get approach (sudo apt-get update && sudo apt-get install -y stress-ng htop sysstat)
 
-echo "Creating Conda environment 'eda_lite' with Python 3.10..."
-conda create -n eda_lite python=3.10 -y
+if conda env list | awk '{print $1}' | grep -qx "eda_lite"; then
+  echo "Conda environment 'eda_lite' already exists; reusing it."
+else
+  echo "Creating Conda environment 'eda_lite' with Python 3.10..."
+  conda create -n eda_lite python=3.10 -y
+fi
 
 echo "Activating Conda environment..."
 source "$(conda info --base)/etc/profile.d/conda.sh"
