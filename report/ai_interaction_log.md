@@ -146,3 +146,38 @@ Important limitation:
 
 - The local machine is macOS and does not currently provide `ros2`, `taskset`, or `systemd-run`. ROS2 raw CSV generation remains blocked until running in a ROS2-capable Linux/RoboStack environment or after installing and activating a working ROS2 stack.
 - `results/raw/ros2/` still has no raw CSVs, and `results/csv/ros2_runtime_summary.csv` is still absent.
+
+## 2026-11-09 Correctness / Reproducibility Audit
+
+Prompt summary:
+
+- Start moving the MobileViT + ROS2 project toward a reproducible Edge AI Runtime & Scheduling Benchmark. This stage is audit-only: no architecture rewrite, no UI.
+
+Implementation decision:
+
+- Add `report/audit_p0_p1_p2.md` with P0/P1/P2 findings, affected files, reproduction steps, and minimal fix suggestions.
+- Add read-only `scripts/audit_repro.py` that reproduces each auto-checkable finding and prints `REPRODUCED` or `FIXED`.
+- No existing source, config, or result file was modified.
+
+Key findings:
+
+- DP minimises a per-subgraph surrogate, not the reported `os_aware_total_cost` (memory term uses max vs sum; deadline hinge is per-subgraph vs total). Latent on current configs, reproducible on a toy case.
+- Detector CSV is opened in append mode and `frame_id` restarts per run; re-runs merge and hide drops.
+- `measured_*` OS profiles used by the main runtime-aware sweep cannot be rebuilt from the repo; the tracked runtime-aware CSV is stale.
+- On current configs the deadline term is always zero and no OS profile changes any schedule; DP and greedy produce identical partitions.
+
+## 2026-11-10 Phase 1 / PR-A1: ROS2 Experiment Data Integrity
+
+Prompt summary:
+
+- Fix audit item P0-2 so different ROS2 runs can never contaminate each other, with minimal changes on a separate branch and regression tests.
+
+Implementation decision:
+
+- One detector launch = one run = one CSV. Add a `run_id` (launch/node argument, default `auto`) as the first CSV column, and create the CSV exclusively so an existing file is never appended to or overwritten. The helpers live in a stdlib-only `run_log.py` so they can be unit-tested without ROS2.
+- Sweep scripts build a unique `run_id` from the sweep parameters, `RESOURCE_PROFILE`, and `RUN_TAG` (default `<timestamp>_<pid>`), use it as the CSV file name, and refuse to start if the file already exists.
+- The runtime analyzer groups by configuration plus `run_id`, adds a `run_id` summary column, and raises instead of silently de-duplicating when runs cannot be separated. Legacy CSVs without `run_id` remain supported as one run per file and are rejected if they contain appended runs.
+
+Important limitation:
+
+- Not exercised against a real ROS2 runtime in this environment; the detector change is covered by helper tests, and the scripts are covered with fake `ros2`/`timeout` executables.

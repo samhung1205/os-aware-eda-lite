@@ -12,6 +12,8 @@ echo "=========================================================="
 
 export RESOURCE_PROFILE="normal"
 MODELS="mobilevit_xxs mobilevit_s"
+# 同一批次共用 RUN_TAG，每個 sweep 點仍有唯一 run_id 與獨立 CSV。
+export RUN_TAG="${RUN_TAG:-$(date +%Y%m%dT%H%M%S)_$$}"
 
 run_sweep() {
   local script_path="$1"

@@ -26,8 +26,13 @@ GROUP_FIELDS = [
     "resource_profile",
 ]
 
+# Rows without a run_id column/value are legacy rows. Each legacy CSV file is
+# treated as one run, identified as "legacy:<csv path as given on the CLI>".
+LEGACY_RUN_PREFIX = "legacy:"
+
 SUMMARY_FIELDS = [
     *GROUP_FIELDS,
+    "run_id",
     "total_rows",
     "processed_frames",
     "dropped_frames",
@@ -66,8 +71,11 @@ class RuntimeRow:
     dropped: bool
     cpu_percent: float | None
     memory_mb: float | None
+    run_id: str = ""
+    legacy_run: bool = False
+    source: str = ""
 
-    def group_key(self) -> tuple[str, str, str, str, str, str]:
+    def config_key(self) -> tuple[str, str, str, str, str, str]:
         return (
             self.scenario,
             self.model_name,
@@ -76,6 +84,9 @@ class RuntimeRow:
             self.fake_delay_ms,
             self.resource_profile,
         )
+
+    def group_key(self) -> tuple[str, str, str, str, str, str, str]:
+        return (*self.config_key(), self.run_id)
 
 
 def main() -> None:
@@ -109,15 +120,22 @@ def load_runtime_rows(input_paths: Iterable[str | Path]) -> list[RuntimeRow]:
 
 
 def build_runtime_summary(rows: Iterable[RuntimeRow]) -> list[dict[str, str]]:
-    groups: dict[tuple[str, str, str, str, str, str], list[RuntimeRow]] = {}
+    """Summarise runtime rows with one summary row per configuration and run.
+
+    Raises ValueError when rows from different runs cannot be separated safely
+    (see validate_run_integrity).
+    """
+
+    groups: dict[tuple[str, str, str, str, str, str, str], list[RuntimeRow]] = {}
     for row in rows:
         groups.setdefault(row.group_key(), []).append(row)
+    validate_run_integrity(groups)
 
-    def sort_key(k: tuple[str, str, str, str, str, str]):
+    def sort_key(k: tuple[str, str, str, str, str, str, str]):
         fps = float(k[2]) if k[2].replace(".", "", 1).isdigit() else k[2]
         qos = float(k[3]) if k[3].isdigit() else k[3]
         delay = float(k[4]) if k[4].isdigit() else k[4]
-        return (k[0], k[1], fps, qos, delay, k[5])
+        return (k[0], k[1], fps, qos, delay, k[5], k[6])
 
     summary_rows: list[dict[str, str]] = []
     for key in sorted(groups, key=sort_key):
@@ -146,6 +164,7 @@ def build_runtime_summary(rows: Iterable[RuntimeRow]) -> list[dict[str, str]]:
                 "qos_depth": key[3],
                 "fake_delay_ms": key[4],
                 "resource_profile": key[5],
+                "run_id": key[6],
                 "total_rows": str(total_frames),
                 "processed_frames": str(processed_count),
                 "dropped_frames": str(dropped_frames),
@@ -164,6 +183,77 @@ def build_runtime_summary(rows: Iterable[RuntimeRow]) -> list[dict[str, str]]:
             }
         )
     return summary_rows
+
+
+def validate_run_integrity(
+    groups: dict[tuple[str, ...], list[RuntimeRow]],
+) -> None:
+    """Reject runtime data whose runs cannot be separated safely.
+
+    - A frame_id may appear only once per (configuration, run). Duplicates mean
+      rows from several runs were mixed, e.g. an appended legacy CSV or the same
+      run_id copied into two files. They are never silently de-duplicated.
+    - Legacy rows (no run_id) are one run per file. frame_id restarts at 0 for
+      each detector launch, so a decreasing frame_id inside such a file also means
+      several runs were appended into it.
+    - An explicit run_id identifies a single launch and therefore one configuration.
+    """
+
+    errors: list[str] = []
+    configs_by_run: dict[str, set[tuple[str, ...]]] = {}
+    for key, group_rows in groups.items():
+        run_label = _describe_run(group_rows)
+        seen: set[int] = set()
+        duplicates: list[int] = []
+        previous: int | None = None
+        reset_at: tuple[int, int] | None = None
+        for row in group_rows:
+            if row.frame_id is None:
+                continue
+            if row.frame_id in seen and row.frame_id not in duplicates:
+                duplicates.append(row.frame_id)
+            seen.add(row.frame_id)
+            if row.legacy_run and previous is not None and row.frame_id < previous and reset_at is None:
+                reset_at = (previous, row.frame_id)
+            previous = row.frame_id
+        if duplicates:
+            shown = ", ".join(str(frame_id) for frame_id in duplicates[:5])
+            more = f" (+{len(duplicates) - 5} more)" if len(duplicates) > 5 else ""
+            errors.append(
+                f"{run_label}, config {_describe_config(key)}: duplicate frame_id {shown}{more}."
+            )
+        elif reset_at is not None:
+            errors.append(
+                f"{run_label}, config {_describe_config(key)}: frame_id goes back from "
+                f"{reset_at[0]} to {reset_at[1]}, so several runs were appended into this file."
+            )
+        if not group_rows[0].legacy_run:
+            configs_by_run.setdefault(group_rows[0].run_id, set()).add(key[:-1])
+
+    for run_id, configs in configs_by_run.items():
+        if len(configs) > 1:
+            listed = "; ".join(sorted(_describe_config(config) for config in configs))
+            errors.append(f"run_id '{run_id}' is used by {len(configs)} configurations: {listed}.")
+
+    if errors:
+        raise ValueError(
+            "ROS2 runtime data mixes rows from different runs and cannot be separated safely:\n- "
+            + "\n- ".join(errors)
+            + "\nRe-run with the run_id-enabled logger (one CSV per run), or split the "
+            "affected CSV into one file per run before analysis. Rows are never de-duplicated."
+        )
+
+
+def _describe_run(group_rows: list[RuntimeRow]) -> str:
+    sources = sorted({row.source for row in group_rows if row.source})
+    files = ", ".join(sources) or "unknown file"
+    if group_rows[0].legacy_run:
+        return f"legacy CSV without run_id ({files})"
+    return f"run_id '{group_rows[0].run_id}' ({files})"
+
+
+def _describe_config(key: tuple[str, ...]) -> str:
+    return "/".join(key[: len(GROUP_FIELDS)])
 
 
 def write_runtime_summary(output_path: str | Path, rows: list[dict[str, str]]) -> None:
@@ -249,12 +339,13 @@ def build_bar_chart_svg(rows: list[dict[str, str]], metric_name: str, title: str
         f'<line class="axis" x1="{left}" y1="{top}" x2="{left}" y2="{height - bottom}"/>'
     )
 
+    labels = _unique_group_labels(rows)
     for index, row in enumerate(rows):
         value = values[index]
         x = left + bar_gap + index * (bar_width + bar_gap)
         bar_height = 0.0 if max_value == 0 else value / max_value * plot_height
         y = height - bottom - bar_height
-        label = _group_label(row)
+        label = labels[index]
         elements.append(
             f'<rect x="{x:.1f}" y="{y:.1f}" width="{bar_width:.1f}" '
             f'height="{bar_height:.1f}" fill="#3d8f5a"/>'
@@ -274,6 +365,10 @@ def build_bar_chart_svg(rows: list[dict[str, str]], metric_name: str, title: str
 
 
 def _parse_runtime_row(raw_row: dict[str, str], source_path: Path) -> RuntimeRow:
+    raw_run_id = (raw_row.get("run_id") or "").strip()
+    legacy_run = not raw_run_id
+    run_id = f"{LEGACY_RUN_PREFIX}{source_path.as_posix()}" if legacy_run else raw_run_id
+
     latency_ms = _optional_float(raw_row.get("latency_ms"))
     if latency_ms is None:
         published_at_ns = _optional_float(raw_row.get("published_at_ns"))
@@ -301,6 +396,9 @@ def _parse_runtime_row(raw_row: dict[str, str], source_path: Path) -> RuntimeRow
         dropped=dropped,
         cpu_percent=_optional_float(raw_row.get("cpu_percent")),
         memory_mb=_optional_float(raw_row.get("memory_mb")),
+        run_id=run_id,
+        legacy_run=legacy_run,
+        source=str(source_path),
     )
 
 
@@ -335,6 +433,22 @@ def _group_label(row: dict[str, str]) -> str:
     model = row['model_name'].replace("mobilevit_", "")
     scenario = row['scenario'].replace("_sweep", "")
     return f"{scenario} {model} {row['input_fps']}fps q{row['qos_depth']} d{row['fake_delay_ms']}"
+
+
+def _unique_group_labels(rows: list[dict[str, str]]) -> list[str]:
+    """Append a run ordinal when several runs share the same configuration label."""
+
+    labels = [_group_label(row) for row in rows]
+    totals = {label: labels.count(label) for label in labels}
+    seen: dict[str, int] = {}
+    unique: list[str] = []
+    for label in labels:
+        if totals[label] == 1:
+            unique.append(label)
+            continue
+        seen[label] = seen.get(label, 0) + 1
+        unique.append(f"{label} run{seen[label]}")
+    return unique
 
 
 def _text_or_default(value: str | None, default: str) -> str:

@@ -36,7 +36,7 @@ If the teammate launch file uses different names, update the shell scripts inste
 Recommended CSV columns:
 
 ```text
-scenario,model_name,input_fps,qos_depth,fake_delay_ms,resource_profile,
+run_id,scenario,model_name,input_fps,qos_depth,fake_delay_ms,resource_profile,
 frame_id,published_at_ns,received_at_ns,completed_at_ns,
 latency_ms,inference_ms,deadline_miss,dropped,cpu_percent,memory_mb
 ```
@@ -44,6 +44,7 @@ latency_ms,inference_ms,deadline_miss,dropped,cpu_percent,memory_mb
 Minimum acceptable columns:
 
 - Grouping: `scenario`, `model_name`, `input_fps`, `qos_depth`, `resource_profile`
+- Run identity: `run_id` (one detector launch = one run = one CSV). Without `run_id`, each CSV file is treated as one run; files with appended runs are rejected.
 - Latency: either `latency_ms` or both `published_at_ns` and `completed_at_ns`
 - Drop accounting: either explicit `dropped` rows or monotonic `frame_id` values so gaps can be inferred
 

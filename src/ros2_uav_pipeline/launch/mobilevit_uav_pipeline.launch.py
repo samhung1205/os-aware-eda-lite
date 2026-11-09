@@ -14,7 +14,9 @@ def generate_launch_description():
         DeclareLaunchArgument('deadline_ms', default_value='100.0'),
         DeclareLaunchArgument('resource_profile', default_value='normal'),
         DeclareLaunchArgument('scenario', default_value='fps_sweep'),
-        DeclareLaunchArgument('output_csv', default_value='results/raw/ros2/latency_log.csv'),
+        # 'auto' = detector 自動產生唯一 run_id，並寫入 results/raw/ros2/<run_id>.csv（不 append）。
+        DeclareLaunchArgument('output_csv', default_value='auto'),
+        DeclareLaunchArgument('run_id', default_value='auto'),
 
         ExecuteProcess(
             cmd=[
@@ -37,7 +39,8 @@ def generate_launch_description():
                 '-p', ['deadline_ms:=', LaunchConfiguration('deadline_ms')],
                 '-p', ['scenario:=', LaunchConfiguration('scenario')],
                 '-p', ['resource_profile:=', LaunchConfiguration('resource_profile')],
-                '-p', ['output_csv:=', LaunchConfiguration('output_csv')]
+                '-p', ['output_csv:=', LaunchConfiguration('output_csv')],
+                '-p', ['run_id:=', LaunchConfiguration('run_id')]
             ],
             output='screen'
         )

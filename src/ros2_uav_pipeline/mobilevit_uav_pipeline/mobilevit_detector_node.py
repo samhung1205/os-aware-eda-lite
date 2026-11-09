@@ -11,6 +11,17 @@ import os
 import psutil
 from cv_bridge import CvBridge
 
+try:  # installed package (ros2 run / ros2 launch <package>)
+    from mobilevit_uav_pipeline.run_log import create_run_csv, resolve_output_csv, resolve_run_id
+except ImportError:  # executed by file path from the checked-in launch file
+    from run_log import create_run_csv, resolve_output_csv, resolve_run_id
+
+CSV_HEADER = [
+    'run_id', 'scenario', 'model_name', 'input_fps', 'qos_depth', 'fake_delay_ms', 'resource_profile',
+    'frame_id', 'published_at_ns', 'received_at_ns', 'completed_at_ns',
+    'latency_ms', 'inference_ms', 'deadline_miss', 'dropped', 'cpu_percent', 'memory_mb'
+]
+
 class MobileViTDetectorNode(Node):
     def __init__(self):
         super().__init__('mobilevit_detector_node')
@@ -23,7 +34,8 @@ class MobileViTDetectorNode(Node):
         self.declare_parameter('deadline_ms', 100.0)
         self.declare_parameter('scenario', 'fps_sweep')
         self.declare_parameter('resource_profile', 'normal')
-        self.declare_parameter('output_csv', 'results/raw/ros2/latency_log.csv')
+        self.declare_parameter('output_csv', 'auto')
+        self.declare_parameter('run_id', 'auto')
 
         self.model_name = str(self.get_parameter('model_name').value)
         self.input_fps = float(self.get_parameter('input_fps').value)
@@ -32,7 +44,9 @@ class MobileViTDetectorNode(Node):
         self.deadline_ms = float(self.get_parameter('deadline_ms').value)
         self.scenario = str(self.get_parameter('scenario').value)
         self.resource_profile = str(self.get_parameter('resource_profile').value)
-        self.log_file_path = str(self.get_parameter('output_csv').value)
+        # 每次啟動都是一個獨立 run：唯一 run_id + 只能新建的 CSV，避免重跑時 append 混用資料。
+        self.run_id = resolve_run_id(self.get_parameter('run_id').value)
+        self.log_file_path = resolve_output_csv(self.get_parameter('output_csv').value, self.run_id)
         if self.input_fps <= 0:
             raise ValueError('input_fps must be positive.')
         if self.qos_depth <= 0:
@@ -69,15 +83,9 @@ class MobileViTDetectorNode(Node):
         self.last_seq_id = -1
         self.process = psutil.Process(os.getpid())
         
-        os.makedirs(os.path.dirname(self.log_file_path), exist_ok=True)
-        if not os.path.exists(self.log_file_path):
-            with open(self.log_file_path, 'w', newline='') as f:
-                writer = csv.writer(f)
-                writer.writerow([
-                    'scenario', 'model_name', 'input_fps', 'qos_depth', 'fake_delay_ms', 'resource_profile',
-                    'frame_id', 'published_at_ns', 'received_at_ns', 'completed_at_ns',
-                    'latency_ms', 'inference_ms', 'deadline_miss', 'dropped', 'cpu_percent', 'memory_mb'
-                ])
+        # 檔案已存在時直接失敗（不 append、不覆蓋）。
+        create_run_csv(self.log_file_path, CSV_HEADER)
+        self.get_logger().info(f'run_id={self.run_id}，量測資料寫入 {self.log_file_path}')
 
     def listener_callback(self, msg):
         received_at_ns = self.get_clock().now().nanoseconds
@@ -123,7 +131,7 @@ class MobileViTDetectorNode(Node):
         with open(self.log_file_path, 'a', newline='') as f:
             writer = csv.writer(f)
             writer.writerow([
-                self.scenario, self.model_name, self.input_fps, self.qos_depth, self.fake_delay_ms, self.resource_profile,
+                self.run_id, self.scenario, self.model_name, self.input_fps, self.qos_depth, self.fake_delay_ms, self.resource_profile,
                 current_seq_id, published_at_ns, received_at_ns, completed_at_ns,
                 latency_ms, inference_ms, deadline_miss, 0, cpu_percent, memory_mb
             ])

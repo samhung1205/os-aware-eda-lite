@@ -20,6 +20,8 @@ echo "[2/2] 以嚴格硬體限制啟動自動化 Sweep 測試..."
 # 設定變數，讓 CSV 紀錄這個批次是 'tuned' 狀態
 export RESOURCE_PROFILE="tuned"
 MODELS="mobilevit_xxs mobilevit_s"
+# 同一批次共用 RUN_TAG，每個 sweep 點仍有唯一 run_id 與獨立 CSV。
+export RUN_TAG="${RUN_TAG:-$(date +%Y%m%dT%H%M%S)_$$}"
 
 run_sweep() {
   local script_path="$1"

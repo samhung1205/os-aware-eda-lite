@@ -15,6 +15,8 @@ FAKE_DELAY_MS="${FAKE_DELAY_MS:-0}"
 RESOURCE_PROFILE="${RESOURCE_PROFILE:-normal}"
 QOS_VALUES="${QOS_VALUES:-1 5 10}"
 RUN_SECONDS="${RUN_SECONDS:-60}"
+# 每次執行的唯一標記；run_id = <sweep 參數>_<RUN_TAG>，CSV 檔名 = <run_id>.csv。
+RUN_TAG="${RUN_TAG:-$(date +%Y%m%dT%H%M%S)_$$}"
 
 if [[ -n "$ROS2_SETUP" ]]; then
   # shellcheck source=/dev/null
@@ -44,7 +46,16 @@ fi
 mkdir -p "$RESULTS_DIR"
 
 for qos in $QOS_VALUES; do
-  output_csv="$RESULTS_DIR/qos_sweep_${MODEL_NAME}_${INPUT_FPS}fps_qos${qos}.csv"
+  run_id="qos_sweep_${MODEL_NAME}_${RESOURCE_PROFILE}_${INPUT_FPS}fps_qos${qos}_d${FAKE_DELAY_MS}_${RUN_TAG}"
+  output_csv="$RESULTS_DIR/${run_id}.csv"
+  if [[ ! "$run_id" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]]; then
+    echo "錯誤：run_id '$run_id' 含不允許的字元（只允許英數字、. _ -）。" >&2
+    exit 2
+  fi
+  if [[ -e "$output_csv" ]]; then
+    echo "錯誤：$output_csv 已存在，拒絕 append 或覆寫。請改用新的 RUN_TAG。" >&2
+    exit 1
+  fi
   echo "Running QoS sweep: QoS depth ${qos} for ${RUN_SECONDS} seconds..."
   set +e
   "${timeout_cmd[@]}" ros2 launch "${launch_target[@]}" \
@@ -57,7 +68,8 @@ for qos in $QOS_VALUES; do
     deadline_ms:="$DEADLINE_MS" \
     resource_profile:="$RESOURCE_PROFILE" \
     scenario:="qos_sweep" \
-    output_csv:="$output_csv"
+    output_csv:="$output_csv" \
+    run_id:="$run_id"
   status=$?
   set -e
   if [[ "$status" -ne 0 && "$status" -ne 124 ]]; then
