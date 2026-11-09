@@ -181,3 +181,22 @@ Implementation decision:
 Important limitation:
 
 - Not exercised against a real ROS2 runtime in this environment; the detector change is covered by helper tests, and the scripts are covered with fake `ros2`/`timeout` executables.
+
+## 2026-11-10 Phase 1 / Batch 1: ROS2 Measurement Correctness
+
+Prompt summary:
+
+- Fix audit items P1-4 (deadline), P1-5 (frame-drop accounting and grouping keys), P1-6 (timing and warm-up), plus launch reliability, on top of PR-A1, with minimal changes and no fabricated measurements.
+
+Implementation decision:
+
+- Checkpoint-commit PR-A1 (`a40816d`) before this batch, leaving the user's `plot_6lines.py` change uncommitted.
+- Detector logs `deadline_ms`, `warmup`, `transport_ms`, `preprocess_ms`, `artificial_delay_ms` and a model-only `inference_ms`. Cross-process stamps use the host wall clock; stage durations use `perf_counter`. Unparseable frame ids stay empty and failed image conversions are logged as explicit drops instead of running inference on random input.
+- Publisher writes `<run_id>.publisher.csv` (one row per published frame); the launch file resolves `run_id` once for both nodes and shuts down when either node exits.
+- Sweep scripts treat only a timed end (exit 124) with data rows as success; failed runs stop the sweep and are renamed to `*.failed`.
+- Analyzer: one deadline definition (`latency_ms > deadline_ms`, processed frames only), set-union drop accounting over the publisher-log window, `frame_accounting` completeness flag with empty values instead of 0% when unknown, normalised numeric grouping keys, warm-up exclusion, and appended summary columns for stage timings.
+- `build_os_profiles` refuses a present-but-empty `drop_rate_pct` instead of assuming 0%.
+
+Important limitation:
+
+- Still not exercised on a real ROS2 runtime; node and launch behaviour is covered by stdlib helper tests, stubbed launch modules, and fake `ros2`/`timeout` executables. The EDA-Lite deadline/cost model is unchanged (next batch).

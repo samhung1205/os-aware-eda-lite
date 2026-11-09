@@ -34,9 +34,9 @@ python3 scripts/audit_repro.py P0-1 P1-1  # 只跑指定 case
 | P1-1 | P1 | Greedy 剪枝 | SRAM 可行性非單調，greedy 第一次不可行就停，會漏掉更長融合，甚至誤報不可行 | `P1-1` |
 | P1-2 | P1 | Sweep 健壯性 | 任一 scheduler 不可行就整個 sweep 中止，SRAM 無法往下掃 | `P1-2` |
 | P1-3 | P1 | OS-aware 鑑別力 | deadline 項恆為 0、22 個 OS profiles 從未改變任何排程、DP 與 greedy 88/88 相同 | `P1-3` |
-| P1-4 | P1 | Deadline 一致性 | ROS 2 用 100 ms、EDA-Lite 用 33.3 ms；dropped rows 會算進 miss 數但分母只算 processed | `P1-4` + 靜態 |
-| P1-5 | P1 | frame_id 掉幀推估 | 開頭/結尾掉幀看不到、explicit drop 會關掉 gap 推估、group key 未正規化（甚至 TypeError） | `P1-5` |
-| P1-6 | P1 | 時間戳記語意 | `inference_ms` 含假延遲、混用時鐘、warm-up 未剔除、`received_at_ns` 未使用 | 靜態 |
+| P1-4 | P1 | Deadline 一致性 | ROS 2 用 100 ms、EDA-Lite 用 33.3 ms；dropped rows 會算進 miss 數但分母只算 processed（**Batch 1 已修正 runtime 端**） | `P1-4` + 靜態 |
+| P1-5 | P1 | frame_id 掉幀推估 | 開頭/結尾掉幀看不到、explicit drop 會關掉 gap 推估、group key 未正規化（甚至 TypeError）（**Batch 1 已修正**） | `P1-5` |
+| P1-6 | P1 | 時間戳記語意 | `inference_ms` 含假延遲、混用時鐘、warm-up 未剔除、`received_at_ns` 未使用（**Batch 1 已修正**） | `P1-6` |
 | P1-7 | P1 | OS profile 正規化 | latency/memory baseline 跨模型取全域 min/max，S 模型 idle 也有 3.4× multiplier | `P1-7` |
 | P1-8 | P1 | 實驗條件可追溯 | 資源限制 fallback 仍標 `normal`、tuned 只改 `rmem_max`、檔名沒有 run id | 靜態 |
 | P2-1 | P2 | CI | 沒有任何 CI | 靜態 |
@@ -186,6 +186,8 @@ python3 scripts/audit_repro.py P0-1 P1-1  # 只跑指定 case
 
 ### P1-4 Deadline / QoS 語意在各層之間不一致
 
+> **狀態：runtime 端已於 Phase 1 / Batch 1 修正**（第 3、4 點與 CSV 的 `deadline_ms`；見 `report/PHASE1_BATCH1_RESULT.md`，`python3 scripts/audit_repro.py P1-4` 顯示 `FIXED`）。第 1、2 點（EDA-Lite 的 33.3 ms deadline 與 `latency_multiplier`）及第 5 點（QoS 文件）仍待下一批。
+
 **檔案**：`mobilevit_detector_node.py:23,118`（預設 100 ms、`>`）、`experiments/ros2/run_*_sweep.sh:13`（100）、`experiments/eda_lite/mobilevit_*.json`（33.3）、`cost_model.py:270-272`、`analyze_runtime.py:137,154-156,286-288`。
 
 **問題**
@@ -199,6 +201,8 @@ python3 scripts/audit_repro.py P0-1 P1-1  # 只跑指定 case
 
 ### P1-5 `frame_id` 掉幀推估的邊界情況
 
+> **狀態：已於 Phase 1 / Batch 1 修正**（見 `report/PHASE1_BATCH1_RESULT.md`）。`python3 scripts/audit_repro.py P1-5` 顯示 `FIXED`。
+
 **檔案**：`src/ros2_runtime/analyze_runtime.py:116-120,134-136,149,307-318`。
 
 **問題與重現**（`P1-5`）
@@ -211,6 +215,8 @@ python3 scripts/audit_repro.py P0-1 P1-1  # 只跑指定 case
 **最小修改**：用 publisher 的 `seq_id` 範圍（`first_published=0`，`last_published = published count − 1`）做邊界，或由 publisher 另寫一份 publish log；explicit 與 gap 推估改成「取聯集」；group key 的數值欄位先 `float()` 正規化再格式化；`sort_key` 改成 `(is_numeric, value)` tuple；把 `total_rows` 改名為 `total_frames`，並新增真正的 `csv_rows` 與 `discarded_rows`。
 
 ### P1-6 時間戳記與量測語意（靜態審查）
+
+> **狀態：已於 Phase 1 / Batch 1 修正**（見 `report/PHASE1_BATCH1_RESULT.md`）。`python3 scripts/audit_repro.py P1-6` 顯示 `FIXED`。
 
 **檔案**：`mobilevit_detector_node.py:83-121`、`image_stream_node.py:62-66`。
 

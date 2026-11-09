@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
+# shellcheck source=run_common.sh
+source "$(dirname "${BASH_SOURCE[0]}")/run_common.sh"
 
 ROS2_SETUP="${ROS2_SETUP:-}"
 ROS2_PACKAGE="${ROS2_PACKAGE:-mobilevit_uav_pipeline}"
@@ -15,6 +17,8 @@ FAKE_DELAY_MS="${FAKE_DELAY_MS:-0}"
 RESOURCE_PROFILE="${RESOURCE_PROFILE:-normal}"
 FPS_VALUES="${FPS_VALUES:-5 10 20 30}"
 RUN_SECONDS="${RUN_SECONDS:-60}"
+# 每個 run 開頭幾個 frame 標記為 warm-up，不納入正式統計（0 = 不排除）。
+WARMUP_FRAMES="${WARMUP_FRAMES:-10}"
 # 每次執行的唯一標記；run_id = <sweep 參數>_<RUN_TAG>，CSV 檔名 = <run_id>.csv。
 RUN_TAG="${RUN_TAG:-$(date +%Y%m%dT%H%M%S)_$$}"
 
@@ -48,14 +52,7 @@ mkdir -p "$RESULTS_DIR"
 for fps in $FPS_VALUES; do
   run_id="fps_sweep_${MODEL_NAME}_${RESOURCE_PROFILE}_${fps}fps_qos${QOS_DEPTH}_d${FAKE_DELAY_MS}_${RUN_TAG}"
   output_csv="$RESULTS_DIR/${run_id}.csv"
-  if [[ ! "$run_id" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]]; then
-    echo "錯誤：run_id '$run_id' 含不允許的字元（只允許英數字、. _ -）。" >&2
-    exit 2
-  fi
-  if [[ -e "$output_csv" ]]; then
-    echo "錯誤：$output_csv 已存在，拒絕 append 或覆寫。請改用新的 RUN_TAG。" >&2
-    exit 1
-  fi
+  run_prepare "$run_id" "$output_csv" || exit $?
   echo "Running FPS sweep: ${fps} FPS for ${RUN_SECONDS} seconds..."
   set +e
   "${timeout_cmd[@]}" ros2 launch "${launch_target[@]}" \
@@ -69,11 +66,9 @@ for fps in $FPS_VALUES; do
     resource_profile:="$RESOURCE_PROFILE" \
     scenario:="fps_sweep" \
     output_csv:="$output_csv" \
-    run_id:="$run_id"
+    run_id:="$run_id" \
+    warmup_frames:="$WARMUP_FRAMES"
   status=$?
   set -e
-  if [[ "$status" -ne 0 && "$status" -ne 124 ]]; then
-    echo "錯誤：FPS sweep failed with status $status" >&2
-    exit "$status"
-  fi
+  run_finish "$status" "$output_csv" "FPS sweep $run_id" || exit 1
 done

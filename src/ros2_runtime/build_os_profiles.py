@@ -63,7 +63,7 @@ def build_os_profile_payload(
         profile_name = _unique_name(_profile_name(row, profile_prefix), profile_definitions)
         avg_latency_ms = _required_float(row, "avg_latency_ms")
         deadline_miss_rate_pct = _optional_float(row.get("deadline_miss_rate_pct")) or 0.0
-        drop_rate_pct = _optional_float(row.get("drop_rate_pct")) or 0.0
+        drop_rate_pct = _drop_rate_pct(row)
         avg_memory_mb = _optional_float(row.get("avg_memory_mb"))
 
         latency_multiplier = max(0.1, avg_latency_ms / baseline)
@@ -134,6 +134,26 @@ def _optional_float(value: str | None) -> float | None:
     if value is None or not value.strip():
         return None
     return float(value)
+
+
+def _drop_rate_pct(row: dict[str, str]) -> float:
+    """Return the run's drop rate.
+
+    Summaries written before drop accounting existed have no ``drop_rate_pct``
+    column and keep the documented default of 0. A present but empty value means
+    the analyzer could not determine drops (frame_accounting=unavailable); it is
+    rejected instead of being treated as 0%.
+    """
+
+    if "drop_rate_pct" not in row:
+        return 0.0
+    value = _optional_float(row.get("drop_rate_pct"))
+    if value is None:
+        raise ValueError(
+            f"Runtime summary row for run_id '{row.get('run_id', '')}' has no drop_rate_pct "
+            f"(frame_accounting={row.get('frame_accounting', 'unknown')}); refusing to assume 0%."
+        )
+    return value
 
 
 def _clamp(value: float, lower: float, upper: float) -> float:

@@ -37,8 +37,15 @@ Recommended CSV columns:
 
 ```text
 run_id,scenario,model_name,input_fps,qos_depth,fake_delay_ms,resource_profile,
-frame_id,published_at_ns,received_at_ns,completed_at_ns,
-latency_ms,inference_ms,deadline_miss,dropped,cpu_percent,memory_mb
+deadline_ms,frame_id,warmup,published_at_ns,received_at_ns,completed_at_ns,
+latency_ms,transport_ms,preprocess_ms,artificial_delay_ms,inference_ms,
+deadline_miss,dropped,cpu_percent,memory_mb
+```
+
+Publisher log (`<run_id>.publisher.csv`, one row per published frame):
+
+```text
+run_id,frame_id,published_at_ns
 ```
 
 Minimum acceptable columns:
@@ -46,7 +53,8 @@ Minimum acceptable columns:
 - Grouping: `scenario`, `model_name`, `input_fps`, `qos_depth`, `resource_profile`
 - Run identity: `run_id` (one detector launch = one run = one CSV). Without `run_id`, each CSV file is treated as one run; files with appended runs are rejected.
 - Latency: either `latency_ms` or both `published_at_ns` and `completed_at_ns`
-- Drop accounting: either explicit `dropped` rows or monotonic `frame_id` values so gaps can be inferred
+- Drop accounting: explicit `dropped` rows and/or monotonic `frame_id` values; a publisher log (`<run_id>.publisher.csv`) makes leading/trailing drops countable
+- Deadline: `deadline_ms` per row (a processed frame misses iff `latency_ms > deadline_ms`)
 
 ## Dataset Path
 

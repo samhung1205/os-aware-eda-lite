@@ -13,6 +13,7 @@ FIXED when the current code no longer shows it.
 from __future__ import annotations
 
 import csv
+import importlib.util
 import io
 import itertools
 import json
@@ -40,6 +41,11 @@ from src.eda_lite.schedulers import (  # noqa: E402
     layerwise_schedule,
 )
 from src.ros2_runtime.analyze_runtime import build_runtime_summary, load_runtime_rows  # noqa: E402
+
+try:  # added in Phase 1 / Batch 1
+    from src.ros2_runtime.analyze_runtime import load_publisher_frames  # noqa: E402
+except ImportError:  # pragma: no cover - older analyzer
+    load_publisher_frames = None
 from src.ros2_runtime.build_os_profiles import build_os_profile_payload  # noqa: E402
 
 PROFILES = {
@@ -212,7 +218,14 @@ def _summary(files: dict[str, str]) -> list[dict[str, str]]:
     with tempfile.TemporaryDirectory() as tmp:
         for name, body in files.items():
             (Path(tmp) / name).write_text(body, encoding="utf-8")
-        return build_runtime_summary(load_runtime_rows([tmp]))
+        rows = load_runtime_rows([tmp])
+        if load_publisher_frames is None:  # analyzer without publisher-log support
+            return build_runtime_summary(rows)
+        return build_runtime_summary(rows, publisher_frames=load_publisher_frames([tmp]))
+
+
+def _with_run_id(run_id: str, rows: str) -> str:
+    return "run_id," + HEADER + "".join(f"{run_id},{line}" for line in rows.splitlines(True))
 
 
 def _short(s: dict[str, str]) -> str:
@@ -256,8 +269,17 @@ def case_p1_4() -> bool:
 
 def case_p1_5() -> bool:
     """frame_id gap inference corner cases and group-key normalisation."""
-    lead = _summary({"a.csv": HEADER + "".join(_row(i) for i in range(40, 100))})[0]
-    print(f"  frames 0..39 never received: {_short(lead)}")
+    received = "".join(_row(i) for i in range(40, 100))
+    files = {"r.csv": _with_run_id("r", received)}
+    if load_publisher_frames is not None:  # older analyzers would read the log as detector rows
+        files["r.publisher.csv"] = ("run_id,frame_id,published_at_ns\n"
+                                    + "".join(f"r,{i},{i}\n" for i in range(100)))
+    with_log = _summary(files)[0]
+    print(f"  frames 0..39 lost, publisher log 0..99: {_short(with_log)}, "
+          f"accounting={with_log.get('frame_accounting', '-')}")
+    no_log = _summary({"a.csv": HEADER + received})[0]
+    print(f"  same, no publisher log              : dropped={no_log['dropped_frames']}, "
+          f"accounting={no_log.get('frame_accounting', '(not reported)')}")
     mixed = _summary({"a.csv": HEADER + _row(0) + _row(1, lat="", drop=1) + _row(10)})[0]
     print(f"  explicit drop + gap 2..9   : {_short(mixed)}")
     # Same file (= same run) so only the fps spelling differs.
@@ -270,8 +292,56 @@ def case_p1_5() -> bool:
     except TypeError as exc:
         crashed = True
         print(f"  missing input_fps column in one file -> TypeError: {exc}")
-    return _verdict("P1-5", lead["dropped_frames"] == "0" or len(split) == 2 or crashed,
+    reproduced = (
+        with_log["dropped_frames"] != "40"
+        or no_log.get("frame_accounting") != "frame_id_range"
+        or mixed["dropped_frames"] != "9"
+        or len(split) == 2
+        or crashed
+    )
+    return _verdict("P1-5", reproduced,
                     "leading drops invisible / explicit drops disable gap inference / key not normalised")
+
+
+def case_p1_6() -> bool:
+    """inference_ms includes the artificial delay; warm-up frames pollute statistics."""
+    spec = importlib.util.spec_from_file_location(
+        "run_log_audit", REPO / "src/ros2_uav_pipeline/mobilevit_uav_pipeline/run_log.py")
+    run_log = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(run_log)
+    header = getattr(run_log, "DETECTOR_CSV_HEADER", None)
+    detector = (REPO / "src/ros2_uav_pipeline/mobilevit_uav_pipeline/mobilevit_detector_node.py").read_text(encoding="utf-8")
+    if header is None or "artificial_delay_ms" not in header:
+        return _verdict("P1-6", True, "detector CSV has no separate artificial_delay_ms / warm-up columns")
+    base = dict(run_id="r", scenario="overload_sweep", model_name="mobilevit_xxs", input_fps="20.0",
+                qos_depth="5", fake_delay_ms="80", resource_profile="normal", deadline_ms="100",
+                latency_ms="95", transport_ms="2", preprocess_ms="3", artificial_delay_ms="80",
+                inference_ms="10", warmup="0", dropped="0")
+    lines = [",".join(header)]
+    for i in range(10):
+        row = {**base, "frame_id": i, **({"warmup": "1", "latency_ms": "900"} if i < 2 else {})}
+        lines.append(",".join(str(row.get(c, "")) for c in header))
+    s = _summary({"r.csv": "\n".join(lines) + "\n"})[0]
+    print(f"  80 ms injected delay, 10 ms model: avg_inference_ms={s['avg_inference_ms']}, "
+          f"avg_artificial_delay_ms={s.get('avg_artificial_delay_ms', '-')}")
+    print(f"  2 warm-up frames at 900 ms: warmup_frames_excluded={s.get('warmup_frames_excluded', '-')}, "
+          f"p99_latency_ms={s['p99_latency_ms']}")
+    mixed_clocks = "get_clock()" in detector or detector.count("time.perf_counter_ns()") < 4
+    print(f"  detector clocks: wall clock for cross-process stamps, perf_counter for stages: {not mixed_clocks}")
+    return _verdict("P1-6", s["avg_inference_ms"] != "10" or s["p99_latency_ms"] != "95" or mixed_clocks,
+                    "artificial delay / warm-up / clock semantics mixed into timing statistics")
+
+
+def case_launch() -> bool:
+    """A failed detector leaves the launch running until timeout, reported as success."""
+    launch = (REPO / "src/ros2_uav_pipeline/launch/mobilevit_uav_pipeline.launch.py").read_text(encoding="utf-8")
+    common = REPO / "experiments/ros2/run_common.sh"
+    shutdown = "OnProcessExit" in launch and "Shutdown" in launch
+    strict = common.exists() and '-ne 124' in common.read_text(encoding="utf-8")
+    print(f"  launch shuts down when a node exits: {shutdown}; "
+          f"scripts treat any non-timeout end as failure: {strict}")
+    return _verdict("LAUNCH", not (shutdown and strict),
+                    "detector start-up failure is indistinguishable from a normal timed run")
 
 
 def case_p1_7() -> bool:
@@ -320,7 +390,9 @@ CASES = {
     "P1-3": case_p1_3,
     "P1-4": case_p1_4,
     "P1-5": case_p1_5,
+    "P1-6": case_p1_6,
     "P1-7": case_p1_7,
+    "LAUNCH": case_launch,
 }
 
 

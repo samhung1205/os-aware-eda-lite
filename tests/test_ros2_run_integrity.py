@@ -17,6 +17,7 @@ from pathlib import Path
 
 from src.ros2_runtime.analyze_runtime import (
     build_runtime_summary,
+    load_publisher_frames,
     load_runtime_rows,
     write_runtime_summary,
     write_runtime_svgs,
@@ -223,28 +224,32 @@ class DetectorRunLogTest(unittest.TestCase):
 
     def test_detector_header_and_launch_file_include_run_id(self):
         node_source = (PIPELINE_DIR / "mobilevit_detector_node.py").read_text(encoding="utf-8")
-        header = None
-        for node in ast.parse(node_source).body:
-            if isinstance(node, ast.Assign) and getattr(node.targets[0], "id", "") == "CSV_HEADER":
-                header = ast.literal_eval(node.value)
-        self.assertIsNotNone(header)
-        self.assertEqual(header[0], "run_id")
-        self.assertIn("create_run_csv(self.log_file_path, CSV_HEADER)", node_source)
-        self.assertIn("self.run_id, self.scenario", node_source)
+        ast.parse(node_source)
+        self.assertEqual(self.run_log.DETECTOR_CSV_HEADER[0], "run_id")
+        self.assertIn("create_run_csv(self.log_file_path, DETECTOR_CSV_HEADER)", node_source)
+        self.assertIn("'run_id': self.run_id", node_source)
 
         launch_source = (REPO / "src/ros2_uav_pipeline/launch/mobilevit_uav_pipeline.launch.py").read_text(
             encoding="utf-8"
         )
-        self.assertIn("DeclareLaunchArgument('run_id'", launch_source)
-        self.assertIn("['run_id:=', LaunchConfiguration('run_id')]", launch_source)
+        self.assertIn("('run_id', 'auto')", launch_source)
+        self.assertIn("('run_id', run_id)", launch_source)
 
 
+# Fake `timeout`: the fake ros2 exits 99 to mean "still running when RUN_SECONDS
+# expired", which real GNU timeout reports as 124.
 FAKE_TIMEOUT = """#!/usr/bin/env bash
 shift
-exec "$@"
+"$@"
+status=$?
+if [[ "$status" -eq 99 ]]; then exit 124; fi
+exit "$status"
 """
 
-# Emulates the detector: writes one CSV per launch and refuses to clobber it.
+# Emulates one launch: detector CSV + publisher log, refusing to clobber files.
+# FAKE_ROS2_MODE: timed (default, runs until timeout), early_exit (launch ends
+# before timeout after partial output), crash (fails at start-up, no output),
+# no_frames (runs until timeout but processes nothing).
 FAKE_ROS2 = """#!/usr/bin/env bash
 set -euo pipefail
 set -o noclobber
@@ -261,10 +266,28 @@ for arg in "$@"; do
   esac
 done
 echo "$run_id" >> "$FAKE_ROS2_LOG"
+for arg in "$@"; do
+  case "$arg" in warmup_frames:=*) echo "$arg" >> "$FAKE_ROS2_LOG" ;; esac
+done
+mode="${FAKE_ROS2_MODE:-timed}"
+if [[ "$mode" == "crash" ]]; then
+  echo "detector failed to start" >&2
+  exit 1
+fi
+{
+  echo "run_id,frame_id,published_at_ns"
+  for i in 0 1 2 3 4; do echo "$run_id,$i,$i"; done
+} > "${out%.csv}.publisher.csv"
 {
   echo "run_id,scenario,model_name,input_fps,qos_depth,fake_delay_ms,resource_profile,frame_id,latency_ms,dropped"
-  for i in 0 1 2 4; do echo "$run_id,$scenario,$model,$fps,$qos,$delay,$rp,$i,20,0"; done
+  if [[ "$mode" != "no_frames" ]]; then
+    for i in 0 1 2 4; do echo "$run_id,$scenario,$model,$fps,$qos,$delay,$rp,$i,20,0"; done
+  fi
 } > "$out"
+if [[ "$mode" == "early_exit" ]]; then
+  exit 0
+fi
+exit 99
 """
 
 SWEEPS = {
@@ -320,7 +343,10 @@ class SweepScriptRunIdTest(unittest.TestCase):
                 self.assertEqual(first.returncode, 0, first.stderr)
                 self.assertEqual(second.returncode, 0, second.stderr)
 
-                csvs = sorted(self.results_dir.glob(f"{scenario}_*.csv"))
+                csvs = sorted(
+                    path for path in self.results_dir.glob(f"{scenario}_*.csv")
+                    if not path.name.endswith(".publisher.csv")
+                )
                 self.assertEqual(len(csvs), 4)
                 for path in csvs:
                     self.assertIn("_normal_", path.name)
@@ -328,18 +354,21 @@ class SweepScriptRunIdTest(unittest.TestCase):
                         run_ids = {row["run_id"] for row in csv.DictReader(file)}
                     self.assertEqual(run_ids, {path.stem})
 
-                summary = build_runtime_summary(load_runtime_rows(csvs))
+                summary = build_runtime_summary(
+                    load_runtime_rows(csvs), publisher_frames=load_publisher_frames([self.results_dir])
+                )
                 self.assertEqual(len(summary), 4)
                 self.assertEqual(len({row["run_id"] for row in summary}), 4)
                 self.assertTrue(all(row["dropped_frames"] == "1" for row in summary))
+                self.assertTrue(all(row["frame_accounting"] == "publisher_log" for row in summary))
 
     def test_reused_run_tag_refuses_to_touch_existing_csv(self):
         for script, (scenario, extra_env) in SWEEPS.items():
             with self.subTest(script=script):
                 first = self._run(script, extra_env, run_tag=f"fixed_{scenario}")
                 self.assertEqual(first.returncode, 0, first.stderr)
-                existing = sorted(self.results_dir.glob(f"{scenario}_*_fixed_{scenario}.csv"))
-                self.assertEqual(len(existing), 2)
+                existing = sorted(self.results_dir.glob(f"{scenario}_*_fixed_{scenario}*.csv"))
+                self.assertEqual(len(existing), 4)  # detector CSV + publisher log per sweep point
                 before = {path: path.read_text(encoding="utf-8") for path in existing}
                 calls_before = self.log.read_text(encoding="utf-8").count("\n")
 
@@ -349,6 +378,36 @@ class SweepScriptRunIdTest(unittest.TestCase):
                 self.assertIn("拒絕 append 或覆寫", second.stderr)
                 self.assertEqual({path: path.read_text(encoding="utf-8") for path in existing}, before)
                 self.assertEqual(self.log.read_text(encoding="utf-8").count("\n"), calls_before)
+
+    def test_launch_failures_are_reported_and_quarantined(self):
+        cases = {
+            "early_exit": "RUN_SECONDS 之前結束（exit 0）",
+            "crash": "RUN_SECONDS 之前結束（exit 1）",
+            "no_frames": "沒有處理任何 frame",
+        }
+        for mode, message in cases.items():
+            with self.subTest(mode=mode):
+                result = self._run(
+                    "run_fps_sweep.sh",
+                    {"FPS_VALUES": "5 10", "FAKE_ROS2_MODE": mode},
+                    run_tag=f"tag_{mode}",
+                )
+
+                self.assertEqual(result.returncode, 1)
+                self.assertIn(message, result.stderr)
+                # Stops at the first failing sweep point.
+                self.assertEqual(self.log.read_text(encoding="utf-8").count(f"tag_{mode}"), 1)
+                leftovers = list(self.results_dir.glob(f"*tag_{mode}*.csv"))
+                self.assertEqual(leftovers, [], "failed runs must not leave analyzable *.csv files")
+                if mode != "crash":
+                    self.assertTrue(list(self.results_dir.glob(f"*tag_{mode}.csv.failed")))
+
+    def test_timed_runs_succeed_and_pass_warmup_frames(self):
+        result = self._run("run_qos_sweep.sh", {"QOS_VALUES": "1", "WARMUP_FRAMES": "3"})
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("到時正常結束", result.stdout)
+        self.assertIn("warmup_frames:=3", self.log.read_text(encoding="utf-8"))
 
     def test_invalid_run_tag_is_rejected_before_launch(self):
         result = self._run("run_fps_sweep.sh", {"FPS_VALUES": "5"}, run_tag="bad tag/..")

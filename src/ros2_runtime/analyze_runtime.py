@@ -3,6 +3,20 @@
 The analyzer accepts the runtime logging contract documented in the README. It
 uses only the Python standard library so it can run in the same lightweight
 environment as EDA-Lite.
+
+Measurement definitions (one summary row per configuration + run):
+
+- Warm-up: rows flagged ``warmup=1`` by the detector, plus the first
+  ``--warmup-frames`` received rows per run, are excluded. The measurement
+  window then starts after the last warm-up frame_id.
+- processed frame: a non-dropped row with a latency inside the window.
+- dropped frame: a frame of the window that was never processed. The window is
+  the publisher log (``<run_id>.publisher.csv``) when present, otherwise the
+  observed frame_id range. Explicit ``dropped`` rows and frame_id gaps are merged
+  as a set union, so a frame is counted at most once.
+- deadline miss: a processed frame with ``latency_ms > deadline_ms``. Dropped
+  frames are never deadline misses; the miss rate is divided by processed frames
+  and therefore cannot exceed 100%.
 """
 
 from __future__ import annotations
@@ -30,6 +44,15 @@ GROUP_FIELDS = [
 # treated as one run, identified as "legacy:<csv path as given on the CLI>".
 LEGACY_RUN_PREFIX = "legacy:"
 
+PUBLISHER_SUFFIX = ".publisher.csv"
+NUMERIC_GROUP_FIELDS = {"input_fps": float, "qos_depth": int, "fake_delay_ms": int}
+
+# frame_accounting values written to the summary.
+ACCOUNTING_PUBLISHER = "publisher_log"   # complete: includes leading/trailing drops
+ACCOUNTING_RANGE = "frame_id_range"      # lower bound: leading/trailing drops unknown
+ACCOUNTING_EXPLICIT = "explicit_only"    # lower bound: only explicit dropped rows
+ACCOUNTING_UNAVAILABLE = "unavailable"   # drops unknown; drop columns are left empty
+
 SUMMARY_FIELDS = [
     *GROUP_FIELDS,
     "run_id",
@@ -46,6 +69,17 @@ SUMMARY_FIELDS = [
     "avg_inference_ms",
     "avg_cpu_percent",
     "avg_memory_mb",
+    # Added in Phase 1 / Batch 1; appended so existing columns keep their order.
+    "deadline_ms",
+    "effective_miss_rate_pct",
+    "published_frames",
+    "frame_accounting",
+    "warmup_frames_excluded",
+    "avg_transport_ms",
+    "avg_preprocess_ms",
+    "avg_artificial_delay_ms",
+    "p95_inference_ms",
+    "timing_schema",
 ]
 
 FIGURE_METRICS = [
@@ -74,6 +108,16 @@ class RuntimeRow:
     run_id: str = ""
     legacy_run: bool = False
     source: str = ""
+    deadline_ms: float | None = None
+    warmup: bool = False
+    transport_ms: float | None = None
+    preprocess_ms: float | None = None
+    artificial_delay_ms: float | None = None
+    timing_schema: str = "legacy"
+
+    @property
+    def processed(self) -> bool:
+        return not self.dropped and self.latency_ms is not None
 
     def config_key(self) -> tuple[str, str, str, str, str, str]:
         return (
@@ -92,69 +136,99 @@ class RuntimeRow:
 def main() -> None:
     args = _parse_args()
     rows = load_runtime_rows(args.input)
-    summary_rows = build_runtime_summary(rows)
+    publisher_frames = load_publisher_frames(args.input)
+    summary_rows = build_runtime_summary(
+        rows, publisher_frames=publisher_frames, warmup_frames=args.warmup_frames
+    )
     write_runtime_summary(args.summary_output, summary_rows)
 
     if args.figures_dir:
         written = write_runtime_svgs(summary_rows, args.figures_dir)
         print(f"Wrote {len(written)} ROS2 SVG figures to {args.figures_dir}")
 
+    incomplete = [row["run_id"] for row in summary_rows if row["frame_accounting"] != ACCOUNTING_PUBLISHER]
+    if incomplete:
+        print(
+            f"Note: {len(incomplete)} run(s) have no publisher log; their drop counts are lower "
+            "bounds or unavailable (see frame_accounting)."
+        )
     print(f"Wrote {len(summary_rows)} ROS2 summary rows to {args.summary_output}")
 
 
 def load_runtime_rows(input_paths: Iterable[str | Path]) -> list[RuntimeRow]:
-    """Load one or more ROS2 runtime CSV files."""
+    """Load detector CSV files (publisher logs ``*.publisher.csv`` are skipped)."""
 
-    csv_paths = _expand_input_paths(input_paths)
+    csv_paths = [path for path in _expand_input_paths(input_paths) if not _is_publisher_log(path)]
     rows: list[RuntimeRow] = []
     for path in csv_paths:
         with path.open("r", encoding="utf-8", newline="") as file:
             reader = csv.DictReader(file)
             if not reader.fieldnames:
                 raise ValueError(f"{path} is missing a CSV header.")
+            timing_schema = "v2" if "artificial_delay_ms" in reader.fieldnames else "legacy"
             for raw_row in reader:
-                rows.append(_parse_runtime_row(raw_row, source_path=path))
+                rows.append(_parse_runtime_row(raw_row, source_path=path, timing_schema=timing_schema))
     if not rows:
         raise ValueError("No ROS2 runtime rows found.")
     return rows
 
 
-def build_runtime_summary(rows: Iterable[RuntimeRow]) -> list[dict[str, str]]:
+def load_publisher_frames(input_paths: Iterable[str | Path]) -> dict[str, list[int]]:
+    """Load publisher logs (``<run_id>.publisher.csv``) as {run_id: [frame_id, ...]}."""
+
+    frames: dict[str, list[int]] = {}
+    for path in _expand_input_paths(input_paths):
+        if not _is_publisher_log(path):
+            continue
+        with path.open("r", encoding="utf-8", newline="") as file:
+            for raw_row in csv.DictReader(file):
+                run_id = (raw_row.get("run_id") or "").strip()
+                frame_id = _optional_int(raw_row.get("frame_id"))
+                if not run_id or frame_id is None:
+                    raise ValueError(f"{path}: publisher rows need run_id and frame_id.")
+                frames.setdefault(run_id, []).append(frame_id)
+    for run_id, frame_ids in frames.items():
+        if len(frame_ids) != len(set(frame_ids)):
+            raise ValueError(f"Publisher log for run_id '{run_id}' repeats frame_id values.")
+    return frames
+
+
+def build_runtime_summary(
+    rows: Iterable[RuntimeRow],
+    publisher_frames: dict[str, list[int]] | None = None,
+    warmup_frames: int = 0,
+) -> list[dict[str, str]]:
     """Summarise runtime rows with one summary row per configuration and run.
 
-    Raises ValueError when rows from different runs cannot be separated safely
-    (see validate_run_integrity).
+    ``publisher_frames`` maps run_id to published frame ids; ``warmup_frames``
+    additionally excludes the first N received rows of every run. Raises
+    ValueError when rows from different runs cannot be separated safely (see
+    validate_run_integrity) or a run reports more than one deadline_ms.
     """
 
+    if warmup_frames < 0:
+        raise ValueError("warmup_frames must be non-negative.")
+    publisher_frames = publisher_frames or {}
     groups: dict[tuple[str, str, str, str, str, str, str], list[RuntimeRow]] = {}
     for row in rows:
         groups.setdefault(row.group_key(), []).append(row)
     validate_run_integrity(groups)
 
-    def sort_key(k: tuple[str, str, str, str, str, str, str]):
-        fps = float(k[2]) if k[2].replace(".", "", 1).isdigit() else k[2]
-        qos = float(k[3]) if k[3].isdigit() else k[3]
-        delay = float(k[4]) if k[4].isdigit() else k[4]
-        return (k[0], k[1], fps, qos, delay, k[5], k[6])
-
     summary_rows: list[dict[str, str]] = []
-    for key in sorted(groups, key=sort_key):
+    for key in sorted(groups, key=_group_sort_key):
         group_rows = groups[key]
-        processed_rows = [
-            row for row in group_rows if not row.dropped and row.latency_ms is not None
-        ]
-        latencies = [row.latency_ms for row in processed_rows if row.latency_ms is not None]
-        inference_times = [
-            row.inference_ms for row in processed_rows if row.inference_ms is not None
-        ]
-        cpu_values = [row.cpu_percent for row in group_rows if row.cpu_percent is not None]
-        memory_values = [row.memory_mb for row in group_rows if row.memory_mb is not None]
-        explicit_drops = sum(1 for row in group_rows if row.dropped)
-        inferred_drops = 0 if explicit_drops else _infer_frame_id_drops(group_rows)
-        dropped_frames = explicit_drops + inferred_drops
-        deadline_misses = sum(1 for row in group_rows if row.deadline_miss)
+        measured, warmup_excluded, boundary = _measurement_window(group_rows, warmup_frames)
+        processed_rows = [row for row in measured if row.processed]
+        latencies = [row.latency_ms for row in processed_rows]
+        published = publisher_frames.get(key[6]) if not group_rows[0].legacy_run else None
+        if published is not None and boundary is not None:
+            published = [frame_id for frame_id in published if frame_id > boundary]
+        dropped_frames, accounting = _count_dropped(measured, published)
         processed_count = len(processed_rows)
-        total_frames = processed_count + dropped_frames
+        total_frames = None if dropped_frames is None else processed_count + dropped_frames
+        deadline_ms = _run_deadline(group_rows, key)
+        deadline_misses = sum(1 for row in processed_rows if row.deadline_miss)
+        timing_schemas = {row.timing_schema for row in group_rows}
 
         summary_rows.append(
             {
@@ -165,24 +239,115 @@ def build_runtime_summary(rows: Iterable[RuntimeRow]) -> list[dict[str, str]]:
                 "fake_delay_ms": key[4],
                 "resource_profile": key[5],
                 "run_id": key[6],
-                "total_rows": str(total_frames),
+                "total_rows": _format_count(total_frames),
                 "processed_frames": str(processed_count),
-                "dropped_frames": str(dropped_frames),
-                "drop_rate_pct": _format_number(_rate_pct(dropped_frames, total_frames)),
+                "dropped_frames": _format_count(dropped_frames),
+                "drop_rate_pct": _format_optional(_rate_pct(dropped_frames, total_frames)),
                 "deadline_misses": str(deadline_misses),
-                "deadline_miss_rate_pct": _format_number(
-                    _rate_pct(deadline_misses, max(processed_count, 1))
-                ),
+                "deadline_miss_rate_pct": _format_optional(_rate_pct(deadline_misses, processed_count)),
                 "avg_latency_ms": _format_optional(_average(latencies)),
                 "p95_latency_ms": _format_optional(_percentile(latencies, 95)),
                 "p99_latency_ms": _format_optional(_percentile(latencies, 99)),
                 "jitter_ms": _format_optional(_pstdev(latencies)),
-                "avg_inference_ms": _format_optional(_average(inference_times)),
-                "avg_cpu_percent": _format_optional(_average(cpu_values)),
-                "avg_memory_mb": _format_optional(_average(memory_values)),
+                "avg_inference_ms": _format_optional(_average(_values(processed_rows, "inference_ms"))),
+                "avg_cpu_percent": _format_optional(_average(_values(measured, "cpu_percent"))),
+                "avg_memory_mb": _format_optional(_average(_values(measured, "memory_mb"))),
+                "deadline_ms": _format_optional(deadline_ms),
+                "effective_miss_rate_pct": _format_optional(
+                    None if dropped_frames is None
+                    else _rate_pct(deadline_misses + dropped_frames, total_frames)
+                ),
+                "published_frames": _format_count(None if published is None else len(published)),
+                "frame_accounting": accounting,
+                "warmup_frames_excluded": str(warmup_excluded),
+                "avg_transport_ms": _format_optional(_average(_values(processed_rows, "transport_ms"))),
+                "avg_preprocess_ms": _format_optional(_average(_values(processed_rows, "preprocess_ms"))),
+                "avg_artificial_delay_ms": _format_optional(
+                    _average(_values(processed_rows, "artificial_delay_ms"))
+                ),
+                "p95_inference_ms": _format_optional(
+                    _percentile(_values(processed_rows, "inference_ms"), 95)
+                ),
+                "timing_schema": timing_schemas.pop() if len(timing_schemas) == 1 else "mixed",
             }
         )
     return summary_rows
+
+
+def _measurement_window(
+    group_rows: list[RuntimeRow], warmup_frames: int
+) -> tuple[list[RuntimeRow], int, int | None]:
+    """Split off warm-up rows; return (measured rows, excluded count, last warm-up frame_id)."""
+
+    warmup_ids: set[int] = set()
+    warmup_rows: set[int] = set()
+    received = 0
+    for index, row in enumerate(group_rows):
+        is_warmup = row.warmup
+        if not row.dropped:
+            is_warmup = is_warmup or received < warmup_frames
+            received += 1
+        if is_warmup:
+            warmup_rows.add(index)
+            if row.frame_id is not None:
+                warmup_ids.add(row.frame_id)
+    boundary = max(warmup_ids) if warmup_ids else None
+    measured = [
+        row for index, row in enumerate(group_rows)
+        if index not in warmup_rows
+        and (boundary is None or row.frame_id is None or row.frame_id > boundary)
+    ]
+    return measured, len(group_rows) - len(measured), boundary
+
+
+def _count_dropped(
+    measured: list[RuntimeRow], published: list[int] | None
+) -> tuple[int | None, str]:
+    """Count dropped frames as |window frames - frames received| (set union, no double count)."""
+
+    received_ids = {row.frame_id for row in measured if row.frame_id is not None and not row.dropped}
+    explicit_ids = {row.frame_id for row in measured if row.frame_id is not None and row.dropped}
+    explicit_without_id = sum(1 for row in measured if row.dropped and row.frame_id is None)
+    observed_ids = received_ids | explicit_ids
+
+    if published is not None:
+        window = set(published) | observed_ids
+        accounting = ACCOUNTING_PUBLISHER
+    elif observed_ids:
+        window = set(range(min(observed_ids), max(observed_ids) + 1))
+        accounting = ACCOUNTING_RANGE
+    elif explicit_without_id:
+        window = set()
+        accounting = ACCOUNTING_EXPLICIT
+    else:
+        return None, ACCOUNTING_UNAVAILABLE
+    return len(window - received_ids) + explicit_without_id, accounting
+
+
+def _run_deadline(group_rows: list[RuntimeRow], key: tuple[str, ...]) -> float | None:
+    deadlines = {row.deadline_ms for row in group_rows if row.deadline_ms is not None}
+    if len(deadlines) > 1:
+        raise ValueError(
+            f"run_id '{key[6]}', config {_describe_config(key)}: rows report several "
+            f"deadline_ms values {sorted(deadlines)}; one run must use one deadline."
+        )
+    return deadlines.pop() if deadlines else None
+
+
+def _values(rows: list[RuntimeRow], field: str) -> list[float]:
+    return [value for value in (getattr(row, field) for row in rows) if value is not None]
+
+
+def _group_sort_key(key: tuple[str, ...]) -> tuple:
+    """Sort numeric fields numerically; non-numeric values sort after them as text."""
+
+    def part(value: str) -> tuple[int, float | str]:
+        try:
+            return (0, float(value))
+        except ValueError:
+            return (1, value)
+
+    return (key[0], key[1], part(key[2]), part(key[3]), part(key[4]), key[5], key[6])
 
 
 def validate_run_integrity(
@@ -295,7 +460,8 @@ def build_bar_chart_svg(rows: list[dict[str, str]], metric_name: str, title: str
     plot_width = width - left - right
     plot_height = height - top - bottom
 
-    values = [_to_float(row.get(metric_name, "")) or 0.0 for row in rows]
+    raw_values = [_to_float(row.get(metric_name, "")) for row in rows]
+    values = [value or 0.0 for value in raw_values]
     max_value = max(values) if values else 1.0
     if max_value == 0:
         max_value = 1.0
@@ -352,7 +518,7 @@ def build_bar_chart_svg(rows: list[dict[str, str]], metric_name: str, title: str
         )
         elements.append(
             f'<text class="tick" x="{x + bar_width / 2:.1f}" y="{y - 6:.1f}" '
-            f'text-anchor="middle">{value:.2f}</text>'
+            f'text-anchor="middle">{"n/a" if raw_values[index] is None else f"{value:.2f}"}</text>'
         )
         elements.append(
             f'<text class="label" transform="translate({x + bar_width / 2:.1f} '
@@ -364,7 +530,9 @@ def build_bar_chart_svg(rows: list[dict[str, str]], metric_name: str, title: str
     return "\n".join(elements) + "\n"
 
 
-def _parse_runtime_row(raw_row: dict[str, str], source_path: Path) -> RuntimeRow:
+def _parse_runtime_row(
+    raw_row: dict[str, str], source_path: Path, timing_schema: str = "legacy"
+) -> RuntimeRow:
     raw_run_id = (raw_row.get("run_id") or "").strip()
     legacy_run = not raw_run_id
     run_id = f"{LEGACY_RUN_PREFIX}{source_path.as_posix()}" if legacy_run else raw_run_id
@@ -377,17 +545,23 @@ def _parse_runtime_row(raw_row: dict[str, str], source_path: Path) -> RuntimeRow
             latency_ms = (completed_at_ns - published_at_ns) / 1_000_000.0
 
     dropped = _parse_bool(raw_row.get("dropped"))
-    deadline_miss = _parse_bool(raw_row.get("deadline_miss"))
     deadline_ms = _optional_float(raw_row.get("deadline_ms"))
-    if not deadline_miss and deadline_ms is not None and latency_ms is not None:
+    # One definition: a processed frame misses iff latency_ms > deadline_ms. The
+    # logged flag is only used when deadline_ms is unknown. Dropped frames are
+    # counted as drops, never as deadline misses.
+    if dropped or latency_ms is None:
+        deadline_miss = False
+    elif deadline_ms is not None:
         deadline_miss = latency_ms > deadline_ms
+    else:
+        deadline_miss = _parse_bool(raw_row.get("deadline_miss"))
 
     return RuntimeRow(
         scenario=_text_or_default(raw_row.get("scenario"), source_path.stem),
         model_name=_text_or_default(raw_row.get("model_name"), "unknown_model"),
-        input_fps=_text_or_default(raw_row.get("input_fps"), "unknown"),
-        qos_depth=_text_or_default(raw_row.get("qos_depth"), "unknown"),
-        fake_delay_ms=_text_or_default(raw_row.get("fake_delay_ms"), "0"),
+        input_fps=_group_number(raw_row.get("input_fps"), "input_fps", "unknown"),
+        qos_depth=_group_number(raw_row.get("qos_depth"), "qos_depth", "unknown"),
+        fake_delay_ms=_group_number(raw_row.get("fake_delay_ms"), "fake_delay_ms", "0"),
         resource_profile=_text_or_default(raw_row.get("resource_profile"), "normal"),
         frame_id=_optional_int(raw_row.get("frame_id")),
         latency_ms=latency_ms,
@@ -399,21 +573,34 @@ def _parse_runtime_row(raw_row: dict[str, str], source_path: Path) -> RuntimeRow
         run_id=run_id,
         legacy_run=legacy_run,
         source=str(source_path),
+        deadline_ms=deadline_ms,
+        warmup=_parse_bool(raw_row.get("warmup")),
+        transport_ms=_optional_float(raw_row.get("transport_ms")),
+        preprocess_ms=_optional_float(raw_row.get("preprocess_ms")),
+        artificial_delay_ms=_optional_float(raw_row.get("artificial_delay_ms")),
+        timing_schema=timing_schema,
     )
 
 
-def _infer_frame_id_drops(rows: list[RuntimeRow]) -> int:
-    frame_ids = sorted({row.frame_id for row in rows if row.frame_id is not None})
-    if len(frame_ids) <= 1:
-        return 0
+def _group_number(value: str | None, field: str, default: str) -> str:
+    """Canonical text for numeric grouping keys, so '20' and '20.0' are one group.
 
-    dropped = 0
-    previous = frame_ids[0]
-    for frame_id in frame_ids[1:]:
-        if frame_id > previous + 1:
-            dropped += frame_id - previous - 1
-        previous = frame_id
-    return dropped
+    input_fps keeps the float spelling the detector logs ('20.0'); qos_depth and
+    fake_delay_ms use integers when integral. Non-numeric text is kept as-is.
+    """
+
+    text = _text_or_default(value, default).strip()
+    try:
+        number = float(text)
+    except ValueError:
+        return text
+    if NUMERIC_GROUP_FIELDS[field] is int and number.is_integer():
+        return str(int(number))
+    return repr(number)
+
+
+def _is_publisher_log(path: Path) -> bool:
+    return path.name.endswith(PUBLISHER_SUFFIX)
 
 
 def _expand_input_paths(input_paths: Iterable[str | Path]) -> list[Path]:
@@ -501,10 +688,16 @@ def _percentile(values: list[float], percentile: int) -> float | None:
     return sorted_values[index]
 
 
-def _rate_pct(count: int, total: int) -> float:
-    if total == 0:
-        return 0.0
+def _rate_pct(count: int | None, total: int | None) -> float | None:
+    """Percentage, or None (unknown) when the count or a non-zero total is missing."""
+
+    if count is None or not total:
+        return None
     return count / total * 100.0
+
+
+def _format_count(value: int | None) -> str:
+    return "" if value is None else str(value)
 
 
 def _format_optional(value: float | None) -> str:
@@ -530,6 +723,13 @@ def _parse_args() -> argparse.Namespace:
         "--figures-dir",
         default=None,
         help="Optional directory for SVG runtime figures.",
+    )
+    parser.add_argument(
+        "--warmup-frames",
+        type=int,
+        default=0,
+        help="Also exclude the first N received frames of every run (in addition to rows "
+        "the detector flagged warmup=1). Default: 0.",
     )
     return parser.parse_args()
 

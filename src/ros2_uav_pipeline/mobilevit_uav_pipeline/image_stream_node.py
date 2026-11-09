@@ -7,6 +7,15 @@ import numpy as np
 import cv2
 import os
 import glob
+import csv
+import time
+
+try:  # installed package (ros2 run / ros2 launch <package>)
+    from mobilevit_uav_pipeline.run_log import (
+        DISABLED, PUBLISHER_CSV_HEADER, create_run_csv, ns_to_stamp, resolve_run_id,
+    )
+except ImportError:  # executed by file path from the checked-in launch file
+    from run_log import DISABLED, PUBLISHER_CSV_HEADER, create_run_csv, ns_to_stamp, resolve_run_id
 
 class ImageStreamNode(Node):
     def __init__(self):
@@ -15,6 +24,10 @@ class ImageStreamNode(Node):
         # 宣告參數 (Parameters) 以便接受從 Launch 檔或命令列傳入的數值
         self.declare_parameter('dataset_path', 'data/raw/images/coco128/images/train2017')
         self.declare_parameter('input_fps', 30.0)
+        # 每個發布的 frame 記錄到 <run_id>.publisher.csv，讓 analyzer 可計算開頭/結尾掉幀。
+        # 'none' = 不記錄（單獨執行時）。
+        self.declare_parameter('run_id', 'auto')
+        self.declare_parameter('output_csv', DISABLED)
         
         dataset_path = self.get_parameter('dataset_path').value
         input_fps = float(self.get_parameter('input_fps').value)
@@ -38,6 +51,15 @@ class ImageStreamNode(Node):
         self.timer = self.create_timer(timer_period, self.timer_callback)
         self.bridge = CvBridge()
         self.seq_id = 0
+        self.run_id = resolve_run_id(self.get_parameter('run_id').value)
+        self.publish_log = None
+        log_path = str(self.get_parameter('output_csv').value).strip()
+        if log_path and log_path != DISABLED:
+            create_run_csv(log_path, PUBLISHER_CSV_HEADER)  # 已存在則失敗，不 append
+            # line buffering：被 launch 結束時已發布的每一筆都已寫入
+            self.publish_log = open(log_path, 'a', newline='', buffering=1)
+            self.publish_writer = csv.writer(self.publish_log)
+            self.get_logger().info(f'run_id={self.run_id}，發布紀錄寫入 {log_path}')
         self.get_logger().info(f'影像發布節點已啟動，目標發布頻率：{input_fps} FPS')
 
     def timer_callback(self):
@@ -62,11 +84,15 @@ class ImageStreamNode(Node):
         # 打上精確的時間戳記與自定義的序號 (Sequence ID)。
         # 在 ROS 2 中 Header 已經移除了 seq 欄位，所以我們透過 frame_id 來傳遞序號，
         # 以便 Subscriber 端可以用來計算 OS 網路緩衝區 (UDP Buffer) 造成的掉幀 (Frame Drop)。
-        msg.header.stamp = self.get_clock().now().to_msg()
+        # 用 host wall clock（與 detector 相同的時間來源）打時間戳記。
+        published_at_ns = time.time_ns()
+        msg.header.stamp.sec, msg.header.stamp.nanosec = ns_to_stamp(published_at_ns)
         msg.header.frame_id = str(self.seq_id)
         
         # 發布影像，將資料送入 OS 的網路堆疊 (Network Stack) 進行 DDS 傳輸
         self.publisher_.publish(msg)
+        if self.publish_log is not None:
+            self.publish_writer.writerow([self.run_id, self.seq_id, published_at_ns])
         self.get_logger().debug(f'已發布幀 {self.seq_id}')
         self.seq_id += 1
 
