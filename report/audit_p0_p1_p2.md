@@ -10,6 +10,7 @@
 ```bash
 python3 scripts/audit_repro.py            # 執行所有可自動重現的 case
 python3 scripts/audit_repro.py P0-1 P1-1  # 只跑指定 case
+# Batch 2 新增 case：P1-4S（EDA-Lite deadline 是否使用 effective latency 並記錄 deadline_ms）
 ```
 
 每個 case 會印出 `REPRODUCED`（問題仍存在）或 `FIXED`（修正後不再出現），可直接當作修正的驗收工具。腳本只用標準函式庫與暫存目錄，不寫入 repo。標為「靜態審查」的項目只能讀程式碼確認，腳本無法重現（需要 ROS 2 環境）。
@@ -28,13 +29,13 @@ python3 scripts/audit_repro.py P0-1 P1-1  # 只跑指定 case
 
 | ID | 等級 | 主題 | 一句話 | 重現 |
 |---|---|---|---|---|
-| P0-1 | P0 | DP objective | DP 最小化的是 per-subgraph 加總 surrogate，不是報告中的 `os_aware_total_cost` | `P0-1` |
+| P0-1 | P0 | DP objective | DP 最小化的是 per-subgraph 加總 surrogate，不是報告中的 `os_aware_total_cost`（**Batch 2 已修正**） | `P0-1` |
 | P0-2 | P0 | ROS 2 CSV 混用 | detector 以 append 寫入、`frame_id` 每次從 0 起算，重跑會讓掉幀率從 49.5% 變 0%（**PR-A1 已修正**） | `P0-2` |
 | P0-3 | P0 | Provenance | 主流程吃的 22 個 `measured_*` profiles 無法從 repo 重建；已追蹤 runtime-aware CSV 已過期 | `P0-3` |
-| P1-1 | P1 | Greedy 剪枝 | SRAM 可行性非單調，greedy 第一次不可行就停，會漏掉更長融合，甚至誤報不可行 | `P1-1` |
-| P1-2 | P1 | Sweep 健壯性 | 任一 scheduler 不可行就整個 sweep 中止，SRAM 無法往下掃 | `P1-2` |
-| P1-3 | P1 | OS-aware 鑑別力 | deadline 項恆為 0、22 個 OS profiles 從未改變任何排程、DP 與 greedy 88/88 相同 | `P1-3` |
-| P1-4 | P1 | Deadline 一致性 | ROS 2 用 100 ms、EDA-Lite 用 33.3 ms；dropped rows 會算進 miss 數但分母只算 processed（**Batch 1 已修正 runtime 端**） | `P1-4` + 靜態 |
+| P1-1 | P1 | Greedy 剪枝 | SRAM 可行性非單調，greedy 第一次不可行就停，會漏掉更長融合，甚至誤報不可行（**Batch 2 已修正**） | `P1-1` |
+| P1-2 | P1 | Sweep 健壯性 | 任一 scheduler 不可行就整個 sweep 中止，SRAM 無法往下掃（**Batch 2 已修正**） | `P1-2` |
+| P1-3 | P1 | OS-aware 鑑別力 | deadline 項恆為 0、22 個 OS profiles 從未改變任何排程、DP 與 greedy 88/88 相同（**Batch 2 已修正語意：`pure`、平手標示、profile 參數化；「不改變排程」是資料事實，已記錄**） | `P1-3` |
+| P1-4 | P1 | Deadline 一致性 | ROS 2 用 100 ms、EDA-Lite 用 33.3 ms；dropped rows 會算進 miss 數但分母只算 processed（**Batch 1 修正 runtime 端；Batch 2 修正 EDA-Lite 端**） | `P1-4`、`P1-4S` + 靜態 |
 | P1-5 | P1 | frame_id 掉幀推估 | 開頭/結尾掉幀看不到、explicit drop 會關掉 gap 推估、group key 未正規化（甚至 TypeError）（**Batch 1 已修正**） | `P1-5` |
 | P1-6 | P1 | 時間戳記語意 | `inference_ms` 含假延遲、混用時鐘、warm-up 未剔除、`received_at_ns` 未使用（**Batch 1 已修正**） | `P1-6` |
 | P1-7 | P1 | OS profile 正規化 | latency/memory baseline 跨模型取全域 min/max，S 模型 idle 也有 3.4× multiplier | `P1-7` |
@@ -53,6 +54,8 @@ python3 scripts/audit_repro.py P0-1 P1-1  # 只跑指定 case
 ## 2. P0：會讓結果錯誤或無法重現
 
 ### P0-1 DP objective 與 reported `os_aware_total_cost` 不一致
+
+> **狀態：已於 Phase 1 / Batch 2 修正**（見 `report/PHASE1_BATCH2_RESULT.md`）。`dp` 改為以 Pareto label DP 精確最小化整個 schedule 的 `os_aware_cost`；新增 `exhaustive_schedule` oracle（n ≤ 20）。單元測試：600 個隨機小模型 + MobileViT profiles，`dp` 與 oracle 的 partition 與成本完全一致。`python3 scripts/audit_repro.py P0-1` 顯示 `FIXED`。
 
 **檔案**
 - `src/eda_lite/schedulers.py:79-94`：`dp[end] = dp[start] + subgraph_objective_cost(candidate)`，即每個 subgraph 各自算完整 OS-aware cost 再加總。
@@ -141,6 +144,8 @@ python3 scripts/audit_repro.py P0-1 P1-1  # 只跑指定 case
 
 ### P1-1 Greedy 在非單調 SRAM 可行性上提早剪枝
 
+> **狀態：已於 Phase 1 / Batch 2 修正**（見 `report/PHASE1_BATCH2_RESULT.md`）。只在 non-fusible layer 停止掃描，記錄最後一個 SRAM 可行的 end；兩組 toy 資料已加為 unit test。`P1-1` 顯示 `FIXED`。
+
 **檔案**：`src/eda_lite/schedulers.py:40-62`（`52-57` 的 `break`），`cost_model.py:223-243`。
 
 **問題**：`SRAM(l..k) = in_l + out_k + max(out_l..out_{k−1}) + min(max w, tile)`。往後多接一層時，原本的 `out_k` 會從「final output」變成「intermediate」；如果下一層輸出很小，整體 SRAM 反而會**下降**。可行性對結束位置不是單調的，所以「第一次不可行就 break」並不等於 docstring 寫的 “longest feasible contiguous region”。更糟的是，greedy 可能把一個單獨不可行的層切出來，然後在 `_assert_schedule_fits` 誤報整個模型不可行。
@@ -157,6 +162,8 @@ python3 scripts/audit_repro.py P0-1 P1-1  # 只跑指定 case
 
 ### P1-2 單一 scheduler 不可行就中止整個 sweep
 
+> **狀態：已於 Phase 1 / Batch 2 修正**（見 `report/PHASE1_BATCH2_RESULT.md`）。不可行時拋出 `InfeasibleScheduleError`，sweep 輸出 `feasible=false`、數值欄位留空並附 `infeasible_reason`；設定錯誤（未知 profile/scheduler）仍會中止。Analyzer 排除不可行列，baseline 缺少或不可行時以 `baseline_status` 標示、reduction 留空。`P1-2` 顯示 `FIXED`。
+
 **檔案**：`src/eda_lite/run_simulation.py:74-107`（沒有 per-row 例外處理），`schedulers.py:133-144`。
 
 **問題**：`layerwise` 在小 SRAM 下不可行是合理結果，但目前會丟出 `ValueError`，整個 sweep 不輸出任何列。這使得 SRAM 無法掃到 256 KB 以下，而 P1-3 顯示 256 KB 以上幾乎沒有鑑別力。
@@ -166,6 +173,8 @@ python3 scripts/audit_repro.py P0-1 P1-1  # 只跑指定 case
 **最小修改**：在 `_run_scheduler` 呼叫外包一層 `try/except ValueError`，輸出 `feasible=false` 的列，數值欄位留空；CSV 新增 `feasible` 欄，`analyze_results` 排除不可行列。
 
 ### P1-3 OS-aware 項在現有設定下沒有任何決策影響
+
+> **狀態：Phase 1 / Batch 2 已處理**（見 `report/PHASE1_BATCH2_RESULT.md`）。新增內建 `pure` profile（multiplier 1.0、其餘 0）；summary 以 `greedy=dp` 標示平手並新增 `num_tied_schedulers`、`tied_same_partition`；`plot_6lines` 的 profile 改由 CLI / 腳本環境變數指定；新增 `mobilevit_sensitivity_sweep.json`（SRAM 128–2048 KB × deadline 5–100）。修正 deadline 後，deadline 項在部分 profile 下不再是 0，但在 MobileViT coarse profiles 上 OS profiles 與 deadline 仍**不改變任何排程**：fusion 同時降低 energy、latency 與 deadline 項，只有 SRAM 可行性會改變決策，memory 項需把 `gamma` 放大約 50–130 倍才會翻轉。這是資料與成本模型的事實，未為了製造差異而調整設定。`P1-3` 改為檢查上述語意修正，並照實印出這些事實；顯示 `FIXED`。
 
 **檔案**：`experiments/eda_lite/mobilevit_*.json`（`deadline_ms: 33.3`、`sram_kb ≥ 256`）、`data/model_profiles/mobilevit_*_simplified.json`、`src/eda_lite/analyze_results.py:116`、`src/eda_lite/plot_6lines.py:100,120,127`。
 
@@ -186,7 +195,7 @@ python3 scripts/audit_repro.py P0-1 P1-1  # 只跑指定 case
 
 ### P1-4 Deadline / QoS 語意在各層之間不一致
 
-> **狀態：runtime 端已於 Phase 1 / Batch 1 修正**（第 3、4 點與 CSV 的 `deadline_ms`；見 `report/PHASE1_BATCH1_RESULT.md`，`python3 scripts/audit_repro.py P1-4` 顯示 `FIXED`）。第 1、2 點（EDA-Lite 的 33.3 ms deadline 與 `latency_multiplier`）及第 5 點（QoS 文件）仍待下一批。
+> **狀態：runtime 端已於 Phase 1 / Batch 1 修正**（第 3、4 點與 CSV 的 `deadline_ms`；見 `report/PHASE1_BATCH1_RESULT.md`，`python3 scripts/audit_repro.py P1-4` 顯示 `FIXED`）。**EDA-Lite 端（第 1、2 點）已於 Batch 2 修正**（見 `report/PHASE1_BATCH2_RESULT.md`）：deadline 項改用 effective latency `latency_multiplier × L`；每列記錄 `deadline_ms`；文件明確定義 simulation deadline（simulated latency 單位）與 ROS 2 deadline（wall-clock）不同，兩者只透過 `deadline_miss_rate` 與 `latency_multiplier` 連結，不做數值換算；可用 top-level `deadline_ms` 清單做 sweep。`P1-4S` 顯示 `FIXED`。第 5 點（QoS 文件）仍待處理。
 
 **檔案**：`mobilevit_detector_node.py:23,118`（預設 100 ms、`>`）、`experiments/ros2/run_*_sweep.sh:13`（100）、`experiments/eda_lite/mobilevit_*.json`（33.3）、`cost_model.py:270-272`、`analyze_runtime.py:137,154-156,286-288`。
 

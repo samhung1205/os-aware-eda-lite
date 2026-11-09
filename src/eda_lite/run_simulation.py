@@ -8,11 +8,15 @@ import json
 from pathlib import Path
 from typing import Any
 
+from dataclasses import replace
+
 from .cost_model import estimate_schedule_metrics, make_cost_config, make_os_profiles
 from .model_loader import load_model_profile
 from .schedulers import (
+    InfeasibleScheduleError,
     ScheduleResult,
     dp_schedule,
+    exhaustive_schedule,
     greedy_schedule,
     layerwise_schedule,
     serialize_subgraphs,
@@ -32,6 +36,32 @@ CSV_FIELDS = [
     "estimated_latency_ms",
     "os_aware_total_cost",
     "subgraphs",
+    # Appended in Phase 1 / Batch 2; older CSVs without them are still readable.
+    "feasible",
+    "infeasible_reason",
+    "deadline_ms",
+    "effective_latency_ms",
+    "latency_cost",
+    "deadline_cost",
+    "memory_pressure_cost",
+    "communication_pressure_cost",
+]
+
+# Scheduler-dependent columns left empty when a scheduler has no feasible schedule.
+_RESULT_FIELDS = [
+    "num_subgraphs",
+    "max_fusion_depth",
+    "peak_sram_kb",
+    "dram_traffic_kb",
+    "estimated_energy",
+    "estimated_latency_ms",
+    "os_aware_total_cost",
+    "subgraphs",
+    "effective_latency_ms",
+    "latency_cost",
+    "deadline_cost",
+    "memory_pressure_cost",
+    "communication_pressure_cost",
 ]
 
 
@@ -68,43 +98,78 @@ def run_simulation_with_config(
     )
     os_profiles = make_os_profiles(raw_os_profiles)
     os_profile_names = _os_profile_names(config, raw_os_profile_file)
-    cost_config = make_cost_config(config.get("cost_model"))
+    unknown_profiles = [name for name in os_profile_names if name not in os_profiles]
+    if unknown_profiles:
+        raise ValueError(f"Unknown OS profile(s): {', '.join(unknown_profiles)}.")
+    base_cost_config = make_cost_config(config.get("cost_model"))
+    # Optional sweep dimension: a top-level "deadline_ms" list overrides
+    # cost_model.deadline_ms (simulated-latency units, see README).
+    if "deadline_ms" in config:
+        deadline_values = _require_number_list(config, "deadline_ms")
+    else:
+        deadline_values = [base_cost_config.deadline_ms]
 
     rows: list[dict[str, Any]] = []
     for sram_kb in sram_values:
-        for os_profile_name in os_profile_names:
-            for scheduler_name in scheduler_names:
-                schedule = _run_scheduler(
-                    scheduler_name=scheduler_name,
-                    layers=model_profile.layers,
-                    sram_kb=sram_kb,
-                    os_profile_name=os_profile_name,
-                    cost_config=cost_config,
-                    os_profiles=os_profiles,
-                )
-                metrics = estimate_schedule_metrics(
-                    schedule.subgraphs,
-                    sram_kb=sram_kb,
-                    os_profile_name=os_profile_name,
-                    cost_config=cost_config,
-                    os_profiles=os_profiles,
-                )
-                rows.append(
-                    {
+        for deadline_ms in deadline_values:
+            cost_config = replace(base_cost_config, deadline_ms=deadline_ms)
+            for os_profile_name in os_profile_names:
+                for scheduler_name in scheduler_names:
+                    row: dict[str, Any] = {
                         "model_name": model_profile.model_name,
-                        "scheduler": schedule.scheduler,
+                        "scheduler": scheduler_name,
                         "sram_kb": _format_number(sram_kb),
                         "os_profile": os_profile_name,
-                        "num_subgraphs": len(schedule.subgraphs),
-                        "max_fusion_depth": schedule.max_fusion_depth,
-                        "peak_sram_kb": _format_number(metrics.peak_sram_kb),
-                        "dram_traffic_kb": _format_number(metrics.dram_traffic_kb),
-                        "estimated_energy": _format_number(metrics.estimated_energy),
-                        "estimated_latency_ms": _format_number(metrics.estimated_latency_ms),
-                        "os_aware_total_cost": _format_number(metrics.os_aware_total_cost),
-                        "subgraphs": serialize_subgraphs(schedule.subgraphs),
+                        "deadline_ms": _format_number(deadline_ms),
                     }
-                )
+                    try:
+                        schedule = _run_scheduler(
+                            scheduler_name=scheduler_name,
+                            layers=model_profile.layers,
+                            sram_kb=sram_kb,
+                            os_profile_name=os_profile_name,
+                            cost_config=cost_config,
+                            os_profiles=os_profiles,
+                        )
+                    except InfeasibleScheduleError as exc:
+                        row.update({field: "" for field in _RESULT_FIELDS})
+                        row.update({"feasible": "false", "infeasible_reason": str(exc)})
+                        rows.append(row)
+                        continue
+                    metrics = estimate_schedule_metrics(
+                        schedule.subgraphs,
+                        sram_kb=sram_kb,
+                        os_profile_name=os_profile_name,
+                        cost_config=cost_config,
+                        os_profiles=os_profiles,
+                    )
+                    breakdown = metrics.breakdown
+                    row.update(
+                        {
+                            "num_subgraphs": len(schedule.subgraphs),
+                            "max_fusion_depth": schedule.max_fusion_depth,
+                            "peak_sram_kb": _format_number(metrics.peak_sram_kb),
+                            "dram_traffic_kb": _format_number(metrics.dram_traffic_kb),
+                            "estimated_energy": _format_number(metrics.estimated_energy),
+                            "estimated_latency_ms": _format_number(metrics.estimated_latency_ms),
+                            "os_aware_total_cost": _format_number(metrics.os_aware_total_cost),
+                            "subgraphs": serialize_subgraphs(schedule.subgraphs),
+                            "feasible": "true",
+                            "infeasible_reason": "",
+                            "effective_latency_ms": _format_number(
+                                breakdown.effective_latency_ms
+                            ),
+                            "latency_cost": _format_number(breakdown.latency_cost),
+                            "deadline_cost": _format_number(breakdown.deadline_cost),
+                            "memory_pressure_cost": _format_number(
+                                breakdown.memory_pressure_cost
+                            ),
+                            "communication_pressure_cost": _format_number(
+                                breakdown.communication_pressure_cost
+                            ),
+                        }
+                    )
+                    rows.append(row)
     return rows
 
 
@@ -131,6 +196,14 @@ def _run_scheduler(
         return greedy_schedule(layers, sram_kb=sram_kb, cost_config=cost_config)
     if scheduler_name == "dp":
         return dp_schedule(
+            layers,
+            sram_kb=sram_kb,
+            os_profile_name=os_profile_name,
+            cost_config=cost_config,
+            os_profiles=os_profiles,
+        )
+    if scheduler_name == "exhaustive":
+        return exhaustive_schedule(
             layers,
             sram_kb=sram_kb,
             os_profile_name=os_profile_name,

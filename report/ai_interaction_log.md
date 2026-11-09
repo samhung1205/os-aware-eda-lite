@@ -200,3 +200,21 @@ Implementation decision:
 Important limitation:
 
 - Still not exercised on a real ROS2 runtime; node and launch behaviour is covered by stdlib helper tests, stubbed launch modules, and fake `ros2`/`timeout` executables. The EDA-Lite deadline/cost model is unchanged (next batch).
+
+## 2026-11-10 Phase 1 / Batch 2: Scheduling & Cost Model Correctness
+
+Prompt summary:
+
+- Fix audit P0-1 (DP objective), P1-1/P1-2 (greedy pruning, sweep robustness), P1-3 (pure profile, ties, hard-coded profile selection, sensitivity), and the EDA-Lite side of P1-4 (deadline semantics), keeping the architecture and without fabricating improvements.
+
+Implementation decision:
+
+- Checkpoint-commit Batch 1 (`54667ab`) first, excluding the user's `plot_6lines.py`, SVGs, `.DS_Store`, and Office lock file.
+- `dp` now minimises the reported whole-schedule cost exactly with a Pareto-label prefix DP over (additive cost, total latency, max peak), dropping coordinates whose weight is zero; the tie-break preference is part of dominance so `dp` returns the same partition as the new `exhaustive` oracle. Chosen over always delegating to exhaustive search because it stays exact without an n <= 20 limit; chosen over changing the reported cost to a per-subgraph sum because a per-subgraph memory penalty is semantically wrong.
+- Deadline penalty uses `latency_multiplier * L`. The ROS2 wall-clock deadline is not copied into the simulation (units differ); the link stays the dimensionless miss rate and multiplier.
+- Greedy stops scanning only at non-fusible layers. Infeasible schedulers produce `feasible=false` rows; configuration errors still abort.
+- Summary reports ties (`greedy=dp`) and baseline status. Built-in `pure` profile. Six-line plot profiles moved to CLI/env vars (edited on top of the user's uncommitted `SIX_LINE_METRICS` change, which is preserved).
+
+Important limitation:
+
+- On the MobileViT coarse profiles no OS profile or deadline changes a schedule; only SRAM feasibility does. This is reported as-is. Runtime-aware costs with measured `latency_multiplier` up to 30.2 are dominated by the deadline term, which inherits P1-7 (cross-model normalisation) and P0-3 (unverifiable measured profiles).

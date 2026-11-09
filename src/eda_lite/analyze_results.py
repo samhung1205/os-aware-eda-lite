@@ -9,6 +9,8 @@ from html import escape
 from pathlib import Path
 from typing import Any, Iterable
 
+from .schedulers import costs_tie
+
 
 SUMMARY_FIELDS = [
     "model_name",
@@ -27,6 +29,13 @@ SUMMARY_FIELDS = [
     "latency_reduction_pct",
     "best_num_subgraphs",
     "best_max_fusion_depth",
+    # Appended in Phase 1 / Batch 2.
+    "deadline_ms",
+    "num_tied_schedulers",
+    "tied_same_partition",
+    "feasible_schedulers",
+    "infeasible_schedulers",
+    "baseline_status",
 ]
 
 
@@ -47,6 +56,11 @@ NUMERIC_FIELDS = {
     "estimated_energy",
     "estimated_latency_ms",
     "os_aware_total_cost",
+    "effective_latency_ms",
+    "latency_cost",
+    "deadline_cost",
+    "memory_pressure_cost",
+    "communication_pressure_cost",
 }
 
 
@@ -71,6 +85,12 @@ class ResultRow:
             raise ValueError(f"Field '{field_name}' is not numeric.")
         return value
 
+    @property
+    def feasible(self) -> bool:
+        """Rows from CSVs without a ``feasible`` column are feasible (legacy)."""
+
+        return str(self.values.get("feasible", "") or "true").strip().lower() != "false"
+
 
 def main() -> None:
     args = _parse_args()
@@ -82,6 +102,7 @@ def main() -> None:
         output_dir=args.figures_dir,
         os_profile=args.plot_os_profile,
         model_name=args.plot_model,
+        deadline_ms=args.plot_deadline_ms,
     )
     print(f"Wrote {len(summary_rows)} summary rows to {args.summary_output}")
     print(f"Wrote {len(written_figures)} SVG figures to {args.figures_dir}")
@@ -102,60 +123,104 @@ def load_result_rows(input_path: str | Path) -> list[ResultRow]:
 
 
 def build_summary_rows(rows: Iterable[ResultRow]) -> list[dict[str, str]]:
-    """Build one best-scheduler summary row per model, OS profile, and SRAM size."""
+    """Build one best-scheduler summary row per model, OS profile, SRAM, deadline.
 
-    groups: dict[tuple[str, str, float], list[ResultRow]] = {}
+    * Infeasible rows never win; a group with no feasible scheduler gets an
+      empty ``best_scheduler``.
+    * Schedulers whose cost ties the minimum (``costs_tie``) are all reported,
+      joined with ``=`` in CSV order (e.g. ``greedy=dp``), instead of letting
+      ``min()`` silently pick the first one. ``best_*`` metrics come from the
+      first tied scheduler; ``tied_same_partition`` says whether the tied
+      schedulers chose the same partition.
+    * Reductions are relative to ``layerwise``; when it is missing or
+      infeasible the reduction columns stay empty and ``baseline_status`` says why.
+    """
+
+    groups: dict[tuple[str, str, float, str], list[ResultRow]] = {}
     for row in rows:
-        key = (row.text("model_name"), row.text("os_profile"), row.number("sram_kb"))
+        key = (
+            row.text("model_name"),
+            row.text("os_profile"),
+            row.number("sram_kb"),
+            str(row.values.get("deadline_ms", "") or ""),
+        )
         groups.setdefault(key, []).append(row)
 
     summary_rows: list[dict[str, str]] = []
-    for key in sorted(groups, key=lambda item: (item[0], item[1], item[2])):
+    for key in sorted(groups, key=_group_sort_key):
         group_rows = groups[key]
-        layerwise = _find_scheduler(group_rows, "layerwise")
-        best = min(group_rows, key=lambda row: row.number("os_aware_total_cost"))
-        summary_rows.append(
+        feasible_rows = [row for row in group_rows if row.feasible]
+        layerwise_rows = [row for row in group_rows if row.text("scheduler") == "layerwise"]
+        if not layerwise_rows:
+            baseline_status = "missing"
+            layerwise = None
+        elif not layerwise_rows[0].feasible:
+            baseline_status = "infeasible"
+            layerwise = None
+        else:
+            baseline_status = "ok"
+            layerwise = layerwise_rows[0]
+
+        summary: dict[str, str] = {field: "" for field in SUMMARY_FIELDS}
+        summary.update(
             {
                 "model_name": key[0],
                 "os_profile": key[1],
                 "sram_kb": _format_number(key[2]),
-                "best_scheduler": best.text("scheduler"),
-                "best_os_aware_total_cost": _format_number(best.number("os_aware_total_cost")),
-                "layerwise_dram_traffic_kb": _format_number(
-                    layerwise.number("dram_traffic_kb")
+                "deadline_ms": key[3],
+                "feasible_schedulers": ";".join(r.text("scheduler") for r in feasible_rows),
+                "infeasible_schedulers": ";".join(
+                    r.text("scheduler") for r in group_rows if not r.feasible
                 ),
-                "best_dram_traffic_kb": _format_number(best.number("dram_traffic_kb")),
-                "dram_reduction_pct": _format_number(
-                    _reduction_pct(
-                        layerwise.number("dram_traffic_kb"), best.number("dram_traffic_kb")
-                    )
-                ),
-                "layerwise_estimated_energy": _format_number(
-                    layerwise.number("estimated_energy")
-                ),
-                "best_estimated_energy": _format_number(best.number("estimated_energy")),
-                "energy_reduction_pct": _format_number(
-                    _reduction_pct(
-                        layerwise.number("estimated_energy"), best.number("estimated_energy")
-                    )
-                ),
-                "layerwise_estimated_latency_ms": _format_number(
-                    layerwise.number("estimated_latency_ms")
-                ),
-                "best_estimated_latency_ms": _format_number(
-                    best.number("estimated_latency_ms")
-                ),
-                "latency_reduction_pct": _format_number(
-                    _reduction_pct(
-                        layerwise.number("estimated_latency_ms"),
-                        best.number("estimated_latency_ms"),
-                    )
-                ),
-                "best_num_subgraphs": _format_number(best.number("num_subgraphs")),
-                "best_max_fusion_depth": _format_number(best.number("max_fusion_depth")),
+                "baseline_status": baseline_status,
+                "num_tied_schedulers": "0",
             }
         )
+        if layerwise is not None:
+            for metric in ("dram_traffic_kb", "estimated_energy", "estimated_latency_ms"):
+                summary[f"layerwise_{metric}"] = _format_number(layerwise.number(metric))
+
+        if feasible_rows:
+            best_cost = min(row.number("os_aware_total_cost") for row in feasible_rows)
+            tied = [
+                row
+                for row in feasible_rows
+                if costs_tie(row.number("os_aware_total_cost"), best_cost)
+            ]
+            best = tied[0]
+            summary.update(
+                {
+                    "best_scheduler": "=".join(row.text("scheduler") for row in tied),
+                    "best_os_aware_total_cost": _format_number(best_cost),
+                    "num_tied_schedulers": str(len(tied)),
+                    "tied_same_partition": str(
+                        len({row.text("subgraphs") for row in tied}) == 1
+                    ).lower(),
+                    "best_num_subgraphs": _format_number(best.number("num_subgraphs")),
+                    "best_max_fusion_depth": _format_number(best.number("max_fusion_depth")),
+                }
+            )
+            for metric, reduction in (
+                ("dram_traffic_kb", "dram_reduction_pct"),
+                ("estimated_energy", "energy_reduction_pct"),
+                ("estimated_latency_ms", "latency_reduction_pct"),
+            ):
+                summary[f"best_{metric}"] = _format_number(best.number(metric))
+                if layerwise is not None:
+                    summary[reduction] = _format_number(
+                        _reduction_pct(layerwise.number(metric), best.number(metric))
+                    )
+        summary_rows.append(summary)
     return summary_rows
+
+
+def _group_sort_key(key: tuple[str, str, float, str]) -> tuple:
+    deadline = key[3]
+    try:
+        deadline_sort: tuple = (0, float(deadline))
+    except ValueError:
+        deadline_sort = (1, deadline)
+    return (key[0], key[1], key[2], deadline_sort)
 
 
 def write_summary_csv(output_path: str | Path, rows: list[dict[str, str]]) -> None:
@@ -172,12 +237,29 @@ def write_metric_svgs(
     output_dir: str | Path,
     os_profile: str,
     model_name: str | None = None,
+    deadline_ms: str | None = None,
 ) -> list[Path]:
-    """Write SVG line charts for key metrics for one OS profile and model."""
+    """Write SVG line charts for key metrics for one OS profile and model.
+
+    Infeasible rows have no metrics and are left out of the lines.
+    """
 
     selected_rows = [row for row in rows if row.text("os_profile") == os_profile]
     if not selected_rows:
         raise ValueError(f"No rows found for OS profile '{os_profile}'.")
+
+    if deadline_ms is not None:
+        selected_rows = [
+            row for row in selected_rows if _same_number(row.values.get("deadline_ms"), deadline_ms)
+        ]
+        if not selected_rows:
+            raise ValueError(f"No rows found for deadline_ms={deadline_ms}.")
+    deadlines = sorted({str(row.values.get("deadline_ms", "") or "") for row in selected_rows})
+    if len(deadlines) > 1:
+        raise ValueError(
+            "Plotting requires one deadline at a time. "
+            f"Use --plot-deadline-ms with one of: {', '.join(deadlines)}."
+        )
 
     if model_name is not None:
         selected_rows = [row for row in selected_rows if row.text("model_name") == model_name]
@@ -354,7 +436,7 @@ def _parse_result_row(raw_row: dict[str, Any]) -> ResultRow:
     for field_name, value in raw_row.items():
         if value is None:
             values[field_name] = ""
-        elif field_name in NUMERIC_FIELDS:
+        elif field_name in NUMERIC_FIELDS and value.strip() != "":
             values[field_name] = float(value)
         else:
             values[field_name] = value
@@ -367,17 +449,19 @@ def _series_by_scheduler(
 ) -> dict[str, list[tuple[float, float]]]:
     series: dict[str, list[tuple[float, float]]] = {}
     for row in rows:
+        if not row.feasible:
+            continue
         series.setdefault(row.text("scheduler"), []).append(
             (row.number("sram_kb"), row.number(metric_name))
         )
     return series
 
 
-def _find_scheduler(rows: Iterable[ResultRow], scheduler: str) -> ResultRow:
-    for row in rows:
-        if row.text("scheduler") == scheduler:
-            return row
-    raise ValueError(f"Missing required scheduler '{scheduler}' in result group.")
+def _same_number(value: Any, expected: str) -> bool:
+    try:
+        return float(str(value)) == float(expected)
+    except ValueError:
+        return str(value) == expected
 
 
 def _reduction_pct(baseline: float, candidate: float) -> float:
@@ -404,6 +488,11 @@ def _parse_args() -> argparse.Namespace:
         "--plot-model",
         default=None,
         help="Model name to plot when the input CSV contains multiple models.",
+    )
+    parser.add_argument(
+        "--plot-deadline-ms",
+        default=None,
+        help="Deadline to plot when the input CSV sweeps deadline_ms.",
     )
     return parser.parse_args()
 

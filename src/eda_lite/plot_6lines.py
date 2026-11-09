@@ -1,3 +1,11 @@
+"""Six-line comparison charts: compiler-only baseline vs one OS-aware profile.
+
+The baseline uses the ``pure`` OS profile (latency multiplier 1.0, no deadline,
+memory, or communication pressure). Both profiles are chosen on the command
+line; nothing is hard-coded here.
+"""
+
+import argparse
 import csv
 from pathlib import Path
 from src.eda_lite.analyze_results import _parse_result_row, ResultRow, _format_number, PLOT_METRICS
@@ -5,6 +13,8 @@ from src.eda_lite.analyze_results import _parse_result_row, ResultRow, _format_n
 def build_combined_chart(rows, metric_name, title, y_label, filename):
     series = {}
     for row in rows:
+        if not row.feasible:
+            continue
         series.setdefault(row.text("scheduler"), []).append(
             (row.number("sram_kb"), row.number(metric_name))
         )
@@ -81,23 +91,26 @@ def build_combined_chart(rows, metric_name, title, y_label, filename):
     out.write_text("\n".join(elements), encoding="utf-8")
 
 
-def generate_6line_charts(model, pure_csv, os_csv, os_profile_name, out_dir):
+def generate_6line_charts(model, pure_csv, os_csv, os_profile_name, out_dir, pure_profile_name="pure"):
     def load(path):
         with open(path) as f:
             return [_parse_result_row(r) for r in csv.DictReader(f)]
 
     rows_pure = load(pure_csv)
     rows_os = load(os_csv)
+    for path, rows, profile in ((pure_csv, rows_pure, pure_profile_name), (os_csv, rows_os, os_profile_name)):
+        if not any(r.text("os_profile") == profile and r.text("model_name") == model for r in rows):
+            raise ValueError(f"No rows for model '{model}' and OS profile '{profile}' in {path}.")
 
     combined = []
     for r in rows_pure:
-        if r.text("os_profile") == "normal":
+        if r.text("os_profile") == pure_profile_name and r.text("model_name") == model:
             d = r.values.copy()
             d["scheduler"] += " (Pure)"
             combined.append(ResultRow(d))
             
     for r in rows_os:
-        if r.text("os_profile") == os_profile_name:
+        if r.text("os_profile") == os_profile_name and r.text("model_name") == model:
             d = r.values.copy()
             d["scheduler"] += " (OS-Aware)"
             combined.append(ResultRow(d))
@@ -106,18 +119,24 @@ def generate_6line_charts(model, pure_csv, os_csv, os_profile_name, out_dir):
         title = f"{model} - {y_label}"
         build_combined_chart(combined, metric_name, title, y_label, f"{out_dir}/{filename}")
 
+def _parse_args():
+    parser = argparse.ArgumentParser(description="Six-line pure vs OS-aware EDA-Lite charts.")
+    parser.add_argument("--model", required=True, help="model_name to plot.")
+    parser.add_argument("--pure-csv", required=True, help="Simulation CSV containing the pure profile.")
+    parser.add_argument("--os-csv", required=True, help="Simulation CSV containing the OS-aware profile.")
+    parser.add_argument("--os-profile", required=True, help="OS-aware profile to compare against pure.")
+    parser.add_argument("--pure-profile", default="pure", help="Baseline profile name. Default: pure.")
+    parser.add_argument("--out-dir", required=True, help="Output directory for SVG figures.")
+    return parser.parse_args()
+
+
 if __name__ == "__main__":
+    args = _parse_args()
     generate_6line_charts(
-        "mobilevit_s_simplified_profile_estimate",
-        "results/csv/eda_lite_mobilevit_s_pure.csv",
-        "results/csv/eda_lite_mobilevit_s_runtime_aware_sweep.csv",
-        "measured_overload_sweep_mobilevit_s_20_0fps_q5_d150_normal",
-        "results/figures/eda_lite/s"
-    )
-    generate_6line_charts(
-        "mobilevit_xxs_simplified_profile_estimate",
-        "results/csv/eda_lite_mobilevit_xxs_pure.csv",
-        "results/csv/eda_lite_mobilevit_xxs_runtime_aware_sweep.csv",
-        "measured_overload_sweep_mobilevit_xxs_20_0fps_q5_d150_normal",
-        "results/figures/eda_lite/xxs"
+        args.model,
+        args.pure_csv,
+        args.os_csv,
+        args.os_profile,
+        args.out_dir,
+        pure_profile_name=args.pure_profile,
     )

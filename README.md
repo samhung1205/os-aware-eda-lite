@@ -13,12 +13,14 @@ Lightweight MobileViT simulation for ROS2 OS-level edge AI performance analysis.
 - 讀取簡化模型 profile JSON。
 - 支援 MobileViT-XXS 與 MobileViT-S 的 coarse block simulation profiles。
 - 支援單一模型與多模型 profile sweep。
-- 支援三種排程策略：
+- 支援四種排程策略：
   - `layerwise`：每層獨立執行。
-  - `greedy`：由左到右盡量融合可行 layer。
-  - `dp`：使用 dynamic programming 找最低估計成本的融合切分。
-- 支援 SRAM sweep：256KB、512KB、1024KB、2048KB。
-- 支援 OS-aware cost profile：`normal`、`high_latency`、`high_memory_pressure`，以及 runtime-derived custom profiles。
+  - `greedy`：由左到右，每次取「可行的最長」融合區段（SRAM 可行性非單調，只有遇到 non-fusible layer 才停止掃描）。
+  - `dp`：精確最小化 reported `os_aware_total_cost`（整個 schedule 的成本，含 max peak SRAM 與總 latency 的 deadline hinge）的 contiguous partition；以 Pareto label DP 實作，並以 exhaustive oracle 驗證。
+  - `exhaustive`：窮舉全部 `2^(n-1)` 個 partition 的 oracle（最多 20 層），用於驗證 `dp`。
+- 某個 scheduler 在給定 SRAM 下沒有可行解時，sweep 不會中止，而是輸出 `feasible=false` 的列（數值欄位留空，`infeasible_reason` 說明原因）。
+- 支援 SRAM sweep：主 config 為 256KB、512KB、1024KB、2048KB；sensitivity config 另含 128/192/384KB。
+- 支援 OS-aware cost profile：`pure`（compiler-only baseline：latency multiplier 1.0，無 deadline/memory/drop 懲罰）、`normal`、`high_latency`、`high_memory_pressure`，以及 runtime-derived custom profiles。
 - 輸出 CSV 結果，包含 DRAM traffic、estimated energy、estimated latency、peak SRAM usage、fusion depth 與 OS-aware total cost。
 - 從 simulation CSV 產生 summary CSV 與 SVG 圖表。
 - 提供 ROS2 FPS/QoS/overload 實驗腳本模板，預設為外部 MobileViT UAV pipeline。
@@ -87,11 +89,20 @@ python3 -m src.ros2_runtime.build_os_profiles \
 *(註：轉換完成後，請確保 `experiments/eda_lite/mobilevit_runtime_aware_sweep.json` 指向了該設定檔)*
 
 ### 步驟 4：執行 EDA-Lite 模擬與產出最終 6 條線比較圖
-依序執行 Pure (無 OS 懲罰) 與 OS-Aware (有 OS 懲罰) 的硬體模擬，最後使用客製化腳本將它們疊加成最終的報告對比圖：
+依序執行 Pure（`pure` profile：只有 energy + 正常 latency cost，無 OS 懲罰）與 OS-Aware（一個 runtime-derived profile）的模擬，最後將它們疊加成對比圖：
 ```bash
 bash scripts/rebuild_eda_lite_figures.sh
 ```
-The script rebuilds MobileViT-S and MobileViT-XXS pure simulation CSVs, runtime-aware simulation CSVs, and the final six-line comparison figures.
+The script rebuilds MobileViT-S and MobileViT-XXS pure simulation CSVs, runtime-aware simulation CSVs, and the final six-line comparison figures. The compared profiles are not hard-coded in Python; override them with environment variables:
+
+```bash
+OS_PROFILE_S=measured_overload_sweep_mobilevit_s_20_0fps_q5_d150_normal \
+OS_PROFILE_XXS=measured_overload_sweep_mobilevit_xxs_20_0fps_q5_d150_normal \
+PURE_PROFILE=pure FIGURES_ROOT=results/figures/eda_lite \
+bash scripts/rebuild_eda_lite_figures.sh
+```
+
+`plot_6lines` can also be run directly: `python3 -m src.eda_lite.plot_6lines --model <model_name> --pure-csv <csv> --os-csv <csv> --os-profile <name> [--pure-profile pure] --out-dir <dir>`. Infeasible rows are left out of the lines.
 
 完成後，最終報告圖表將全部安穩地躺在 `results/figures/eda_lite/` 底下！
 
@@ -433,21 +444,51 @@ Main configs:
 experiments/eda_lite/mobilevit_sram_sweep.json
 experiments/eda_lite/mobilevit_profile_sweep.json
 experiments/eda_lite/mobilevit_runtime_aware_sweep.json
+experiments/eda_lite/mobilevit_sensitivity_sweep.json
 experiments/eda_lite/runtime_os_profiles.example.json
 ```
+
+`schedulers` accepts `layerwise`, `greedy`, `dp`, and `exhaustive`. An optional top-level `"deadline_ms": [..]` list sweeps the simulation deadline (overriding `cost_model.deadline_ms`); every output row records its `deadline_ms`. `mobilevit_sensitivity_sweep.json` uses it:
+
+```bash
+python3 -m src.eda_lite.run_profile_sweep \
+  --config experiments/eda_lite/mobilevit_sensitivity_sweep.json \
+  --output results/csv/eda_lite_mobilevit_sensitivity_sweep.csv
+python3 -m src.eda_lite.analyze_results \
+  --input results/csv/eda_lite_mobilevit_sensitivity_sweep.csv \
+  --summary-output results/csv/eda_lite_mobilevit_sensitivity_summary.csv \
+  --figures-dir results/figures/mobilevit_sensitivity \
+  --plot-model mobilevit_s_simplified_profile_estimate \
+  --plot-os-profile normal --plot-deadline-ms 33.3
+```
+
+Simulation CSV columns (new ones appended at the end): `feasible`, `infeasible_reason`, `deadline_ms`, `effective_latency_ms`, and the cost terms `latency_cost`, `deadline_cost`, `memory_pressure_cost`, `communication_pressure_cost` (`os_aware_total_cost` = `estimated_energy` + these four).
+
+Summary CSV: `best_scheduler` lists **all** schedulers tied at the minimum cost joined with `=` (e.g. `greedy=dp`); a tie is not a greedy win. Appended columns: `deadline_ms`, `num_tied_schedulers`, `tied_same_partition`, `feasible_schedulers`, `infeasible_schedulers`, and `baseline_status` (`ok` / `missing` / `infeasible`; reduction-vs-layerwise columns stay empty unless `ok`). Groups with no feasible scheduler have an empty `best_scheduler`.
 
 ## Cost Model Notes
 
 EDA-Lite v1 使用簡化成本模型：
 
 ```text
+L_eff = m * L                                   # L = sum of subgraph latencies
 os_aware_total_cost =
-    estimated_energy
-  + alpha * estimated_latency
-  + beta  * deadline_miss_penalty
-  + gamma * memory_pressure_penalty
-  + delta * communication_drop_penalty
+    E                                           # sum of subgraph energies
+  + alpha * L_eff
+  + beta  * r * max(0, L_eff - deadline_ms)     # whole-schedule hinge
+  + gamma * p * P / SRAM                        # P = max subgraph peak SRAM
+  + delta * d * L
 ```
+
+`m, r, p, d` = OS profile `latency_multiplier`, `deadline_miss_rate`, `memory_pressure`, `drop_rate`. The same function is the `dp`/`exhaustive` objective and the reported cost. All cost-model weights must be non-negative (validated), which the exact DP relies on.
+
+**Deadline semantics.**
+- *EDA-Lite* `deadline_ms` is a per-inference budget for the **simulated** latency (cost-model units, not wall clock). The penalty uses the effective latency `m * L`, the same OS-inflated latency the latency term charges for (before Phase 1 / Batch 2 it used the raw `L`, so `latency_multiplier` never produced deadline excess).
+- *ROS 2* `deadline_ms` is an end-to-end **wall-clock** budget (publish → inference done) per frame; the runtime analyzer reports `deadline_miss_rate_pct` against it.
+- The two are linked only through dimensionless profile values: `deadline_miss_rate` (measured miss fraction) and `latency_multiplier` (measured latency ratio). The runtime deadline value is not copied into the simulation, because simulated latency is not calibrated to wall-clock time.
+- The communication term keeps the raw `L` (unchanged).
+
+**What changes a schedule (MobileViT coarse profiles).** Fusion lowers energy, latency, and therefore the deadline term together, so only the SRAM limit (feasibility) and memory pressure can push toward less fusion. With the shipped weights the memory term is too small to change any MobileViT schedule (`gamma` would have to be roughly 50–130× larger), so `greedy` and `dp` tie everywhere and every OS profile picks the same partition as `pure`; OS profiles change the reported cost, not the decision. See `report/PHASE1_BATCH2_RESULT.md`.
 
 其中：
 
@@ -488,6 +529,7 @@ python3 -m unittest discover -s tests
 - simulator 可以讀取 JSON model profile。
 - MobileViT profiles and profile sweep configs can run.
 - `layerwise`、`greedy`、`dp` scheduling behavior.
+- `dp` equals the exhaustive oracle (random small models and MobileViT profiles); greedy on non-monotone SRAM; infeasible sweep rows; ties / missing baselines in the summary; `pure` profile; effective-latency deadline; per-term sensitivity (`tests/test_eda_lite_scheduling.py`).
 - analysis summary and SVG generation.
 - multi-model analysis requires `--plot-model`.
 - ROS2 runtime analyzer can derive latency from timestamps.

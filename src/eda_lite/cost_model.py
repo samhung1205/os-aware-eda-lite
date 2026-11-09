@@ -49,15 +49,47 @@ class SubgraphMetrics:
 
 
 @dataclass(frozen=True)
+class CostBreakdown:
+    """The five terms of ``os_aware_total_cost`` for one whole schedule."""
+
+    energy_cost: float
+    latency_cost: float
+    deadline_cost: float
+    memory_pressure_cost: float
+    communication_pressure_cost: float
+    effective_latency_ms: float
+
+    @property
+    def total(self) -> float:
+        return (
+            self.energy_cost
+            + self.latency_cost
+            + self.deadline_cost
+            + self.memory_pressure_cost
+            + self.communication_pressure_cost
+        )
+
+
+@dataclass(frozen=True)
 class ScheduleMetrics:
     peak_sram_kb: float
     dram_traffic_kb: float
     estimated_energy: float
     estimated_latency_ms: float
     os_aware_total_cost: float
+    breakdown: CostBreakdown | None = None
 
 
 OS_PROFILES: dict[str, OsRuntimeProfile] = {
+    # Compiler-only baseline: normal latency cost (multiplier 1.0, *not* 0),
+    # but no deadline, memory, or communication pressure.
+    "pure": OsRuntimeProfile(
+        name="pure",
+        latency_multiplier=1.0,
+        deadline_miss_rate=0.0,
+        memory_pressure=0.0,
+        drop_rate=0.0,
+    ),
     "normal": OsRuntimeProfile(
         name="normal",
         latency_multiplier=1.0,
@@ -92,6 +124,10 @@ def make_cost_config(raw_config: dict[str, float] | None = None) -> CostConfig:
     if unknown_fields:
         fields = ", ".join(sorted(unknown_fields))
         raise ValueError(f"Unknown cost model config fields: {fields}.")
+    for field_name, value in raw_config.items():
+        # Every constant is a non-negative rate or weight. The exact DP relies on
+        # the cost being non-decreasing in energy, latency, and peak SRAM.
+        _require_non_negative_number(value, f"cost_model.{field_name}")
     return CostConfig(**raw_config)
 
 
@@ -202,7 +238,7 @@ def estimate_schedule_metrics(
     dram_traffic_kb = sum(metric.dram_traffic_kb for metric in subgraph_metrics)
     estimated_energy = sum(metric.estimated_energy for metric in subgraph_metrics)
     estimated_latency_ms = sum(metric.estimated_latency_ms for metric in subgraph_metrics)
-    os_aware_total_cost = os_aware_cost(
+    breakdown = os_aware_cost_breakdown(
         estimated_energy=estimated_energy,
         estimated_latency_ms=estimated_latency_ms,
         peak_sram_kb=peak_sram_kb,
@@ -216,7 +252,8 @@ def estimate_schedule_metrics(
         dram_traffic_kb=dram_traffic_kb,
         estimated_energy=estimated_energy,
         estimated_latency_ms=estimated_latency_ms,
-        os_aware_total_cost=os_aware_total_cost,
+        os_aware_total_cost=breakdown.total,
+        breakdown=breakdown,
     )
 
 
@@ -256,6 +293,39 @@ def estimate_subgraph_dram_traffic_kb(layers: Sequence[LayerProfile]) -> float:
     return layers[0].input_kb + layers[-1].output_kb + weight_traffic_kb
 
 
+def os_aware_cost_breakdown(
+    estimated_energy: float,
+    estimated_latency_ms: float,
+    peak_sram_kb: float,
+    sram_kb: float,
+    os_profile: OsRuntimeProfile,
+    cost_config: CostConfig | None = None,
+) -> CostBreakdown:
+    """Split the whole-schedule OS-aware cost into its five terms.
+
+    ``estimated_latency_ms`` and ``peak_sram_kb`` are whole-schedule values
+    (sum of subgraph latencies, max of subgraph peaks). The deadline term uses
+    the *effective* latency ``estimated_latency_ms * latency_multiplier``, i.e.
+    the same OS-inflated latency that the latency term charges for.
+    """
+
+    config = cost_config or CostConfig()
+    effective_latency_ms = estimated_latency_ms * os_profile.latency_multiplier
+    latency_cost = config.alpha * effective_latency_ms
+    deadline_excess_ms = max(0.0, effective_latency_ms - config.deadline_ms)
+    deadline_cost = config.beta * os_profile.deadline_miss_rate * deadline_excess_ms
+    memory_pressure_cost = config.gamma * os_profile.memory_pressure * (peak_sram_kb / sram_kb)
+    communication_pressure_cost = config.delta * os_profile.drop_rate * estimated_latency_ms
+    return CostBreakdown(
+        energy_cost=estimated_energy,
+        latency_cost=latency_cost,
+        deadline_cost=deadline_cost,
+        memory_pressure_cost=memory_pressure_cost,
+        communication_pressure_cost=communication_pressure_cost,
+        effective_latency_ms=effective_latency_ms,
+    )
+
+
 def os_aware_cost(
     estimated_energy: float,
     estimated_latency_ms: float,
@@ -264,21 +334,21 @@ def os_aware_cost(
     os_profile: OsRuntimeProfile,
     cost_config: CostConfig | None = None,
 ) -> float:
-    """Combine simulated compiler cost with coarse OS runtime pressure."""
+    """Combine simulated compiler cost with coarse OS runtime pressure.
 
-    config = cost_config or CostConfig()
-    latency_cost = config.alpha * estimated_latency_ms * os_profile.latency_multiplier
-    deadline_excess_ms = max(0.0, estimated_latency_ms - config.deadline_ms)
-    deadline_cost = config.beta * os_profile.deadline_miss_rate * deadline_excess_ms
-    memory_pressure_cost = config.gamma * os_profile.memory_pressure * (peak_sram_kb / sram_kb)
-    communication_pressure_cost = config.delta * os_profile.drop_rate * estimated_latency_ms
-    return (
-        estimated_energy
-        + latency_cost
-        + deadline_cost
-        + memory_pressure_cost
-        + communication_pressure_cost
-    )
+    This is the single definition of ``os_aware_total_cost``. Both the reported
+    metric and the DP/exhaustive scheduler objective call it on whole-schedule
+    totals.
+    """
+
+    return os_aware_cost_breakdown(
+        estimated_energy=estimated_energy,
+        estimated_latency_ms=estimated_latency_ms,
+        peak_sram_kb=peak_sram_kb,
+        sram_kb=sram_kb,
+        os_profile=os_profile,
+        cost_config=cost_config,
+    ).total
 
 
 def subgraph_objective_cost(
@@ -288,7 +358,12 @@ def subgraph_objective_cost(
     cost_config: CostConfig | None = None,
     os_profiles: Mapping[str, OsRuntimeProfile] | None = None,
 ) -> float:
-    """Cost used by the DP scheduler for a candidate fused subgraph."""
+    """OS-aware cost of one subgraph evaluated on its own (diagnostic only).
+
+    Not the scheduler objective: the deadline hinge and the peak-SRAM term are
+    not additive across subgraphs, so summing this value over a schedule does
+    not equal ``os_aware_total_cost`` (audit P0-1). Kept for diagnostics.
+    """
 
     metrics = estimate_subgraph_metrics(layers, cost_config)
     os_profile = get_os_profile(os_profile_name, os_profiles)

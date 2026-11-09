@@ -72,7 +72,7 @@ layers[]
 
 - `layerwise`：每個 block 單獨執行，作為 baseline。
 - `greedy`：由左至右盡可能融合符合 SRAM 限制的 contiguous blocks。
-- `dp`：用 dynamic programming 找最低 OS-aware cost 的 contiguous partition。
+- `dp`：找最低 OS-aware cost 的 contiguous partition。自 Phase 1 / Batch 2 起，`dp` 精確最小化 reported 的整個 schedule 成本（含 max peak SRAM 與總 latency 的 deadline 項），並以 exhaustive oracle 驗證；先前版本最小化的是 per-subgraph 加總的替代目標（audit P0-1）。
 
 ### 4.3 Cost Model
 
@@ -155,10 +155,12 @@ For `mobilevit_s_simplified_profile_estimate` under `normal` OS profile:
 
 | SRAM | Best scheduler | DRAM reduction | Energy reduction | Latency reduction | Max fusion depth |
 |---:|---|---:|---:|---:|---:|
-| 256KB | greedy | 4.14% | 3.93% | 0.41% | 2 |
-| 512KB | greedy | 8.88% | 8.42% | 0.88% | 3 |
-| 1024KB | greedy | 8.88% | 8.42% | 0.88% | 3 |
-| 2048KB | greedy | 8.88% | 8.42% | 0.88% | 3 |
+| 256KB | greedy=dp (tie) | 4.14% | 3.93% | 0.41% | 2 |
+| 512KB | greedy=dp (tie) | 8.88% | 8.42% | 0.88% | 3 |
+| 1024KB | greedy=dp (tie) | 8.88% | 8.42% | 0.88% | 3 |
+| 2048KB | greedy=dp (tie) | 8.88% | 8.42% | 0.88% | 3 |
+
+Note (Phase 1 / Batch 2): `greedy` and `dp` choose the same partition at the same cost in every row; the earlier label `greedy` was only `min()` picking the first tied row, not a greedy win. The numbers are unchanged.
 
 Interpretation:
 
@@ -172,10 +174,10 @@ For `mobilevit_xxs_simplified_profile_estimate` under `normal` OS profile:
 
 | SRAM | Best scheduler | DRAM reduction | Energy reduction | Latency reduction | Max fusion depth |
 |---:|---|---:|---:|---:|---:|
-| 256KB | greedy | 14.33% | 13.88% | 2.30% | 3 |
-| 512KB | greedy | 14.33% | 13.88% | 2.30% | 3 |
-| 1024KB | greedy | 14.33% | 13.88% | 2.30% | 3 |
-| 2048KB | greedy | 14.33% | 13.88% | 2.30% | 3 |
+| 256KB | greedy=dp (tie) | 14.33% | 13.88% | 2.30% | 3 |
+| 512KB | greedy=dp (tie) | 14.33% | 13.88% | 2.30% | 3 |
+| 1024KB | greedy=dp (tie) | 14.33% | 13.88% | 2.30% | 3 |
+| 2048KB | greedy=dp (tie) | 14.33% | 13.88% | 2.30% | 3 |
 
 Interpretation:
 

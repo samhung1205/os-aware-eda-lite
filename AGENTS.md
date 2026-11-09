@@ -44,7 +44,8 @@ Main modules:
 
 - `model_loader.py`: loads simplified JSON model profiles.
 - `cost_model.py`: estimates SRAM, DRAM traffic, energy, latency, and OS-aware total cost.
-- `schedulers.py`: implements `layerwise`, `greedy`, and `dp` fusion schedulers.
+- `schedulers.py`: implements `layerwise`, `greedy`, `dp`, and `exhaustive` fusion schedulers. `dp` exactly minimises the reported whole-schedule `os_aware_total_cost` (Pareto-label DP); `exhaustive` is the 2^(n-1) oracle (n <= 20) used to verify it. Greedy only stops scanning at a non-fusible layer (SRAM feasibility is not monotone). No feasible schedule raises `InfeasibleScheduleError`.
+- `plot_6lines.py`: pure vs one OS-aware profile six-line charts; profiles are CLI arguments (no hard-coded selection).
 - `run_simulation.py`: runs one model profile against one experiment config.
 - `run_profile_sweep.py`: runs multiple model profiles from one sweep config.
 - `analyze_results.py`: summarizes simulation CSVs and generates SVG figures.
@@ -71,7 +72,8 @@ Supported simulator outputs:
 - latency estimate
 - peak SRAM usage
 - max fusion depth
-- OS-aware total cost
+- OS-aware total cost and its terms (`latency_cost`, `deadline_cost`, `memory_pressure_cost`, `communication_pressure_cost`, `effective_latency_ms`)
+- `feasible` / `infeasible_reason` per row (an infeasible scheduler no longer aborts a sweep) and the row's `deadline_ms`
 
 ### 2. Main MobileViT Profiles
 
@@ -103,6 +105,7 @@ Main configs:
 experiments/eda_lite/mobilevit_sram_sweep.json
 experiments/eda_lite/mobilevit_profile_sweep.json
 experiments/eda_lite/mobilevit_runtime_aware_sweep.json
+experiments/eda_lite/mobilevit_sensitivity_sweep.json
 experiments/eda_lite/runtime_os_profiles.example.json
 ```
 
@@ -111,6 +114,7 @@ Purpose:
 - `mobilevit_sram_sweep.json`: single-profile SRAM/scheduler/OS-profile sweep.
 - `mobilevit_profile_sweep.json`: MobileViT-XXS vs MobileViT-S simplified profile comparison.
 - `mobilevit_runtime_aware_sweep.json`: EDA-Lite sweep using OS profiles from an external JSON file.
+- `mobilevit_sensitivity_sweep.json`: SRAM (128–2048 KB) x simulation deadline (top-level `deadline_ms` list) x built-in profiles, all four schedulers including `exhaustive`.
 - `runtime_os_profiles.example.json`: example runtime-derived OS pressure profile file. It is not measured data.
 
 Legacy configs:
@@ -286,19 +290,27 @@ Runtime summary metrics include:
 EDA-Lite uses a lightweight cost model:
 
 ```text
+L_eff = latency_multiplier * L
 os_aware_total_cost =
-    estimated_energy
-  + alpha * estimated_latency
-  + beta  * deadline_miss_penalty
-  + gamma * memory_pressure_penalty
-  + delta * communication_drop_penalty
+    E
+  + alpha * L_eff
+  + beta  * deadline_miss_rate * max(0, L_eff - deadline_ms)
+  + gamma * memory_pressure * max_subgraph_peak_sram / sram_kb
+  + delta * drop_rate * L
 ```
+
+`E` and `L` are sums over subgraphs; the deadline hinge and peak SRAM are whole-schedule terms. The `dp`/`exhaustive` objective is this exact function. Cost-model weights must be non-negative.
+
+Deadline semantics: EDA-Lite `deadline_ms` is a budget for **simulated** latency (cost-model units); the ROS2 `deadline_ms` is a wall-clock end-to-end budget. They are linked only through the dimensionless `deadline_miss_rate` and `latency_multiplier`; do not copy the runtime deadline value into the simulation.
 
 Built-in OS profiles:
 
+- `pure` (latency multiplier 1.0, no deadline/memory/drop pressure; the compiler-only baseline — never call `normal` "pure")
 - `normal`
 - `high_latency`
 - `high_memory_pressure`
+
+Summaries report scheduler ties as `greedy=dp` (never as a greedy win), and leave reductions empty when the `layerwise` baseline is missing or infeasible (`baseline_status`). On the MobileViT coarse profiles OS profiles change the reported cost but not the chosen partition; do not claim otherwise without new evidence.
 
 Custom OS profiles can be provided through `os_profile_file`.
 

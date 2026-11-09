@@ -152,7 +152,7 @@ def case_p1_1() -> bool:
         LayerProfile("l2", "Conv", 150, 10, 1, 1e6, True),
     )
     try:
-        greedy_schedule(b, 200)
+        print(f"  sram=200 greedy: {_names(greedy_schedule(b, 200))}   dp: {_names(dp_schedule(b, 200))}")
         crashed = False
     except ValueError as exc:
         crashed = True
@@ -165,42 +165,82 @@ def case_p1_2() -> bool:
     cfg = _load_cfg(SRAM_CFG)
     cfg["sram_kb"] = [128, 256]
     try:
-        run_simulation_with_config(PROFILES["s"], cfg)
-        return _verdict("P1-2", False, "sweep with sram_kb=[128,256] completes")
+        rows = run_simulation_with_config(PROFILES["s"], cfg)
+        infeasible = [r for r in rows if r.get("feasible") == "false"]
+        print(f"  {len(rows)} rows, {len(infeasible)} marked feasible=false "
+              f"(e.g. {infeasible[0]['scheduler']}@{infeasible[0]['sram_kb']}KB: "
+              f"{infeasible[0]['infeasible_reason']})" if infeasible else f"  {len(rows)} rows")
+        return _verdict("P1-2", False, "sweep with sram_kb=[128,256] completes with infeasible rows marked")
     except ValueError as exc:
         return _verdict("P1-2", True, f"sweep with sram_kb=[128,256] aborts: {exc}")
 
 
 def case_p1_3() -> bool:
-    """OS-aware terms never change a decision on the repository configs."""
-    reproduced = True
+    """OS-aware experiment semantics: no true baseline, ties reported as wins, hard-coded profiles."""
+    from src.eda_lite import cost_model
+
+    pure = cost_model.OS_PROFILES.get("pure")
+    pure_ok = pure is not None and pure.latency_multiplier == 1.0 and (
+        pure.deadline_miss_rate, pure.memory_pressure, pure.drop_rate) == (0.0, 0.0, 0.0)
+    print(f"  built-in 'pure' profile (m=1, no OS pressure): {pure_ok}")
+
+    plot_src = (REPO / "src/eda_lite/plot_6lines.py").read_text(encoding="utf-8")
+    hardcoded = "d150" in plot_src or '== "normal"' in plot_src
+    print(f"  plot_6lines hard-codes profile selection: {hardcoded}")
+
+    from src.eda_lite.analyze_results import build_summary_rows, load_result_rows
+    with tempfile.TemporaryDirectory() as tmp:
+        path = Path(tmp) / "r.csv"
+        path.write_text(
+            "model_name,scheduler,sram_kb,os_profile,num_subgraphs,max_fusion_depth,peak_sram_kb,"
+            "dram_traffic_kb,estimated_energy,estimated_latency_ms,os_aware_total_cost,subgraphs\n"
+            "t,layerwise,256,normal,2,1,1,10,10,1,30,a | b\n"
+            "t,greedy,256,normal,1,2,1,5,5,1,20,a+b\n"
+            "t,dp,256,normal,1,2,1,5,5,1,20,a+b\n", encoding="utf-8")
+        best = build_summary_rows(load_result_rows(path))[0]["best_scheduler"]
+    print(f"  greedy and dp tie at cost 20 -> best_scheduler={best!r}")
+
+    # Facts about the repository data (not pass/fail criteria): with the fixed
+    # cost model, do OS profiles or the deadline change any MobileViT schedule?
     for key, path in PROFILES.items():
         base = run_simulation_with_config(path, _load_cfg(RUNTIME_CFG))
         cfg_nob = _load_cfg(RUNTIME_CFG)
         cfg_nob["cost_model"]["beta"] = 0.0
         nob = run_simulation_with_config(path, cfg_nob)
-        beta_dead = all(x["os_aware_total_cost"] == y["os_aware_total_cost"] for x, y in zip(base, nob))
+        beta_changes_cost = sum(x["os_aware_total_cost"] != y["os_aware_total_cost"] for x, y in zip(base, nob))
         dp_per_sram: dict[str, set[str]] = {}
-        dp_eq_greedy = 0
         groups: dict[tuple[str, str], dict[str, dict]] = {}
         for row in base:
             groups.setdefault((row["sram_kb"], row["os_profile"]), {})[row["scheduler"]] = row
             if row["scheduler"] == "dp":
                 dp_per_sram.setdefault(row["sram_kb"], set()).add(row["subgraphs"])
-        for g in groups.values():
-            dp_eq_greedy += g["dp"]["subgraphs"] == g["greedy"]["subgraphs"]
-        max_lat = max(float(r["estimated_latency_ms"]) for r in base)
-        layers = load_model_profile(path).layers
-        max_peak = max(
-            estimate_subgraph_sram_kb(layers[i:j])
-            for i in range(len(layers)) for j in range(i + 1, len(layers) + 1)
-            if is_feasible_subgraph(layers[i:j], 1e12)
-        )
-        print(f"  {key}: beta=0 identical={beta_dead}; max est. latency={max_lat}ms (< deadline 33.3); "
+        dp_eq_greedy = sum(g["dp"]["subgraphs"] == g["greedy"]["subgraphs"] for g in groups.values())
+        print(f"  {key} (measured_* profiles): deadline term changes cost in {beta_changes_cost}/{len(base)} rows; "
               f"distinct DP schedules per SRAM={ {k: len(v) for k, v in dp_per_sram.items()} }; "
-              f"dp==greedy partitions {dp_eq_greedy}/{len(groups)}; max candidate SRAM={max_peak:g}KB")
-        reproduced &= beta_dead and all(len(v) == 1 for v in dp_per_sram.values())
-    return _verdict("P1-3", reproduced, "deadline term is dead and OS profiles never change a schedule")
+              f"dp==greedy partitions {dp_eq_greedy}/{len(groups)} (reported as ties)")
+    print("  note: on these coarse profiles fusion lowers energy, latency and the deadline term together;")
+    print("        only SRAM feasibility changes schedules (see report/PHASE1_BATCH2_RESULT.md).")
+    reproduced = not pure_ok or hardcoded or best != "greedy=dp"
+    return _verdict("P1-3", reproduced,
+                    "no pure baseline / ties reported as greedy wins / hard-coded plot profiles")
+
+
+def case_p1_4_sim() -> bool:
+    """EDA-Lite deadline penalty ignores latency_multiplier; deadline not recorded per row."""
+    layer = (LayerProfile("a", "Conv", 10, 10, 1, 2e9, True),)  # ~20 ms simulated latency
+    profiles = make_os_profiles({
+        "m2": {"latency_multiplier": 2.0, "deadline_miss_rate": 0.5, "memory_pressure": 0.0}})
+    cc = make_cost_config({"deadline_ms": 33.3})
+    m = estimate_schedule_metrics([layer], 1024, "m2", cc, profiles)
+    expected = cc.alpha * 2 * m.estimated_latency_ms + 0.5 * cc.beta * (2 * m.estimated_latency_ms - 33.3)
+    got = m.os_aware_total_cost - m.estimated_energy
+    print(f"  L={m.estimated_latency_ms:.3f}ms, m=2, D=33.3: latency+deadline cost={got:.3f} "
+          f"(effective-latency definition: {expected:.3f})")
+    rows = run_simulation_with_config(PROFILES["xxs"], _load_cfg(SRAM_CFG))
+    recorded = "deadline_ms" in rows[0] and rows[0]["deadline_ms"] == "33.3"
+    print(f"  simulation rows record deadline_ms: {recorded}")
+    return _verdict("P1-4S", abs(got - expected) > 1e-9 or not recorded,
+                    "deadline penalty uses raw latency / deadline not recorded")
 
 
 # ---------------------------------------------------------------- ROS2 runtime
@@ -389,6 +429,7 @@ CASES = {
     "P1-2": case_p1_2,
     "P1-3": case_p1_3,
     "P1-4": case_p1_4,
+    "P1-4S": case_p1_4_sim,
     "P1-5": case_p1_5,
     "P1-6": case_p1_6,
     "P1-7": case_p1_7,

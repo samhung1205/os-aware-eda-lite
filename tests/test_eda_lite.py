@@ -192,7 +192,8 @@ class EdaLiteTest(unittest.TestCase):
         repo_root = Path(__file__).resolve().parents[1]
         rows = run_profile_sweep(repo_root / "experiments/eda_lite/mobilevit_profile_sweep.json")
 
-        self.assertEqual(len(rows), 72)
+        # 2 models x 4 SRAM sizes x 4 OS profiles (pure + 3 built-ins) x 3 schedulers.
+        self.assertEqual(len(rows), 96)
         self.assertEqual(
             {row["model_name"] for row in rows},
             {

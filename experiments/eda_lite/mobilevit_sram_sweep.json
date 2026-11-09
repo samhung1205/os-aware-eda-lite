@@ -1,7 +1,7 @@
 {
   "sram_kb": [256, 512, 1024, 2048],
   "schedulers": ["layerwise", "greedy", "dp"],
-  "os_profiles": ["normal", "high_latency", "high_memory_pressure"],
+  "os_profiles": ["pure", "normal", "high_latency", "high_memory_pressure"],
   "cost_model": {
     "dram_energy_per_kb": 1.0,
     "compute_energy_per_mmac": 0.05,
