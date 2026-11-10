@@ -1,0 +1,26 @@
+# ROS 2 benchmark environment (Linux x86_64 / aarch64, RoboStack ROS 2 Humble, Python 3.10).
+#
+#   conda env create -f environment.yml      # or: mamba env create -f environment.yml
+#   conda activate eda_lite
+#
+# Only needed for real ROS 2 runs (experiments/ros2/*.sh). The simulator, the analysis tools and
+# the tests run on any Python 3.10 - 3.13 without this environment (requirements-sim.txt).
+#
+# This file pins the ROS distro and Python minor version, not every transitive conda package.
+# After creating the environment on the Phase 2 machine, freeze what was actually solved:
+#   conda env export --no-builds > environment.lock.yml
+# and commit that lock file together with the first verified measurements.
+name: eda_lite
+channels:
+  - robostack-staging          # RoboStack's documented order: robostack-staging, then conda-forge
+  - conda-forge
+  - nodefaults
+dependencies:
+  - python=3.10
+  - ros-humble-ros-base        # rclpy, launch, ros2cli, sensor_msgs (no GUI tools)
+  - ros-humble-cv-bridge
+  - opencv                     # cv2 used by both nodes; same build cv_bridge links against
+  - pip
+  - pip:
+      - --extra-index-url https://download.pytorch.org/whl/cpu
+      - -r requirements-ros2.txt

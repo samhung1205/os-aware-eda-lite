@@ -11,6 +11,7 @@ import os
 import shutil
 import stat
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -25,6 +26,8 @@ from src.ros2_runtime.analyze_runtime import (
 from src.ros2_runtime.build_os_profiles import build_os_profile_payload
 
 REPO = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from cli_support import describe_failure  # noqa: E402
 PIPELINE_DIR = REPO / "src/ros2_uav_pipeline/mobilevit_uav_pipeline"
 
 HEADER = (
@@ -341,8 +344,8 @@ class SweepScriptRunIdTest(unittest.TestCase):
             with self.subTest(script=script):
                 first = self._run(script, extra_env)
                 second = self._run(script, extra_env)
-                self.assertEqual(first.returncode, 0, first.stderr)
-                self.assertEqual(second.returncode, 0, second.stderr)
+                self.assertEqual(first.returncode, 0, describe_failure(first, 0))
+                self.assertEqual(second.returncode, 0, describe_failure(second, 0))
 
                 csvs = sorted(
                     path for path in self.results_dir.glob(f"{scenario}_*.csv")
@@ -367,7 +370,7 @@ class SweepScriptRunIdTest(unittest.TestCase):
         for script, (scenario, extra_env) in SWEEPS.items():
             with self.subTest(script=script):
                 first = self._run(script, extra_env, run_tag=f"fixed_{scenario}")
-                self.assertEqual(first.returncode, 0, first.stderr)
+                self.assertEqual(first.returncode, 0, describe_failure(first, 0))
                 existing = sorted(self.results_dir.glob(f"{scenario}_*_fixed_{scenario}*.csv"))
                 self.assertEqual(len(existing), 4)  # detector CSV + publisher log per sweep point
                 before = {path: path.read_text(encoding="utf-8") for path in existing}
@@ -375,7 +378,7 @@ class SweepScriptRunIdTest(unittest.TestCase):
 
                 second = self._run(script, extra_env, run_tag=f"fixed_{scenario}")
 
-                self.assertEqual(second.returncode, 1)
+                self.assertEqual(second.returncode, 1, describe_failure(second, 1))
                 self.assertIn("拒絕 append 或覆寫", second.stderr)
                 self.assertEqual({path: path.read_text(encoding="utf-8") for path in existing}, before)
                 self.assertEqual(self.log.read_text(encoding="utf-8").count("\n"), calls_before)
@@ -394,7 +397,7 @@ class SweepScriptRunIdTest(unittest.TestCase):
                     run_tag=f"tag_{mode}",
                 )
 
-                self.assertEqual(result.returncode, 1)
+                self.assertEqual(result.returncode, 1, describe_failure(result, 1))
                 self.assertIn(message, result.stderr)
                 # Stops at the first failing sweep point.
                 self.assertEqual(self.log.read_text(encoding="utf-8").count(f"tag_{mode}"), 1)
@@ -406,14 +409,14 @@ class SweepScriptRunIdTest(unittest.TestCase):
     def test_timed_runs_succeed_and_pass_warmup_frames(self):
         result = self._run("run_qos_sweep.sh", {"QOS_VALUES": "1", "WARMUP_FRAMES": "3"})
 
-        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.returncode, 0, describe_failure(result, 0))
         self.assertIn("到時正常結束", result.stdout)
         self.assertIn("warmup_frames:=3", self.log.read_text(encoding="utf-8"))
 
     def test_invalid_run_tag_is_rejected_before_launch(self):
         result = self._run("run_fps_sweep.sh", {"FPS_VALUES": "5"}, run_tag="bad tag/..")
 
-        self.assertEqual(result.returncode, 2)
+        self.assertEqual(result.returncode, 2, describe_failure(result, 2))
         self.assertFalse(self.log.exists())
 
 

@@ -48,6 +48,8 @@ from src.ros2_runtime.run_metadata import (
 
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "scripts"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from cli_support import describe_failure, run_cli  # noqa: E402
 import check_runtime_provenance  # noqa: E402
 
 XXS = REPO / "data/model_profiles/mobilevit_xxs_simplified.json"
@@ -113,11 +115,10 @@ def _build_chain(root, meta=True, **run_kwargs):
         _write_run(raw, *run, meta=meta, **run_kwargs)
     summary = root / "results/csv/ros2_runtime_summary.csv"
     profiles = root / "experiments/eda_lite/runtime_os_profiles.json"
-    subprocess.run([sys.executable, "-m", "src.ros2_runtime.analyze_runtime", "--input", str(raw),
-                    "--summary-output", str(summary)], cwd=REPO, check=True, capture_output=True)
-    build = subprocess.run([sys.executable, "-m", "src.ros2_runtime.build_os_profiles", "--input",
-                            str(summary), "--output", str(profiles), "--profile-prefix", "measured"],
-                           cwd=REPO, check=True, capture_output=True, text=True)
+    run_cli([sys.executable, "-m", "src.ros2_runtime.analyze_runtime", "--input", raw,
+             "--summary-output", summary])
+    build = run_cli([sys.executable, "-m", "src.ros2_runtime.build_os_profiles", "--input",
+                     summary, "--output", profiles, "--profile-prefix", "measured"])
     return raw, summary, profiles, build.stdout
 
 
@@ -174,14 +175,14 @@ class ProvenanceChainTest(unittest.TestCase):
             for run in SYNTHETIC_RUNS:
                 _write_run(raw, *run, meta=False)
             summary = root / "summary.csv"
-            subprocess.run([sys.executable, "-m", "src.ros2_runtime.analyze_runtime", "--input", str(raw),
-                            "--summary-output", str(summary)], cwd=REPO, check=True, capture_output=True)
+            run_cli([sys.executable, "-m", "src.ros2_runtime.analyze_runtime", "--input", raw,
+                     "--summary-output", summary])
             # Without run metadata there is no verifiable memory reference either.
             proc = subprocess.run([sys.executable, "-m", "src.ros2_runtime.build_os_profiles", "--input",
                                    str(summary), "--output", str(root / "p.json"), "--require-verified",
                                    "--memory-reference-mb", "2048"],
                                   cwd=REPO, capture_output=True, text=True)
-            self.assertEqual(proc.returncode, 1)
+            self.assertEqual(proc.returncode, 1, describe_failure(proc, 1))
             self.assertIn("no run metadata", proc.stderr)
             self.assertFalse((root / "p.json").exists())
 
@@ -486,10 +487,11 @@ class RunMetadataTest(unittest.TestCase):
                     "--run-id", "r", "--resource-profile", "normal", "--requested-cpus", "0",
                     "--requested-memory-max", "1K", "--require-applied"]
             proc = subprocess.run(args, cwd=REPO, capture_output=True, text=True)
-            self.assertEqual(proc.returncode, 3, proc.stderr)
+            self.assertEqual(proc.returncode, 3, describe_failure(proc, 3))
             self.assertNotEqual(read_json(out)["resource_limits"]["measurement_class"], CLASS_CONSTRAINED)
             again = subprocess.run(args, cwd=REPO, capture_output=True, text=True)
-            self.assertEqual(again.returncode, 1)  # never overwrites existing metadata
+            # never overwrites existing metadata
+            self.assertEqual(again.returncode, 1, describe_failure(again, 1))
 
     def test_node_qos_description_matches_sources(self):
         pipeline = REPO / "src/ros2_uav_pipeline/mobilevit_uav_pipeline"
@@ -508,7 +510,7 @@ class RunMetadataTest(unittest.TestCase):
         ]}
         for path, text in scripts.items():
             self.assertFalse(any(line.strip().startswith("sudo ") for line in text.splitlines()), path)
-            subprocess.run(["bash", "-n", str(path)], check=True)
+            run_cli(["bash", "-n", path])
         for name in ("run_fps_sweep.sh", "run_qos_sweep.sh", "run_overload_sweep.sh"):
             self.assertIn("run_capture_metadata", scripts[REPO / "experiments/ros2" / name])
         for name in ("run_baseline_experiments.sh", "run_os_tuned_experiments.sh"):
@@ -527,11 +529,11 @@ class RunMetadataTest(unittest.TestCase):
                 f'REQUESTED_CPUS=0 REQUESTED_MEMORY_MAX=1K run_capture_metadata r1 "{out}" normal scenario=x'
             )
             proc = subprocess.run(["bash", "-c", script], cwd=REPO, capture_output=True, text=True)
-            self.assertEqual(proc.returncode, 3, proc.stderr)
+            self.assertEqual(proc.returncode, 3, describe_failure(proc, 3))
             self.assertTrue((Path(tmp) / "r1.meta.json.failed").exists())
             ok = subprocess.run(["bash", "-c", script.replace("REQUESTED_CPUS=0 REQUESTED_MEMORY_MAX=1K ", "")
                                  .replace("r1", "r2")], cwd=REPO, capture_output=True, text=True)
-            self.assertEqual(ok.returncode, 0, ok.stderr)
+            self.assertEqual(ok.returncode, 0, describe_failure(ok, 0))
             meta = read_json(Path(tmp) / "r2.meta.json")
             self.assertEqual(meta["resource_limits"]["measurement_class"], CLASS_UNCONSTRAINED)
             self.assertEqual(meta["experiment"], {"scenario": "x"})

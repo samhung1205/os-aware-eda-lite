@@ -40,12 +40,12 @@ python3 scripts/audit_repro.py P0-1 P1-1  # 只跑指定 case
 | P1-6 | P1 | 時間戳記語意 | `inference_ms` 含假延遲、混用時鐘、warm-up 未剔除、`received_at_ns` 未使用（**Batch 1 已修正**） | `P1-6` |
 | P1-7 | P1 | OS profile 正規化 | latency/memory baseline 跨模型取全域 min/max，S 模型 idle 也有 3.4× multiplier（**Batch 3 已修正**；legacy profiles 無原始資料，無法重算，標為 UNVERIFIED） | `P1-7` |
 | P1-8 | P1 | 實驗條件可追溯 | 資源限制 fallback 仍標 `normal`、tuned 只改 `rmem_max`、檔名沒有 run id（**Batch 3：程式已修正，Linux 實機驗證 BLOCKED**） | `P1-8` |
-| P2-1 | P2 | CI | 沒有任何 CI | 靜態 |
-| P2-2 | P2 | 依賴 | `requirements.txt` 未鎖版本、Python 版本不一致、ROS 依賴不在清單 | 靜態 |
-| P2-3 | P2 | Repo 衛生 | 18 個 `__pycache__`/`.DS_Store` 被追蹤；`*.csv` 被 ignore 但仍有 11 個 CSV 被追蹤 | 靜態 |
-| P2-4 | P2 | 文件落差 | README / AGENTS.md / final_report 彼此矛盾，「Pure」標籤不實 | 靜態 |
-| P2-5 | P2 | 測試缺口 | 沒有 DP oracle、greedy 非單調、CSV 混用等測試；測試依賴不可重建的 artifact | 靜態 |
-| P2-6 | P2 | 其他 pipeline 細節 | model fallback 改名、`model_path` 未使用、QoS 只改 subscriber depth、profile chain 未驗證 | 靜態 |
+| P2-1 | P2 | CI | 沒有任何 CI（**Batch 4 已修正**：GitHub Actions + `scripts/ci_checks.sh`） | `P2-1` |
+| P2-2 | P2 | 依賴 | `requirements.txt` 未鎖版本、Python 版本不一致、ROS 依賴不在清單（**Batch 4 已修正**；pins 尚未在 Linux/ROS 2 實機驗證） | `P2-2` |
+| P2-3 | P2 | Repo 衛生 | 18 個 `__pycache__`/`.DS_Store` 被追蹤；`*.csv` 被 ignore 但仍有 11 個 CSV 被追蹤（**Batch 4 已修正**：untrack + `results/README.md` 追蹤策略） | `P2-3` |
+| P2-4 | P2 | 文件落差 | README / AGENTS.md / final_report 彼此矛盾，「Pure」標籤不實（**Batch 2–4 已修正**） | 靜態 |
+| P2-5 | P2 | 測試缺口 | 沒有 DP oracle、greedy 非單調、CSV 混用等測試；測試依賴不可重建的 artifact（**Batch 1–4 已修正**；`--strict` 在 CI 中回歸） | 靜態 |
+| P2-6 | P2 | 其他 pipeline 細節 | model fallback 改名、`model_path` 未使用、QoS 只改 subscriber depth、profile chain 未驗證（**Batch 4 已修正**：fallback 移除、`model_path` 移除並拒絕、profile 驗證；QoS/jitter 語意已文件化） | `P2-6` |
 
 建議修正順序見第 5 節。
 
@@ -263,6 +263,8 @@ python3 scripts/audit_repro.py P0-1 P1-1  # 只跑指定 case
 ---
 
 ## 4. P2：工程品質、文件與維護
+
+> **狀態：已於 Phase 1 / Batch 4 處理**（見 `report/PHASE1_BATCH4_RESULT.md`）。`python3 scripts/audit_repro.py P2-1 P2-2 P2-3 P2-6` 顯示 `FIXED`；P2-4、P2-5 為文件與測試範圍，無法自動判定。
 
 ### P2-1 沒有 CI
 沒有 `.github/workflows` 或其他 CI 設定，測試只靠手動執行。**最小修改**：加一個 GitHub Actions workflow：Python 3.10 / 3.11 跑 `python3 -m unittest discover -s tests`、`bash -n experiments/ros2/*.sh scripts/*.sh`、`python3 scripts/audit_repro.py`（修好之後可改成斷言 `FIXED`）。ROS 2 部分先不放進 CI。

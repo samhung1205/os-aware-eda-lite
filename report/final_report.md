@@ -4,7 +4,7 @@
 
 本專題以 Vision Transformer 類模型在邊緣與 ROS2 場景中的部署瓶頸為主題，建立一個可重現、可解釋的 **OS-aware EDA-Lite** 模擬與分析流程。專題不嘗試完整重現 EDA compiler，也不主張量測真實硬體能耗；目前核心貢獻是用簡化 MobileViT block profile 比較 layer fusion scheduling、SRAM 限制、ROS2 runtime pressure 與 dropped-frame communication pressure 對估計成本的影響。
 
-目前已完成的主要結果屬於 **EDA-Lite simulation estimates**。ROS2 MobileViT pipeline 與 runtime-derived `measured_*` OS profiles 已由組員加入 repo；不過目前仍缺 raw ROS2 CSV 與 `ros2_runtime_summary.csv`，因此這些 runtime-derived profiles 可作為組員提供的實驗衍生成果，但在 final report 中應說明其原始資料尚未納入版本庫，避免把不可追溯的 derived artifacts 說成完整可審核的 measured dataset。
+目前已完成的主要結果屬於 **EDA-Lite simulation estimates**。ROS2 MobileViT pipeline 已在 repo 中，但尚未從本 repo 執行過真實 ROS 2 benchmark；組員提供的 22 個 `measured_*` OS profiles 沒有 raw ROS2 CSV、run metadata 與 `ros2_runtime_summary.csv`，因此標示為 **UNVERIFIED**（`runtime_os_profiles.legacy_unverified.json`），不可作為 measured dataset。`scripts/check_runtime_provenance.py` 目前回報 `BLOCKED`。本專題也沒有 adaptive / runtime scheduler：OS profiles 只改變離線 EDA-Lite 成本模型的權重。
 
 ## 1. 背景與動機
 
@@ -247,24 +247,35 @@ Still needed for full auditability:
 
 - raw runtime CSVs or `results/csv/ros2_runtime_summary.csv`
 
-Expected launch arguments:
+Launch arguments:
 
 ```text
-dataset_path, input_fps, qos_depth, model_path, model_name,
-fake_inference_delay_ms, deadline_ms, resource_profile, scenario, output_csv
+dataset_path, input_fps, qos_depth, model_name, fake_inference_delay_ms,
+deadline_ms, resource_profile, scenario, output_csv, run_id, warmup_frames
 ```
+
+(`model_path` was removed in Phase 1 / Batch 4: the detector never read it.)
 
 ### 7.3 Runtime CSV Contract
 
-Recommended columns:
+Detector CSV columns (one file per run, `<run_id>.csv`; plus `<run_id>.publisher.csv` and `<run_id>.meta.json`):
 
 ```text
-scenario,model_name,input_fps,qos_depth,fake_delay_ms,resource_profile,
-frame_id,published_at_ns,received_at_ns,completed_at_ns,
-latency_ms,inference_ms,deadline_miss,dropped,cpu_percent,memory_mb
+run_id,scenario,model_name,input_fps,qos_depth,fake_delay_ms,resource_profile,
+deadline_ms,frame_id,warmup,published_at_ns,received_at_ns,completed_at_ns,
+latency_ms,transport_ms,preprocess_ms,artificial_delay_ms,inference_ms,
+deadline_miss,dropped,cpu_percent,memory_mb
 ```
 
-The analyzer can infer latency from timestamps and dropped frames from `frame_id` gaps.
+The analyzer can infer latency from timestamps and dropped frames from `frame_id` gaps and the publisher log.
+
+### 7.3.1 Measurement semantics (must be stated with any ROS 2 number)
+
+- **Model weights.** The detector runs `timm.create_model(model_name, pretrained=False)`: random initial weights, no checkpoint. Forward-pass latency is meaningful; detection accuracy is not measured. A model that cannot be created ends the run; there is no fallback to another model.
+- **QoS.** Publisher RELIABLE / KEEP_LAST 10 (fixed); detector subscription BEST_EFFORT / KEEP_LAST `qos_depth`. The QoS sweep varies only the subscriber queue depth.
+- **Latency statistics.** End-to-end latency = publish → inference done (host wall clock; publisher and detector on one host). P95/P99 use nearest-rank percentiles; `jitter_ms` is the population standard deviation of per-frame latency, not inter-arrival jitter.
+- **Deadline / drops.** A processed frame misses iff `latency_ms > deadline_ms`; dropped frames are counted separately (never as misses); warm-up frames are excluded.
+- **Resource limits.** A run is "constrained" only if its `meta.json` says `measurement_class=constrained` (limits read back from affinity / cgroup v2).
 
 ### 7.4 Runtime Commands
 
@@ -299,12 +310,15 @@ Only after these steps, with `build_os_profiles --require-verified` succeeding a
 - The simulator does not implement full EDA tensor splitting, memory planning, NPU scheduling, or code generation.
 - The current repo has no measured ROS2 runtime CSV yet; the teammate-provided runtime-derived profiles and ROS2 figures are UNVERIFIED (provenance check: BLOCKED).
 - `runtime_os_profiles.example.json` is example data only.
+- ROS 2 inference uses random-initialised weights (latency only, no accuracy); jitter is the latency standard deviation; the QoS sweep only varies the subscriber depth.
+- The pinned ROS 2 environment (`environment.yml`, `requirements-ros2.txt`) has not yet been exercised on the target Linux machine.
+- There is no adaptive / runtime scheduling; on the coarse MobileViT profiles the OS profiles change the reported cost but not the chosen partition.
 - COCO128 is used only as a small image input source, not as YOLO training/evaluation.
 - LLM/long-context KV-cache analysis remains background motivation, not implemented functionality.
 
 ## 9. Conclusion
 
-本專題已建立一條可重現的 MobileViT + ROS2 OS-aware analysis workflow。Simulation results show that inter-layer fusion can reduce estimated DRAM traffic and energy under SRAM constraints, while ROS2 runtime pressure can later be converted into OS profiles to influence scheduler cost. The next key step is to connect the teammate's ROS2 MobileViT pipeline, generate real runtime CSVs, and replace example OS profiles with measured runtime-derived profiles.
+本專題已建立一條 MobileViT + ROS2 OS-aware analysis workflow：模擬部分可完整重現（CI 驗證），runtime 部分的程式與 provenance 檢查已就緒，但真實量測尚待 Phase 2。Simulation results show that inter-layer fusion can reduce estimated DRAM traffic and energy under SRAM constraints, while ROS2 runtime pressure can later be converted into OS profiles to influence scheduler cost. The next key step is to connect the teammate's ROS2 MobileViT pipeline, generate real runtime CSVs, and replace example OS profiles with measured runtime-derived profiles.
 
 ## References
 

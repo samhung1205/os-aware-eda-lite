@@ -1,0 +1,22 @@
+# Python packages for the ROS 2 MobileViT nodes (src/ros2_uav_pipeline/) only.
+# The simulator and the analysis tools do not need any of these (see requirements-sim.txt).
+#
+# Install inside the RoboStack ROS 2 Humble environment (Python 3.10), see environment.yml:
+#   conda env create -f environment.yml
+# or, in an existing ROS 2 environment:
+#   python3 -m pip install --extra-index-url https://download.pytorch.org/whl/cpu -r requirements-ros2.txt
+#
+# NOT provided here (they come from ROS 2 / conda, never from pip):
+#   rclpy, launch, sensor_msgs, cv_bridge  -> ros-humble-* packages
+#   cv2                                     -> conda-forge `opencv` (the one cv_bridge links against;
+#                                              a pip opencv-python wheel would shadow it)
+#
+# Versions are pinned so inference latency is comparable between runs. They were chosen as a
+# consistent CPU-only set for Python 3.10 and have NOT yet been exercised on the Phase 2 Linux /
+# ROS 2 machine; every run records the versions actually imported in <run_id>.meta.json.
+# numpy stays < 2 because ROS 2 Humble's cv_bridge is built against numpy 1.x.
+torch==2.5.1
+torchvision==0.20.1
+timm==1.0.11
+numpy==1.26.4
+psutil==7.0.0

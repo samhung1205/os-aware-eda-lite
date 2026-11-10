@@ -65,6 +65,33 @@ def resolve_output_csv(value: str | None, run_id: str) -> str:
     return text
 
 
+# The detector measures latency only: timm models are created with
+# ``pretrained=False`` (random initial weights, no checkpoint file, no download).
+# Latency of a forward pass does not depend on the weight values; detection
+# accuracy is not measured and must not be reported.
+MODEL_WEIGHTS = "random_init"
+
+
+def create_model_strict(model_name: str, create_fn):
+    """Create exactly ``model_name`` with ``create_fn`` (``timm.create_model``) or raise.
+
+    Never substitutes another model: a CSV labelled ``mobilevit_s`` must not
+    contain ``mobilevit_xxs`` measurements. The caller lets the exception end
+    the node, so the launch ends early and the sweep script marks the run failed.
+    """
+
+    name = "" if model_name is None else str(model_name).strip()
+    if not name:
+        raise ValueError("model_name must be a non-empty timm model name.")
+    try:
+        return create_fn(name, pretrained=False)
+    except Exception as exc:  # timm raises RuntimeError / KeyError for unknown names
+        raise RuntimeError(
+            f"Failed to create model '{name}' ({exc}). Refusing to fall back to another "
+            "model; fix model_name (e.g. mobilevit_xxs, mobilevit_s)."
+        ) from exc
+
+
 def publisher_csv_path(detector_csv: str) -> str:
     """Return the publisher log path that belongs to a detector CSV."""
 

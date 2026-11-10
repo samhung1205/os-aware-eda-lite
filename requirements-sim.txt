@@ -1,0 +1,10 @@
+# EDA-Lite simulator, ROS 2 runtime *analysis*, provenance tools and the test suite.
+#
+# Standard library only: there is nothing to install. Supported Python: 3.10 - 3.13
+# (CI runs the test suite on 3.10, 3.11, 3.12 and 3.13 with no packages installed).
+#
+#   python3 -m unittest discover -s tests
+#
+# Covers: src/eda_lite/*, src/ros2_runtime/{analyze_runtime,build_os_profiles,run_metadata}.py,
+# src/provenance.py, scripts/*.py. Optional package *versions* (torch, timm, ...) are only
+# recorded by run_metadata when present; they are never imported.

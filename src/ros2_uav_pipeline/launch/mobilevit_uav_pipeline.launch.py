@@ -26,11 +26,17 @@ except ImportError:  # checked-in launch file executed from the repository root
 PUBLISHER_SCRIPT = 'src/ros2_uav_pipeline/mobilevit_uav_pipeline/image_stream_node.py'
 DETECTOR_SCRIPT = 'src/ros2_uav_pipeline/mobilevit_uav_pipeline/mobilevit_detector_node.py'
 
+# model_name selects the timm model; weights are random-init (pretrained=False).
+# There is deliberately no model_path argument: no checkpoint file is loaded.
+REMOVED_ARGUMENTS = {
+    'model_path': 'model_path is not supported: the detector creates the timm model named by '
+                  'model_name with random weights (pretrained=False) and loads no weight file.',
+}
+
 ARGUMENTS = [
     ('dataset_path', 'data/raw/images/coco128/images/train2017'),
     ('input_fps', '30.0'),
     ('qos_depth', '10'),
-    ('model_path', 'mobilevit_xxs'),
     ('model_name', 'mobilevit_xxs'),
     ('fake_inference_delay_ms', '0'),
     ('deadline_ms', '100.0'),
@@ -51,6 +57,10 @@ def _node_process(script, name, params):
 
 
 def _launch_setup(context, *args, **kwargs):
+    for name, reason in REMOVED_ARGUMENTS.items():
+        if name in context.launch_configurations:
+            # An ignored argument would make the run look like it used that setting.
+            raise RuntimeError(reason)
     value = {name: LaunchConfiguration(name).perform(context) for name, _ in ARGUMENTS}
     # run_id 只在這裡解析一次，publisher 與 detector 共用同一個 run_id。
     run_id = resolve_run_id(value['run_id'])

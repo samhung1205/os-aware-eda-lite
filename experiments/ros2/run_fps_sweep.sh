@@ -9,7 +9,6 @@ ROS2_LAUNCH_FILE="${ROS2_LAUNCH_FILE:-mobilevit_uav_pipeline.launch.py}"
 ROS2_LAUNCH_TARGET="${ROS2_LAUNCH_TARGET:-src/ros2_uav_pipeline/launch/mobilevit_uav_pipeline.launch.py}"
 DATASET_PATH="${DATASET_PATH:-data/raw/images/coco128/images/train2017}"
 RESULTS_DIR="${RESULTS_DIR:-results/raw/ros2}"
-MODEL_PATH="${MODEL_PATH:-mobilevit_xxs}"
 MODEL_NAME="${MODEL_NAME:-mobilevit_xxs}"
 QOS_DEPTH="${QOS_DEPTH:-5}"
 DEADLINE_MS="${DEADLINE_MS:-100}"
@@ -54,7 +53,7 @@ for fps in $FPS_VALUES; do
   output_csv="$RESULTS_DIR/${run_id}.csv"
   run_prepare "$run_id" "$output_csv" || exit $?
   run_capture_metadata "$run_id" "$output_csv" "$RESOURCE_PROFILE" \
-    scenario=fps_sweep model_name="$MODEL_NAME" model_path="$MODEL_PATH" \
+    scenario=fps_sweep model_name="$MODEL_NAME" model_weights=random_init \
     input_fps="$fps" qos_depth="$QOS_DEPTH" fake_delay_ms="$FAKE_DELAY_MS" \
     deadline_ms="$DEADLINE_MS" run_seconds="$RUN_SECONDS" warmup_frames="$WARMUP_FRAMES" \
     dataset_path="$DATASET_PATH" launch_target="${launch_target[*]}" || exit $?
@@ -64,7 +63,6 @@ for fps in $FPS_VALUES; do
     dataset_path:="$DATASET_PATH" \
     input_fps:="$fps" \
     qos_depth:="$QOS_DEPTH" \
-    model_path:="$MODEL_PATH" \
     model_name:="$MODEL_NAME" \
     fake_inference_delay_ms:="$FAKE_DELAY_MS" \
     deadline_ms:="$DEADLINE_MS" \

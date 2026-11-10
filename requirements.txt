@@ -1,6 +1,5 @@
-numpy<2.0.0
-opencv-python
-psutil
-timm
-torch
-torchvision
+# Kept for backward compatibility. Dependencies are split by purpose:
+#   requirements-sim.txt   simulator, analysis, tests: standard library only (nothing to install)
+#   requirements-ros2.txt  ROS 2 MobileViT nodes: pinned torch / timm / numpy / psutil
+#   environment.yml        RoboStack ROS 2 Humble + Python 3.10 + requirements-ros2.txt
+-r requirements-ros2.txt

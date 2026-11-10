@@ -236,3 +236,22 @@ Implementation decision:
 Important limitation:
 
 - No raw ROS2 data exists, so P0-3 is BLOCKED (mechanism verified only with synthetic temp data in tests) and the legacy profiles cannot be recalibrated. P1-8's cgroup/affinity read-back is unit-tested with a fake `/proc` and cgroup tree but has not run on Linux with ROS 2.
+
+## 2026-11-10 Phase 1 / Batch 4: Engineering Quality & Reproducibility
+
+Prompt summary:
+
+- Close audit P2-1 … P2-6 (CI, dependencies, repo hygiene, documentation, test gaps, remaining pipeline details) as the last Phase 1 batch, without dashboards, adaptive scheduling, new models, heavy frameworks, or changes to the verified DP / greedy logic.
+
+Implementation decision:
+
+- Checkpoint-commit Batch 3 (`64a844f`) first, again staging a Batch-3-only `plot_6lines.py` blob so the user's `SIX_LINE_METRICS` hunk stays uncommitted; `.DS_Store` and the user's SVGs were not committed.
+- CI is a thin GitHub Actions wrapper around `scripts/ci_checks.sh`, so the exact CI steps run locally. No ROS 2 and no pip install in CI: the suite is stdlib-only (enforced by a test). The provenance gate keeps `BLOCKED` as a warning and fails a `VERIFIED` status that has no raw data behind it. A repeat job runs the suite 5× without retries.
+- The Batch 3 intermittent error appeared once more during this batch (124 tests, 1 error, output not captured) and could not be reproduced in ~145 further runs (sequential, concurrent clones, working tree + clone). Instead of guessing, every subprocess-based test now fails with the child's full stdout/stderr (`tests/cli_support.run_cli`), CI keeps verbose logs, and the repeat job surfaces recurrences.
+- Dependencies split into an empty stdlib `requirements-sim.txt`, pinned `requirements-ros2.txt`, and a RoboStack `environment.yml` (ros-base instead of desktop; conda `opencv` instead of pip `opencv-python`, so `cv_bridge` and `cv2` match).
+- Pipeline (P2-6): `create_model_strict` replaces the silent `mobilevit_xxs` fallback; the unused `model_path` is removed and rejected (launch and scripts) rather than wired to a checkpoint loader, because random-init weights are sufficient for latency and loading weights would be new functionality. Model profiles validate the `output_kb → input_kb` chain, unique names and finite numbers. QoS / jitter / percentile / random-weight semantics are documented, not changed.
+- Hygiene: 18 tracked caches / `.DS_Store` untracked (`git rm --cached`, files kept on disk); `.gitignore` encodes one results policy (raw and derived CSVs tracked with their sidecars; failed runs, caches, lock files ignored), documented in `results/README.md`.
+
+Important limitation:
+
+- Pinned ROS 2 versions and `environment.yml` were not solved or run (no Linux / ROS 2 here). GitHub Actions has not run yet (nothing pushed); the workflow was validated by YAML parsing and by running `scripts/ci_checks.sh all` locally on macOS / Python 3.11 and the test suite on a bare Python 3.13 venv. Real measurements remain BLOCKED.

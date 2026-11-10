@@ -172,7 +172,22 @@ Paused / optional older script:
 
 - `run_yolo11_comparison.sh`
 
-The scripts assume an external ROS2 MobileViT/UAV workspace and do not download, vendor, or verify that pipeline.
+The scripts launch the checked-in pipeline `src/ros2_uav_pipeline/` by default (or an installed package with `ROS2_LAUNCH_TARGET=""`). They have not yet been run on the Phase 2 Linux / ROS 2 machine.
+
+Pipeline semantics (Phase 1 / Batch 4, audit P2-6):
+
+- The detector builds `timm.create_model(model_name, pretrained=False)` via `run_log.create_model_strict`: random weights, latency only, no accuracy. A failed model load ends the run; it never falls back to another model.
+- There is no `model_path`: the launch file raises if it is passed, and the sweep scripts exit 2 if `MODEL_PATH` is set.
+- QoS: publisher RELIABLE depth 10 (fixed), detector BEST_EFFORT KEEP_LAST `qos_depth`; QoS sweeps vary only the subscriber depth.
+- `jitter_ms` = population std dev of per-frame end-to-end latency (not inter-arrival jitter); P95/P99 are nearest-rank.
+
+### 6. CI, Environment And Repository Hygiene (Phase 1 / Batch 4)
+
+- `.github/workflows/ci.yml`: tests on Python 3.10–3.13 (nothing installed), `bash -n`, `scripts/audit_repro.py --strict`, provenance gate, 5× repeated test runs. Every step is `bash scripts/ci_checks.sh <step>`; `bash scripts/ci_checks.sh all` reproduces CI locally. CI installs no ROS 2; the gate reports `BLOCKED` as a warning and must never turn it into `VERIFIED`.
+- Dependencies: `requirements-sim.txt` (stdlib only, empty), `requirements-ros2.txt` (pinned torch/torchvision/timm/numpy/psutil for the ROS 2 nodes), `environment.yml` (RoboStack Humble, Python 3.10, conda `opencv`), `requirements.txt` → `-r requirements-ros2.txt`. The pins are not yet exercised on the Phase 2 machine.
+- Results policy (`results/README.md`, `.gitignore`): raw `results/raw/ros2/*.{csv,publisher.csv,meta.json}` tracked; derived `results/csv/*.csv` tracked with their `.provenance.json` / `.manifest.json`; figures tracked; `*.failed`, caches, `.DS_Store`, `~$*`, `ci-logs/` ignored.
+- `load_model_profile` validates finite numbers, unique layer names and `output_kb[i] == input_kb[i+1]`.
+- Tests that run CLIs use `tests/cli_support.run_cli` (full stdout/stderr on failure).
 
 ## Main Commands
 
@@ -241,6 +256,8 @@ python3 -m src.eda_lite.run_simulation \
 
 ```bash
 python3 -m unittest discover -s tests
+bash scripts/ci_checks.sh all        # same checks as GitHub Actions
+python3 scripts/audit_repro.py --strict
 ```
 
 ## ROS2 Runtime CSV Contract
@@ -371,7 +388,9 @@ Implemented:
 - ROS2 runtime CSV analyzer with frame-gap drop inference.
 - ROS2 runtime summary to EDA-Lite OS profile converter (per-model calibration, provenance metadata).
 - Run metadata capture, provenance manifests/sidecars and `scripts/check_runtime_provenance.py`.
-- Unit tests.
+- Unit tests (stdlib only) and GitHub Actions CI (`.github/workflows/ci.yml`, `scripts/ci_checks.sh`).
+- Split dependency files (`requirements-sim.txt`, `requirements-ros2.txt`, `environment.yml`).
+- `results/README.md` tracking policy and provenance status.
 - README.
 - AI interaction log.
 
@@ -379,7 +398,9 @@ Still not implemented / not present:
 
 - Actual ROS2 runtime measurements (raw CSVs, publisher logs, run metadata, summary): the provenance check is BLOCKED until a real run.
 - Verified `runtime_os_profiles.json` (only the UNVERIFIED legacy file exists).
-- Real model weights.
+- Real model weights (the detector uses random-init timm weights; latency only).
+- Adaptive / runtime scheduling (EDA-Lite schedules offline; OS profiles only re-weight the cost).
+- `environment.lock.yml` (to be exported on the Phase 2 machine).
 - ONNX parser.
 - Real LLM inference or KV-cache simulation.
 - Final presentation slides.
@@ -391,7 +412,7 @@ Still not implemented / not present:
 Prioritize in this order unless the user redirects:
 
 1. Draft report methodology and limitations based on MobileViT simplified simulation and ROS2 runtime-analysis pipeline.
-2. Once an external ROS2 workspace is available, run FPS/QoS/overload experiments and save raw CSVs under `results/raw/ros2/`.
+2. On Linux + ROS 2 Humble (`conda env create -f environment.yml`), pass the Phase 2 preflight checklist in `report/PHASE1_BATCH4_RESULT.md`, run FPS/QoS/overload experiments and commit raw CSVs, publisher logs and `meta.json` under `results/raw/ros2/`.
 3. Convert real ROS2 summaries to `runtime_os_profiles.json` with `--require-verified`; `check_runtime_provenance.py` must report `VERIFIED`.
 4. Re-run `mobilevit_runtime_aware_sweep.json` with real runtime-derived OS profiles.
 5. Generate final figures and write results discussion.
@@ -408,11 +429,12 @@ Avoid these unless explicitly requested:
 ## Coding And Maintenance Rules
 
 - Keep implementation deterministic and easy to explain.
-- Prefer Python standard library unless the user approves new dependencies.
+- Prefer Python standard library unless the user approves new dependencies. The simulator, analysis, provenance tools and tests must stay stdlib-only (a test enforces it); ROS 2 node dependencies go in the pinned `requirements-ros2.txt`.
 - Keep all experiment parameters in JSON config or shell-script environment variables.
 - Save generated tabular outputs as CSV.
 - Generate plots from scripts as SVG.
 - Update `README.md` whenever commands, file paths, or project scope changes.
 - Update `report/ai_interaction_log.md` for major AI-assisted decisions or direction changes.
-- Run `python3 -m unittest discover -s tests` after code changes.
+- Run `python3 -m unittest discover -s tests` (or `bash scripts/ci_checks.sh all`) after code changes.
+- Never commit `__pycache__`, `.pyc`, `.DS_Store` or Office lock files; follow `results/README.md` for what results to commit.
 - For ROS2 shell scripts, use `bash -n` for syntax checks when editing scripts.

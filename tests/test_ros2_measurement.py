@@ -24,6 +24,8 @@ from src.ros2_runtime.analyze_runtime import (
 from src.ros2_runtime.build_os_profiles import build_os_profile_payload
 
 REPO = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from cli_support import run_cli  # noqa: E402
 PIPELINE_DIR = REPO / "src/ros2_uav_pipeline/mobilevit_uav_pipeline"
 LAUNCH_FILE = REPO / "src/ros2_uav_pipeline/launch/mobilevit_uav_pipeline.launch.py"
 
@@ -327,11 +329,8 @@ class CsvSchemaCompatibilityTest(unittest.TestCase):
             (raw / "r.csv").write_text(_v2_csv([{"run_id": "r", "frame_id": i} for i in range(4)]), encoding="utf-8")
             (raw / "r.publisher.csv").write_text(_publisher_csv("r", range(6)), encoding="utf-8")
             out = Path(tmpdir, "summary.csv")
-            subprocess.run(
-                [sys.executable, "-m", "src.ros2_runtime.analyze_runtime", "--input", str(raw),
-                 "--summary-output", str(out), "--warmup-frames", "1"],
-                cwd=REPO, check=True, capture_output=True, text=True,
-            )
+            run_cli([sys.executable, "-m", "src.ros2_runtime.analyze_runtime", "--input", raw,
+                     "--summary-output", out, "--warmup-frames", "1"])
             with out.open(encoding="utf-8", newline="") as file:
                 reader = csv.DictReader(file)
                 header, rows = reader.fieldnames, list(reader)

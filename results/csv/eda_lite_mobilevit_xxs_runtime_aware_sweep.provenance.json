@@ -1,0 +1,49 @@
+{
+  "schema": "eda_lite_simulation_provenance/v1",
+  "generator": "src.eda_lite.run_simulation",
+  "git": {
+    "commit": "9eb6341d90f595399540d8b8b6daba8c3f6534c9",
+    "dirty": true
+  },
+  "output": {
+    "path": "eda_lite_mobilevit_xxs_runtime_aware_sweep.csv",
+    "sha256": "109a49680ede9723f5cb2ec6b6c35006856222c7b30737b51d0c43ea81085840"
+  },
+  "config": {
+    "path": "../../experiments/eda_lite/mobilevit_runtime_aware_sweep_legacy_unverified.json",
+    "sha256": "75c64e018b0c21038ef505890fede7d5e514587f2b96109780f74f4dd01acd86"
+  },
+  "model_profiles": [
+    {
+      "path": "../../data/model_profiles/mobilevit_xxs_simplified.json",
+      "sha256": "3f90dcbc810a02877a6ac51aa5da47c609db091e3a75dff26ad62f04ee9146cd"
+    }
+  ],
+  "os_profile_file": {
+    "path": "../../experiments/eda_lite/runtime_os_profiles.legacy_unverified.json",
+    "sha256": "1c8db6bfe53fc798e9cf77c12313ddabb457d53529cd4483868f6324271c8090",
+    "provenance_status": "unverified",
+    "unverified_reasons": [
+      "teammate-provided artifact (commit 3340326); raw ROS2 CSVs, publisher logs, run metadata and ros2_runtime_summary.csv are not in the repository, so these values cannot be regenerated or hash-verified",
+      "legacy calibration (audit P1-7): latency_multiplier = avg_latency / min(avg_latency over BOTH models) and memory_pressure = avg_memory / max(avg_memory over BOTH models); MobileViT-S idle therefore shows ~3.3x 'pressure' that is only the model being slower",
+      "resource limits were never verified (no run metadata); the old wrapper labelled unconstrained fallback runs 'normal' (audit P1-8)"
+    ]
+  },
+  "rows": 132,
+  "rows_by_os_profile_provenance": {
+    "unverified": 132
+  },
+  "os_profiles": [
+    "measured_fps_sweep_mobilevit_xxs_10_0fps_q5_d0_normal",
+    "measured_fps_sweep_mobilevit_xxs_20_0fps_q5_d0_normal",
+    "measured_fps_sweep_mobilevit_xxs_30_0fps_q5_d0_normal",
+    "measured_fps_sweep_mobilevit_xxs_5_0fps_q5_d0_normal",
+    "measured_overload_sweep_mobilevit_xxs_20_0fps_q5_d0_normal",
+    "measured_overload_sweep_mobilevit_xxs_20_0fps_q5_d150_normal",
+    "measured_overload_sweep_mobilevit_xxs_20_0fps_q5_d30_normal",
+    "measured_overload_sweep_mobilevit_xxs_20_0fps_q5_d80_normal",
+    "measured_qos_sweep_mobilevit_xxs_20_0fps_q10_d0_normal",
+    "measured_qos_sweep_mobilevit_xxs_20_0fps_q1_d0_normal",
+    "measured_qos_sweep_mobilevit_xxs_20_0fps_q5_d0_normal"
+  ]
+}

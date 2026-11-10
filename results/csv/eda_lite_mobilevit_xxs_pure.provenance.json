@@ -1,0 +1,33 @@
+{
+  "schema": "eda_lite_simulation_provenance/v1",
+  "generator": "src.eda_lite.run_simulation",
+  "git": {
+    "commit": "9eb6341d90f595399540d8b8b6daba8c3f6534c9",
+    "dirty": true
+  },
+  "output": {
+    "path": "eda_lite_mobilevit_xxs_pure.csv",
+    "sha256": "73de7d3527196f8e65a299e98126b3d10068052cb3d0ae4753a0b15a5ad5f5d7"
+  },
+  "config": {
+    "path": "../../experiments/eda_lite/mobilevit_sram_sweep.json",
+    "sha256": "08accec4fd34fd760c3c21fb9b7a36d59e1a4f8bb065e77e09e33cf56864beb2"
+  },
+  "model_profiles": [
+    {
+      "path": "../../data/model_profiles/mobilevit_xxs_simplified.json",
+      "sha256": "3f90dcbc810a02877a6ac51aa5da47c609db091e3a75dff26ad62f04ee9146cd"
+    }
+  ],
+  "os_profile_file": null,
+  "rows": 48,
+  "rows_by_os_profile_provenance": {
+    "builtin": 48
+  },
+  "os_profiles": [
+    "high_latency",
+    "high_memory_pressure",
+    "normal",
+    "pure"
+  ]
+}

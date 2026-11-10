@@ -21,8 +21,12 @@ conda activate eda_lite
 echo "Installing system-level tools (htop, sysstat, stress-ng) via Conda (Alternative to sudo apt)..."
 conda install -c conda-forge htop sysstat stress-ng -y
 
-echo "Installing Python dependencies..."
-pip install torch torchvision pandas "numpy<2.0.0" matplotlib timm psutil
+echo "Installing pinned Python dependencies for the ROS 2 nodes (requirements-ros2.txt)..."
+# CPU-only PyTorch wheels; pandas/matplotlib are not used by this project.
+# The simulator/analysis/tests need nothing beyond the standard library (requirements-sim.txt).
+# Preferred one-step alternative: conda env create -f environment.yml
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
+python -m pip install --extra-index-url https://download.pytorch.org/whl/cpu -r requirements-ros2.txt
 
 echo "Environment setup complete!"
 echo "Please run 'conda activate eda_lite' to activate."

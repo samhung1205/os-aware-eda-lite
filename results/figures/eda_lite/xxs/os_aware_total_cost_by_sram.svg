@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="560" viewBox="0 0 920 560">
+<style>text{font-family:Arial,sans-serif;fill:#1f2933}.axis{stroke:#334155;stroke-width:1.2}.grid{stroke:#d7dee8;stroke-width:1}.label{font-size:14px}.tick{font-size:12px;fill:#52616f}.title{font-size:20px;font-weight:700}.legend{font-size:13px}</style>
+<rect x="0" y="0" width="920" height="560" fill="#ffffff"/>
+<text class="title" x="460.0" y="34" text-anchor="middle">mobilevit_xxs_simplified_profile_estimate - OS-aware total cost</text>
+<line class="grid" x1="100" y1="478.0" x2="892" y2="478.0"/>
+<text class="tick" x="90" y="482.0" text-anchor="end">0</text>
+<line class="grid" x1="100" y1="376.5" x2="892" y2="376.5"/>
+<text class="tick" x="90" y="380.5" text-anchor="end">483.795</text>
+<line class="grid" x1="100" y1="275.0" x2="892" y2="275.0"/>
+<text class="tick" x="90" y="279.0" text-anchor="end">967.59</text>
+<line class="grid" x1="100" y1="173.5" x2="892" y2="173.5"/>
+<text class="tick" x="90" y="177.5" text-anchor="end">1451.38</text>
+<line class="grid" x1="100" y1="72.0" x2="892" y2="72.0"/>
+<text class="tick" x="90" y="76.0" text-anchor="end">1935.18</text>
+<line class="axis" x1="100" y1="478" x2="892" y2="478"/>
+<line class="axis" x1="100" y1="72" x2="100" y2="478"/>
+<line class="axis" x1="100.0" y1="478" x2="100.0" y2="483"/>
+<text class="tick" x="100.0" y="502" text-anchor="middle">256</text>
+<line class="axis" x1="213.1" y1="478" x2="213.1" y2="483"/>
+<text class="tick" x="213.1" y="502" text-anchor="middle">512</text>
+<line class="axis" x1="439.4" y1="478" x2="439.4" y2="483"/>
+<text class="tick" x="439.4" y="502" text-anchor="middle">1024</text>
+<line class="axis" x1="892.0" y1="478" x2="892.0" y2="483"/>
+<text class="tick" x="892.0" y="502" text-anchor="middle">2048</text>
+<polyline fill="none" stroke="#2f6fbb" stroke-width="2.4" stroke-opacity="0.3" points="100.0,220.6 213.1,221.3 439.4,221.7 892.0,221.9"/>
+<circle cx="100.0" cy="220.6" r="8" fill="#2f6fbb" fill-opacity="0.3"/>
+<circle cx="213.1" cy="221.3" r="8" fill="#2f6fbb" fill-opacity="0.3"/>
+<circle cx="439.4" cy="221.7" r="8" fill="#2f6fbb" fill-opacity="0.3"/>
+<circle cx="892.0" cy="221.9" r="8" fill="#2f6fbb" fill-opacity="0.3"/>
+<polyline fill="none" stroke="#c4472e" stroke-width="2.4" stroke-opacity="0.3" stroke-dasharray="6,4" points="100.0,255.8 213.1,256.6 439.4,257.0 892.0,257.2"/>
+<circle cx="100.0" cy="255.8" r="7" fill="#c4472e" fill-opacity="0.3"/>
+<circle cx="213.1" cy="256.6" r="7" fill="#c4472e" fill-opacity="0.3"/>
+<circle cx="439.4" cy="257.0" r="7" fill="#c4472e" fill-opacity="0.3"/>
+<circle cx="892.0" cy="257.2" r="7" fill="#c4472e" fill-opacity="0.3"/>
+<polyline fill="none" stroke="#3d8f5a" stroke-width="2.4" stroke-opacity="0.3" stroke-dasharray="2,2" points="100.0,255.8 213.1,256.6 439.4,257.0 892.0,257.2"/>
+<circle cx="100.0" cy="255.8" r="6" fill="#3d8f5a" fill-opacity="0.3"/>
+<circle cx="213.1" cy="256.6" r="6" fill="#3d8f5a" fill-opacity="0.3"/>
+<circle cx="439.4" cy="257.0" r="6" fill="#3d8f5a" fill-opacity="0.3"/>
+<circle cx="892.0" cy="257.2" r="6" fill="#3d8f5a" fill-opacity="0.3"/>
+<polyline fill="none" stroke="#2f6fbb" stroke-width="2.4" stroke-opacity="1.0" points="100.0,72.0 213.1,75.6 439.4,77.4 892.0,78.2"/>
+<circle cx="100.0" cy="72.0" r="4" fill="#2f6fbb" fill-opacity="1.0"/>
+<circle cx="213.1" cy="75.6" r="4" fill="#2f6fbb" fill-opacity="1.0"/>
+<circle cx="439.4" cy="77.4" r="4" fill="#2f6fbb" fill-opacity="1.0"/>
+<circle cx="892.0" cy="78.2" r="4" fill="#2f6fbb" fill-opacity="1.0"/>
+<polyline fill="none" stroke="#c4472e" stroke-width="2.4" stroke-opacity="1.0" stroke-dasharray="6,4" points="100.0,110.3 213.1,114.0 439.4,115.8 892.0,116.8"/>
+<circle cx="100.0" cy="110.3" r="3" fill="#c4472e" fill-opacity="1.0"/>
+<circle cx="213.1" cy="114.0" r="3" fill="#c4472e" fill-opacity="1.0"/>
+<circle cx="439.4" cy="115.8" r="3" fill="#c4472e" fill-opacity="1.0"/>
+<circle cx="892.0" cy="116.8" r="3" fill="#c4472e" fill-opacity="1.0"/>
+<polyline fill="none" stroke="#3d8f5a" stroke-width="2.4" stroke-opacity="1.0" stroke-dasharray="2,2" points="100.0,110.3 213.1,114.0 439.4,115.8 892.0,116.8"/>
+<circle cx="100.0" cy="110.3" r="2" fill="#3d8f5a" fill-opacity="1.0"/>
+<circle cx="213.1" cy="114.0" r="2" fill="#3d8f5a" fill-opacity="1.0"/>
+<circle cx="439.4" cy="115.8" r="2" fill="#3d8f5a" fill-opacity="1.0"/>
+<circle cx="892.0" cy="116.8" r="2" fill="#3d8f5a" fill-opacity="1.0"/>
+<rect x="110" y="72" width="14" height="14" fill="#2f6fbb" fill-opacity="0.3"/>
+<text class="legend" x="132" y="84">layerwise (Pure)</text>
+<rect x="110" y="92" width="14" height="14" fill="#c4472e" fill-opacity="0.3"/>
+<text class="legend" x="132" y="104">greedy (Pure)</text>
+<rect x="110" y="112" width="14" height="14" fill="#3d8f5a" fill-opacity="0.3"/>
+<text class="legend" x="132" y="124">dp (Pure)</text>
+<rect x="110" y="132" width="14" height="14" fill="#2f6fbb" fill-opacity="1.0"/>
+<text class="legend" x="132" y="144">layerwise (OS-Aware)</text>
+<rect x="110" y="152" width="14" height="14" fill="#c4472e" fill-opacity="1.0"/>
+<text class="legend" x="132" y="164">greedy (OS-Aware)</text>
+<rect x="110" y="172" width="14" height="14" fill="#3d8f5a" fill-opacity="1.0"/>
+<text class="legend" x="132" y="184">dp (OS-Aware)</text>
+<text class="label" x="460.0" y="536" text-anchor="middle">SRAM (KB)</text>
+<text class="label" transform="translate(26 280.0) rotate(-90)" text-anchor="middle">OS-aware total cost</text>
+</svg>

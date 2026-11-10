@@ -1,0 +1,81 @@
+# CI for the stdlib-only parts of the project: EDA-Lite simulator, ROS 2 runtime analysis,
+# provenance tooling, shell-script syntax and the audit regression cases.
+# ROS 2 itself is NOT installed here: the ROS 2 nodes are covered by mock / integration tests
+# (fake ros2 + timeout binaries, stubbed launch modules). Every step is scripts/ci_checks.sh,
+# so `bash scripts/ci_checks.sh all` reproduces CI locally.
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    name: tests (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Unit / integration tests (no pip install; stdlib only)
+        run: bash scripts/ci_checks.sh tests
+      - name: Upload test log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-log-py${{ matrix.python-version }}
+          path: ci-logs/
+          if-no-files-found: ignore
+
+  checks:
+    name: shell syntax, audit regressions, provenance gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Shell syntax (bash -n)
+        run: bash scripts/ci_checks.sh shell
+      - name: Audit regressions (fail on any REPRODUCED case)
+        run: bash scripts/ci_checks.sh audit
+      - name: Runtime provenance gate (BLOCKED is reported, never upgraded to VERIFIED)
+        run: bash scripts/ci_checks.sh provenance
+
+  repeat:
+    # Repeats the whole suite to surface intermittent failures (one unexplained error was
+    # seen once in Phase 1 / Batch 3). No retries: any failing run fails the job, and every
+    # run's verbose log is uploaded.
+    name: repeated test runs (flake detection)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Run the test suite 5 times
+        run: bash scripts/ci_checks.sh repeat 5
+      - name: Upload test logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: repeat-logs
+          path: ci-logs/
+          if-no-files-found: ignore

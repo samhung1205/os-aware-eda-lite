@@ -15,6 +15,12 @@ import csv
 from pathlib import Path
 from src.eda_lite.analyze_results import _parse_result_row, ResultRow, _format_number, PLOT_METRICS
 
+SIX_LINE_METRICS = [
+    *PLOT_METRICS,
+    ("os_aware_total_cost", "OS-aware total cost", "os_aware_total_cost_by_sram.svg"),
+]
+
+
 def build_combined_chart(rows, metric_name, title, y_label, filename):
     series = {}
     for row in rows:
@@ -121,7 +127,7 @@ def generate_6line_charts(model, pure_csv, os_csv, os_profile_name, out_dir, pur
             combined.append(ResultRow(d))
 
     tag = provenance_tag(rows_os, model, os_profile_name)
-    for metric_name, y_label, filename in PLOT_METRICS:
+    for metric_name, y_label, filename in SIX_LINE_METRICS:
         title = f"{model} - {y_label}{tag}"
         build_combined_chart(combined, metric_name, title, y_label, f"{out_dir}/{filename}")
 

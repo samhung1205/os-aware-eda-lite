@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import json
+import math
 from pathlib import Path
 from typing import Any
 
@@ -21,6 +22,10 @@ REQUIRED_LAYER_FIELDS = {
     "compute_macs",
     "fusible",
 }
+
+# Consecutive layers must agree on the tensor passed between them:
+# layers[i].output_kb == layers[i + 1].input_kb within this relative tolerance.
+CHAIN_REL_TOL = 1e-6
 
 
 @dataclass(frozen=True)
@@ -67,12 +72,39 @@ def load_model_profile(path: str | Path) -> ModelProfile:
         raise ValueError("Model profile requires a non-empty 'layers' list.")
 
     layers = tuple(_parse_layer(index, layer) for index, layer in enumerate(raw_layers))
+    validate_layer_chain(layers)
     runtime_model_name = raw_profile.get("runtime_model_name")
     if runtime_model_name is not None and (
         not isinstance(runtime_model_name, str) or not runtime_model_name.strip()
     ):
         raise ValueError("'runtime_model_name' must be a non-empty string when present.")
     return ModelProfile(model_name=model_name, layers=layers, runtime_model_name=runtime_model_name)
+
+
+def validate_layer_chain(layers: tuple[LayerProfile, ...] | list[LayerProfile]) -> None:
+    """Reject duplicate layer names and broken producer/consumer sizes.
+
+    The profile is a sequential chain, so the output of layer ``i`` is the input
+    of layer ``i + 1``. A mismatch would make DRAM-traffic and SRAM estimates
+    count a tensor that no layer produces.
+    """
+
+    seen: dict[str, int] = {}
+    for index, layer in enumerate(layers):
+        if layer.name in seen:
+            raise ValueError(
+                f"layers[{index}].name '{layer.name}' duplicates layers[{seen[layer.name]}].name."
+            )
+        seen[layer.name] = index
+    for index in range(len(layers) - 1):
+        produced = layers[index].output_kb
+        consumed = layers[index + 1].input_kb
+        if not math.isclose(produced, consumed, rel_tol=CHAIN_REL_TOL, abs_tol=1e-9):
+            raise ValueError(
+                f"layers[{index}].output_kb ({produced:g}) != layers[{index + 1}].input_kb "
+                f"({consumed:g}): '{layers[index].name}' -> '{layers[index + 1].name}' must "
+                "pass the same tensor in a sequential profile."
+            )
 
 
 def _parse_layer(index: int, raw_layer: Any) -> LayerProfile:
@@ -117,6 +149,8 @@ def _require_non_empty_string(value: Any, field_name: str) -> str:
 def _require_non_negative_number(value: Any, field_name: str) -> float:
     if isinstance(value, bool) or not isinstance(value, (int, float)):
         raise ValueError(f"{field_name} must be a number.")
+    if not math.isfinite(value):
+        raise ValueError(f"{field_name} must be finite (got {value}).")
     if value < 0:
         raise ValueError(f"{field_name} must be non-negative.")
     return float(value)

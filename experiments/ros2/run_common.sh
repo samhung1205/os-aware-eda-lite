@@ -79,3 +79,11 @@ run_finish() {
   echo "錯誤：${label} 失敗：${reason}。部分輸出已改名為 *.failed，不會被 analyzer 讀取。" >&2
   return 1
 }
+
+# MODEL_PATH used to be forwarded as a launch argument that no node read. The detector
+# only creates the timm model named MODEL_NAME with random weights (pretrained=False),
+# so a weights path would be silently ignored. Refuse it instead.
+if [[ -n "${MODEL_PATH:-}" ]]; then
+  echo "錯誤：不支援 MODEL_PATH='${MODEL_PATH}'：detector 只依 MODEL_NAME 建立隨機初始化權重的 timm 模型（pretrained=False），不載入權重檔。請 unset MODEL_PATH。" >&2
+  return 2
+fi

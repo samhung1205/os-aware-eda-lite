@@ -20,14 +20,17 @@ The existing experiment scripts expect the launch file to accept:
 dataset_path
 input_fps
 qos_depth
-model_path
 model_name
 fake_inference_delay_ms
 deadline_ms
 resource_profile
 scenario
 output_csv
+run_id
+warmup_frames
 ```
+
+`model_path` is no longer an argument (Phase 1 / Batch 4): the checked-in detector never read it. It builds `timm.create_model(model_name, pretrained=False)` (random weights; latency only, no accuracy) and exits — it never falls back to another model — if the model cannot be created. Passing `model_path:=` to the launch file or `MODEL_PATH` to the sweep scripts is an error.
 
 If the teammate launch file uses different names, update the shell scripts instead of changing the analyzer contract.
 
@@ -86,3 +89,4 @@ Do not call ROS2 numbers measured unless:
 2. The exact script command and environment variables are recorded.
 3. The CSV is analyzed with `src.ros2_runtime.analyze_runtime`.
 4. Any runtime-derived OS profile is generated from that analyzed summary.
+5. Every run has its `<run_id>.meta.json`, the raw files are committed (see `results/README.md`), and `python3 scripts/check_runtime_provenance.py` reports `VERIFIED`.

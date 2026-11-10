@@ -17,6 +17,15 @@ Measurement definitions (one summary row per configuration + run):
 - deadline miss: a processed frame with ``latency_ms > deadline_ms``. Dropped
   frames are never deadline misses; the miss rate is divided by processed frames
   and therefore cannot exceed 100%.
+- latency statistics are over processed, non-warm-up frames of one run:
+  ``avg_latency_ms`` is the mean end-to-end latency (publish -> inference done);
+  ``p95_latency_ms`` / ``p99_latency_ms`` use the nearest-rank method (no
+  interpolation); ``jitter_ms`` is the *population standard deviation of the
+  per-frame end-to-end latency*. It is not RFC 3550 / inter-arrival jitter and
+  says nothing about the spacing between frames.
+- ``avg_cpu_percent`` averages ``psutil.Process.cpu_percent()`` of the detector
+  process (per process, can exceed 100 on several cores; psutil reports 0.0 for
+  the first call). ``avg_memory_mb`` averages the detector's RSS.
 - run conditions: ``<run_id>.meta.json`` next to the detector CSV (written by
   ``src.ros2_runtime.run_metadata``) supplies ``measurement_class`` and the
   effective memory limit; runs without it are ``measurement_class=unknown``.

@@ -16,10 +16,10 @@ conda config --env --remove channels defaults 2>/dev/null || true
 # 安裝 mamba 以加速套件解析 (強烈建議，因為 ROS 套件相依性極其複雜)
 conda install -y mamba -c conda-forge
 
-# 透過 mamba 安裝 ros-humble 相關套件
-# 我們選擇安裝 ros-humble-desktop，並補上 sensor-msgs 與 cv-bridge 以供影像串流使用
-mamba install -y ros-humble-desktop python=3.10
-mamba install -y ros-humble-sensor-msgs ros-humble-cv-bridge
+# 透過 mamba 安裝 ros-humble 相關套件（與 environment.yml 相同）：
+# ros-base 已含 rclpy、launch、ros2cli、sensor_msgs；pipeline 不需要 desktop 的 GUI 工具。
+# cv2 使用 conda-forge 的 opencv（cv_bridge 連結的同一份），不要另外 pip 安裝 opencv-python。
+mamba install -y python=3.10 ros-humble-ros-base ros-humble-cv-bridge opencv
 
 echo "======================================================="
 echo "ROS 2 Humble 安裝完成！"

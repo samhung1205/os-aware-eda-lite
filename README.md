@@ -6,6 +6,32 @@ Lightweight MobileViT simulation for ROS2 OS-level edge AI performance analysis.
 
 目前主線是 **MobileViT simplified profile simulation + ROS2 runtime pressure analysis**。LLM 內容作為背景動機；本 repo 目前不執行真實 LLM inference。YOLO 相關路徑保留為早期 legacy work，不作為主流程。
 
+## Status at a glance
+
+| Data / result kind | Where | Status today |
+|---|---|---|
+| **Simulation estimates** (EDA-Lite energy, latency, DRAM traffic, SRAM, cost) | `results/csv/eda_lite_*`, `results/figures/eda_lite/` | reproducible from configs; cost-model units, **not** hardware measurements |
+| **Example OS profiles** | `experiments/eda_lite/runtime_os_profiles.example.json` | illustrative values, rows labelled `example`; never report as measured |
+| **Unverified legacy measurements** | `runtime_os_profiles.legacy_unverified.json`, `results/figures/ros2/*.svg`, anything derived from them | teammate-provided, no raw data → **UNVERIFIED**; refused unless a config opts in; figures tagged `[OS profile: UNVERIFIED]` |
+| **Verified ROS 2 measurements** | `results/raw/ros2/` → summary → `runtime_os_profiles.json` | **none yet**: `check_runtime_provenance.py` reports `BLOCKED` |
+
+Not done: no real ROS 2 benchmark has been run from this repository yet (Phase 2), and there is **no adaptive / runtime scheduler** — OS profiles only re-weight the offline EDA-Lite cost model (on the MobileViT profiles they do not change the chosen partition).
+
+## Quickstart (simulator, analysis and tests — nothing to install)
+
+Python 3.10 – 3.13, standard library only (`requirements-sim.txt` is intentionally empty):
+
+```bash
+python3 -m unittest discover -s tests                     # all tests (ROS 2 parts are mocked)
+python3 -m src.eda_lite.run_profile_sweep \
+  --config experiments/eda_lite/mobilevit_profile_sweep.json \
+  --output /tmp/eda_lite_mobilevit_profile_sweep.csv      # simulation estimates + .provenance.json
+python3 scripts/check_runtime_provenance.py               # exit 1 = BLOCKED (no real ROS 2 data yet)
+bash scripts/ci_checks.sh all                             # exactly what GitHub Actions runs
+```
+
+The ROS 2 benchmark (Linux + ROS 2 Humble) is a separate workflow; see [ROS2 Runtime Experiments](#ros2-runtime-experiments) and `report/PHASE1_BATCH4_RESULT.md` (Phase 2 preflight checklist).
+
 ## Project Scope
 
 目前已完成：
@@ -23,7 +49,7 @@ Lightweight MobileViT simulation for ROS2 OS-level edge AI performance analysis.
 - 支援 OS-aware cost profile：`pure`（compiler-only baseline：latency multiplier 1.0，無 deadline/memory/drop 懲罰）、`normal`、`high_latency`、`high_memory_pressure`，以及 runtime-derived custom profiles。
 - 輸出 CSV 結果，包含 DRAM traffic、estimated energy、estimated latency、peak SRAM usage、fusion depth 與 OS-aware total cost。
 - 從 simulation CSV 產生 summary CSV 與 SVG 圖表。
-- 提供 ROS2 FPS/QoS/overload 實驗腳本模板，預設為外部 MobileViT UAV pipeline。
+- 提供 ROS2 FPS/QoS/overload 實驗腳本，預設啟動 repo 內的 MobileViT UAV pipeline（`src/ros2_uav_pipeline/`，尚未在實機上執行過）。
 - 分析 ROS2 runtime CSV，輸出 latency、jitter、drop rate、deadline miss rate 與 SVG 圖表。
 - 在 explicit dropped rows 缺席時，可由 `frame_id` 缺口推估 dropped frames。
 - 將 ROS2 runtime summary 轉成 EDA-Lite 自訂 OS pressure profiles，包含 drop pressure。
@@ -32,7 +58,8 @@ Lightweight MobileViT simulation for ROS2 OS-level edge AI performance analysis.
 
 - raw ROS2 runtime CSVs under `results/raw/ros2/`.
 - `results/csv/ros2_runtime_summary.csv`.
-- 真實 MobileViT 權重。
+- 真實 MobileViT 權重：ROS 2 detector 以 timm `pretrained=False`（隨機初始化）建立模型，只量測延遲，不量測準確率。
+- Adaptive / runtime scheduling：EDA-Lite 是離線模擬，OS profile 只改變成本權重。
 - ONNX parser。
 - 真實 LLM inference 或 KV-cache simulation。
 - 真實硬體 energy measurement。
@@ -63,16 +90,15 @@ Provenance status of OS profile sources (written per simulation row as `os_profi
 
 ## 🚀 完整端到端執行流程 (End-to-End Pipeline)
 
-本專案所有的 `.sh` 腳本與 Python 模組已經高度自動化。請依照以下四個步驟順序執行，即可完整重現專題的所有數據與圖表：
+步驟 1–3 需要 Linux + ROS 2 Humble 實機（Phase 2，尚未執行）；在沒有真實 raw 資料前，步驟 4 只能使用 example 或 UNVERIFIED legacy profiles，`check_runtime_provenance.py` 會維持 `BLOCKED`。只有模擬部分（步驟 4 的 pure 曲線、Quickstart）目前可以完整重現。
 
 ### 步驟 0：環境建置 (Environment Setup)
-本專案為了解決無 `sudo` 權限的伺服器環境，提供了基於 Conda 的 ROS 2 安裝腳本與依賴套件設定檔。請依序執行以下腳本完成環境初始化：
+只有 ROS 2 實機量測需要這一步（不需要 `sudo`）。建議一步建立：
 ```bash
-bash scripts/setup_env.sh
-bash scripts/install_ros2_conda.sh
+conda env create -f environment.yml   # RoboStack ROS 2 Humble + Python 3.10 + requirements-ros2.txt
+conda activate eda_lite
 ```
-
-`setup_env.sh` creates or reuses the `eda_lite` conda environment. `install_ros2_conda.sh` should run after that environment exists.
+或沿用分步腳本（內容與 `environment.yml` 一致）：`bash scripts/setup_env.sh` 建立/重用 `eda_lite` 環境並安裝 `requirements-ros2.txt`，再執行 `bash scripts/install_ros2_conda.sh` 安裝 `ros-humble-ros-base`、`ros-humble-cv-bridge`、conda `opencv`。詳見 [Requirements](#requirements)。
 
 ### 步驟 1：執行 ROS 2 硬體壓力測試 (實機量測)
 確保已設定好上述環境與 ROS 2 變數後，執行自動化總管腳本，它會要求 CPU/RAM 資源限制並連續跑完 FPS、QoS、Overload 三大測試（每個 run 產生 `<run_id>.csv`、`<run_id>.publisher.csv`、`<run_id>.meta.json`）。限制是否真的生效由每個 run 的 metadata 讀回確認，未生效的 run 會直接失敗：
@@ -120,68 +146,52 @@ bash scripts/rebuild_eda_lite_figures.sh
 
 ## Repository Layout
 ```text
-OS_Final/
-  AGENTS.md
-  README.md
-  跨平台輕量化模型效能分析與模擬.pdf
+.
+  AGENTS.md  README.md
+  requirements-sim.txt         # simulator / analysis / tests: stdlib only (empty on purpose)
+  requirements-ros2.txt        # ROS 2 nodes: pinned torch / torchvision / timm / numpy / psutil
+  requirements.txt             # -> requirements-ros2.txt (backward compatibility)
+  environment.yml              # RoboStack ROS 2 Humble + Python 3.10
+  .github/workflows/ci.yml     # tests (3.10-3.13), bash -n, audit --strict, provenance gate, repeat runs
   src/
-    provenance.py            # hash chain / manifest / provenance status helpers
-    eda_lite/
-      model_loader.py
-      schedulers.py
-      cost_model.py
-      run_simulation.py
-      run_profile_sweep.py
-      analyze_results.py
-    ros2_runtime/
-      analyze_runtime.py
-      build_os_profiles.py
-      run_metadata.py        # <run_id>.meta.json: requested vs effective limits, versions, RMW/QoS
-    ros2_yolo11/
-      analyze_runtime.py
-      detector_node_notes.md
-  data/
-    model_profiles/
-      mobilevit_xxs_simplified.json
-      mobilevit_s_simplified.json
-      edge_cnn_simplified.json
-      edge_cnn_large_simplified.json
-      yolo11n_simplified.json
-      yolo11s_simplified.json
+    provenance.py              # hash chain / manifest / provenance status helpers
+    eda_lite/                  # model_loader, cost_model, schedulers, run_simulation,
+                               # run_profile_sweep, analyze_results, plot_6lines
+    ros2_runtime/              # analyze_runtime, build_os_profiles, run_metadata
+    ros2_uav_pipeline/         # ROS 2 package: image_stream_node, mobilevit_detector_node,
+                               # run_log (stdlib helpers), launch/mobilevit_uav_pipeline.launch.py
+    ros2_yolo11/               # legacy re-export (YOLO paused)
+  data/model_profiles/         # mobilevit_{xxs,s}_simplified.json (main); edge_cnn*, yolo11* (legacy)
   experiments/
-    eda_lite/
-      mobilevit_sram_sweep.json
-      mobilevit_profile_sweep.json
-      mobilevit_runtime_aware_sweep.json                  # default: example profiles
-      mobilevit_runtime_aware_sweep_legacy_unverified.json
-      runtime_os_profiles.example.json
-      runtime_os_profiles.legacy_unverified.json          # teammate-provided, UNVERIFIED
-      edge_profile_sweep.json
-      yolo11_profile_sweep.json
-    ros2/
-      run_fps_sweep.sh
-      run_qos_sweep.sh
-      run_overload_sweep.sh
-      run_yolo11_comparison.sh
+    eda_lite/                  # sweep configs; runtime_os_profiles.{example,legacy_unverified}.json
+    ros2/                      # run_common.sh, run_{fps,qos,overload}_sweep.sh, prepare_coco128.sh,
+                               # run_yolo11_comparison.sh (paused)
+  scripts/
+    ci_checks.sh               # CI steps, runnable locally
+    audit_repro.py             # audit regression cases (--strict for CI)
+    check_runtime_provenance.py
+    rebuild_eda_lite_figures.sh
+    run_baseline_experiments.sh  run_os_tuned_experiments.sh   # ROS 2 wrappers (Linux)
+    setup_env.sh  install_ros2_conda.sh
   results/
-    csv/
-    figures/
-  report/
-    ai_interaction_log.md
-    final_report.md
-    ros2_pipeline_integration.md
-  tests/
+    README.md                  # tracking policy + provenance status of every result
+    raw/ros2/  csv/  figures/
+  report/                      # final_report.md, audit_p0_p1_p2.md, PHASE1_*_RESULT.md,
+                               # runtime_result_provenance.md, ros2_pipeline_integration.md,
+                               # ai_interaction_log.md
+  tests/                       # unittest; cli_support.py = subprocess helper with full diagnostics
 ```
 
 ## Requirements
 
-目前核心 simulator 與 analyzer 只使用 Python 標準函式庫，不需要額外安裝套件。
+| Part | Python | Dependencies | Install |
+|---|---|---|---|
+| EDA-Lite simulator, ROS 2 runtime **analysis** (`analyze_runtime`, `build_os_profiles`, `run_metadata`), provenance tools, tests | 3.10 – 3.13 (CI tests all four) | standard library only | nothing (`requirements-sim.txt`) |
+| ROS 2 nodes (`src/ros2_uav_pipeline/`) and sweep scripts | 3.10 (RoboStack Humble) | ROS 2 Humble (`rclpy`, `launch`, `sensor_msgs`, `cv_bridge`), conda `opencv`, pinned `torch==2.5.1`, `torchvision==0.20.1`, `timm==1.0.11`, `numpy==1.26.4`, `psutil==7.0.0` | `conda env create -f environment.yml` |
 
-建議使用：
-
-```bash
-python3 --version
-```
+- `cv2` comes from conda-forge `opencv` (the build `cv_bridge` links against); do not `pip install opencv-python` into the ROS environment. `numpy` stays `< 2` for Humble's `cv_bridge`.
+- The pins are a consistent CPU-only set chosen for Python 3.10; they have **not yet been exercised on the Phase 2 machine**. Every run records the versions actually imported in `<run_id>.meta.json`; after creating the environment, freeze it with `conda env export --no-builds > environment.lock.yml` and commit that file with the first verified data.
+- Bash and GNU `timeout` (or `gtimeout`) are needed for the sweep scripts; `taskset` + `systemd-run` (cgroup v2) for constrained runs.
 
 ## Run MobileViT Simulation
 
@@ -235,8 +245,7 @@ export ROS2_LAUNCH_FILE="mobilevit_uav_pipeline.launch.py"
 export ROS2_LAUNCH_TARGET="src/ros2_uav_pipeline/launch/mobilevit_uav_pipeline.launch.py"
 export DATASET_PATH="$PWD/data/raw/images/coco128/images/train2017"
 export RESULTS_DIR="$PWD/results/raw/ros2"
-export MODEL_NAME="mobilevit_xxs"
-export MODEL_PATH="mobilevit_xxs"
+export MODEL_NAME="mobilevit_xxs"   # timm model name; weights are random-init (no weight file)
 # Optional batch tag; must be new for every batch (default: <timestamp>_<pid>).
 # export RUN_TAG="20261110T120000_batch1"
 ```
@@ -276,7 +285,13 @@ If a requested limit is not verified, the run fails before launch (`*.meta.json.
 
 `scripts/run_os_tuned_experiments.sh` never runs `sudo` or changes sysctls. It requires `net.core.rmem_max >= TARGET_RMEM_MAX` (default 4194304) to be set by you beforehand and otherwise exits with the command to run manually. A larger `rmem_max` is only a cap: DDS may not request bigger buffers, and same-host Fast DDS may use shared memory, so the buffer may not matter. The actual values and RMW/transport settings are in each run's metadata; do not assume the tuning improved DDS.
 
-The launch file is expected to accept arguments such as `dataset_path`, `input_fps`, `qos_depth`, `model_path`, `model_name`, `fake_inference_delay_ms`, `deadline_ms`, `resource_profile`, `scenario`, `output_csv`, `run_id`, and `warmup_frames`. If the adapted ROS2 project uses different launch argument names, update the shell scripts.
+The launch file accepts `dataset_path`, `input_fps`, `qos_depth`, `model_name`, `fake_inference_delay_ms`, `deadline_ms`, `resource_profile`, `scenario`, `output_csv`, `run_id`, and `warmup_frames`. If the adapted ROS2 project uses different launch argument names, update the shell scripts.
+
+Model semantics (audit P2-6):
+
+- `model_name` is passed to `timm.create_model(model_name, pretrained=False)`: **random initial weights**, no checkpoint file, no download. Forward-pass latency does not depend on the weight values, but no detection accuracy is measured, and results must say so.
+- If the model cannot be created, the detector exits (no CSV is written), the launch shuts down and the sweep marks the run failed. It never falls back to another model, so a CSV labelled `mobilevit_s` always contains `mobilevit_s` measurements.
+- There is no `model_path`: the old argument was declared and forwarded but never read. Passing `model_path:=...` to the launch file, or setting `MODEL_PATH` for the sweep scripts, is now an error instead of being silently ignored.
 
 Run identity (P0-2 fix):
 
@@ -337,6 +352,9 @@ Measurement definitions (Phase 1 / Batch 1):
 - **Warm-up.** The detector flags its first `warmup_frames` processed frames (default 10; scripts: `WARMUP_FRAMES`) with `warmup=1`. The analyzer excludes them, plus the first `--warmup-frames N` received frames per run (default 0, also works for legacy CSVs), and starts the measurement window after the last warm-up `frame_id`.
 - **Dropped frames.** dropped = frames in the window that were never processed. With a publisher log the window is every published frame (`frame_accounting=publisher_log`, includes leading/trailing drops); otherwise it is the observed `frame_id` range (`frame_id_range`, a lower bound) or explicit drop rows only (`explicit_only`). Explicit `dropped` rows and `frame_id` gaps are merged as a set, so each frame is counted once. If drops cannot be determined (`unavailable`), `dropped_frames`, `drop_rate_pct`, `total_rows` and `effective_miss_rate_pct` are left empty, never 0, and `build_os_profiles` refuses such rows.
 - **Grouping keys.** `input_fps` is normalised to float text (`20` → `20.0`), `qos_depth` and `fake_delay_ms` to integers when integral, so equal values form one group; non-numeric values sort after numeric ones.
+- **QoS.** The publisher is RELIABLE / KEEP_LAST depth 10 (fixed); the detector subscribes BEST_EFFORT / KEEP_LAST depth `qos_depth`. The QoS sweep therefore varies **only the subscriber queue depth**; publisher history and reliability are constant, and a best-effort subscription to a reliable publisher is delivered best-effort. The QoS actually used is recorded in each run's `meta.json` (`qos`).
+- **Latency statistics.** `avg_latency_ms` = mean end-to-end latency of processed, non-warm-up frames; `p95_latency_ms` / `p99_latency_ms` = nearest-rank percentiles (no interpolation; with few frames P99 is the maximum); `jitter_ms` = **population standard deviation of per-frame end-to-end latency**, not RFC 3550 / inter-arrival jitter.
+- **CPU / memory.** `avg_cpu_percent` averages `psutil.Process.cpu_percent()` of the detector process (per-process; can exceed 100 with several cores; psutil reports 0.0 on its first call). `avg_memory_mb` averages the detector's RSS.
 - **Launch reliability.** The launch file shuts down when either node exits. A sweep point succeeds only if `timeout` stopped it (exit 124) and the detector CSV has data rows; otherwise the script stops with an error and renames that run's CSVs to `*.failed`, which the analyzer ignores.
 
 Optional: `--warmup-frames N` excludes the first N received frames of every run in addition to detector-flagged warm-up rows.
@@ -412,6 +430,8 @@ Every `run_simulation` / `run_profile_sweep` output gets `<output stem>.provenan
 ## Model Profile Format
 
 模型 profile 使用簡化 JSON，不代表完整 ONNX graph。
+
+`load_model_profile` validates: non-empty `model_name` and `layers`; all fields present; numbers finite and non-negative; `fusible` boolean; unique layer names; and the sequential chain `layers[i].output_kb == layers[i+1].input_kb` (relative tolerance 1e-6). Optional `runtime_model_name` (`mobilevit_xxs` / `mobilevit_s`) ties the profile to runtime OS profiles of the same ROS 2 model.
 
 必要欄位：
 
@@ -553,11 +573,19 @@ OS profile JSON shape:
 
 ## Run Tests
 
-在專案根目錄執行：
+在專案根目錄執行（不需要安裝任何套件，也不需要 ROS 2）：
 
 ```bash
 python3 -m unittest discover -s tests
+bash scripts/ci_checks.sh all          # tests + bash -n + audit --strict + provenance gate
+bash scripts/ci_checks.sh repeat 5     # repeat the suite; every run's verbose log in ci-logs/
 ```
+
+**CI** (`.github/workflows/ci.yml`, GitHub Actions, Ubuntu): the test suite on Python 3.10 / 3.11 / 3.12 / 3.13 with nothing installed; `bash -n` on every tracked shell script; `audit_repro.py --strict` (fails on any `REPRODUCED` case); the provenance gate; and a job that repeats the suite 5 times without retries (flake detection; logs uploaded as artifacts). ROS 2 is not installed in CI: the nodes, launch file and sweep scripts are covered by stdlib helpers, stubbed launch modules and fake `ros2` / `timeout` binaries.
+
+Provenance gate: `BLOCKED` (exit 1, no real data) is reported as a warning and does not fail CI; `BROKEN` fails; `VERIFIED` is accepted only if real raw CSVs and run metadata are committed under `results/raw/ros2/`. CI can never turn `BLOCKED` into `VERIFIED`.
+
+Tests that run a CLI or script use `tests/cli_support.run_cli`, which fails with the command, exit code and the child's full stdout/stderr (instead of a bare `CalledProcessError`).
 
 目前測試會檢查：
 
@@ -571,6 +599,7 @@ python3 -m unittest discover -s tests
 - ROS2 runtime analyzer can infer dropped frames from `frame_id` gaps.
 - ROS2 runtime summary can convert deadline, memory, and drop pressure into OS profiles.
 - old OS profile JSON without `drop_rate` remains compatible.
+- Batch 4 (`tests/test_engineering_quality.py`): strict model loading (no fallback), `model_path` removed from launch/scripts, model-profile validation, dependency split, stdlib-only imports, repo hygiene / `.gitignore` results policy, CI workflow and provenance gate behaviour.
 - provenance chain end to end on synthetic temp data (verified / tampered / missing metadata / unapplied limits / stale sidecar), legacy profiles refused without opt-in and never mixed across models, per-model calibration and memory references, run metadata limits classification and scripts (`tests/test_provenance_calibration.py`).
 
 ## Correctness / Reproducibility Audit
@@ -578,10 +607,11 @@ python3 -m unittest discover -s tests
 Known correctness and reproducibility issues (P0/P1/P2) are tracked in `report/audit_p0_p1_p2.md`. Re-check which ones are still present with:
 
 ```bash
-python3 scripts/audit_repro.py
+python3 scripts/audit_repro.py            # report
+python3 scripts/audit_repro.py --strict   # exit 1 if any case is REPRODUCED (used by CI)
 ```
 
-Each case prints `REPRODUCED` (still present), `FIXED`, or `BLOCKED` (code fixed, but confirming it needs data from a real ROS2 run, e.g. P0-3 raw CSVs, P1-8 cgroup read-back on Linux). The script is read-only and uses only the standard library.
+Cases cover P0-1 … P1-8, LAUNCH, and the automatable P2 items (P2-1 CI, P2-2 dependencies, P2-3 hygiene, P2-6 pipeline contracts). Each case prints `REPRODUCED` (still present), `FIXED`, or `BLOCKED` (code fixed, but confirming it needs data from a real ROS2 run, e.g. P0-3 raw CSVs, P1-8 cgroup read-back on Linux). The script is read-only and uses only the standard library.
 
 ## Reporting Rules
 
@@ -592,7 +622,10 @@ Each case prints `REPRODUCED` (still present), `FIXED`, or `BLOCKED` (code fixed
 - Explain the simplified memory, energy, MobileViT block, and communication-drop assumptions.
 - Explain that MobileViT profiles are coarse simulation profiles, not exact ONNX model structures.
 - If using `runtime_os_profiles.example.json`, state that it is an example profile, not measured data.
-- Only call ROS2 data "measured" after it comes from actual ROS2 experiment CSVs.
+- Only call ROS2 data "measured" after it comes from actual ROS2 experiment CSVs and `scripts/check_runtime_provenance.py` reports `VERIFIED`.
+- Label anything derived from `runtime_os_profiles.legacy_unverified.json` or `results/figures/ros2/*.svg` as UNVERIFIED.
+- Say that ROS 2 inference uses random-initialised weights (latency only, no accuracy), and define jitter as the latency standard deviation.
+- Do not claim adaptive / runtime scheduling: EDA-Lite schedules offline.
 - YOLO-related content is paused; do not frame the project as a YOLO project unless the direction explicitly changes.
 
 ## Development Notes
@@ -603,9 +636,9 @@ Each case prints `REPRODUCED` (still present), `FIXED`, or `BLOCKED` (code fixed
 - 不宣稱完整重現 EDA paper，只稱為 EDA-inspired lightweight simulator。
 - ROS2 CSV 只有實際跑過 pipeline 後才能標示為 runtime measurement；synthetic 或測試資料不得當作實測結果。
 
-下一階段建議：
+下一階段建議（Phase 2；preflight checklist 見 `report/PHASE1_BATCH4_RESULT.md`）：
 
 1. 撰寫 report methodology 與 limitations。
-2. 實際 ROS2 workspace 準備完成後，執行 FPS/QoS/overload experiments 並保存 raw CSV。
+2. 在 Linux + ROS 2 Humble 上建立 `environment.yml` 環境、通過 preflight，執行 FPS/QoS/overload experiments 並提交 raw CSV + publisher log + meta.json（見 `results/README.md`）。
 3. 用真實 ROS2 summary 產生 `runtime_os_profiles.json`（`--require-verified`），把 `mobilevit_runtime_aware_sweep.json` 改指向它，再重跑。
 4. 產生 final figures 並寫 results discussion。

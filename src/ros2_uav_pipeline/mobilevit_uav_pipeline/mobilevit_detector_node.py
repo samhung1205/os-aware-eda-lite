@@ -14,13 +14,13 @@ from cv_bridge import CvBridge
 
 try:  # installed package (ros2 run / ros2 launch <package>)
     from mobilevit_uav_pipeline.run_log import (
-        DETECTOR_CSV_HEADER, create_run_csv, frame_timing, parse_frame_id,
-        resolve_output_csv, resolve_run_id, stamp_to_ns,
+        DETECTOR_CSV_HEADER, MODEL_WEIGHTS, create_model_strict, create_run_csv,
+        frame_timing, parse_frame_id, resolve_output_csv, resolve_run_id, stamp_to_ns,
     )
 except ImportError:  # executed by file path from the checked-in launch file
     from run_log import (
-        DETECTOR_CSV_HEADER, create_run_csv, frame_timing, parse_frame_id,
-        resolve_output_csv, resolve_run_id, stamp_to_ns,
+        DETECTOR_CSV_HEADER, MODEL_WEIGHTS, create_model_strict, create_run_csv,
+        frame_timing, parse_frame_id, resolve_output_csv, resolve_run_id, stamp_to_ns,
     )
 
 class MobileViTDetectorNode(Node):
@@ -74,14 +74,12 @@ class MobileViTDetectorNode(Node):
         self.get_logger().info(f'正在載入模型: {self.model_name} (CPU)...')
         self.device = torch.device('cpu')
         
-        # 動態切換模型 (timm 支援 mobilevit_xxs, mobilevit_s)
-        try:
-            self.model = timm.create_model(self.model_name, pretrained=False)
-        except Exception as e:
-            self.get_logger().error(f'載入模型失敗，預設回退至 mobilevit_xxs: {e}')
-            self.model_name = 'mobilevit_xxs'
-            self.model = timm.create_model(self.model_name, pretrained=False)
-            
+        # 依 model_name 建立 timm 模型（mobilevit_xxs、mobilevit_s 等）。
+        # 隨機初始化權重（pretrained=False，不載入權重檔）：只量測延遲，不量測準確率。
+        # 載入失敗直接結束 node（launch 隨之結束、sweep 標為 failed），絕不改用其他模型。
+        self.model = create_model_strict(self.model_name, timm.create_model)
+        self.get_logger().info(f'模型權重：{MODEL_WEIGHTS}（timm pretrained=False，僅供延遲量測）')
+
         self.model.to(self.device)
         self.model.eval()
         self.get_logger().info('模型載入完成！開始等待影像輸入...')

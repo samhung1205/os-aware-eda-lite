@@ -5,6 +5,7 @@ Standard library only. Run from the repository root:
 
     python3 scripts/audit_repro.py            # all cases
     python3 scripts/audit_repro.py P0-1 P1-5  # selected cases
+    python3 scripts/audit_repro.py --strict   # CI: exit 1 if anything is REPRODUCED
 
 Each case prints REPRODUCED when the audited defect is still present, or
 FIXED when the current code no longer shows it. BLOCKED means the code-side
@@ -502,6 +503,108 @@ def case_p1_8() -> bool:
                     blocked=True)
 
 
+def case_p2_1() -> bool:
+    """No CI: tests, shell syntax and audit regressions are only run by hand."""
+    workflow = REPO / ".github/workflows/ci.yml"
+    text = workflow.read_text(encoding="utf-8") if workflow.exists() else ""
+    checks = {name: f"scripts/ci_checks.sh {name}" in text
+              for name in ("tests", "shell", "audit", "provenance")}
+    print(f"  workflow present: {workflow.exists()}; steps: {checks}")
+    return _verdict("P2-1", not (text and all(checks.values())),
+                    "no CI workflow running tests, bash -n, audit --strict and the provenance gate")
+
+
+def case_p2_2() -> bool:
+    """Dependencies unpinned; simulator vs ROS 2 requirements not separated."""
+    sim = REPO / "requirements-sim.txt"
+    ros = REPO / "requirements-ros2.txt"
+    env = REPO / "environment.yml"
+    pins = []
+    if ros.exists():
+        pins = [ln.strip() for ln in ros.read_text(encoding="utf-8").splitlines()
+                if ln.strip() and not ln.lstrip().startswith(("#", "-"))]
+    sim_pkgs = []
+    if sim.exists():
+        sim_pkgs = [ln for ln in sim.read_text(encoding="utf-8").splitlines()
+                    if ln.strip() and not ln.lstrip().startswith("#")]
+    unpinned = [p for p in pins if "==" not in p]
+    env_text = env.read_text(encoding="utf-8") if env.exists() else ""
+    print(f"  requirements-sim.txt packages: {sim_pkgs or 'none (stdlib)'}; ros2 pins: {pins}; "
+          f"unpinned: {unpinned}; environment.yml python=3.10 + humble: "
+          f"{'python=3.10' in env_text and 'ros-humble' in env_text}")
+    ok = (sim.exists() and not sim_pkgs and pins and not unpinned
+          and "python=3.10" in env_text and "ros-humble" in env_text)
+    return _verdict("P2-2", not ok, "unpinned ROS 2 node dependencies / no stdlib-only simulator requirement")
+
+
+def case_p2_3() -> bool:
+    """Caches and .DS_Store files are tracked by git."""
+    try:
+        proc = subprocess.run(["git", "ls-files"], cwd=REPO, capture_output=True, text=True,
+                              timeout=30, check=False)
+    except (OSError, subprocess.SubprocessError) as exc:
+        return _verdict("P2-3", False, f"git unavailable ({exc}); cannot inspect the index", blocked=True)
+    if proc.returncode != 0:
+        return _verdict("P2-3", False, "not a git checkout; cannot inspect the index", blocked=True)
+    junk = [f for f in proc.stdout.splitlines()
+            if "__pycache__/" in f or f.endswith((".pyc", ".DS_Store")) or Path(f).name.startswith("~$")]
+    print(f"  tracked cache / OS / lock files: {len(junk)} {junk[:5]}")
+    return _verdict("P2-3", bool(junk), "__pycache__ / .pyc / .DS_Store / Office lock files tracked")
+
+
+def case_p2_6() -> bool:
+    """Detector falls back to another model; launch accepts an unused model_path; profiles unchecked."""
+    pipeline = REPO / "src/ros2_uav_pipeline/mobilevit_uav_pipeline"
+    spec = importlib.util.spec_from_file_location("audit_run_log", pipeline / "run_log.py")
+    run_log = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(run_log)
+    calls = []
+
+    def fake_create(name, pretrained):
+        calls.append((name, pretrained))
+        raise RuntimeError(f"Unknown model ({name})")
+
+    strict_helper = hasattr(run_log, "create_model_strict")
+    fell_back = True
+    if strict_helper:
+        try:
+            run_log.create_model_strict("mobilevit_typo", fake_create)
+        except RuntimeError:
+            fell_back = len(calls) != 1
+    detector = (pipeline / "mobilevit_detector_node.py").read_text(encoding="utf-8")
+    fallback_in_node = ("self.model_name = 'mobilevit_xxs'" in detector
+                        or "create_model_strict(" not in detector)
+    launch = (REPO / "src/ros2_uav_pipeline/launch/mobilevit_uav_pipeline.launch.py").read_text(encoding="utf-8")
+    import ast
+    declared = []
+    for node in ast.walk(ast.parse(launch)):
+        if isinstance(node, ast.Assign) and any(getattr(t, "id", "") == "ARGUMENTS" for t in node.targets):
+            declared = [elt.elts[0].value for elt in node.value.elts]
+    sweeps = "".join(p.read_text(encoding="utf-8") for p in (REPO / "experiments/ros2").glob("run_*_sweep.sh"))
+    unused_model_path = "model_path" in declared or "model_path:=" in sweeps
+    broken = [
+        LayerProfile("a", "Conv", 10, 20, 1, 1, True),
+        LayerProfile("b", "Conv", 30, 30, 1, 1, True),
+    ]
+    with tempfile.TemporaryDirectory() as tmp:
+        path = Path(tmp) / "broken.json"
+        path.write_text(json.dumps({"model_name": "broken", "layers": [
+            {"name": l.name, "op_type": l.op_type, "input_kb": l.input_kb, "output_kb": l.output_kb,
+             "weight_kb": l.weight_kb, "compute_macs": l.compute_macs, "fusible": l.fusible}
+            for l in broken]}), encoding="utf-8")
+        try:
+            load_model_profile(path)
+            chain_unchecked = True
+        except ValueError:
+            chain_unchecked = False
+    print(f"  model load failure falls back: helper={strict_helper}, fell_back={fell_back}, "
+          f"fallback code in node={fallback_in_node}")
+    print(f"  unused model_path declared/forwarded: {unused_model_path}; "
+          f"output_kb -> input_kb mismatch accepted: {chain_unchecked}")
+    return _verdict("P2-6", fell_back or fallback_in_node or unused_model_path or chain_unchecked,
+                    "silent model fallback / unused model_path / unchecked profile chain")
+
+
 CASES = {
     "P0-1": case_p0_1,
     "P0-2": case_p0_2,
@@ -516,10 +619,18 @@ CASES = {
     "P1-7": case_p1_7,
     "P1-8": case_p1_8,
     "LAUNCH": case_launch,
+    "P2-1": case_p2_1,
+    "P2-2": case_p2_2,
+    "P2-3": case_p2_3,
+    "P2-6": case_p2_6,
 }
 
 
 def main(argv: list[str]) -> int:
+    # --strict (used by CI): exit 1 if any audited defect is REPRODUCED. BLOCKED cases
+    # (code fixed, real ROS 2 data missing) do not fail the run but are listed.
+    strict = "--strict" in argv
+    argv = [a for a in argv if a != "--strict"]
     selected = argv or list(CASES)
     unknown = [c for c in selected if c not in CASES]
     if unknown:
@@ -534,7 +645,7 @@ def main(argv: list[str]) -> int:
     blocked = [c for c in results if c in BLOCKED]
     if blocked:
         print(f"Blocked on real ROS2 data (code fixed, not verified by measurement): {', '.join(blocked)}")
-    return 0
+    return 1 if strict and still else 0
 
 
 if __name__ == "__main__":
