@@ -44,6 +44,7 @@ from src.provenance import (
     CLASS_UNCONSTRAINED,
     VALID_MEASUREMENT_CLASSES,
     git_state,
+    sha256_file,
     write_json,
 )
 
@@ -64,7 +65,8 @@ NODE_QOS = {
 ROS_ENV_VARS = (
     "ROS_DISTRO", "ROS_VERSION", "ROS_PYTHON_VERSION", "RMW_IMPLEMENTATION", "ROS_DOMAIN_ID",
     "ROS_LOCALHOST_ONLY", "ROS_AUTOMATIC_DISCOVERY_RANGE", "FASTDDS_BUILTIN_TRANSPORTS",
-    "FASTRTPS_DEFAULT_PROFILES_FILE", "RMW_FASTRTPS_USE_QOS_FROM_XML", "CYCLONEDDS_URI",
+    "FASTRTPS_DEFAULT_PROFILES_FILE", "FASTDDS_DEFAULT_PROFILES_FILE", "RMW_FASTRTPS_USE_QOS_FROM_XML",
+    "CYCLONEDDS_URI",
 )
 NET_SYSCTLS = ("rmem_max", "rmem_default", "wmem_max", "wmem_default")
 PACKAGES = ("torch", "timm", "numpy", "opencv-python", "opencv-python-headless", "psutil")
@@ -145,37 +147,66 @@ def read_effective_limits(
 
     memory_max_bytes: int | str | None = None
     memory_max_own: str | None = None
+    memory_swap_max_bytes: int | str | None = None
     cpu_max: str | None = None
     if cgroup_path is not None:
         node = Path(cgroup_root) / cgroup_path.lstrip("/")
         memory_max_own = _read_text(node / "memory.max")
         cpu_max = _read_text(node / "cpu.max")
-        limits = []
-        seen_any = False
-        for level in [node, *node.parents]:
-            raw = _read_text(level / "memory.max")
-            if raw is not None:
-                seen_any = True
-                limit = parse_size_bytes(raw)
-                if limit is not None:
-                    limits.append(limit)
-            if level == Path(cgroup_root):
-                break
-        if limits:
-            memory_max_bytes = min(limits)
-        elif seen_any:
-            memory_max_bytes = "max"
-        else:
+        memory_max_bytes = _tightest_limit(node, Path(cgroup_root), "memory.max")
+        if memory_max_bytes is None:
             notes.append("memory.max not readable (memory controller not enabled for this cgroup?)")
+        # Informational: with swap on the host, memory.max alone lets the run page out
+        # instead of being OOM-killed. Not part of measurement_class.
+        memory_swap_max_bytes = _tightest_limit(node, Path(cgroup_root), "memory.swap.max")
 
     return {
         "cpus_allowed": cpus,
         "cgroup_path": cgroup_path,
         "memory_max_bytes": memory_max_bytes,
         "memory_max_own": memory_max_own,
+        "memory_swap_max_bytes": memory_swap_max_bytes,
         "cpu_max": cpu_max,
         "notes": notes,
     }
+
+
+def _tightest_limit(node: Path, cgroup_root: Path, filename: str) -> int | str | None:
+    """Tightest ``filename`` value from ``node`` up to the root: bytes, ``"max"`` or None (unreadable)."""
+
+    limits = []
+    seen_any = False
+    for level in [node, *node.parents]:
+        raw = _read_text(level / filename)
+        if raw is not None:
+            seen_any = True
+            limit = parse_size_bytes(raw)
+            if limit is not None:
+                limits.append(limit)
+        if level == cgroup_root:
+            break
+    if limits:
+        return min(limits)
+    return "max" if seen_any else None
+
+
+def dds_profile_info(environ: dict[str, str] | None = None) -> dict[str, Any]:
+    """Record the Fast DDS XML profile (path + SHA-256) the run was started with, if any.
+
+    The DDS transport (UDP vs shared memory, segment size) changes frame delivery for
+    large images, so the exact profile file is part of the run conditions.
+    """
+
+    env = os.environ if environ is None else environ
+    path = env.get("FASTRTPS_DEFAULT_PROFILES_FILE") or env.get("FASTDDS_DEFAULT_PROFILES_FILE")
+    if not path:
+        return {"path": None, "sha256": None,
+                "note": "no Fast DDS XML profile: RMW default transports (Humble Fast DDS: UDPv4 + SHM)"}
+    try:
+        digest = sha256_file(path)
+    except OSError as exc:
+        return {"path": path, "sha256": None, "note": f"profile not readable: {exc}"}
+    return {"path": path, "sha256": digest}
 
 
 def classify_limits(requested: dict[str, Any], effective: dict[str, Any]) -> tuple[dict[str, bool | None], str]:
@@ -227,6 +258,7 @@ def collect_run_metadata(
                    "executable": sys.executable},
         "packages": {name: _package_version(name) for name in PACKAGES},
         "ros2": {name: os.environ.get(name) for name in ROS_ENV_VARS},
+        "dds_profile": dds_profile_info(),
         "qos": NODE_QOS,
         "network_sysctl": {f"net.core.{name}": _read_int(Path("/proc/sys/net/core") / name) for name in NET_SYSCTLS},
         "transport_note": TRANSPORT_NOTE,

@@ -15,7 +15,7 @@ Lightweight MobileViT simulation for ROS2 OS-level edge AI performance analysis.
 | **Unverified legacy measurements** | `runtime_os_profiles.legacy_unverified.json`, `results/figures/ros2/*.svg`, anything derived from them | teammate-provided, no raw data → **UNVERIFIED**; refused unless a config opts in; figures tagged `[OS profile: UNVERIFIED]` |
 | **Verified ROS 2 measurements** | `results/raw/ros2/` → summary → `runtime_os_profiles.json` | **none yet**: `check_runtime_provenance.py` reports `BLOCKED` |
 
-Not done: no real ROS 2 benchmark has been run from this repository yet (Phase 2), and there is **no adaptive / runtime scheduler** — OS profiles only re-weight the offline EDA-Lite cost model (on the MobileViT profiles they do not change the chosen partition).
+Not done: no formal ROS 2 benchmark has been run from this repository yet (Phase 2 / Batch 1 only ran an end-to-end **smoke test** on the Linux server; its data is kept outside `results/` and is not measured evidence, see `report/PHASE2_BATCH1_RESULT.md`), and there is **no adaptive / runtime scheduler** — OS profiles only re-weight the offline EDA-Lite cost model (on the MobileViT profiles they do not change the chosen partition).
 
 ## Quickstart (simulator, analysis and tests — nothing to install)
 
@@ -190,7 +190,7 @@ bash scripts/rebuild_eda_lite_figures.sh
 | ROS 2 nodes (`src/ros2_uav_pipeline/`) and sweep scripts | 3.10 (RoboStack Humble) | ROS 2 Humble (`rclpy`, `launch`, `sensor_msgs`, `cv_bridge`), conda `opencv`, pinned `torch==2.5.1`, `torchvision==0.20.1`, `timm==1.0.11`, `numpy==1.26.4`, `psutil==7.0.0` | `conda env create -f environment.yml` |
 
 - `cv2` comes from conda-forge `opencv` (the build `cv_bridge` links against); do not `pip install opencv-python` into the ROS environment. `numpy` stays `< 2` for Humble's `cv_bridge`.
-- The pins are a consistent CPU-only set chosen for Python 3.10; they have **not yet been exercised on the Phase 2 machine**. Every run records the versions actually imported in `<run_id>.meta.json`; after creating the environment, freeze it with `conda env export --no-builds > environment.lock.yml` and commit that file with the first verified data.
+- The pins solved and imported on the Phase 2 server (Ubuntu 22.04.4 x86_64, 2026-11-10; pip reports `torch 2.5.1+cpu` / `torchvision 0.20.1+cpu`, the CPU-wheel local version). The solved environment is frozen in `environment.lock.yml` (`conda env create -f environment.lock.yml`). Every run records the versions actually imported in `<run_id>.meta.json`.
 - Bash and GNU `timeout` (or `gtimeout`) are needed for the sweep scripts; `taskset` + `systemd-run` (cgroup v2) for constrained runs.
 
 ## Run MobileViT Simulation
@@ -268,17 +268,30 @@ bash experiments/ros2/run_overload_sweep.sh
 
 By default, the scripts launch the checked-in launch file through `ROS2_LAUNCH_TARGET`. To launch an installed ROS2 package instead, set `ROS2_LAUNCH_TARGET=""` and use `ROS2_PACKAGE` plus `ROS2_LAUNCH_FILE`. The sweep scripts fail early if `ros2` is not available, and require either GNU `timeout` or `gtimeout` so each scenario stops after `RUN_SECONDS` seconds.
 
+Same-host DDS transport (Phase 2 / Batch 1 finding): the publisher sends ~0.4–1.2 MB `bgr8` frames to a BEST_EFFORT subscription. With the RMW default transports and `net.core.rmem_max = 212992`, 50–85% of frames were lost even at 5 FPS (CycloneDDS over UDP: ~99%, with kernel UDP `RcvbufErrors`). The checked-in Fast DDS profile switches to shared memory with a 16 MB segment (process-local, no sudo) and delivered 100% of frames in the smoke test:
+
+```bash
+export FASTRTPS_DEFAULT_PROFILES_FILE="$PWD/experiments/ros2/fastdds_shm_large.xml"
+export ROS_DOMAIN_ID=87              # any domain no one else uses on a shared host
+```
+
+Its path and SHA-256 are recorded in `<run_id>.meta.json` → `dds_profile`. Whether formal baselines use this profile or the RMW defaults is a methodology choice; record it, never mix both in one comparison.
+
 Run the two-model baseline wrapper:
 
 ```bash
 bash scripts/run_baseline_experiments.sh
+# narrower (e.g. a smoke test on the Phase 2 server, idle P-cores 12 and 14):
+CPU_SET=12,14 MEMORY_MAX=4G MODELS=mobilevit_xxs SWEEPS=fps FPS_VALUES=5 RUN_SECONDS=20 \
+  RESULTS_DIR=/tmp/smoke bash scripts/run_baseline_experiments.sh
 ```
 
-On Linux, the wrapper requests 2-core / 2GB limits with `taskset -c $CPU_SET` and `systemd-run --user --scope -p MemoryMax=$MEMORY_MAX` (defaults `0,1` / `2G`) and exports them as `REQUESTED_CPUS` / `REQUESTED_MEMORY_MAX`. Requesting is not the same as applying: `systemd-run --user` silently ignores `MemoryMax` without cgroup v2 memory-controller delegation. Before every launch, `run_capture_metadata` (in `experiments/ros2/run_common.sh`) runs `python3 -m src.ros2_runtime.run_metadata` inside the same scope and writes `$RESULTS_DIR/<run_id>.meta.json` with:
+`MODELS` (default `mobilevit_xxs mobilevit_s`) and `SWEEPS` (default `fps qos overload`) narrow a batch. Pick `CPU_SET` from the CPUs your account may use (`grep Cpus_allowed_list /proc/self/status`) and from idle cores; do not assume `0,1`. On Linux, the wrapper requests 2-core / 2GB limits with `taskset -c $CPU_SET` and `systemd-run --user --scope -p MemoryMax=$MEMORY_MAX -p MemorySwapMax=$MEMORY_SWAP_MAX` (defaults `0,1` / `2G` / `0`; swap is disabled so a host with swap cannot page the run out instead of enforcing the limit; `MEMORY_SWAP_MAX=` drops the property) and exports them as `REQUESTED_CPUS` / `REQUESTED_MEMORY_MAX`. Requesting is not the same as applying: `systemd-run --user` silently ignores `MemoryMax` without cgroup v2 memory-controller delegation. Before every launch, `run_capture_metadata` (in `experiments/ros2/run_common.sh`) runs `python3 -m src.ros2_runtime.run_metadata` inside the same scope and writes `$RESULTS_DIR/<run_id>.meta.json` with:
 
 - run_id, git commit (+ dirty flag), OS/kernel, CPU model, logical CPUs, host RAM, Python, torch/timm/numpy/opencv/psutil versions;
 - `ROS_DISTRO`, `RMW_IMPLEMENTATION` (unset = distro default), DDS transport variables (`FASTDDS_BUILTIN_TRANSPORTS`, `FASTRTPS_DEFAULT_PROFILES_FILE`, `CYCLONEDDS_URI`, `ROS_LOCALHOST_ONLY`, …), the node QoS (reliable publisher depth 10 → best-effort subscription depth `qos_depth`), and `net.core.{r,w}mem_{max,default}` as read;
-- requested limits, effective limits (CPU affinity, cgroup `memory.max` / `cpu.max`) and `measurement_class`: `constrained` (every requested limit read back and matching), `unconstrained` (none requested), `constraint_unverified` (could not read back, e.g. macOS / cgroup v1) or `constraint_failed` (read back and not in effect);
+- the Fast DDS XML profile in use (`dds_profile`: path + SHA-256, or none);
+- requested limits, effective limits (CPU affinity, cgroup `memory.max` / `cpu.max`, informational `memory.swap.max`) and `measurement_class`: `constrained` (every requested limit read back and matching), `unconstrained` (none requested), `constraint_unverified` (could not read back, e.g. macOS / cgroup v1) or `constraint_failed` (read back and not in effect);
 - the experiment parameters (scenario, model, fps, QoS depth, delay, deadline, run seconds, warm-up, dataset, launch target).
 
 If a requested limit is not verified, the run fails before launch (`*.meta.json.failed`); `ALLOW_UNVERIFIED_LIMITS=1` lets it continue, recorded as `constraint_unverified`/`constraint_failed`, and OS profiles built from it stay `unverified`. Without `taskset`/`systemd-run` the wrappers request nothing and label the runs `resource_profile=unconstrained` (`tuned_unconstrained`), never `normal`.
@@ -355,6 +368,7 @@ Measurement definitions (Phase 1 / Batch 1):
 - **QoS.** The publisher is RELIABLE / KEEP_LAST depth 10 (fixed); the detector subscribes BEST_EFFORT / KEEP_LAST depth `qos_depth`. The QoS sweep therefore varies **only the subscriber queue depth**; publisher history and reliability are constant, and a best-effort subscription to a reliable publisher is delivered best-effort. The QoS actually used is recorded in each run's `meta.json` (`qos`).
 - **Latency statistics.** `avg_latency_ms` = mean end-to-end latency of processed, non-warm-up frames; `p95_latency_ms` / `p99_latency_ms` = nearest-rank percentiles (no interpolation; with few frames P99 is the maximum); `jitter_ms` = **population standard deviation of per-frame end-to-end latency**, not RFC 3550 / inter-arrival jitter.
 - **CPU / memory.** `avg_cpu_percent` averages `psutil.Process.cpu_percent()` of the detector process (per-process; can exceed 100 with several cores; psutil reports 0.0 on its first call). `avg_memory_mb` averages the detector's RSS.
+- **Start-up (Phase 2 / Batch 1).** The detector subscribes only after its model and CSV are ready, and the publisher starts numbering, publishing and logging frames only once it sees a subscriber, so frames are not published into a detector that is still importing torch. (With warm-up > 0 the analyzer already excluded those frames; the gate also keeps `WARMUP_FRAMES=0` runs and the raw publisher log clean.) Float launch arguments (`input_fps`, `deadline_ms`) accept integer literals such as `input_fps:=5`.
 - **Launch reliability.** The launch file shuts down when either node exits. A sweep point succeeds only if `timeout` stopped it (exit 124) and the detector CSV has data rows; otherwise the script stops with an error and renames that run's CSVs to `*.failed`, which the analyzer ignores.
 
 Optional: `--warmup-frames N` excludes the first N received frames of every run in addition to detector-flagged warm-up rows.

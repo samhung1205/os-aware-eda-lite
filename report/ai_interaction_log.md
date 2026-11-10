@@ -255,3 +255,22 @@ Implementation decision:
 Important limitation:
 
 - Pinned ROS 2 versions and `environment.yml` were not solved or run (no Linux / ROS 2 here). GitHub Actions has not run yet (nothing pushed); the workflow was validated by YAML parsing and by running `scripts/ci_checks.sh all` locally on macOS / Python 3.11 and the test suite on a bare Python 3.13 venv. Real measurements remain BLOCKED.
+
+## 2026-11-10 Phase 2 / Batch 1: Linux ROS 2 Environment & Smoke Validation
+
+Prompt summary:
+
+- On the shared lab Linux server: build the RoboStack / PyTorch environment in an isolated conda env, verify CPU / memory constraints without sudo, run a short real ROS 2 + MobileViT-XXS smoke test (unconstrained, then constrained), keep smoke data out of `results/`, no full sweep, no push / merge.
+
+Implementation decision:
+
+- `environment.yml` solved unchanged; froze it in `environment.lock.yml` (prefix removed, channel order and the PyTorch CPU index restored so it is recreatable).
+- Constraints: taskset (CPUs 12,14 = two idle P-cores; the CPU is hybrid) + `systemd-run --user --scope` MemoryMax (memory controller delegated; `cpu`/`cpuset` are not). Added `MemorySwapMax` (default 0) because the host has swap, and record `memory.swap.max`.
+- The real run exposed a startup crash (`input_fps:=5` is INTEGER, declared DOUBLE) → `dynamic_typing` on float parameters.
+- Diagnosed a 50–85% frame loss as DDS transport (RMW defaults with 212992-byte socket buffers and ~1 MB best-effort images; CycloneDDS/UDP showed kernel RcvbufErrors) by A/B runs instead of changing sysctls; added an opt-in Fast DDS SHM profile (recorded with SHA-256 in run metadata) rather than silently changing the default transport — the choice for formal baselines is left to the user.
+- Publisher now starts after a subscriber is matched and the detector subscribes after loading the model (clean publisher log; analyzer already excluded pre-warm-up frames).
+
+Important limitation:
+
+- Smoke data only (5 FPS, 20 s, XXS); not measured evidence, not committed under `results/`. Provenance stays BLOCKED. MobileViT-S and higher FPS untested.
+

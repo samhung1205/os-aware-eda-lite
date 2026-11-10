@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import rclpy
 from rclpy.node import Node
+from rcl_interfaces.msg import ParameterDescriptor
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 import numpy as np
@@ -23,7 +24,9 @@ class ImageStreamNode(Node):
         
         # 宣告參數 (Parameters) 以便接受從 Launch 檔或命令列傳入的數值
         self.declare_parameter('dataset_path', 'data/raw/images/coco128/images/train2017')
-        self.declare_parameter('input_fps', 30.0)
+        # dynamic_typing：launch 傳入 `input_fps:=5` 會被 ROS 2 解析成 INTEGER，而預設值 30.0 是 DOUBLE；
+        # 不開 dynamic_typing 時 rclpy 會丟 InvalidParameterTypeException。數值一律以 float() 轉換。
+        self.declare_parameter('input_fps', 30.0, ParameterDescriptor(dynamic_typing=True))
         # 每個發布的 frame 記錄到 <run_id>.publisher.csv，讓 analyzer 可計算開頭/結尾掉幀。
         # 'none' = 不記錄（單獨執行時）。
         self.declare_parameter('run_id', 'auto')
@@ -51,6 +54,10 @@ class ImageStreamNode(Node):
         self.timer = self.create_timer(timer_period, self.timer_callback)
         self.bridge = CvBridge()
         self.seq_id = 0
+        # 在偵測到至少一個 subscriber（detector 已載入模型並訂閱）之前不發布、不編號、不寫 publisher log，
+        # 避免 detector 啟動期間發布的 frame 被 publisher_log accounting 算成掉幀。
+        # 開始後即使 subscriber 消失也持續發布：之後未被處理的 frame 是真正的掉幀。
+        self.streaming = False
         self.run_id = resolve_run_id(self.get_parameter('run_id').value)
         self.publish_log = None
         log_path = str(self.get_parameter('output_csv').value).strip()
@@ -63,6 +70,12 @@ class ImageStreamNode(Node):
         self.get_logger().info(f'影像發布節點已啟動，目標發布頻率：{input_fps} FPS')
 
     def timer_callback(self):
+        if not self.streaming:
+            if self.publisher_.get_subscription_count() == 0:
+                self.get_logger().info('等待 subscriber（detector）就緒後才開始發布...', throttle_duration_sec=5.0)
+                return
+            self.streaming = True
+            self.get_logger().info('偵測到 subscriber，開始發布 frame 0。')
         if not self.image_paths:
             # 如果沒有圖片，產生一個黑畫面作為 Fallback，避免程式崩潰
             img_array = np.zeros((1080, 1920, 3), dtype=np.uint8)

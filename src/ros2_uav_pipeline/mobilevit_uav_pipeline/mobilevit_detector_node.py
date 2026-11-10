@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import rclpy
 from rclpy.node import Node
+from rcl_interfaces.msg import ParameterDescriptor
 from sensor_msgs.msg import Image
 from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
 import torch
@@ -29,10 +30,12 @@ class MobileViTDetectorNode(Node):
         
         # 宣告動態參數 (Parameters)
         self.declare_parameter('model_name', 'mobilevit_xxs')
-        self.declare_parameter('input_fps', 30.0)
+        # 浮點參數允許整數字面值（`input_fps:=5`、`deadline_ms:=100` 會被解析成 INTEGER），以 float() 轉換。
+        float_param = ParameterDescriptor(dynamic_typing=True)
+        self.declare_parameter('input_fps', 30.0, float_param)
         self.declare_parameter('qos_depth', 10)
         self.declare_parameter('fake_inference_delay_ms', 0)
-        self.declare_parameter('deadline_ms', 100.0)
+        self.declare_parameter('deadline_ms', 100.0, float_param)
         self.declare_parameter('scenario', 'fps_sweep')
         self.declare_parameter('resource_profile', 'normal')
         self.declare_parameter('output_csv', 'auto')
@@ -68,7 +71,6 @@ class MobileViTDetectorNode(Node):
             depth=self.qos_depth
         )
         
-        self.subscription = self.create_subscription(Image, 'image_raw', self.listener_callback, qos_profile)
         self.bridge = CvBridge()
         
         self.get_logger().info(f'正在載入模型: {self.model_name} (CPU)...')
@@ -90,6 +92,10 @@ class MobileViTDetectorNode(Node):
         # 檔案已存在時直接失敗（不 append、不覆蓋）。
         create_run_csv(self.log_file_path, DETECTOR_CSV_HEADER)
         self.get_logger().info(f'run_id={self.run_id}，量測資料寫入 {self.log_file_path}')
+
+        # 模型與 CSV 都就緒後才建立 subscription：publisher 只在偵測到 subscriber 後才開始發布
+        # （image_stream_node），因此 torch import / 模型載入期間不會有 frame 被發布後又算成掉幀。
+        self.subscription = self.create_subscription(Image, 'image_raw', self.listener_callback, qos_profile)
 
     def listener_callback(self, msg):
         # 跨程序時間戳記一律用 host wall clock（與 publisher 相同，不受 use_sim_time 影響）；

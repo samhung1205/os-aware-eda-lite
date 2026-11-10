@@ -172,7 +172,7 @@ Paused / optional older script:
 
 - `run_yolo11_comparison.sh`
 
-The scripts launch the checked-in pipeline `src/ros2_uav_pipeline/` by default (or an installed package with `ROS2_LAUNCH_TARGET=""`). They have not yet been run on the Phase 2 Linux / ROS 2 machine.
+The scripts launch the checked-in pipeline `src/ros2_uav_pipeline/` by default (or an installed package with `ROS2_LAUNCH_TARGET=""`). Phase 2 / Batch 1 ran them end-to-end on the Linux server as a 5 FPS / 20 s MobileViT-XXS smoke test only (data outside `results/`, not measured evidence); see `report/PHASE2_BATCH1_RESULT.md`.
 
 Pipeline semantics (Phase 1 / Batch 4, audit P2-6):
 
@@ -180,11 +180,14 @@ Pipeline semantics (Phase 1 / Batch 4, audit P2-6):
 - There is no `model_path`: the launch file raises if it is passed, and the sweep scripts exit 2 if `MODEL_PATH` is set.
 - QoS: publisher RELIABLE depth 10 (fixed), detector BEST_EFFORT KEEP_LAST `qos_depth`; QoS sweeps vary only the subscriber depth.
 - `jitter_ms` = population std dev of per-frame end-to-end latency (not inter-arrival jitter); P95/P99 are nearest-rank.
+- Start-up (Phase 2 / Batch 1): the detector subscribes after the model and CSV are ready; the publisher starts frame 0 (and its log) only once a subscriber is matched. Float parameters (`input_fps`, `deadline_ms`) use `dynamic_typing` so `input_fps:=5` works.
+- DDS transport: on the Phase 2 server the RMW default transports lose 50–85% of the ~1 MB best-effort frames (rmem_max 212992). `experiments/ros2/fastdds_shm_large.xml` (Fast DDS SHM-only, 16 MB segment) delivers all frames; set `FASTRTPS_DEFAULT_PROFILES_FILE` to it. `<run_id>.meta.json` records it under `dds_profile` (path + SHA-256). Do not mix transport settings within one comparison.
+- Wrappers: `MODELS` / `SWEEPS` narrow a batch; `MEMORY_SWAP_MAX` (default 0) adds `MemorySwapMax` because the host has swap; `memory.swap.max` is recorded (informational). Choose `CPU_SET` from the allowed, idle CPUs (Phase 2 server: i7-13700, P-cores 0–15, E-cores 16–23; smoke test used 12,14), never assume `0,1`.
 
 ### 6. CI, Environment And Repository Hygiene (Phase 1 / Batch 4)
 
 - `.github/workflows/ci.yml`: tests on Python 3.10–3.13 (nothing installed), `bash -n`, `scripts/audit_repro.py --strict`, provenance gate, 5× repeated test runs. Every step is `bash scripts/ci_checks.sh <step>`; `bash scripts/ci_checks.sh all` reproduces CI locally. CI installs no ROS 2; the gate reports `BLOCKED` as a warning and must never turn it into `VERIFIED`.
-- Dependencies: `requirements-sim.txt` (stdlib only, empty), `requirements-ros2.txt` (pinned torch/torchvision/timm/numpy/psutil for the ROS 2 nodes), `environment.yml` (RoboStack Humble, Python 3.10, conda `opencv`), `requirements.txt` → `-r requirements-ros2.txt`. The pins are not yet exercised on the Phase 2 machine.
+- Dependencies: `requirements-sim.txt` (stdlib only, empty), `requirements-ros2.txt` (pinned torch/torchvision/timm/numpy/psutil for the ROS 2 nodes), `environment.yml` (RoboStack Humble, Python 3.10, conda `opencv`), `requirements.txt` → `-r requirements-ros2.txt`. Solved and imported on the Phase 2 server; frozen in `environment.lock.yml` (pip shows `torch 2.5.1+cpu`).
 - Results policy (`results/README.md`, `.gitignore`): raw `results/raw/ros2/*.{csv,publisher.csv,meta.json}` tracked; derived `results/csv/*.csv` tracked with their `.provenance.json` / `.manifest.json`; figures tracked; `*.failed`, caches, `.DS_Store`, `~$*`, `ci-logs/` ignored.
 - `load_model_profile` validates finite numbers, unique layer names and `output_kb[i] == input_kb[i+1]`.
 - Tests that run CLIs use `tests/cli_support.run_cli` (full stdout/stderr on failure).
@@ -398,9 +401,9 @@ Still not implemented / not present:
 
 - Actual ROS2 runtime measurements (raw CSVs, publisher logs, run metadata, summary): the provenance check is BLOCKED until a real run.
 - Verified `runtime_os_profiles.json` (only the UNVERIFIED legacy file exists).
+- Formal baseline ROS 2 measurements (only a smoke test has run).
 - Real model weights (the detector uses random-init timm weights; latency only).
 - Adaptive / runtime scheduling (EDA-Lite schedules offline; OS profiles only re-weight the cost).
-- `environment.lock.yml` (to be exported on the Phase 2 machine).
 - ONNX parser.
 - Real LLM inference or KV-cache simulation.
 - Final presentation slides.

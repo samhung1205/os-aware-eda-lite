@@ -1,6 +1,6 @@
 # ROS2 Experiment Scripts
 
-These scripts drive the ROS2 MobileViT/UAV pipeline checked in under `src/ros2_uav_pipeline/` (default `ROS2_LAUNCH_TARGET`), or an installed equivalent package (`ROS2_LAUNCH_TARGET=""` + `ROS2_PACKAGE` / `ROS2_LAUNCH_FILE`). They are parameterized through environment variables and have not yet been run on the Phase 2 Linux machine. Environment: `conda env create -f environment.yml` (ROS 2 Humble, Python 3.10, pinned `requirements-ros2.txt`).
+These scripts drive the ROS2 MobileViT/UAV pipeline checked in under `src/ros2_uav_pipeline/` (default `ROS2_LAUNCH_TARGET`), or an installed equivalent package (`ROS2_LAUNCH_TARGET=""` + `ROS2_PACKAGE` / `ROS2_LAUNCH_FILE`). They are parameterized through environment variables. Phase 2 / Batch 1 ran a 5 FPS / 20 s MobileViT-XXS smoke test with them on the Linux server (unconstrained and constrained); no formal sweep has been run yet (`report/PHASE2_BATCH1_RESULT.md`). Environment: `conda env create -f environment.yml` (ROS 2 Humble, Python 3.10, pinned `requirements-ros2.txt`).
 
 The main ROS2 experiment path is FPS, QoS depth, and artificial overload sweeps. YOLO-specific execution is legacy/paused.
 
@@ -44,3 +44,14 @@ A sweep point succeeds only if it was still running when `timeout` stopped it (e
 Before each launch the scripts write `$RESULTS_DIR/<run_id>.meta.json` (`python3 -m src.ros2_runtime.run_metadata`, run from the repository root): git commit, OS/kernel, CPU, Python/torch versions, `ROS_DISTRO` / `RMW_IMPLEMENTATION` / DDS transport variables, node QoS, `net.core.*` buffers as read, the experiment parameters, and requested (`REQUESTED_CPUS`, `REQUESTED_MEMORY_MAX`) vs effective limits with a `measurement_class`. A run whose requested limits cannot be verified fails before launch unless `ALLOW_UNVERIFIED_LIMITS=1`.
 
 The scripts never run `sudo` or change sysctls, cgroups or conda/RoboStack setup. Do not report generated CSVs as measured runtime data unless they came from a real ROS2 run and `python3 scripts/check_runtime_provenance.py` reports `VERIFIED`.
+
+## Same-host DDS transport
+
+With the RMW default transports and `net.core.rmem_max = 212992`, BEST_EFFORT delivery of the ~0.4–1.2 MB COCO128 frames lost 50–85% of frames at 5 FPS (CycloneDDS/UDP ~99%). `fastdds_shm_large.xml` switches Fast DDS to a shared-memory-only transport with a 16 MB segment (no sudo, process-local):
+
+```bash
+export FASTRTPS_DEFAULT_PROFILES_FILE="$PWD/experiments/ros2/fastdds_shm_large.xml"
+export ROS_DOMAIN_ID=87   # unused domain on a shared host
+```
+
+The profile path and SHA-256 are recorded in each `<run_id>.meta.json` (`dds_profile`). Keep one transport setting per comparison.
