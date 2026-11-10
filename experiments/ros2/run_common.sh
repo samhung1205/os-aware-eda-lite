@@ -75,8 +75,26 @@ run_start_probe() {
   PROBE_PID=$!
 }
 
+# Wait (max NODE_EXIT_TIMEOUT s, default 15) until the publisher / detector of the launch that
+# just ended have exited, so the next run never starts while they are still shutting down.
+_wait_nodes_exit() {
+  local cg="" deadline=$(( SECONDS + ${NODE_EXIT_TIMEOUT:-15} )) pid left
+  cg="/sys/fs/cgroup$(sed -n 's/^0:://p' /proc/self/cgroup 2>/dev/null)"
+  [[ -r "$cg/cgroup.procs" ]] || return 0
+  while (( SECONDS < deadline )); do
+    left=0
+    while read -r pid; do
+      grep -qaE 'mobilevit_detector_node|image_stream_node' "/proc/$pid/cmdline" 2>/dev/null && left=1
+    done < "$cg/cgroup.procs"
+    (( left )) || return 0
+    sleep 0.2
+  done
+  echo "警告：launch 結束 ${NODE_EXIT_TIMEOUT:-15}s 後仍有 node process 未退出。" >&2
+}
+
 # Usage: run_stop_probe
 run_stop_probe() {
+  _wait_nodes_exit
   [[ -n "${PROBE_PID:-}" ]] || return 0
   kill -TERM "$PROBE_PID" 2>/dev/null || true
   wait "$PROBE_PID" 2>/dev/null || true

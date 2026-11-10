@@ -150,3 +150,41 @@ class SummaryRateColumnsTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class AggregateBaselineTest(unittest.TestCase):
+    def test_derive_separates_overload_from_below_capacity_loss(self):
+        from src.ros2_runtime.aggregate_baseline import derive
+
+        over = derive({"avg_service_ms": "64", "offered_fps": "30", "drop_rate_pct": "48"})
+        self.assertEqual(over["drop_cause"], "overload")
+        self.assertAlmostEqual(float(over["utilization"]), 1.92)
+        self.assertAlmostEqual(float(over["expected_overload_drop_pct"]), 100 * (1 - 1 / 1.92), places=2)
+        self.assertEqual(derive({"avg_service_ms": "19", "offered_fps": "30", "drop_rate_pct": "2"})["drop_cause"],
+                         "below_capacity")
+        self.assertEqual(derive({"avg_service_ms": "19", "offered_fps": "30", "drop_rate_pct": "0"})["drop_cause"], "none")
+        self.assertEqual(derive({"avg_service_ms": "", "offered_fps": "30", "drop_rate_pct": "0"})["drop_cause"], "unknown")
+
+    def test_conditions_use_runs_as_replicates(self):
+        from src.ros2_runtime.aggregate_baseline import build_conditions
+
+        base = {"scenario": "fps_sweep", "model_name": "m", "input_fps": "5.0", "qos_depth": "5",
+                "fake_delay_ms": "0", "dds_verified": "true", "measurement_class": "constrained",
+                "drop_cause": "none"}
+        runs = [dict(base, run_id=f"r{i}", p50_latency_ms=str(v)) for i, v in enumerate((10, 12, 14))]
+        (cond,) = build_conditions(runs)
+        self.assertEqual(cond["n_runs"], 3)
+        self.assertEqual(cond["p50_latency_ms_mean"], "12")
+        self.assertEqual(cond["p50_latency_ms_sd"], "2")
+        self.assertEqual((cond["p50_latency_ms_min"], cond["p50_latency_ms_max"]), ("10", "14"))
+        self.assertEqual(cond["all_dds_verified"], "true")
+
+
+class NodeExitWaitTest(unittest.TestCase):
+    def test_stop_probe_waits_for_nodes_and_probe_resets_cpu_on_pid_change(self):
+        common = (REPO / "experiments/ros2/run_common.sh").read_text(encoding="utf-8")
+        body = common[common.index("run_stop_probe() {"):]
+        self.assertLess(body.index("_wait_nodes_exit"), body.index("kill -TERM"))
+        probe = (REPO / "src/ros2_runtime/runtime_probe.py").read_text(encoding="utf-8")
+        change = probe[probe.index('if node["pid"] != pid:'):probe.index("ticks = stat")]
+        self.assertIn('node["first"] = None', change)

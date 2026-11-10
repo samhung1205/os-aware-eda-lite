@@ -279,8 +279,11 @@ class Probe:
                 "first": None, "last": None, "max_rss_mb": 0.0, "max_threads": 0,
             })
             if node["pid"] != pid:
+                # A different process (e.g. the previous run's node still exiting when this
+                # probe started): CPU accounting restarts on the newest pid.
                 node.setdefault("pid_changes", []).append(pid)
                 node["pid"] = pid
+                node["first"] = None
             ticks = stat["utime"] + stat["stime"]
             node["samples"] += 1
             node["max_udp_sockets"] = max(node["max_udp_sockets"], n_udp)
