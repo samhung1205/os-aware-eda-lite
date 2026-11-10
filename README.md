@@ -13,9 +13,9 @@ Lightweight MobileViT simulation for ROS2 OS-level edge AI performance analysis.
 | **Simulation estimates** (EDA-Lite energy, latency, DRAM traffic, SRAM, cost) | `results/csv/eda_lite_*`, `results/figures/eda_lite/` | reproducible from configs; cost-model units, **not** hardware measurements |
 | **Example OS profiles** | `experiments/eda_lite/runtime_os_profiles.example.json` | illustrative values, rows labelled `example`; never report as measured |
 | **Unverified legacy measurements** | `runtime_os_profiles.legacy_unverified.json`, `results/figures/ros2/*.svg`, anything derived from them | teammate-provided, no raw data → **UNVERIFIED**; refused unless a config opts in; figures tagged `[OS profile: UNVERIFIED]` |
-| **Verified ROS 2 measurements** | `results/raw/ros2/` → summary → `runtime_os_profiles.json` | **none yet**: `check_runtime_provenance.py` reports `BLOCKED` |
+| **Verified ROS 2 measurements** | `results/raw/ros2/` → `results/csv/ros2_runtime_summary.csv` → `runtime_os_profiles.json`; baseline tables `results/csv/ros2_baseline_{runs,conditions}.csv`, figures `results/figures/ros2_baseline/` | **Phase 2 / Batch 2 baseline**: 75 constrained runs (CPU 12,14 / 4G / swap 0, Fast DDS SHM profile verified at run time); `check_runtime_provenance.py` reports `VERIFIED` |
 
-Not done: no formal ROS 2 benchmark has been run from this repository yet (Phase 2 / Batch 1 only ran an end-to-end **smoke test** on the Linux server; its data is kept outside `results/` and is not measured evidence, see `report/PHASE2_BATCH1_RESULT.md`), and there is **no adaptive / runtime scheduler** — OS profiles only re-weight the offline EDA-Lite cost model (on the MobileViT profiles they do not change the chosen partition).
+Phase 2 / Batch 2 ran the formal ROS 2 baseline (MobileViT-XXS / S × FPS 5–30, QoS depth 1/5/10, overload delay 0–150 ms, 3 runs each, plus an XXS 40/50/60 FPS capacity extension); see `report/PHASE2_BATCH2_RESULT.md`. The EDA-Lite runtime-aware sweep is **not** yet re-run with the measured profiles, and there is **no adaptive / runtime scheduler** — OS profiles only re-weight the offline EDA-Lite cost model (on the MobileViT profiles they do not change the chosen partition).
 
 ## Quickstart (simulator, analysis and tests — nothing to install)
 
@@ -275,7 +275,19 @@ export FASTRTPS_DEFAULT_PROFILES_FILE="$PWD/experiments/ros2/fastdds_shm_large.x
 export ROS_DOMAIN_ID=87              # any domain no one else uses on a shared host
 ```
 
-Its path and SHA-256 are recorded in `<run_id>.meta.json` → `dds_profile`. Whether formal baselines use this profile or the RMW defaults is a methodology choice; record it, never mix both in one comparison.
+Its path, SHA-256 and parsed content (`shm_only`, segment size) are recorded in `<run_id>.meta.json` → `dds_profile`. The Phase 2 / Batch 2 baseline uses this profile; never mix it with RMW-default runs in one comparison. Setting the variable does not prove the profile was applied (Fast DDS falls back to its defaults on an XML error), so each run also writes `<run_id>.probe.json` (`src/ros2_runtime/runtime_probe.py`, read-only, same scope): UDP sockets and Fast DDS `/dev/shm` segment sizes of both nodes, per-node CPU / RSS / affinity / nice, cgroup memory, host load and SMT-sibling busy time. With an SHM-only profile a run with any UDP socket or no 16 MB segment is failed (`*.failed`); `REQUIRE_DDS_VERIFIED=0` / `RUNTIME_PROBE=0` disable this. The wrapper pins `RMW_IMPLEMENTATION=rmw_fastrtps_cpp` when a Fast DDS profile is set, runs the sweeps under `nice -n $NICE_LEVEL` (default 10, shared host), and between runs waits for the previous launch's nodes to exit.
+
+Aggregate a baseline across independent runs (run = replicate, frames are never pooled):
+
+```bash
+python3 -m src.ros2_runtime.analyze_runtime --input results/raw/ros2 \
+  --summary-output results/csv/ros2_runtime_summary.csv --warmup-frames 10
+python3 -m src.ros2_runtime.aggregate_baseline --summary results/csv/ros2_runtime_summary.csv \
+  --raw-dir results/raw/ros2 --runs-output results/csv/ros2_baseline_runs.csv \
+  --conditions-output results/csv/ros2_baseline_conditions.csv --figures-dir results/figures/ros2_baseline
+```
+
+The summary now also carries `p50_latency_ms`, `p50/p95_transport_ms`, `p50_inference_ms`, `avg_service_ms` (preprocess + artificial delay + inference), `offered_fps` (publisher log) and `processed_fps` (completion stamps), `max_memory_mb`. The aggregate adds `capacity_fps = 1000 / avg_service_ms`, `utilization = offered_fps × avg_service_ms / 1000`, the drop rate a lossless transport would show under that utilization, and `drop_cause` (`none` / `overload` / `below_capacity`).
 
 Run the two-model baseline wrapper:
 

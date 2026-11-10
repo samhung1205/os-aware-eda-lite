@@ -1,0 +1,1894 @@
+{
+  "schema": "ros2_runtime_summary_manifest/v1",
+  "generator": "src.ros2_runtime.analyze_runtime",
+  "git": {
+    "commit": "bd458fedf6a22afdb77babe747b4eecceed0cc12",
+    "dirty": false
+  },
+  "settings": {
+    "warmup_frames": 10
+  },
+  "summary": {
+    "path": "ros2_runtime_summary.csv",
+    "sha256": "2625243a8834d75e6bc20dd3d433c8610db40383006bdd2e53c9881d420943af"
+  },
+  "inputs": [
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_10fps_qos5_d0_b2r1.csv",
+      "sha256": "a404b748bf443c5cbde9cde633de281f5cee33526a4c8db7c587793394fa2de2",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_10fps_qos5_d0_b2r1.publisher.csv",
+      "sha256": "f6f404bedb7f1eb4b206b33c403fb868684162620266a765e40f569c3719c66e",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_10fps_qos5_d0_b2r2.csv",
+      "sha256": "e65931bff45465bb553ed28f1e85948b8ea307a14481ce2854b414a49b90ecaa",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_10fps_qos5_d0_b2r2.publisher.csv",
+      "sha256": "fc658afb5ca2d38c57ba76268618cef55807909111343592c66be3992a07d563",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_10fps_qos5_d0_b2r3.csv",
+      "sha256": "ab6b4ac7bf4099b52c79593c2241fe59111259f764845966aa19c465062bc599",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_10fps_qos5_d0_b2r3.publisher.csv",
+      "sha256": "56360658ddd6e6b025150e4172e3b66e8b2e0c98ad143c8fe52670d3c4bc2e51",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r1.csv",
+      "sha256": "865c7720018ea3c24d303eead08f65819803278091f8acf416be5f99a74fed61",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r1.publisher.csv",
+      "sha256": "3a0badbcf41c60c2102970d12bc6c26871c1223c9308f4c8fbd0c47218364180",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r2.csv",
+      "sha256": "d265ab888b88e88d3f9627dcf6e4baa65aff9fa93ac7b160c383833f16276773",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r2.publisher.csv",
+      "sha256": "6155ede0529c6ee480ce84210d1088f0885fa73924a288137b10a35da59f9335",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r3.csv",
+      "sha256": "d76baf398e69d2ae56ecc7d8201a6476995656dda4d724367d1b06fb179c3bb9",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r3.publisher.csv",
+      "sha256": "c7a33cfcb595d3e2de7119b7369e12cdaecdf3d630e7384d0d7b9686ca2a4493",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_30fps_qos5_d0_b2r1.csv",
+      "sha256": "0c9170fc154cf8f2777652146982e883a881a28c4e857c8382fa565380dd9108",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_30fps_qos5_d0_b2r1.publisher.csv",
+      "sha256": "cdb16cecc684ea14133cdf68b19eceaa9347ea0c796c641d88bf7867cb1f0faf",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_30fps_qos5_d0_b2r2.csv",
+      "sha256": "559fb4efea7310bb311cca6a5ee027b2f062dc18d39e4582e8030374a89b9286",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_30fps_qos5_d0_b2r2.publisher.csv",
+      "sha256": "9311734c064c4d195247fdfee089e9d80467ba0be0f47e7087d88b6e0d5cd509",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_30fps_qos5_d0_b2r3.csv",
+      "sha256": "d8acb1caa9f0384cf1cd1788277a0d20aa3ba4fdac0a9d9699baf24f062f8a2c",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_30fps_qos5_d0_b2r3.publisher.csv",
+      "sha256": "70d760da2f6952b18c2e032677abfd4c5d6f0137f837ee389adaac5065049151",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_5fps_qos5_d0_b2r1.csv",
+      "sha256": "15bb4f0ab9c7c52d2e1b3039f389ec42a6b5eb98bf01e01ac018041180f93b6c",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_5fps_qos5_d0_b2r1.publisher.csv",
+      "sha256": "713015ee0a9522967b1d0dc63c55ba6cfe6d8ca0623186c8b690db362fbafe1b",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_5fps_qos5_d0_b2r2.csv",
+      "sha256": "d68590fed16e84f5eeb51138659f508756f57b8ef2895d67099e72c4d16c7f33",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_5fps_qos5_d0_b2r2.publisher.csv",
+      "sha256": "00bdfd52e1f5546858ed7a2aa8a2b8278f64530aba61b2aed9b6c574169eb246",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_5fps_qos5_d0_b2r3.csv",
+      "sha256": "ff8fa983b2428b51f3f0172934bfa454ef4ccc8711d2deacdf4f592237216bc7",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_5fps_qos5_d0_b2r3.publisher.csv",
+      "sha256": "b74c42a0d0eba09f406c6fb323f25f7a6b5e6beda7c489e2a77623e56b2f1dcf",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_10fps_qos5_d0_b2r1.csv",
+      "sha256": "86895825b2abe0c720946097799e076ad997735d012e4a4dfc214e1b1f961cba",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_10fps_qos5_d0_b2r1.publisher.csv",
+      "sha256": "fe5a5af95f2dc4159435d84e516a9f6a1f110b69094234e3980f1526aea926b9",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_10fps_qos5_d0_b2r2.csv",
+      "sha256": "6316aad242bd148fe93d5a50e9b2014a1139d24d7b5afd2c981d2644da25d193",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_10fps_qos5_d0_b2r2.publisher.csv",
+      "sha256": "98336bdc9d0c882a13d6961029415498d64764adca14dc8fb9ab8fcf5b43e75b",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_10fps_qos5_d0_b2r3.csv",
+      "sha256": "b51371456b6b4eed22ece2c2582f927952b69993a3def0314a7e204be6593cfd",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_10fps_qos5_d0_b2r3.publisher.csv",
+      "sha256": "a854c23a07cd4ab73695840e04a823ab7b20c3604ee743e3d3d652e732381e4d",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r1.csv",
+      "sha256": "fa5af8c325d613a6402e6857a434694a55e3f2ab4653b2d3da30e42420ab13bd",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r1.publisher.csv",
+      "sha256": "c729793d4a2e618a9c77f9da1d23dccd5cade86be083cba1f793ca62b7e27914",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r2.csv",
+      "sha256": "b00f4cb810d0ac2620eb362451afecc2a08adaf966402ca431fb126a23e28310",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r2.publisher.csv",
+      "sha256": "1694dba1156544ea5ef5484d4c87d39a636144467c1328a489fe131d293da76f",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r3.csv",
+      "sha256": "b304ba4e9ce4b6090e0c6824dc6be25044c97037819a30680da74b980bedd75c",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r3.publisher.csv",
+      "sha256": "d3011cfbf18bf86899c89a5d468e3b0fb53709a750994e0ae9f13dcada7ec7d4",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_30fps_qos5_d0_b2r1.csv",
+      "sha256": "8b9d7f2568c8ce0379a18f6c6f2dbb40aa1b7358b933c236097c6733f184daf1",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_30fps_qos5_d0_b2r1.publisher.csv",
+      "sha256": "8be7d87c2845fec1bca53739236ef77305c5576a1e4c63bc46c05df92fc65cd3",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_30fps_qos5_d0_b2r2.csv",
+      "sha256": "0121ca1b07925a6c761962fed2e20a65403d526f5a2d17dc47c91a19483192bc",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_30fps_qos5_d0_b2r2.publisher.csv",
+      "sha256": "c000a33b5a3c0fde95c930a41ed8fd840856c538eba663c64dd17e9aee1f3222",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_30fps_qos5_d0_b2r3.csv",
+      "sha256": "7721582a8b26026db7094b684e3a71356f81c567d5e3617d93074d9c69c61910",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_30fps_qos5_d0_b2r3.publisher.csv",
+      "sha256": "e26e0f5c448066a95de5951f5ea7f25853074593fc3b6e62971e7aab874ac8d8",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_40fps_qos5_d0_b2cap_r1.csv",
+      "sha256": "df36cd716a24bdf749e06a6c835e77cd0dcf786bf71819ac0dd7a7650fbb28c9",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_40fps_qos5_d0_b2cap_r1.publisher.csv",
+      "sha256": "a73ecb9a4ec272c136bb00f9527cd6d75c08961cdbd5937c3172859d584812b8",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_40fps_qos5_d0_b2cap_r2.csv",
+      "sha256": "7346cf43ffe1a928cd57cba44efb21e98afc3a7422ffdaa0f9dace73b98bab1f",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_40fps_qos5_d0_b2cap_r2.publisher.csv",
+      "sha256": "cc587622ccc308d44dac91b50a07c8b56dc1a6b5ccbda87a178a32d30d994b62",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_40fps_qos5_d0_b2cap_r3.csv",
+      "sha256": "32795903bc139e5c2774d1c0b684089d908c43351a7be834e4c9fd3719bd8dc9",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_40fps_qos5_d0_b2cap_r3.publisher.csv",
+      "sha256": "99a6d6ec83e9a7a5f7930896f03d113376aab2cb40c83ab272a4ea9169c09455",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_50fps_qos5_d0_b2cap_r1.csv",
+      "sha256": "410861ca2ff2cb18977e986bf531b08556f9800207b6a79205db37630f61e5c8",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_50fps_qos5_d0_b2cap_r1.publisher.csv",
+      "sha256": "91f580c07567f62f54878738bd526e61b563c2d34b2688ef68ac8ef5f0cbd775",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_50fps_qos5_d0_b2cap_r2.csv",
+      "sha256": "ed366a2e742f091624008d5d19f584731769a51c8aafaddb818e91208a6329de",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_50fps_qos5_d0_b2cap_r2.publisher.csv",
+      "sha256": "a4769988d8acfd60ea70d69da9dabfe7fd48b6e1815622558934ab2f5e8e8d58",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_50fps_qos5_d0_b2cap_r3.csv",
+      "sha256": "06799b5609172f9b21274f7f16af2b4cdbb4462e1c27d221725cc5838046d4cb",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_50fps_qos5_d0_b2cap_r3.publisher.csv",
+      "sha256": "4272db21b92c1297023ce81631894a16da4476e9b1ccb837cc44383e54678df0",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_5fps_qos5_d0_b2r1.csv",
+      "sha256": "befeaa78e548cbc590a15b19dbf8ac481148cadd8292e54c2656c8d920ffbefc",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_5fps_qos5_d0_b2r1.publisher.csv",
+      "sha256": "bd597c187e52d966a92beca38d8bdc681a2a084f318534a11bfd696df24c30a1",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_5fps_qos5_d0_b2r2.csv",
+      "sha256": "a628884ce702251230ec85c81c510a95bfdbdf159dabcbb8a8c4c774c0ebf9b4",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_5fps_qos5_d0_b2r2.publisher.csv",
+      "sha256": "c7da263b7e4ba4c46032c6bbba5d6a51c9be6e51f84dd5795eddd5cd69fe2dbe",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_5fps_qos5_d0_b2r3.csv",
+      "sha256": "4f261a66079195d3576d7b9d1501c5cbce3ef91d68276b71b3fc0365b455e3f0",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_5fps_qos5_d0_b2r3.publisher.csv",
+      "sha256": "1a525e1db38a44ea06459db3583361b7bd14d5223fa9e6dd5a4df737ec7bc138",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_60fps_qos5_d0_b2cap_r1.csv",
+      "sha256": "d6cca13fbf1539397d782f730503179408dc485e26329ff03d2fa083407bf5f2",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_60fps_qos5_d0_b2cap_r1.publisher.csv",
+      "sha256": "7d5841201b01c538b09afc2bc9c80bced02e49164f1ae9408cde29a83eec1aef",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_60fps_qos5_d0_b2cap_r2.csv",
+      "sha256": "5154f42574e510ca467f3b277f84bfee4928d94e4ca27be58c0e13d370c4b1a6",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_60fps_qos5_d0_b2cap_r2.publisher.csv",
+      "sha256": "392acc913d71cb01d3cf75ed57581dd76953810c517dcead751b9a7bf70f7fc2",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_60fps_qos5_d0_b2cap_r3.csv",
+      "sha256": "108846ad9816deef80d24d5451c9505abb760f7574503ade957b69be664a4bb3",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_60fps_qos5_d0_b2cap_r3.publisher.csv",
+      "sha256": "c195c20e83943cc3aeabe66e76195c4af34177972ed41dfef93cce94631c3324",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r1.csv",
+      "sha256": "fbb30f5de11267fd9302a293e025602ded02c754429a810205070d8f5c51f3c7",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r1.publisher.csv",
+      "sha256": "161c39399622a25d38230d2bddbc301e73f8b7630489e9f0da9f8de7543e94b2",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r2.csv",
+      "sha256": "092cb361b4960a65c6e6a069407550f02b58f06f215b6b340099da4869b01a4c",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r2.publisher.csv",
+      "sha256": "78d11e92ce4a922516380a9c8c5fdf94dc0f235553a483102da13c688781fe00",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r3.csv",
+      "sha256": "3f3cff841ec3681c05839000f23b626e1f9db13fa12ce8c6818f210f3807ec59",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r3.publisher.csv",
+      "sha256": "ddd5d95ba7549d98bf1d8d4f9b10371fdc8bab7c6adabacdf000356a5702d2c7",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d150_b2r1.csv",
+      "sha256": "7d3250b317aad079ade7a5afa56ed837068821348e6e7ea24ebd8cbbf7540d0e",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d150_b2r1.publisher.csv",
+      "sha256": "0fdad39255288ba98a21a024995805127ba3e1e05864aa233fc022bf3fe2fffd",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d150_b2r2.csv",
+      "sha256": "e992d8e105b452f2ccd4555e0d72709ccd178aa1cf0da45878c67b260d766876",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d150_b2r2.publisher.csv",
+      "sha256": "37999898cd9d356eb9ced9ac85df2302f59e9a283274c7f63631b74761954e4d",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d150_b2r3.csv",
+      "sha256": "e695351f3bf27ae9f51cda30570d8d650c4c9eb4c1d8192add5f62beecf4963d",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d150_b2r3.publisher.csv",
+      "sha256": "ded1ec5a62b689cd9d1a133bc39ecbb179e5bc7ce4d815a465c6658f49649964",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d30_b2r1.csv",
+      "sha256": "ddbd8f7395b164032612a4da70b606c40fdb73932f2d00a4e27ded90f5baa132",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d30_b2r1.publisher.csv",
+      "sha256": "90d4dcbb4dc4d9df18ddfb939d11ef0b1ce53b2385f9a02afce5c324d0cd390a",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d30_b2r2.csv",
+      "sha256": "57d31af8b465424060decde4f2c6e595f1004af71c38b5a6dda5d4cbcdcc287d",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d30_b2r2.publisher.csv",
+      "sha256": "e12973f0daa10eac1fe183db03f919391f48f5acf6e886535863f7c66d52fbdf",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d30_b2r3.csv",
+      "sha256": "f21daf0a7d122bbd4d4c48dd3181dcd4df8b7e898599c5c88e89b55308b14553",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d30_b2r3.publisher.csv",
+      "sha256": "b0a75894b7c9f6c4ca5b48b7869b144214c0e2a37fd82743c15a5a034281c983",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d80_b2r1.csv",
+      "sha256": "d56edb94544de174e9f987d6016144c55d538fa29886d0d70a338b327a490912",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d80_b2r1.publisher.csv",
+      "sha256": "245a945b3aa1e07f0b278719694b344ad1fdf068d5c156d0cfb26cdc761b36b9",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d80_b2r2.csv",
+      "sha256": "73ef748d5ca599615e71a82bc4b35bf6479b3ce724797e6d79a508b1ee6b361c",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d80_b2r2.publisher.csv",
+      "sha256": "3ab2721c57daf5f0ce2e8e01f0298fd97d6863ffe2d0db975a8c4e8987e5b462",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d80_b2r3.csv",
+      "sha256": "0c2fba0cc96661b8486b2f74d20154dff1ada2bfc631a6ea2b1546b1b53aa501",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d80_b2r3.publisher.csv",
+      "sha256": "b012739d34b324cec1101065f4c1be8877bc31a4197f4405b683186636afe451",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r1.csv",
+      "sha256": "50c40b81b53ba228c0a2961ad1b7f5aa9a8fb9e950b0e54858c20770aae916cd",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r1.publisher.csv",
+      "sha256": "512cc7d4f9ac1bad8b6207c0506bea59e9701dda3faea89383b0996679e1cfc1",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r2.csv",
+      "sha256": "bd8694b2966f3a8be3de945f5f28fbb7d8b74ec29d4b3eb443764f2e3553fa35",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r2.publisher.csv",
+      "sha256": "78c1f37805b9122a94b529cb9b85840ae82f0bc026af5846f7f0c14e71594064",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r3.csv",
+      "sha256": "42241923819874ac69a0fbf90c448b875aafed225384de98418fd06dfac2a335",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r3.publisher.csv",
+      "sha256": "94cc8e6f73a0743ecfc3ed85cc9d8067cd4f9c719b890ddbf7205b161f722b8d",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d150_b2r1.csv",
+      "sha256": "5108dfa6eaf440e91aa875e3a74393c7367f0f77c1427b017c3609d2e3ecde66",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d150_b2r1.publisher.csv",
+      "sha256": "18b1c693842e9e463143594f4ea7bed318a063e3a2aba43d1e29ae850957a012",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d150_b2r2.csv",
+      "sha256": "5323d71795b22942890917c046b075f0621368fe4e790aff34dca7eaad63a1e7",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d150_b2r2.publisher.csv",
+      "sha256": "260af57484323d1765025faec0ba93723a734a7f4d9f35e46fc9467316e2db8e",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d150_b2r3.csv",
+      "sha256": "0807f60fcc3ded1ec8a56488b690980306176d270a1b58e6e9d39f9b6fddacfe",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d150_b2r3.publisher.csv",
+      "sha256": "466fb51b54ca36bbe6b292204b4760ddd422e5173576d67950084a633c2d7b30",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d30_b2r1.csv",
+      "sha256": "e70dca19ee0eabe3c553ad34fb06cbce96ac2233770bea75df179b5019b456fe",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d30_b2r1.publisher.csv",
+      "sha256": "34e74c385a52ca2268770e593c69eb1d2768ef54cb5367a4b2bda3f08b1cd2be",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d30_b2r2.csv",
+      "sha256": "1a3561857892ca8c4ae5366436f618c05ba1d74717a11995918d67a29a59f09c",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d30_b2r2.publisher.csv",
+      "sha256": "3f02467b3ff720b646d2c15ded2ed38b783589e1e1168f0982bd4dbd89d01b77",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d30_b2r3.csv",
+      "sha256": "1ab0049f11733dfdcce36c81489c24a780cb5f7ca1949bea5bcfdecae429a45c",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d30_b2r3.publisher.csv",
+      "sha256": "5888caa54bf905491174468c8eec4b2126655ac07c91093139b0797737d0d4f2",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d80_b2r1.csv",
+      "sha256": "e408a61272427b37398865d4125b9d936a2065ef85c88f299d57c7219274286e",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d80_b2r1.publisher.csv",
+      "sha256": "94def43c75ef1f24727bd022440a2733cc4c8ae430f75f71508341f7b1dbb6a5",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d80_b2r2.csv",
+      "sha256": "f7454078d781fa3acac57e8a245329a9b5e6392dbd57dc86217dddde8e18ee43",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d80_b2r2.publisher.csv",
+      "sha256": "b51d8002661fe424f4817ac299954de238c1aaff70262c852c06f20cebf00bc6",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d80_b2r3.csv",
+      "sha256": "6a7365a7aad224b450e025d4788c793e17d1378af71661216b7339449108fa66",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d80_b2r3.publisher.csv",
+      "sha256": "75e6c092acdff7ae5feda1df5ccaa3f4692720f480594230ed3b2d9d87d30939",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos10_d0_b2r1.csv",
+      "sha256": "8797d228451558a9d4641ef417e3cd56701260104b2ad6a1d484bffdf82c3233",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos10_d0_b2r1.publisher.csv",
+      "sha256": "71f3243a20f9f78f3b2f6719a0869f34829315156c4c55a6d5332e4a77daa765",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos10_d0_b2r2.csv",
+      "sha256": "da685a23b4329929bcd02dff46fef8064b14a5f19c263bad0df1e3b3db8e15b4",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos10_d0_b2r2.publisher.csv",
+      "sha256": "6af80346e04402a22103b0ab0b954cae33b84f5fd8ab5722e4f5084be67f93c7",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos10_d0_b2r3.csv",
+      "sha256": "5fd47e5ee21274abe71e0d09f892ca3100be480abb1b5731457b09f503fb461c",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos10_d0_b2r3.publisher.csv",
+      "sha256": "b4561a978d387f6b4dfa1cbdc66fe80fbf26bc62107a7b8407abf0d0eb2aa1f6",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos1_d0_b2r1.csv",
+      "sha256": "b8d3c70eca75baf205c19cfbb174fd06194466a38887687c7fee8e6eb01f434f",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos1_d0_b2r1.publisher.csv",
+      "sha256": "b946b3248292f4921526209196a1e11047f0a14a1cd1cffe16ec24fee900051a",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos1_d0_b2r2.csv",
+      "sha256": "15d02566ab2b353e6f2fea9242782ea9af1f316ae89ad4616e59980b99979e41",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos1_d0_b2r2.publisher.csv",
+      "sha256": "8afe881ca8865c5c1a519f851a72282f59648de00e72e78bba32aa51c0ae1f30",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos1_d0_b2r3.csv",
+      "sha256": "7c7f1762c795ba4a35d45203026cc71f1df0846418d13ba40d740f835983d782",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos1_d0_b2r3.publisher.csv",
+      "sha256": "7e486641b4836e60e4891603f9f1b096bdb5b9cb75aac460761de9c9503dcf6d",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r1.csv",
+      "sha256": "2228cd97a0dcfc554270c904a61a4e2077296230ac1d5ce5aa4762826a340582",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r1.publisher.csv",
+      "sha256": "354e2f5c17cc6651411b358e284bd02a95cda23d315e161914e43f759fe43be1",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r2.csv",
+      "sha256": "45f1705f40778120c281f95a4c7ccac3f295d4895296d58c6ad47b4f54991d46",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r2.publisher.csv",
+      "sha256": "4e2993851f3322680547b32c2cc4141f29406fe75e452a251f46259a79f9213c",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r3.csv",
+      "sha256": "9795905793d401c11681d1dd0ff242047a264544dfa838779bbbcb63f49049e3",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r3.publisher.csv",
+      "sha256": "59a291a982f9a2ee7e9c0d195ab586ff875c2d9df226dc754cc51ab23a1ae5bf",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos10_d0_b2r1.csv",
+      "sha256": "8a95c18cd1927665320cc16e78fe1bf09b38f10795b93d368f429e88f2de9468",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos10_d0_b2r1.publisher.csv",
+      "sha256": "997f112ef2d285e5f1426e012c182209d3f8922861ebee0246c5c8d42af9f70b",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos10_d0_b2r2.csv",
+      "sha256": "9e49714ecd80d91f2573c57ce396e0d704d9d62f6c0c8d7d466c52a4964b8f6a",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos10_d0_b2r2.publisher.csv",
+      "sha256": "3663d12608e0ddc1335ffc01dc7b62738cfdc8f584df667b1d07fd5332fa78a8",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos10_d0_b2r3.csv",
+      "sha256": "05b2d78f8b255e74ff8d273cd495a8cd0af0569ee3bf426da00c3a8162a51c64",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos10_d0_b2r3.publisher.csv",
+      "sha256": "abb2413c1a78c6c2711e45bb02a74d782da03fd71ab1bf65d1e098c1c0985463",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos1_d0_b2r1.csv",
+      "sha256": "1fda94d836fe6636d894b992a27b06ef7c4d5c2523d1b668a4e10334a109ec30",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos1_d0_b2r1.publisher.csv",
+      "sha256": "2d42c66d30f773385bf52ae6a5a72af80ded658ae548392d93942b0d256915a4",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos1_d0_b2r2.csv",
+      "sha256": "2761df3349224a9f8d1bc75f2198535f3981e709c781463efc94b9062193251f",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos1_d0_b2r2.publisher.csv",
+      "sha256": "7609d71a533543d1861566f3b23aed505be9529aec39af984e07b0eaa4224044",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos1_d0_b2r3.csv",
+      "sha256": "c35e6aff9518bbf03d27323e3c9231f115d017d3101fc711744f0b3693f0d212",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos1_d0_b2r3.publisher.csv",
+      "sha256": "97a8093da2c16e72e386177020ac21bf5bc5a6a0a5088048c088b480480e5c0c",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r1.csv",
+      "sha256": "5b8946cfb1fd19cb23746db9fa94ccf3ffd42e5b9055937e54d6657cc2e1ad3c",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r1.publisher.csv",
+      "sha256": "bef85a5244890ec956fcba11adf8c926cb4a2199aa4e5f5dacb0665b908c4415",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r2.csv",
+      "sha256": "edd1651683ee7606766872ee8e27e080764cc5851ddddafa18b5afd00bbd8fee",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r2.publisher.csv",
+      "sha256": "cab82cf4f8f034be21fdd90a83d8d7db85f2c32241258edb04037f9a7b61c521",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r3.csv",
+      "sha256": "b6e3b3533cce1d4686eaa7f2b5ce28c5b64ca3e1fb0f62daf1c39e3d52e9f1b0",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r3.publisher.csv",
+      "sha256": "69b7d87956f2c62701a1c5ba966ffed6981b0cb3303ab6d99ca672644b8908aa",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_10fps_qos5_d0_b2r1.meta.json",
+      "sha256": "0a35a21693502cbb1b32a854ef7ac6d751445aca5ade61337f1de46e6514eb31",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_10fps_qos5_d0_b2r2.meta.json",
+      "sha256": "e5c099d3e14254874ba23b5ec6712a3df6ca5318821915f56470d54f0dc2db62",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_10fps_qos5_d0_b2r3.meta.json",
+      "sha256": "db299fcdf214c11b556a5fcbd774b64f8af00e0d1a5f7908f92aadb4290912a2",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r1.meta.json",
+      "sha256": "b80f954220609c4d69951527cb1d0f7f807c748651da99b9f1ff82bc149ffcfa",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r2.meta.json",
+      "sha256": "ededb7a0c1f4f1f2abc42845214e910cf2e280ed93e4476a1b77dce01080c91a",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r3.meta.json",
+      "sha256": "3cdb76e02a2e0a5b5703330298fb82d13da42204d397fb637250c5cd2eb46220",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_30fps_qos5_d0_b2r1.meta.json",
+      "sha256": "d82b4db195a0dffdaaa2eb9cc99a01cd68e594c152718744a8a6213d1e677402",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_30fps_qos5_d0_b2r2.meta.json",
+      "sha256": "3847325fb6c6ea1f878bccf83a399e93c4cc92893031be4aa3654aedc04edb19",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_30fps_qos5_d0_b2r3.meta.json",
+      "sha256": "8d110de2475cf4b0df8c03ff3afdfacbfb2da374071a31636cb9082532573d68",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_5fps_qos5_d0_b2r1.meta.json",
+      "sha256": "bf4748ea0b9932617e79f4aa01b13240a3bea6211db36d290f787451fdf17568",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_5fps_qos5_d0_b2r2.meta.json",
+      "sha256": "5dd39614badd554a95553da7105c17a25ad1644fd71f885a0fe63594de2cc14d",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_5fps_qos5_d0_b2r3.meta.json",
+      "sha256": "f52a97f28bf2712ded941250d1d1a7d0258df2c4fea4e6506ccba2811ecb1ac6",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_10fps_qos5_d0_b2r1.meta.json",
+      "sha256": "724ea925e6266280e0161d44c1095f589dbdb72c2b58ef9ec2699f8d442a84fb",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_10fps_qos5_d0_b2r2.meta.json",
+      "sha256": "933c2780f251b06b736ee141b8f3a464b6003581b402ab254a231972d47a360f",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_10fps_qos5_d0_b2r3.meta.json",
+      "sha256": "f9bc0c07505f351cf7fb8f330ce14edf9a5eb25bb22c4e1d9878dd6425ec8e89",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r1.meta.json",
+      "sha256": "99e74252054fa4a6a1e0f103a6232b771f26af57d95baca28121f4e5fd852502",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r2.meta.json",
+      "sha256": "83af16718ceaeceab8c8b2ed04297806721b433d2928da40a016d332f0f23edc",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r3.meta.json",
+      "sha256": "f1b148d355fa032bc203599cb51d1f5b60b00c9cc95e58f3906da08179bef3e8",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_30fps_qos5_d0_b2r1.meta.json",
+      "sha256": "5f0528123ebb8e1f45a325ce8de18a30d1fd35fed5612688cc41cc7b378d322a",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_30fps_qos5_d0_b2r2.meta.json",
+      "sha256": "d5f7af7813104d05619197c1fe55b25535fcb42d86ce00b110aa1b6e71cfed03",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_30fps_qos5_d0_b2r3.meta.json",
+      "sha256": "4ef2e8324763e7cbc74df324f2006ffc7265f6a7b4c8633b770fa34b91f4624e",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_40fps_qos5_d0_b2cap_r1.meta.json",
+      "sha256": "d595beef0e68f8d063bf979f8f2c98c185c6d9d46c16dab37f30946f9e172785",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_40fps_qos5_d0_b2cap_r2.meta.json",
+      "sha256": "6a72be491840bee45d6901216fe2e4f58c8dc60c511646e02aa51b38978c4d23",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_40fps_qos5_d0_b2cap_r3.meta.json",
+      "sha256": "be13c44f019e033f09e21d6fd66b24ba33d37ff84c738cea8d4422c61b9e071d",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_50fps_qos5_d0_b2cap_r1.meta.json",
+      "sha256": "e29ba6c55020436555cee63341e4259eb7e9938fb740dfed21748b34999b6add",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_50fps_qos5_d0_b2cap_r2.meta.json",
+      "sha256": "ee773f50f69d39a8f4eba2c716ed331e8a93be7c9dda3fb3a2cb77caac676c27",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_50fps_qos5_d0_b2cap_r3.meta.json",
+      "sha256": "5271f269fccc303d0524ceee5ba2fb62e9dd9d9b6c478d06c4d7cf8380c74141",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_5fps_qos5_d0_b2r1.meta.json",
+      "sha256": "f01ad660a0f1bfea57fd91ecbcdf45b4ddea0aae7c6ad3e07390e9c9fa5637d4",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_5fps_qos5_d0_b2r2.meta.json",
+      "sha256": "8db80e65e584ce59e88400de30c026f687f0e6bf5f6f0176609b53957969dd28",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_5fps_qos5_d0_b2r3.meta.json",
+      "sha256": "189c40c72bf19cb22b888d00d18ebdca2cca3d06643907a199e8ed3422d06ef1",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_60fps_qos5_d0_b2cap_r1.meta.json",
+      "sha256": "0ba367f09894535bc297db54b5f6a23207085e82aa714c16758d069f7a71e589",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_60fps_qos5_d0_b2cap_r2.meta.json",
+      "sha256": "829a00e0bf23825003ca8ff790dfc5aab71ac40b7de52de4dcc1434aa088aba8",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_60fps_qos5_d0_b2cap_r3.meta.json",
+      "sha256": "835702c41af2b49db434129071054dd6c41a7778ad24d0699b76e87ed085d538",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r1.meta.json",
+      "sha256": "29704d7f243dc85bae73784bde427feec33be3e7dee6c9ce17387c0e40bdbb25",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r2.meta.json",
+      "sha256": "a8e9250d1f333602ce4ea3e631c90539c2583fb00bc6dcd17786f5ab6d4d9648",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r3.meta.json",
+      "sha256": "7098f51809ad83d20884e5e5a6f0dcc25256ccdbd45367533329862a41634a1a",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d150_b2r1.meta.json",
+      "sha256": "eb1c7e90fec09afbc02e1b06b3ddaf273919da47740fe2113d2ebdc73fff6e1b",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d150_b2r2.meta.json",
+      "sha256": "806893370707c681e4124be18547954ccac685ff07c270d4e75b19ad9137b4a0",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d150_b2r3.meta.json",
+      "sha256": "45df200196ca2354abf5777759d0249ef1ae46c645ad53d2ba03ad230d9297c0",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d30_b2r1.meta.json",
+      "sha256": "4b2a77d959b802ef5e38384145366ded6f68d9c4ed2ebeacd1e209711f0cdc40",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d30_b2r2.meta.json",
+      "sha256": "6fca600adb5bd3b6861a9b368d04720ed7199025a7a6dc5b2d007c11e61ae926",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d30_b2r3.meta.json",
+      "sha256": "85d0c608123c722d256cacd7ee83146eb212b78026dd34c3e76f2f02c02ac165",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d80_b2r1.meta.json",
+      "sha256": "11b37afc0a75b961f3ff18ca75278272830ee9b3207893872d6e3d6e4b86b57c",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d80_b2r2.meta.json",
+      "sha256": "556f955da20591faa0bd2b238becc387826c10f8f94da37a39501b9bcab8cc86",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d80_b2r3.meta.json",
+      "sha256": "906f21f10c5cd25312e2fecadda6756f4cacf2421d95c869126cb8a95b298a0c",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r1.meta.json",
+      "sha256": "41b9c9757f0cf9560727bb602c4f3dd728ec9ecf7270153b1363d12a91842131",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r2.meta.json",
+      "sha256": "6dec75a03631e75d1864f177eaeea4de6f015dd70c58efb081df2a714f6f139b",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r3.meta.json",
+      "sha256": "c94a5dbc31a3673869942cf26804492ddbc80a472931f1d7e909173c257f8ab8",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d150_b2r1.meta.json",
+      "sha256": "d9cac87fe188a5bb0e5de1f23d8b1654cfd65a100cf02182dec395c93d6c2d50",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d150_b2r2.meta.json",
+      "sha256": "54e76e35e2ebcfbfe4ab71177e79d0725ce6891e0cf97c7cdf75454dcad698fb",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d150_b2r3.meta.json",
+      "sha256": "707d9655c24bfc60018a300346244ce53312bb8c02d36e2b6b04d3f5d1ed6972",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d30_b2r1.meta.json",
+      "sha256": "39a6c2f486099e1015730dd54e52892d11cf01145acd2b74ea16da2a57bc8dd0",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d30_b2r2.meta.json",
+      "sha256": "256e7fe53b8910391d5d30a81cc3e2b202838a45680ac2e81be993ea0175aad4",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d30_b2r3.meta.json",
+      "sha256": "c5d587b8ec195d164f9b07ec4bb319406ddeb295a1404f6c0e68e2947285e4f5",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d80_b2r1.meta.json",
+      "sha256": "379c30d07d0e4143f4bface79b2a34096c46f37a504d540a0919bb373156d49f",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d80_b2r2.meta.json",
+      "sha256": "6b9a33aecf83b2f640d98bd7cdea98ba495627731d3dd71eb716ee8665bdb530",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d80_b2r3.meta.json",
+      "sha256": "a379d59d7bb20955777e90f8fb55488af17e0ef90058811d5fed0eb12139c26f",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos10_d0_b2r1.meta.json",
+      "sha256": "865cda04bc1f4d73719c69425a764b4e9941eebb303b1bbb3f2e6d55c6ceb31c",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos10_d0_b2r2.meta.json",
+      "sha256": "7c56dde81d493e0402bd6d90e45be8c1e567d370017c9b57c9f8aeaaadd5719a",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos10_d0_b2r3.meta.json",
+      "sha256": "3081a421f06064e833ba2a4210a3e1119fd228e35f2945df2c6afe5f8e51706a",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos1_d0_b2r1.meta.json",
+      "sha256": "ef03f4301e14544f28c723b8a5ca08594a3b77be8a4cf8e1c64ab30e5c93b184",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos1_d0_b2r2.meta.json",
+      "sha256": "7c1cdcd37daeb0cc2385a54aa2123f125ea4aa63c701f37a6476d3b83879a8c8",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos1_d0_b2r3.meta.json",
+      "sha256": "0e8fb023b84a1d97204c212f610bfa289e37bdf2fbf80c7f746b0ef0b389764f",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r1.meta.json",
+      "sha256": "1830f4062780b376736a3ff9d34c53a448aa6bc51a76b31c8560a2e5435be9a2",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r2.meta.json",
+      "sha256": "6a938b016a4f8299941bf9fd7d8a59a45c98a265284793449645bb37e29f863c",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r3.meta.json",
+      "sha256": "8d8b75f6d8e3f8a4434466233ad6f4efb6627ee6fad97091b480639ec6735d42",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos10_d0_b2r1.meta.json",
+      "sha256": "8cf561160e903d42ac44ae91c034736d4b2166c2f0e4d07f7d74551d9c1f3533",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos10_d0_b2r2.meta.json",
+      "sha256": "9d3d4f563947b92e890b0f2be5103ad552e8bb6892926adcfa2d253c3105c88c",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos10_d0_b2r3.meta.json",
+      "sha256": "e43959a7853876b12bfc7c5808132a7db038a54f27e419a9e0b0b118d5b40ff8",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos1_d0_b2r1.meta.json",
+      "sha256": "7f0f8bb0e999f02559400802351fa9558d3ace1d5a0c66dcf659f62fbcf2e6a7",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos1_d0_b2r2.meta.json",
+      "sha256": "cf018975fff4e3b47fc3fc137d0e4c5d45c63a9dedfb03be4c35b58e49c7a8ac",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos1_d0_b2r3.meta.json",
+      "sha256": "e4981832337e46cb8178367828650baafad378a7341f39f17ae2fa8f085505a8",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r1.meta.json",
+      "sha256": "0cb7f14997b6452ba354e025b4f1e5cb0641151b9a243bf1759b6aff41a77146",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r2.meta.json",
+      "sha256": "a8ebeb3ee6437b432e503aeab59c67215fb4beeadf5ef3a37f501c285c7eb461",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r3.meta.json",
+      "sha256": "86b96739c7c5b3344ebd8879591ad22dc8e4e76f7d646dd3b8dd89064c235f5a",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_10fps_qos5_d0_b2r1.probe.json",
+      "sha256": "8a33804b080494790ff089114adafb0f4b26bde5821261aaca1785fd8904430e",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_10fps_qos5_d0_b2r2.probe.json",
+      "sha256": "f28aaaafeadf5a7a9f451320a1c33a922c0b2efbb8c4ab736651c07a4375a721",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_10fps_qos5_d0_b2r3.probe.json",
+      "sha256": "a686e334667241c85f49b70f4219ba6f7cc047694f87c13b0881d4491d86739b",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r1.probe.json",
+      "sha256": "0025a11accb8df546392bfec2195f7e4141d2eb2749fa23bc2a2983d69afd087",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r2.probe.json",
+      "sha256": "b52d81d8a6cce06562683a97c40b6369df4b9587a559e7798c4437a929af399a",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r3.probe.json",
+      "sha256": "0eaf40ee76cec028948a6c3fcd65d79e1dfcce7d424124182a5f8d4154975386",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_30fps_qos5_d0_b2r1.probe.json",
+      "sha256": "25751fe143ea521779a8c82456b580d8ecd5e23b1632a667497480bc098058eb",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_30fps_qos5_d0_b2r2.probe.json",
+      "sha256": "3b69c956793d9656be00b5c92de45f6586d7c0998c1e510ecbd07bd45ca57e00",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_30fps_qos5_d0_b2r3.probe.json",
+      "sha256": "42035a6bbcceab359483d8bccfa1b4ded55974464658cdee033f4a4120a885bb",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_5fps_qos5_d0_b2r1.probe.json",
+      "sha256": "4bb079e807b92d88f66f9c4bbcce7eb988bb79e0373cb6b0418b345aa2a8351b",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_5fps_qos5_d0_b2r2.probe.json",
+      "sha256": "b1dd07b700ea8a0d66ae378b38c4811c8ddc695cae525ec513a75f1db7c16e2a",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_s_normal_5fps_qos5_d0_b2r3.probe.json",
+      "sha256": "cbbd7bb13cc9ee8ca8c9570a759a58e24a88ee891306d25f05c956dcc10c6904",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_10fps_qos5_d0_b2r1.probe.json",
+      "sha256": "d206f8eca6e98314bbe34a1c5529b4b136b833d35e66ae5dd53adbacd1e8418e",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_10fps_qos5_d0_b2r2.probe.json",
+      "sha256": "dade67e7e1c80a5c85add08e6d27c943ddb3070709d7df027db3bfa505143569",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_10fps_qos5_d0_b2r3.probe.json",
+      "sha256": "e11e7bda39f920d0a739d45e3a634f7f4a1b16d8440a0b091c46a3e24624de24",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r1.probe.json",
+      "sha256": "2a6e6c5da50233e2abef65163f642839aaf86815422b44f6d572ff4a9d669855",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r2.probe.json",
+      "sha256": "0756a69afd34573470d759706fb13b9125231d79339e25f121a0adc07bfca28c",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r3.probe.json",
+      "sha256": "04872cd6ce9a2ee7c141437cde91b2c7b53c05730e41d5a04363dab1ff3c17b1",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_30fps_qos5_d0_b2r1.probe.json",
+      "sha256": "67e09357f63077a24693a8c2039de00b236672b404d9883de642abbc39f4365f",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_30fps_qos5_d0_b2r2.probe.json",
+      "sha256": "f464ea18fb559675ba6824570a5744268646098cb21d56b3c1cbac77fd986cf0",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_30fps_qos5_d0_b2r3.probe.json",
+      "sha256": "d32b430e55a56fdf291bdeb06186334c35bf42464f2dd54ff1c0cfd750f50cc5",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_40fps_qos5_d0_b2cap_r1.probe.json",
+      "sha256": "857796719794ed2fd6574d2762231464113c5558166a941975f9971ab365fcf1",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_40fps_qos5_d0_b2cap_r2.probe.json",
+      "sha256": "0a11ebb2d51917bf904c866594689639cf245e8312a6b6ab8ea636cc682e9f7c",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_40fps_qos5_d0_b2cap_r3.probe.json",
+      "sha256": "ca0818ee8253638c8326360457fe500812765ef7eedd23a8822d0cfc9008c213",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_50fps_qos5_d0_b2cap_r1.probe.json",
+      "sha256": "a1b95535fbb67d0b61267b74f445a6b023e8521db624a41a0a815d33d3a833be",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_50fps_qos5_d0_b2cap_r2.probe.json",
+      "sha256": "8e6756732f97bf1fcd2e0357afbd2191e84a2014b53f0ba4776588748c487532",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_50fps_qos5_d0_b2cap_r3.probe.json",
+      "sha256": "f6f306c33d0622ec13a6cf3f79a58c46e1a5e7ad327e79ce9a3061760c925827",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_5fps_qos5_d0_b2r1.probe.json",
+      "sha256": "a2163391395cafee72b838faff1f0d5e9e950ff7d1d0f93c286baac5560417cc",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_5fps_qos5_d0_b2r2.probe.json",
+      "sha256": "216ddd58ab579cb1f9892d2f3f51184c0ed314eefde254add4875998ea2f8f48",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_5fps_qos5_d0_b2r3.probe.json",
+      "sha256": "cc5cc156c067b669b517446334a0087a4624310977098c99aaee0d05dfa00ddd",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_60fps_qos5_d0_b2cap_r1.probe.json",
+      "sha256": "b3059d84f340082c5e8f1f64881fdf73736cdee3baffa8ea9de9910970de05ef",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_60fps_qos5_d0_b2cap_r2.probe.json",
+      "sha256": "899bf5f2d46f600c3fc73321215290e2bbaa630ffb71b0eb9f85188fc47f7c03",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_60fps_qos5_d0_b2cap_r3.probe.json",
+      "sha256": "ff46ebb0e48a056e8db8c3b127f87cbfdc57c8560ab28209c7470e10c115a3a3",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r1.probe.json",
+      "sha256": "aa28076d50f1d6f3be77fba87e6058f7c0157094be6bc12f4aedf2184b8a16a9",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r2.probe.json",
+      "sha256": "f14877167c79ea860f1ec41f068c94e5095776703228ff87c169966f916698ca",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r3.probe.json",
+      "sha256": "8a0bb305b61127b64de02cd8590e83dc669c09f1ce1bf1c1949a72189bb9cb7b",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d150_b2r1.probe.json",
+      "sha256": "2c5dd36b8fa581a8a30e6e606747a48ce0cc2be6b847eb8427c1e691dd008abd",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d150_b2r2.probe.json",
+      "sha256": "31b72e30902e840c7129a007d794c3255840b878b0e6d0b86f796d24a1b5f34b",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d150_b2r3.probe.json",
+      "sha256": "194f826596e6c0ad0d1e649c13fa08ecf80dc846891e6f22b4a3c1e3457af10d",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d30_b2r1.probe.json",
+      "sha256": "8c47ad576f0f567b843dc7be9d7d046131ecc6405e78243ad5004ab9fbb5e2ba",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d30_b2r2.probe.json",
+      "sha256": "d45cc4c3671a1d134f9ba85f56141d00595b010e4bbd2f236be794208d719d67",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d30_b2r3.probe.json",
+      "sha256": "53883124f559caab307a7a44724fa197a918a33c14f141884ea21cab9ff6ba8e",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d80_b2r1.probe.json",
+      "sha256": "3430e4b2c9ec9cd6804b4dd09b409ada06fd99c7bfc6cf93d0cdca280682ff06",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d80_b2r2.probe.json",
+      "sha256": "19a90e5359af51c940166f9b23d5a041018e5703cf2521ff05cb83baf164baa1",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d80_b2r3.probe.json",
+      "sha256": "fd6ae855ca56f28775b0ba42ce2629162930ddf4ad918e91956514177141ecae",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r1.probe.json",
+      "sha256": "889593a18efdae02e1c4e25e9f15b169b7a55f9c919dd239a8ffcdbf73ed51f5",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r2.probe.json",
+      "sha256": "d866795f118a9d52e6978f78e806b6fba1bc2a19f04ce3e7e78b1afea7ff866a",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r3.probe.json",
+      "sha256": "163178c0a17aaf7b4903113a9b6849e0565194f47ec2d7fadf5408087ebc2a06",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d150_b2r1.probe.json",
+      "sha256": "05c3898606d2e24afc96201da4c7b6ef505642bfe51a197c16ade1becc12f6d9",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d150_b2r2.probe.json",
+      "sha256": "ed7b094315073c4cc5be3ed88dde7d4c76101c54a54e8ff52193740f3ba05307",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d150_b2r3.probe.json",
+      "sha256": "ef7b2f462424b68372fff5ef7dfdb8e6d6655574c4142f534a512f5cae2b5f09",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d30_b2r1.probe.json",
+      "sha256": "fece8f1f5934574a6b6818a4e09ca5d2a777602a0fa43aea8a6ed356355e81e3",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d30_b2r2.probe.json",
+      "sha256": "d925c2915e2bf815619e6fd620605d93ca161cc35ac6e92de85c11d981cf9f84",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d30_b2r3.probe.json",
+      "sha256": "ea1ffa9bacb5507dc15a70a5a4d223927b750249833e13256b1ac93fa8942bf5",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d80_b2r1.probe.json",
+      "sha256": "f2077bf962b1865b1720ce92bb2eb3dd8504c8660ca5d3b1f6c61e4d216f2c41",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d80_b2r2.probe.json",
+      "sha256": "ac7f181b7857a795151bd8fb078a06996535d85d5de6618847e77caec30c68dd",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d80_b2r3.probe.json",
+      "sha256": "5827e8843513258063cb801a843891251f7e4ce83e66fca2a8eb60ddcaf162ec",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos10_d0_b2r1.probe.json",
+      "sha256": "e7ea8f203e8f1d839b5c7b98206745c5da229e938f155ce83fad14479ecf404c",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos10_d0_b2r2.probe.json",
+      "sha256": "94b377be27422e42d45de2d08cb4aa19f463cbfe7db0d7edc8c9a6651539703a",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos10_d0_b2r3.probe.json",
+      "sha256": "3f83873a50ced1c9f0cf7a6ecef6558a3bd314eb7096a26eaa934c467d681503",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos1_d0_b2r1.probe.json",
+      "sha256": "304caf01d68308ebc7bd8ff92ed599e5e9f967fc379af85593991a7564c85442",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos1_d0_b2r2.probe.json",
+      "sha256": "aed2feb78d055ad4e33c0f4d128e970d4c280965bf5d27dee4e4aa815aaaf693",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos1_d0_b2r3.probe.json",
+      "sha256": "91490dedd0a80a970c749a71bf7d1a51b385221f5635169bb91a34e6c27730ce",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r1.probe.json",
+      "sha256": "23eacb6891f4471756538e14a5037e92e14c6c32188affa96ab91a37c688d132",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r2.probe.json",
+      "sha256": "e106e7ab9cb2d0ad76bfc18d33850598b7adfe05b564eebd39fc4645f4791650",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r3.probe.json",
+      "sha256": "ac97adc740f2d80b21bfd63916209d8a9530306d94188da7ebf68dc9afa287a6",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos10_d0_b2r1.probe.json",
+      "sha256": "a85fc8ba13a542e5379b574ca4b20c0795c06577be065f5c119eae4577f482e4",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos10_d0_b2r2.probe.json",
+      "sha256": "c9131a33d370812f5c1d3038729081bf8a9b1e59154a9c1deee040ed0820598a",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos10_d0_b2r3.probe.json",
+      "sha256": "97be493d82dc5f190ac87713b1c7ea32299b3b1e788b20052560a078099a42a2",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos1_d0_b2r1.probe.json",
+      "sha256": "84ee0b9daabcc7fcaf6ea8eeaf28d663c639a9004afd8421d6bcfff82df888fe",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos1_d0_b2r2.probe.json",
+      "sha256": "4225773718c7cae95b88ef93cf2bc5159a0c6fa492db7394df78b44100a5d7ec",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos1_d0_b2r3.probe.json",
+      "sha256": "dd6ac219f141ff65e4146270991f593b4fd3076c7ce13f0500b14f1c34ed8c80",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r1.probe.json",
+      "sha256": "5c77b6e131f204518ec53e684c4fe3bef2f8869f60508d2635e71404622d8e40",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r2.probe.json",
+      "sha256": "aa898c8e21371ebc98e184ae608ba886c3289a0bc445880d0b09422eb36c6b94",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r3.probe.json",
+      "sha256": "b9d4bbcce3910966302e54ca5c44f951a09d9cbd616842c818962676c7dbe88d",
+      "kind": "runtime_probe"
+    }
+  ],
+  "runs": [
+    {
+      "run_id": "fps_sweep_mobilevit_s_normal_5fps_qos5_d0_b2r1",
+      "run_metadata": "../raw/ros2/fps_sweep_mobilevit_s_normal_5fps_qos5_d0_b2r1.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "fps_sweep_mobilevit_s_normal_5fps_qos5_d0_b2r2",
+      "run_metadata": "../raw/ros2/fps_sweep_mobilevit_s_normal_5fps_qos5_d0_b2r2.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "fps_sweep_mobilevit_s_normal_5fps_qos5_d0_b2r3",
+      "run_metadata": "../raw/ros2/fps_sweep_mobilevit_s_normal_5fps_qos5_d0_b2r3.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "fps_sweep_mobilevit_s_normal_10fps_qos5_d0_b2r1",
+      "run_metadata": "../raw/ros2/fps_sweep_mobilevit_s_normal_10fps_qos5_d0_b2r1.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "fps_sweep_mobilevit_s_normal_10fps_qos5_d0_b2r2",
+      "run_metadata": "../raw/ros2/fps_sweep_mobilevit_s_normal_10fps_qos5_d0_b2r2.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "fps_sweep_mobilevit_s_normal_10fps_qos5_d0_b2r3",
+      "run_metadata": "../raw/ros2/fps_sweep_mobilevit_s_normal_10fps_qos5_d0_b2r3.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "fps_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r1",
+      "run_metadata": "../raw/ros2/fps_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r1.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "fps_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r2",
+      "run_metadata": "../raw/ros2/fps_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r2.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "fps_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r3",
+      "run_metadata": "../raw/ros2/fps_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r3.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "fps_sweep_mobilevit_s_normal_30fps_qos5_d0_b2r1",
+      "run_metadata": "../raw/ros2/fps_sweep_mobilevit_s_normal_30fps_qos5_d0_b2r1.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "fps_sweep_mobilevit_s_normal_30fps_qos5_d0_b2r2",
+      "run_metadata": "../raw/ros2/fps_sweep_mobilevit_s_normal_30fps_qos5_d0_b2r2.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "fps_sweep_mobilevit_s_normal_30fps_qos5_d0_b2r3",
+      "run_metadata": "../raw/ros2/fps_sweep_mobilevit_s_normal_30fps_qos5_d0_b2r3.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "fps_sweep_mobilevit_xxs_normal_5fps_qos5_d0_b2r1",
+      "run_metadata": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_5fps_qos5_d0_b2r1.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "fps_sweep_mobilevit_xxs_normal_5fps_qos5_d0_b2r2",
+      "run_metadata": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_5fps_qos5_d0_b2r2.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "fps_sweep_mobilevit_xxs_normal_5fps_qos5_d0_b2r3",
+      "run_metadata": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_5fps_qos5_d0_b2r3.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "fps_sweep_mobilevit_xxs_normal_10fps_qos5_d0_b2r1",
+      "run_metadata": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_10fps_qos5_d0_b2r1.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "fps_sweep_mobilevit_xxs_normal_10fps_qos5_d0_b2r2",
+      "run_metadata": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_10fps_qos5_d0_b2r2.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "fps_sweep_mobilevit_xxs_normal_10fps_qos5_d0_b2r3",
+      "run_metadata": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_10fps_qos5_d0_b2r3.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "fps_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r1",
+      "run_metadata": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r1.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "fps_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r2",
+      "run_metadata": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r2.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "fps_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r3",
+      "run_metadata": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r3.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "fps_sweep_mobilevit_xxs_normal_30fps_qos5_d0_b2r1",
+      "run_metadata": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_30fps_qos5_d0_b2r1.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "fps_sweep_mobilevit_xxs_normal_30fps_qos5_d0_b2r2",
+      "run_metadata": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_30fps_qos5_d0_b2r2.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "fps_sweep_mobilevit_xxs_normal_30fps_qos5_d0_b2r3",
+      "run_metadata": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_30fps_qos5_d0_b2r3.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "fps_sweep_mobilevit_xxs_normal_40fps_qos5_d0_b2cap_r1",
+      "run_metadata": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_40fps_qos5_d0_b2cap_r1.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "fps_sweep_mobilevit_xxs_normal_40fps_qos5_d0_b2cap_r2",
+      "run_metadata": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_40fps_qos5_d0_b2cap_r2.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "fps_sweep_mobilevit_xxs_normal_40fps_qos5_d0_b2cap_r3",
+      "run_metadata": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_40fps_qos5_d0_b2cap_r3.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "fps_sweep_mobilevit_xxs_normal_50fps_qos5_d0_b2cap_r1",
+      "run_metadata": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_50fps_qos5_d0_b2cap_r1.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "fps_sweep_mobilevit_xxs_normal_50fps_qos5_d0_b2cap_r2",
+      "run_metadata": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_50fps_qos5_d0_b2cap_r2.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "fps_sweep_mobilevit_xxs_normal_50fps_qos5_d0_b2cap_r3",
+      "run_metadata": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_50fps_qos5_d0_b2cap_r3.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "fps_sweep_mobilevit_xxs_normal_60fps_qos5_d0_b2cap_r1",
+      "run_metadata": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_60fps_qos5_d0_b2cap_r1.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "fps_sweep_mobilevit_xxs_normal_60fps_qos5_d0_b2cap_r2",
+      "run_metadata": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_60fps_qos5_d0_b2cap_r2.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "fps_sweep_mobilevit_xxs_normal_60fps_qos5_d0_b2cap_r3",
+      "run_metadata": "../raw/ros2/fps_sweep_mobilevit_xxs_normal_60fps_qos5_d0_b2cap_r3.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "overload_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r1",
+      "run_metadata": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r1.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "overload_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r2",
+      "run_metadata": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r2.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "overload_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r3",
+      "run_metadata": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r3.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "overload_sweep_mobilevit_s_normal_20fps_qos5_d30_b2r1",
+      "run_metadata": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d30_b2r1.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "overload_sweep_mobilevit_s_normal_20fps_qos5_d30_b2r2",
+      "run_metadata": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d30_b2r2.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "overload_sweep_mobilevit_s_normal_20fps_qos5_d30_b2r3",
+      "run_metadata": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d30_b2r3.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "overload_sweep_mobilevit_s_normal_20fps_qos5_d80_b2r1",
+      "run_metadata": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d80_b2r1.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "overload_sweep_mobilevit_s_normal_20fps_qos5_d80_b2r2",
+      "run_metadata": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d80_b2r2.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "overload_sweep_mobilevit_s_normal_20fps_qos5_d80_b2r3",
+      "run_metadata": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d80_b2r3.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "overload_sweep_mobilevit_s_normal_20fps_qos5_d150_b2r1",
+      "run_metadata": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d150_b2r1.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "overload_sweep_mobilevit_s_normal_20fps_qos5_d150_b2r2",
+      "run_metadata": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d150_b2r2.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "overload_sweep_mobilevit_s_normal_20fps_qos5_d150_b2r3",
+      "run_metadata": "../raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d150_b2r3.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "overload_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r1",
+      "run_metadata": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r1.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "overload_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r2",
+      "run_metadata": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r2.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "overload_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r3",
+      "run_metadata": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r3.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "overload_sweep_mobilevit_xxs_normal_20fps_qos5_d30_b2r1",
+      "run_metadata": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d30_b2r1.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "overload_sweep_mobilevit_xxs_normal_20fps_qos5_d30_b2r2",
+      "run_metadata": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d30_b2r2.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "overload_sweep_mobilevit_xxs_normal_20fps_qos5_d30_b2r3",
+      "run_metadata": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d30_b2r3.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "overload_sweep_mobilevit_xxs_normal_20fps_qos5_d80_b2r1",
+      "run_metadata": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d80_b2r1.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "overload_sweep_mobilevit_xxs_normal_20fps_qos5_d80_b2r2",
+      "run_metadata": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d80_b2r2.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "overload_sweep_mobilevit_xxs_normal_20fps_qos5_d80_b2r3",
+      "run_metadata": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d80_b2r3.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "overload_sweep_mobilevit_xxs_normal_20fps_qos5_d150_b2r1",
+      "run_metadata": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d150_b2r1.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "overload_sweep_mobilevit_xxs_normal_20fps_qos5_d150_b2r2",
+      "run_metadata": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d150_b2r2.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "overload_sweep_mobilevit_xxs_normal_20fps_qos5_d150_b2r3",
+      "run_metadata": "../raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d150_b2r3.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "qos_sweep_mobilevit_s_normal_20fps_qos1_d0_b2r1",
+      "run_metadata": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos1_d0_b2r1.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "qos_sweep_mobilevit_s_normal_20fps_qos1_d0_b2r2",
+      "run_metadata": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos1_d0_b2r2.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "qos_sweep_mobilevit_s_normal_20fps_qos1_d0_b2r3",
+      "run_metadata": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos1_d0_b2r3.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "qos_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r1",
+      "run_metadata": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r1.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "qos_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r2",
+      "run_metadata": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r2.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "qos_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r3",
+      "run_metadata": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r3.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "qos_sweep_mobilevit_s_normal_20fps_qos10_d0_b2r1",
+      "run_metadata": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos10_d0_b2r1.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "qos_sweep_mobilevit_s_normal_20fps_qos10_d0_b2r2",
+      "run_metadata": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos10_d0_b2r2.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "qos_sweep_mobilevit_s_normal_20fps_qos10_d0_b2r3",
+      "run_metadata": "../raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos10_d0_b2r3.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "qos_sweep_mobilevit_xxs_normal_20fps_qos1_d0_b2r1",
+      "run_metadata": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos1_d0_b2r1.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "qos_sweep_mobilevit_xxs_normal_20fps_qos1_d0_b2r2",
+      "run_metadata": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos1_d0_b2r2.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "qos_sweep_mobilevit_xxs_normal_20fps_qos1_d0_b2r3",
+      "run_metadata": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos1_d0_b2r3.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "qos_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r1",
+      "run_metadata": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r1.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "qos_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r2",
+      "run_metadata": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r2.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "qos_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r3",
+      "run_metadata": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r3.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "qos_sweep_mobilevit_xxs_normal_20fps_qos10_d0_b2r1",
+      "run_metadata": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos10_d0_b2r1.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "qos_sweep_mobilevit_xxs_normal_20fps_qos10_d0_b2r2",
+      "run_metadata": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos10_d0_b2r2.meta.json",
+      "measurement_class": "constrained"
+    },
+    {
+      "run_id": "qos_sweep_mobilevit_xxs_normal_20fps_qos10_d0_b2r3",
+      "run_metadata": "../raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos10_d0_b2r3.meta.json",
+      "measurement_class": "constrained"
+    }
+  ]
+}

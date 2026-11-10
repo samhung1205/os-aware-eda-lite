@@ -78,7 +78,9 @@ def _f(value: Any) -> float | None:
 def _fmt(value: float | None, digits: int = 4) -> str:
     if value is None:
         return ""
-    return f"{value:.{digits}g}" if abs(value) < 1e4 else f"{value:.0f}"
+    if float(value).is_integer() and abs(value) < 1e9:
+        return str(int(value))
+    return f"{value:.{digits}g}" if abs(value) < 1e3 else f"{value:.0f}"
 
 
 def probe_fields(probe: dict[str, Any] | None, allowed: list[int]) -> dict[str, Any]:
@@ -97,8 +99,10 @@ def probe_fields(probe: dict[str, Any] | None, allowed: list[int]) -> dict[str, 
         "detector_udp_sockets": det.get("max_udp_sockets", ""),
         "publisher_udp_sockets": pub.get("max_udp_sockets", ""),
         "shm_segment_max_bytes": max(dds.get("shm_segment_sizes") or [0]) or "",
-        "detector_cpu_pct": det.get("avg_cpu_percent_sampled", ""),
-        "publisher_cpu_pct": pub.get("avg_cpu_percent_sampled", ""),
+        # A pid change means the first sample saw the previous run's node (probes before the
+        # node-exit wait was added); its CPU figure spans two processes and is left empty.
+        "detector_cpu_pct": "" if det.get("pid_changes") else det.get("avg_cpu_percent_sampled", ""),
+        "publisher_cpu_pct": "" if pub.get("pid_changes") else pub.get("avg_cpu_percent_sampled", ""),
         "detector_nice": ",".join(str(n) for n in det.get("nice", [])),
         "cpus_allowed": ";".join(det.get("cpus_allowed", [])),
         "cgroup_memory_peak_mb": cg.get("memory_peak_mb", ""),

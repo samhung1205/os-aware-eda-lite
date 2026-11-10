@@ -1,0 +1,134 @@
+{
+  "schema": "ros2_run_metadata/v1",
+  "run_id": "fps_sweep_mobilevit_xxs_normal_40fps_qos5_d0_b2cap_r2",
+  "captured_at_utc": "2026-11-10T08:35:15+00:00",
+  "git": {
+    "commit": "bd458fedf6a22afdb77babe747b4eecceed0cc12",
+    "dirty": false
+  },
+  "host": {
+    "system": "Linux",
+    "kernel_release": "6.8.0-90-generic",
+    "kernel_version": "#91~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Thu Nov 20 15:20:45 UTC 2",
+    "machine": "x86_64",
+    "cpu_model": "13th Gen Intel(R) Core(TM) i7-13700",
+    "logical_cpus": 24,
+    "memory_total_mb": 64041.2
+  },
+  "python": {
+    "version": "3.10.13",
+    "implementation": "CPython",
+    "executable": "/home/sam/miniforge3/envs/eda_lite/bin/python3"
+  },
+  "packages": {
+    "torch": "2.5.1+cpu",
+    "timm": "1.0.11",
+    "numpy": "1.26.4",
+    "opencv-python": "4.6.0",
+    "opencv-python-headless": null,
+    "psutil": "7.0.0"
+  },
+  "ros2": {
+    "ROS_DISTRO": "humble",
+    "ROS_VERSION": "2",
+    "ROS_PYTHON_VERSION": "3",
+    "RMW_IMPLEMENTATION": "rmw_fastrtps_cpp",
+    "ROS_DOMAIN_ID": "87",
+    "ROS_LOCALHOST_ONLY": null,
+    "ROS_AUTOMATIC_DISCOVERY_RANGE": null,
+    "FASTDDS_BUILTIN_TRANSPORTS": null,
+    "FASTRTPS_DEFAULT_PROFILES_FILE": "/home/sam/projects/os-aware-eda-lite/experiments/ros2/fastdds_shm_large.xml",
+    "FASTDDS_DEFAULT_PROFILES_FILE": null,
+    "RMW_FASTRTPS_USE_QOS_FROM_XML": null,
+    "CYCLONEDDS_URI": null
+  },
+  "dds_profile": {
+    "path": "/home/sam/projects/os-aware-eda-lite/experiments/ros2/fastdds_shm_large.xml",
+    "sha256": "b2a1505f5006525bb83fbc3623019a74dd9cd139f5b49fcc0437f8f6843d3936",
+    "parsed": {
+      "valid_xml": true,
+      "transport_descriptors": {
+        "shm_large": {
+          "type": "SHM",
+          "segment_size": 16777216
+        }
+      },
+      "default_participant": {
+        "profile_name": "shm_large_participant",
+        "user_transports": [
+          "shm_large"
+        ],
+        "use_builtin_transports": false
+      },
+      "shm_only": true,
+      "shm_segment_size": 16777216
+    }
+  },
+  "process": {
+    "nice": 10
+  },
+  "qos": {
+    "topic": "image_raw",
+    "publisher": {
+      "reliability": "reliable",
+      "history": "keep_last",
+      "depth": 10,
+      "source": "image_stream_node: create_publisher(Image, 'image_raw', 10)"
+    },
+    "subscription": {
+      "reliability": "best_effort",
+      "history": "keep_last",
+      "depth": "qos_depth",
+      "source": "mobilevit_detector_node: QoSProfile(BEST_EFFORT, KEEP_LAST, qos_depth)"
+    },
+    "effective_reliability": "best_effort (reliable publisher + best-effort subscription)"
+  },
+  "network_sysctl": {
+    "net.core.rmem_max": 212992,
+    "net.core.rmem_default": 212992,
+    "net.core.wmem_max": 212992,
+    "net.core.wmem_default": 212992
+  },
+  "transport_note": "Network buffer sysctls are recorded as read, not assumed effective. Publisher and detector run on one host; Fast DDS may use its shared-memory transport there, in which case UDP socket buffers do not affect delivery. RMW_IMPLEMENTATION unset means the distribution default RMW was used.",
+  "resource_profile": "normal",
+  "resource_limits": {
+    "requested": {
+      "cpus": [
+        12,
+        14
+      ],
+      "memory_max": "4G",
+      "memory_max_bytes": 4294967296
+    },
+    "effective": {
+      "cpus_allowed": [
+        12,
+        14
+      ],
+      "cgroup_path": "/user.slice/user-1007.slice/user@1007.service/app.slice/run-r96118bf4115a4c9c9d9bd5fde154625f.scope",
+      "memory_max_bytes": 4294967296,
+      "memory_max_own": "4294967296",
+      "memory_swap_max_bytes": 0,
+      "cpu_max": null,
+      "notes": []
+    },
+    "applied": {
+      "cpu": true,
+      "memory": true
+    },
+    "measurement_class": "constrained"
+  },
+  "experiment": {
+    "scenario": "fps_sweep",
+    "model_name": "mobilevit_xxs",
+    "model_weights": "random_init",
+    "input_fps": "40",
+    "qos_depth": "5",
+    "fake_delay_ms": "0",
+    "deadline_ms": "100",
+    "run_seconds": "60",
+    "warmup_frames": "10",
+    "dataset_path": "data/raw/images/coco128/images/train2017",
+    "launch_target": "src/ros2_uav_pipeline/launch/mobilevit_uav_pipeline.launch.py"
+  }
+}

@@ -1,6 +1,6 @@
 # ROS2 Experiment Scripts
 
-These scripts drive the ROS2 MobileViT/UAV pipeline checked in under `src/ros2_uav_pipeline/` (default `ROS2_LAUNCH_TARGET`), or an installed equivalent package (`ROS2_LAUNCH_TARGET=""` + `ROS2_PACKAGE` / `ROS2_LAUNCH_FILE`). They are parameterized through environment variables. Phase 2 / Batch 1 ran a 5 FPS / 20 s MobileViT-XXS smoke test with them on the Linux server (unconstrained and constrained); no formal sweep has been run yet (`report/PHASE2_BATCH1_RESULT.md`). Environment: `conda env create -f environment.yml` (ROS 2 Humble, Python 3.10, pinned `requirements-ros2.txt`).
+These scripts drive the ROS2 MobileViT/UAV pipeline checked in under `src/ros2_uav_pipeline/` (default `ROS2_LAUNCH_TARGET`), or an installed equivalent package (`ROS2_LAUNCH_TARGET=""` + `ROS2_PACKAGE` / `ROS2_LAUNCH_FILE`). They are parameterized through environment variables. Phase 2 / Batch 1 ran a 5 FPS / 20 s MobileViT-XXS smoke test with them on the Linux server (`report/PHASE2_BATCH1_RESULT.md`); Phase 2 / Batch 2 ran the formal constrained baseline through `scripts/run_baseline_experiments.sh` (`report/PHASE2_BATCH2_RESULT.md`). Environment: `conda env create -f environment.yml` (ROS 2 Humble, Python 3.10, pinned `requirements-ros2.txt`).
 
 The main ROS2 experiment path is FPS, QoS depth, and artificial overload sweeps. YOLO-specific execution is legacy/paused.
 
@@ -54,4 +54,6 @@ export FASTRTPS_DEFAULT_PROFILES_FILE="$PWD/experiments/ros2/fastdds_shm_large.x
 export ROS_DOMAIN_ID=87   # unused domain on a shared host
 ```
 
-The profile path and SHA-256 are recorded in each `<run_id>.meta.json` (`dds_profile`). Keep one transport setting per comparison.
+The profile path, SHA-256 and parsed transports are recorded in each `<run_id>.meta.json` (`dds_profile`). Keep one transport setting per comparison.
+
+Runtime verification (Phase 2 / Batch 2): every launch is accompanied by `python3 -m src.ros2_runtime.runtime_probe` in the same scope, which writes `<run_id>.probe.json` (UDP sockets and `/dev/shm/fastrtps_*` segment sizes of publisher and detector, per-node CPU / RSS / affinity / nice, cgroup memory, host load, busy time of the allowed CPUs and their SMT siblings). With an SHM-only profile, a run whose nodes opened a UDP socket or mapped no segment of the configured size is failed and renamed to `*.failed` (a malformed XML that Fast DDS rejects falls back to UDP + 512 KB SHM and is caught this way). `RUNTIME_PROBE=0` disables the probe; `REQUIRE_DDS_VERIFIED=0` keeps the probe but not the gate. After each launch the scripts wait up to `NODE_EXIT_TIMEOUT` (15 s) for its nodes to exit before the next run.

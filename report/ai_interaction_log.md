@@ -274,3 +274,21 @@ Important limitation:
 
 - Smoke data only (5 FPS, 20 s, XXS); not measured evidence, not committed under `results/`. Provenance stays BLOCKED. MobileViT-S and higher FPS untested.
 
+
+## 2026-11-10 Phase 2 / Batch 2: Real ROS 2 Baseline Benchmark
+
+Prompt summary:
+
+- Build a credible, reproducible constrained ROS 2 baseline for MobileViT-XXS / S (FPS 5/10/20/30, QoS depth 1/5/10, overload delay 0/30/80/150 ms, ≥3 independent runs), fixed RMW / SHM profile / domain / CPU 12,14 / MemoryMax 4G / swap 0; verify the DDS XML is actually loaded; separate transport loss, overload and queue drops; no scheduler, no dashboard, no sudo, no push / merge.
+
+Implementation decision:
+
+- Runtime DDS verification instead of trusting the env var: a read-only probe in the launch scope checks UDP sockets and Fast DDS `/dev/shm` segment sizes of both nodes; validated with negative controls (no XML → 7 UDP sockets + 512 KB segment; malformed XML → Fast DDS XMLPARSER error, fallback detected, run failed).
+- Kept the existing sweep scripts / analyzer; only appended summary columns (P50, offered / processed FPS, service time) and added an aggregation step that treats runs, not frames, as replicates.
+- Low priority (`nice 10`) on two idle P-cores, swap disabled; formal set required a clean git tree.
+- XXS was not overloaded at 30 FPS (ρ ≈ 0.57), so after the capacity analysis (service ≈ 19 ms → ~52 FPS) a small 40/50/60 FPS extension was run instead of tuning parameters for larger drop numbers.
+- A probe artefact (previous run's detector still exiting at the next probe's first sample, ~0.2 s overlap with start-up only) was diagnosed with a 0.1 s PID trace; fixed by waiting for node exit between runs and per-pid CPU accounting; the affected probe CPU column is blanked, the measurement windows were shown to be unaffected.
+
+Important limitation:
+
+- Shared host with `powersave` governor and no cpuset isolation: MobileViT-S inference varies 52.6–64.6 ms across runs, which makes drop rates near capacity vary (S at 20 FPS: 8.5–20.7 %). Weights are random-init (latency only). Tuned (rmem) experiments not run.

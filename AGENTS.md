@@ -142,9 +142,11 @@ Main modules:
 
 - `analyze_runtime.py`: analyzes ROS2 runtime CSVs per configuration and `run_id`, rejects mixed runs, infers dropped frames from `frame_id` gaps when explicit dropped rows are absent, and generates runtime summary CSVs/SVG figures.
 - `build_os_profiles.py`: converts ROS2 runtime summary CSVs into EDA-Lite OS profile JSON, including latency, deadline miss, memory pressure, and drop pressure. Latency is normalised per model against that model's idle run (same resource profile); memory against a verifiable limit (CLI, cgroup `memory.max`, or host RAM — never max RSS). Writes `metadata` (baselines, per-profile model/run, source hashes, `provenance_status`).
-- `run_metadata.py`: writes `<run_id>.meta.json` per run (git commit, OS/kernel, CPU, Python/torch, ROS 2/RMW, QoS, `net.core.*`, requested vs effective limits, `measurement_class`, experiment parameters). Never changes system settings.
+- `run_metadata.py`: writes `<run_id>.meta.json` per run (git commit, OS/kernel, CPU, Python/torch, ROS 2/RMW, QoS, `net.core.*`, requested vs effective limits, `measurement_class`, experiment parameters, parsed Fast DDS profile, `process.nice`). Never changes system settings.
+- `runtime_probe.py` (Phase 2 / Batch 2): `<run_id>.probe.json` from the launch scope — UDP sockets and Fast DDS `/dev/shm` segment sizes of both nodes (runtime proof the SHM-only XML was applied), per-node CPU/RSS/affinity/nice, cgroup memory, host load, SMT-sibling busy time. The sweep scripts fail a run whose probe does not confirm an SHM-only profile.
+- `aggregate_baseline.py` (Phase 2 / Batch 2): per-run table + per-condition mean/SD/min/max across runs (run = replicate), capacity / utilization / expected overload drop / `drop_cause`, SVG figures, SHA-256 manifest.
 
-Provenance helpers: `src/provenance.py` (SHA-256 records, summary manifest, OS profile status, simulation `.provenance.json` sidecars). `scripts/check_runtime_provenance.py` verifies raw → summary → profiles → simulation: exit 0 VERIFIED, 1 BLOCKED (link missing; currently no raw ROS2 data), 2 BROKEN (hash mismatch / stale).
+Provenance helpers: `src/provenance.py` (SHA-256 records, summary manifest, OS profile status, simulation `.provenance.json` sidecars). `scripts/check_runtime_provenance.py` verifies raw → summary → profiles → simulation: exit 0 VERIFIED (current state, Phase 2 / Batch 2), 1 BLOCKED (link missing), 2 BROKEN (hash mismatch / stale).
 
 Legacy compatibility path:
 
@@ -172,7 +174,7 @@ Paused / optional older script:
 
 - `run_yolo11_comparison.sh`
 
-The scripts launch the checked-in pipeline `src/ros2_uav_pipeline/` by default (or an installed package with `ROS2_LAUNCH_TARGET=""`). Phase 2 / Batch 1 ran them end-to-end on the Linux server as a 5 FPS / 20 s MobileViT-XXS smoke test only (data outside `results/`, not measured evidence); see `report/PHASE2_BATCH1_RESULT.md`.
+The scripts launch the checked-in pipeline `src/ros2_uav_pipeline/` by default (or an installed package with `ROS2_LAUNCH_TARGET=""`). Phase 2 / Batch 1 ran a smoke test (data outside `results/`); Phase 2 / Batch 2 ran the formal constrained baseline (75 runs under `results/raw/ros2/`, provenance `VERIFIED`); see `report/PHASE2_BATCH2_RESULT.md`. Baseline settings: `CPU_SET=12,14 MEMORY_MAX=4G MEMORY_SWAP_MAX=0 NICE_LEVEL=10 ROS_DOMAIN_ID=87 RMW_IMPLEMENTATION=rmw_fastrtps_cpp FASTRTPS_DEFAULT_PROFILES_FILE=experiments/ros2/fastdds_shm_large.xml`, 60 s runs, warm-up 10, deadline 100 ms.
 
 Pipeline semantics (Phase 1 / Batch 4, audit P2-6):
 
@@ -181,7 +183,8 @@ Pipeline semantics (Phase 1 / Batch 4, audit P2-6):
 - QoS: publisher RELIABLE depth 10 (fixed), detector BEST_EFFORT KEEP_LAST `qos_depth`; QoS sweeps vary only the subscriber depth.
 - `jitter_ms` = population std dev of per-frame end-to-end latency (not inter-arrival jitter); P95/P99 are nearest-rank.
 - Start-up (Phase 2 / Batch 1): the detector subscribes after the model and CSV are ready; the publisher starts frame 0 (and its log) only once a subscriber is matched. Float parameters (`input_fps`, `deadline_ms`) use `dynamic_typing` so `input_fps:=5` works.
-- DDS transport: on the Phase 2 server the RMW default transports lose 50–85% of the ~1 MB best-effort frames (rmem_max 212992). `experiments/ros2/fastdds_shm_large.xml` (Fast DDS SHM-only, 16 MB segment) delivers all frames; set `FASTRTPS_DEFAULT_PROFILES_FILE` to it. `<run_id>.meta.json` records it under `dds_profile` (path + SHA-256). Do not mix transport settings within one comparison.
+- DDS transport: on the Phase 2 server the RMW default transports lose 50–85% of the ~1 MB best-effort frames (rmem_max 212992). `experiments/ros2/fastdds_shm_large.xml` (Fast DDS SHM-only, 16 MB segment) delivers all frames (verified lossless up to 50 FPS in Batch 2); set `FASTRTPS_DEFAULT_PROFILES_FILE` to it. `<run_id>.meta.json` records it under `dds_profile` (path + SHA-256 + parsed); `<run_id>.probe.json` verifies at run time that it was applied. Do not mix transport settings within one comparison.
+- Overload queue semantics (Batch 2 finding): under overload the single-threaded detector always serves the oldest of the `qos_depth` frames kept by KEEP_LAST, so queue wait ≈ `qos_depth / input_fps` and drop rate ≈ `1 - 1/ρ` (ρ = input_fps × service time) independent of depth.
 - Wrappers: `MODELS` / `SWEEPS` narrow a batch; `MEMORY_SWAP_MAX` (default 0) adds `MemorySwapMax` because the host has swap; `memory.swap.max` is recorded (informational). Choose `CPU_SET` from the allowed, idle CPUs (Phase 2 server: i7-13700, P-cores 0–15, E-cores 16–23; smoke test used 12,14), never assume `0,1`.
 
 ### 6. CI, Environment And Repository Hygiene (Phase 1 / Batch 4)
@@ -399,9 +402,8 @@ Implemented:
 
 Still not implemented / not present:
 
-- Actual ROS2 runtime measurements (raw CSVs, publisher logs, run metadata, summary): the provenance check is BLOCKED until a real run.
-- Verified `runtime_os_profiles.json` (only the UNVERIFIED legacy file exists).
-- Formal baseline ROS 2 measurements (only a smoke test has run).
+- EDA-Lite runtime-aware sweep re-run with the verified `runtime_os_profiles.json` (Batch 2 generated the file; `mobilevit_runtime_aware_sweep.json` still points at the example file).
+- FIFO / Latest-Frame / Adaptive scheduling (Phase 3).
 - Real model weights (the detector uses random-init timm weights; latency only).
 - Adaptive / runtime scheduling (EDA-Lite schedules offline; OS profiles only re-weight the cost).
 - ONNX parser.
@@ -415,8 +417,8 @@ Still not implemented / not present:
 Prioritize in this order unless the user redirects:
 
 1. Draft report methodology and limitations based on MobileViT simplified simulation and ROS2 runtime-analysis pipeline.
-2. On Linux + ROS 2 Humble (`conda env create -f environment.yml`), pass the Phase 2 preflight checklist in `report/PHASE1_BATCH4_RESULT.md`, run FPS/QoS/overload experiments and commit raw CSVs, publisher logs and `meta.json` under `results/raw/ros2/`.
-3. Convert real ROS2 summaries to `runtime_os_profiles.json` with `--require-verified`; `check_runtime_provenance.py` must report `VERIFIED`.
+2. (Done in Phase 2 / Batch 2) formal FPS/QoS/overload baseline under `results/raw/ros2/`, verified `runtime_os_profiles.json`, provenance `VERIFIED`.
+3. Phase 3: FIFO / Latest-Frame / Adaptive scheduling compared against the Batch 2 baseline (same controls).
 4. Re-run `mobilevit_runtime_aware_sweep.json` with real runtime-derived OS profiles.
 5. Generate final figures and write results discussion.
 

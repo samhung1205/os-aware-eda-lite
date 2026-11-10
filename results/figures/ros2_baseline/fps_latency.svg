@@ -1,0 +1,155 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="420" viewBox="0 0 640 420" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="12">
+<rect width="640" height="420" fill="#fcfcfb"/>
+<text x="64" y="24" font-size="15" font-weight="600" fill="#0b0b0b">End-to-end latency vs input rate</text>
+<text x="64" y="42" fill="#52514e">constrained: CPU 12,14 / MemoryMax 4G / swap 0; Fast DDS SHM profile;</text>
+<text x="64" y="57" fill="#52514e">mean of independent runs; deadline 100 ms</text>
+<line x1="64" x2="490" y1="368.0" y2="368.0" stroke="#e4e3df" stroke-width="1"/>
+<text x="56" y="372.0" text-anchor="end" fill="#52514e">0</text>
+<line x1="64" x2="490" y1="310.4" y2="310.4" stroke="#e4e3df" stroke-width="1"/>
+<text x="56" y="314.4" text-anchor="end" fill="#52514e">100</text>
+<line x1="64" x2="490" y1="252.8" y2="252.8" stroke="#e4e3df" stroke-width="1"/>
+<text x="56" y="256.8" text-anchor="end" fill="#52514e">200</text>
+<line x1="64" x2="490" y1="195.2" y2="195.2" stroke="#e4e3df" stroke-width="1"/>
+<text x="56" y="199.2" text-anchor="end" fill="#52514e">300</text>
+<line x1="64" x2="490" y1="137.6" y2="137.6" stroke="#e4e3df" stroke-width="1"/>
+<text x="56" y="141.6" text-anchor="end" fill="#52514e">400</text>
+<line x1="64" x2="490" y1="80.0" y2="80.0" stroke="#e4e3df" stroke-width="1"/>
+<text x="56" y="84.0" text-anchor="end" fill="#52514e">500</text>
+<text x="83.4" y="386" text-anchor="middle" fill="#52514e">5</text>
+<text x="118.6" y="386" text-anchor="middle" fill="#52514e">10</text>
+<text x="189.0" y="386" text-anchor="middle" fill="#52514e">20</text>
+<text x="259.4" y="386" text-anchor="middle" fill="#52514e">30</text>
+<text x="329.8" y="386" text-anchor="middle" fill="#52514e">40</text>
+<text x="400.2" y="386" text-anchor="middle" fill="#52514e">50</text>
+<text x="470.6" y="386" text-anchor="middle" fill="#52514e">60</text>
+<text x="277.0" y="408" text-anchor="middle" fill="#52514e">input rate (FPS)</text>
+<text transform="translate(16 224.0) rotate(-90)" text-anchor="middle" fill="#52514e">latency (ms)</text>
+<path d="M83.4,356.4 L118.6,356.5 L189.0,356.8 L259.4,356.7 L329.8,357.1 L400.2,357.1 L470.6,313.9" fill="none" stroke="#2a78d6" stroke-width="2"/>
+<line x1="83.4" x2="83.4" y1="356.6" y2="356.2" stroke="#2a78d6" stroke-width="1.5"/>
+<circle cx="89.4" cy="356.2" r="2.5" fill="#2a78d6" fill-opacity="0.55"/>
+<circle cx="89.4" cy="356.3" r="2.5" fill="#2a78d6" fill-opacity="0.55"/>
+<circle cx="89.4" cy="356.6" r="2.5" fill="#2a78d6" fill-opacity="0.55"/>
+<circle cx="83.4" cy="356.4" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>mobilevit_xxs P50 @ 5: mean 20.19 (runs: 20.48, 20.27, 19.82)</title></circle>
+<line x1="118.6" x2="118.6" y1="356.6" y2="356.3" stroke="#2a78d6" stroke-width="1.5"/>
+<circle cx="124.6" cy="356.6" r="2.5" fill="#2a78d6" fill-opacity="0.55"/>
+<circle cx="124.6" cy="356.6" r="2.5" fill="#2a78d6" fill-opacity="0.55"/>
+<circle cx="124.6" cy="356.3" r="2.5" fill="#2a78d6" fill-opacity="0.55"/>
+<circle cx="118.6" cy="356.5" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>mobilevit_xxs P50 @ 10: mean 19.93 (runs: 19.8, 19.74, 20.24)</title></circle>
+<line x1="189.0" x2="189.0" y1="357.0" y2="356.7" stroke="#2a78d6" stroke-width="1.5"/>
+<circle cx="195.0" cy="356.8" r="2.5" fill="#2a78d6" fill-opacity="0.55"/>
+<circle cx="195.0" cy="356.7" r="2.5" fill="#2a78d6" fill-opacity="0.55"/>
+<circle cx="195.0" cy="357.0" r="2.5" fill="#2a78d6" fill-opacity="0.55"/>
+<circle cx="189.0" cy="356.8" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>mobilevit_xxs P50 @ 20: mean 19.38 (runs: 19.39, 19.66, 19.08)</title></circle>
+<line x1="259.4" x2="259.4" y1="357.1" y2="356.3" stroke="#2a78d6" stroke-width="1.5"/>
+<circle cx="265.4" cy="357.1" r="2.5" fill="#2a78d6" fill-opacity="0.55"/>
+<circle cx="265.4" cy="356.3" r="2.5" fill="#2a78d6" fill-opacity="0.55"/>
+<circle cx="265.4" cy="356.6" r="2.5" fill="#2a78d6" fill-opacity="0.55"/>
+<circle cx="259.4" cy="356.7" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>mobilevit_xxs P50 @ 30: mean 19.67 (runs: 18.99, 20.27, 19.76)</title></circle>
+<line x1="329.8" x2="329.8" y1="357.3" y2="356.8" stroke="#2a78d6" stroke-width="1.5"/>
+<circle cx="335.8" cy="356.7" r="2.5" fill="#2a78d6" fill-opacity="0.55"/>
+<circle cx="335.8" cy="357.3" r="2.5" fill="#2a78d6" fill-opacity="0.55"/>
+<circle cx="335.8" cy="357.1" r="2.5" fill="#2a78d6" fill-opacity="0.55"/>
+<circle cx="329.8" cy="357.1" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>mobilevit_xxs P50 @ 40: mean 18.98 (runs: 19.53, 18.51, 18.89)</title></circle>
+<line x1="400.2" x2="400.2" y1="357.2" y2="357.0" stroke="#2a78d6" stroke-width="1.5"/>
+<circle cx="406.2" cy="357.2" r="2.5" fill="#2a78d6" fill-opacity="0.55"/>
+<circle cx="406.2" cy="357.1" r="2.5" fill="#2a78d6" fill-opacity="0.55"/>
+<circle cx="406.2" cy="357.0" r="2.5" fill="#2a78d6" fill-opacity="0.55"/>
+<circle cx="400.2" cy="357.1" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>mobilevit_xxs P50 @ 50: mean 18.93 (runs: 18.68, 18.96, 19.16)</title></circle>
+<line x1="470.6" x2="470.6" y1="314.2" y2="313.5" stroke="#2a78d6" stroke-width="1.5"/>
+<circle cx="476.6" cy="314.2" r="2.5" fill="#2a78d6" fill-opacity="0.55"/>
+<circle cx="476.6" cy="313.5" r="2.5" fill="#2a78d6" fill-opacity="0.55"/>
+<circle cx="476.6" cy="314.0" r="2.5" fill="#2a78d6" fill-opacity="0.55"/>
+<circle cx="470.6" cy="313.9" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>mobilevit_xxs P50 @ 60: mean 93.85 (runs: 93.35, 94.55, 93.66)</title></circle>
+<text x="482.6" y="317.9" fill="#0b0b0b">XXS P50</text>
+<line x1="514" x2="534" y1="84" y2="84" stroke="#2a78d6" stroke-width="2"/>
+<text x="540" y="88" fill="#0b0b0b">mobilevit_xxs P50</text>
+<path d="M83.4,355.4 L118.6,355.5 L189.0,355.6 L259.4,355.6 L329.8,355.9 L400.2,355.0 L470.6,308.6" fill="none" stroke="#2a78d6" stroke-width="2" stroke-dasharray="5 4"/>
+<line x1="83.4" x2="83.4" y1="355.6" y2="355.2" stroke="#2a78d6" stroke-width="1.5"/>
+<circle cx="89.4" cy="355.2" r="2.5" fill="#2a78d6" fill-opacity="0.55"/>
+<circle cx="89.4" cy="355.3" r="2.5" fill="#2a78d6" fill-opacity="0.55"/>
+<circle cx="89.4" cy="355.6" r="2.5" fill="#2a78d6" fill-opacity="0.55"/>
+<circle cx="83.4" cy="355.4" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>mobilevit_xxs P99 @ 5: mean 21.9 (runs: 22.23, 22.03, 21.45)</title></circle>
+<line x1="118.6" x2="118.6" y1="355.8" y2="355.4" stroke="#2a78d6" stroke-width="1.5"/>
+<circle cx="124.6" cy="355.4" r="2.5" fill="#2a78d6" fill-opacity="0.55"/>
+<circle cx="124.6" cy="355.8" r="2.5" fill="#2a78d6" fill-opacity="0.55"/>
+<circle cx="124.6" cy="355.5" r="2.5" fill="#2a78d6" fill-opacity="0.55"/>
+<circle cx="118.6" cy="355.5" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>mobilevit_xxs P99 @ 10: mean 21.62 (runs: 21.92, 21.2, 21.74)</title></circle>
+<line x1="189.0" x2="189.0" y1="355.6" y2="355.6" stroke="#2a78d6" stroke-width="1.5"/>
+<circle cx="195.0" cy="355.6" r="2.5" fill="#2a78d6" fill-opacity="0.55"/>
+<circle cx="195.0" cy="355.6" r="2.5" fill="#2a78d6" fill-opacity="0.55"/>
+<circle cx="195.0" cy="355.6" r="2.5" fill="#2a78d6" fill-opacity="0.55"/>
+<circle cx="189.0" cy="355.6" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>mobilevit_xxs P99 @ 20: mean 21.48 (runs: 21.49, 21.49, 21.45)</title></circle>
+<line x1="259.4" x2="259.4" y1="355.8" y2="355.2" stroke="#2a78d6" stroke-width="1.5"/>
+<circle cx="265.4" cy="355.8" r="2.5" fill="#2a78d6" fill-opacity="0.55"/>
+<circle cx="265.4" cy="355.2" r="2.5" fill="#2a78d6" fill-opacity="0.55"/>
+<circle cx="265.4" cy="355.8" r="2.5" fill="#2a78d6" fill-opacity="0.55"/>
+<circle cx="259.4" cy="355.6" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>mobilevit_xxs P99 @ 30: mean 21.58 (runs: 21.26, 22.22, 21.26)</title></circle>
+<line x1="329.8" x2="329.8" y1="356.0" y2="355.7" stroke="#2a78d6" stroke-width="1.5"/>
+<circle cx="335.8" cy="355.7" r="2.5" fill="#2a78d6" fill-opacity="0.55"/>
+<circle cx="335.8" cy="356.0" r="2.5" fill="#2a78d6" fill-opacity="0.55"/>
+<circle cx="335.8" cy="355.9" r="2.5" fill="#2a78d6" fill-opacity="0.55"/>
+<circle cx="329.8" cy="355.9" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>mobilevit_xxs P99 @ 40: mean 21.08 (runs: 21.4, 20.76, 21.08)</title></circle>
+<line x1="400.2" x2="400.2" y1="355.7" y2="354.6" stroke="#2a78d6" stroke-width="1.5"/>
+<circle cx="406.2" cy="355.7" r="2.5" fill="#2a78d6" fill-opacity="0.55"/>
+<circle cx="406.2" cy="354.8" r="2.5" fill="#2a78d6" fill-opacity="0.55"/>
+<circle cx="406.2" cy="354.6" r="2.5" fill="#2a78d6" fill-opacity="0.55"/>
+<circle cx="400.2" cy="355.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>mobilevit_xxs P99 @ 50: mean 22.5 (runs: 21.35, 22.94, 23.22)</title></circle>
+<line x1="470.6" x2="470.6" y1="308.7" y2="308.4" stroke="#2a78d6" stroke-width="1.5"/>
+<circle cx="476.6" cy="308.7" r="2.5" fill="#2a78d6" fill-opacity="0.55"/>
+<circle cx="476.6" cy="308.4" r="2.5" fill="#2a78d6" fill-opacity="0.55"/>
+<circle cx="476.6" cy="308.6" r="2.5" fill="#2a78d6" fill-opacity="0.55"/>
+<circle cx="470.6" cy="308.6" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"><title>mobilevit_xxs P99 @ 60: mean 103.2 (runs: 102.9, 103.5, 103.1)</title></circle>
+<text x="482.6" y="299.6" fill="#0b0b0b">XXS P99</text>
+<line x1="514" x2="534" y1="102" y2="102" stroke="#2a78d6" stroke-width="2" stroke-dasharray="5 4"/>
+<text x="540" y="106" fill="#0b0b0b">mobilevit_xxs P99</text>
+<path d="M83.4,333.5 L118.6,332.5 L189.0,202.7 L259.4,246.1" fill="none" stroke="#eb6834" stroke-width="2"/>
+<line x1="83.4" x2="83.4" y1="334.0" y2="332.7" stroke="#eb6834" stroke-width="1.5"/>
+<circle cx="89.4" cy="334.0" r="2.5" fill="#eb6834" fill-opacity="0.55"/>
+<circle cx="89.4" cy="333.6" r="2.5" fill="#eb6834" fill-opacity="0.55"/>
+<circle cx="89.4" cy="332.7" r="2.5" fill="#eb6834" fill-opacity="0.55"/>
+<circle cx="83.4" cy="333.5" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>mobilevit_s P50 @ 5: mean 59.98 (runs: 59.01, 59.69, 61.23)</title></circle>
+<line x1="118.6" x2="118.6" y1="332.7" y2="332.1" stroke="#eb6834" stroke-width="1.5"/>
+<circle cx="124.6" cy="332.1" r="2.5" fill="#eb6834" fill-opacity="0.55"/>
+<circle cx="124.6" cy="332.6" r="2.5" fill="#eb6834" fill-opacity="0.55"/>
+<circle cx="124.6" cy="332.7" r="2.5" fill="#eb6834" fill-opacity="0.55"/>
+<circle cx="118.6" cy="332.5" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>mobilevit_s P50 @ 10: mean 61.64 (runs: 62.28, 61.42, 61.23)</title></circle>
+<line x1="189.0" x2="189.0" y1="203.3" y2="202.2" stroke="#eb6834" stroke-width="1.5"/>
+<circle cx="195.0" cy="203.3" r="2.5" fill="#eb6834" fill-opacity="0.55"/>
+<circle cx="195.0" cy="202.8" r="2.5" fill="#eb6834" fill-opacity="0.55"/>
+<circle cx="195.0" cy="202.2" r="2.5" fill="#eb6834" fill-opacity="0.55"/>
+<circle cx="189.0" cy="202.7" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>mobilevit_s P50 @ 20: mean 286.9 (runs: 285.9, 286.8, 287.8)</title></circle>
+<line x1="259.4" x2="259.4" y1="246.6" y2="245.7" stroke="#eb6834" stroke-width="1.5"/>
+<circle cx="265.4" cy="245.7" r="2.5" fill="#eb6834" fill-opacity="0.55"/>
+<circle cx="265.4" cy="245.8" r="2.5" fill="#eb6834" fill-opacity="0.55"/>
+<circle cx="265.4" cy="246.6" r="2.5" fill="#eb6834" fill-opacity="0.55"/>
+<circle cx="259.4" cy="246.1" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>mobilevit_s P50 @ 30: mean 211.7 (runs: 212.4, 212.1, 210.8)</title></circle>
+<text x="271.4" y="250.1" fill="#0b0b0b">S P50</text>
+<line x1="514" x2="534" y1="120" y2="120" stroke="#eb6834" stroke-width="2"/>
+<text x="540" y="124" fill="#0b0b0b">mobilevit_s P50</text>
+<path d="M83.4,330.7 L118.6,329.5 L189.0,187.8 L259.4,235.6" fill="none" stroke="#eb6834" stroke-width="2" stroke-dasharray="5 4"/>
+<line x1="83.4" x2="83.4" y1="331.2" y2="330.4" stroke="#eb6834" stroke-width="1.5"/>
+<circle cx="89.4" cy="330.5" r="2.5" fill="#eb6834" fill-opacity="0.55"/>
+<circle cx="89.4" cy="330.4" r="2.5" fill="#eb6834" fill-opacity="0.55"/>
+<circle cx="89.4" cy="331.2" r="2.5" fill="#eb6834" fill-opacity="0.55"/>
+<circle cx="83.4" cy="330.7" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>mobilevit_s P99 @ 5: mean 64.83 (runs: 65.19, 65.36, 63.94)</title></circle>
+<line x1="118.6" x2="118.6" y1="330.2" y2="328.5" stroke="#eb6834" stroke-width="1.5"/>
+<circle cx="124.6" cy="328.5" r="2.5" fill="#eb6834" fill-opacity="0.55"/>
+<circle cx="124.6" cy="329.9" r="2.5" fill="#eb6834" fill-opacity="0.55"/>
+<circle cx="124.6" cy="330.2" r="2.5" fill="#eb6834" fill-opacity="0.55"/>
+<circle cx="118.6" cy="329.5" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>mobilevit_s P99 @ 10: mean 66.77 (runs: 68.58, 66.1, 65.64)</title></circle>
+<line x1="189.0" x2="189.0" y1="188.7" y2="187.1" stroke="#eb6834" stroke-width="1.5"/>
+<circle cx="195.0" cy="188.7" r="2.5" fill="#eb6834" fill-opacity="0.55"/>
+<circle cx="195.0" cy="187.7" r="2.5" fill="#eb6834" fill-opacity="0.55"/>
+<circle cx="195.0" cy="187.1" r="2.5" fill="#eb6834" fill-opacity="0.55"/>
+<circle cx="189.0" cy="187.8" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>mobilevit_s P99 @ 20: mean 312.8 (runs: 311.2, 313.1, 314.1)</title></circle>
+<line x1="259.4" x2="259.4" y1="236.8" y2="234.7" stroke="#eb6834" stroke-width="1.5"/>
+<circle cx="265.4" cy="235.4" r="2.5" fill="#eb6834" fill-opacity="0.55"/>
+<circle cx="265.4" cy="234.7" r="2.5" fill="#eb6834" fill-opacity="0.55"/>
+<circle cx="265.4" cy="236.8" r="2.5" fill="#eb6834" fill-opacity="0.55"/>
+<circle cx="259.4" cy="235.6" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"><title>mobilevit_s P99 @ 30: mean 229.8 (runs: 230.1, 231.5, 227.7)</title></circle>
+<text x="271.4" y="226.6" fill="#0b0b0b">S P99</text>
+<line x1="514" x2="534" y1="138" y2="138" stroke="#eb6834" stroke-width="2" stroke-dasharray="5 4"/>
+<text x="540" y="142" fill="#0b0b0b">mobilevit_s P99</text>
+<text x="514" y="166" fill="#52514e" font-size="11">dot = one run;</text>
+<text x="514" y="180" fill="#52514e" font-size="11">whisker = min–max</text>
+</svg>
