@@ -26,9 +26,10 @@ and sidecars **together**; a missing link turns the provenance check back to `BL
 | `raw/ros2/` | — | empty (`.gitkeep` only): no real ROS 2 run has been committed |
 | `csv/eda_lite_mobilevit_profile_sweep.csv`, `csv/eda_lite_mobilevit_profile_summary.csv` | EDA-Lite simulation estimates, built-in OS profiles | reproducible from configs (sidecar `OK`) |
 | `csv/eda_lite_mobilevit_runtime_aware_sweep.csv` | simulation with **example** OS profiles | `example` — not measured |
-| `csv/eda_lite_mobilevit_{xxs,s}_pure.csv`, `csv/eda_lite_mobilevit_sensitivity_*.csv` (local, untracked until added) | simulation estimates, built-in profiles | reproducible (sidecar `OK`) |
-| `csv/eda_lite_mobilevit_{xxs,s}_runtime_aware_sweep.csv` (local, untracked until added) | simulation with the **legacy teammate profiles** | `unverified` |
+| `csv/eda_lite_mobilevit_{xxs,s}_pure.csv`, `csv/eda_lite_mobilevit_sensitivity_*.csv` | simulation estimates, built-in profiles | reproducible (sidecar `OK`) |
+| `csv/eda_lite_mobilevit_{xxs,s}_runtime_aware_sweep.csv` | simulation with the **legacy teammate profiles** | `unverified` |
 | `figures/eda_lite/{xxs,s}/*.svg` | six-line charts, pure vs legacy OS profile | titles carry `[OS profile: UNVERIFIED]` |
+| `figures/eda_lite/{xxs,s}/os_aware_total_cost_by_sram.svg` | older local copies made before the Phase 1 cost-model fixes, without the UNVERIFIED tag | **not tracked**; `bash scripts/rebuild_eda_lite_figures.sh` regenerates tagged versions (overwrites the local files) |
 | `figures/ros2/*.svg` | teammate-provided runtime charts | **UNVERIFIED**: no raw CSVs, summary or run metadata exist |
 | `csv/eda_lite_edge_*`, `csv/eda_lite_yolo11_*`, `csv/eda_lite_sram_sweep.csv`, `csv/eda_lite_summary.csv`, `csv/eda_lite_runtime_aware_sweep.csv`, `figures/{edge_cnn_large,yolo11s,mobilevit_s}/`, `figures/*.svg` | legacy simulation outputs from earlier iterations (edge CNN / paused YOLO) | historical; generated before the Phase 1 fixes and without sidecars — do not cite |
 
