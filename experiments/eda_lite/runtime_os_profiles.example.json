@@ -16,5 +16,10 @@
       "memory_pressure": 0.62,
       "drop_rate": 0.28
     }
+  },
+  "metadata": {
+    "schema": "eda_lite_os_profiles/v2",
+    "provenance_status": "example",
+    "note": "Illustrative values only. Not measured data; never report as ROS2 measurements."
   }
 }

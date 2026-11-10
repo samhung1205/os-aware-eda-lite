@@ -9,3 +9,8 @@ __pycache__/
 data/raw/images/*
 !data/raw/images/.gitkeep
 data/raw/coco128.zip
+# Provenance sidecars follow their CSV: tracked CSVs get theirs force-added.
+results/csv/*.provenance.json
+~$*
+!results/csv/eda_lite_mobilevit_profile_sweep.provenance.json
+!results/csv/eda_lite_mobilevit_runtime_aware_sweep.provenance.json

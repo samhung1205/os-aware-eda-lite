@@ -1,0 +1,400 @@
+{
+  "os_profiles": [
+    "measured_fps_sweep_mobilevit_s_10_0fps_q5_d0_normal",
+    "measured_fps_sweep_mobilevit_s_20_0fps_q5_d0_normal",
+    "measured_fps_sweep_mobilevit_s_30_0fps_q5_d0_normal",
+    "measured_fps_sweep_mobilevit_s_5_0fps_q5_d0_normal",
+    "measured_fps_sweep_mobilevit_xxs_10_0fps_q5_d0_normal",
+    "measured_fps_sweep_mobilevit_xxs_20_0fps_q5_d0_normal",
+    "measured_fps_sweep_mobilevit_xxs_30_0fps_q5_d0_normal",
+    "measured_fps_sweep_mobilevit_xxs_5_0fps_q5_d0_normal",
+    "measured_overload_sweep_mobilevit_s_20_0fps_q5_d0_normal",
+    "measured_overload_sweep_mobilevit_s_20_0fps_q5_d150_normal",
+    "measured_overload_sweep_mobilevit_s_20_0fps_q5_d30_normal",
+    "measured_overload_sweep_mobilevit_s_20_0fps_q5_d80_normal",
+    "measured_overload_sweep_mobilevit_xxs_20_0fps_q5_d0_normal",
+    "measured_overload_sweep_mobilevit_xxs_20_0fps_q5_d150_normal",
+    "measured_overload_sweep_mobilevit_xxs_20_0fps_q5_d30_normal",
+    "measured_overload_sweep_mobilevit_xxs_20_0fps_q5_d80_normal",
+    "measured_qos_sweep_mobilevit_s_20_0fps_q1_d0_normal",
+    "measured_qos_sweep_mobilevit_s_20_0fps_q10_d0_normal",
+    "measured_qos_sweep_mobilevit_s_20_0fps_q5_d0_normal",
+    "measured_qos_sweep_mobilevit_xxs_20_0fps_q1_d0_normal",
+    "measured_qos_sweep_mobilevit_xxs_20_0fps_q10_d0_normal",
+    "measured_qos_sweep_mobilevit_xxs_20_0fps_q5_d0_normal"
+  ],
+  "os_profile_definitions": {
+    "measured_fps_sweep_mobilevit_s_10_0fps_q5_d0_normal": {
+      "latency_multiplier": 3.385957,
+      "deadline_miss_rate": 0.0,
+      "memory_pressure": 0.980075,
+      "drop_rate": 0.014311
+    },
+    "measured_fps_sweep_mobilevit_s_20_0fps_q5_d0_normal": {
+      "latency_multiplier": 3.557852,
+      "deadline_miss_rate": 0.003478,
+      "memory_pressure": 0.985882,
+      "drop_rate": 0.483842
+    },
+    "measured_fps_sweep_mobilevit_s_30_0fps_q5_d0_normal": {
+      "latency_multiplier": 3.782808,
+      "deadline_miss_rate": 0.041457,
+      "memory_pressure": 0.984952,
+      "drop_rate": 0.52619
+    },
+    "measured_fps_sweep_mobilevit_s_5_0fps_q5_d0_normal": {
+      "latency_multiplier": 3.286848,
+      "deadline_miss_rate": 0.00365,
+      "memory_pressure": 0.983883,
+      "drop_rate": 0.021429
+    },
+    "measured_fps_sweep_mobilevit_xxs_10_0fps_q5_d0_normal": {
+      "latency_multiplier": 1.048011,
+      "deadline_miss_rate": 0.0,
+      "memory_pressure": 0.938577,
+      "drop_rate": 0.017182
+    },
+    "measured_fps_sweep_mobilevit_xxs_20_0fps_q5_d0_normal": {
+      "latency_multiplier": 1.038721,
+      "deadline_miss_rate": 0.0,
+      "memory_pressure": 0.938867,
+      "drop_rate": 0.012898
+    },
+    "measured_fps_sweep_mobilevit_xxs_30_0fps_q5_d0_normal": {
+      "latency_multiplier": 1.017147,
+      "deadline_miss_rate": 0.0,
+      "memory_pressure": 0.937778,
+      "drop_rate": 0.014881
+    },
+    "measured_fps_sweep_mobilevit_xxs_5_0fps_q5_d0_normal": {
+      "latency_multiplier": 1.04353,
+      "deadline_miss_rate": 0.0,
+      "memory_pressure": 0.936992,
+      "drop_rate": 0.014389
+    },
+    "measured_overload_sweep_mobilevit_s_20_0fps_q5_d0_normal": {
+      "latency_multiplier": 3.407471,
+      "deadline_miss_rate": 0.0,
+      "memory_pressure": 0.990377,
+      "drop_rate": 0.480683
+    },
+    "measured_overload_sweep_mobilevit_s_20_0fps_q5_d150_normal": {
+      "latency_multiplier": 30.202879,
+      "deadline_miss_rate": 1.0,
+      "memory_pressure": 0.983097,
+      "drop_rate": 0.762803
+    },
+    "measured_overload_sweep_mobilevit_s_20_0fps_q5_d30_normal": {
+      "latency_multiplier": 6.015626,
+      "deadline_miss_rate": 0.258467,
+      "memory_pressure": 0.991132,
+      "drop_rate": 0.496409
+    },
+    "measured_overload_sweep_mobilevit_s_20_0fps_q5_d80_normal": {
+      "latency_multiplier": 28.895655,
+      "deadline_miss_rate": 1.0,
+      "memory_pressure": 1.0,
+      "drop_rate": 0.638095
+    },
+    "measured_overload_sweep_mobilevit_xxs_20_0fps_q5_d0_normal": {
+      "latency_multiplier": 1.000142,
+      "deadline_miss_rate": 0.0,
+      "memory_pressure": 0.938285,
+      "drop_rate": 0.004464
+    },
+    "measured_overload_sweep_mobilevit_xxs_20_0fps_q5_d150_normal": {
+      "latency_multiplier": 23.484617,
+      "deadline_miss_rate": 1.0,
+      "memory_pressure": 0.946601,
+      "drop_rate": 0.702703
+    },
+    "measured_overload_sweep_mobilevit_xxs_20_0fps_q5_d30_normal": {
+      "latency_multiplier": 2.684471,
+      "deadline_miss_rate": 0.0,
+      "memory_pressure": 0.938552,
+      "drop_rate": 0.142218
+    },
+    "measured_overload_sweep_mobilevit_xxs_20_0fps_q5_d80_normal": {
+      "latency_multiplier": 22.079729,
+      "deadline_miss_rate": 1.0,
+      "memory_pressure": 0.954305,
+      "drop_rate": 0.483288
+    },
+    "measured_qos_sweep_mobilevit_s_20_0fps_q1_d0_normal": {
+      "latency_multiplier": 3.483129,
+      "deadline_miss_rate": 0.018644,
+      "memory_pressure": 0.992451,
+      "drop_rate": 0.469901
+    },
+    "measured_qos_sweep_mobilevit_s_20_0fps_q10_d0_normal": {
+      "latency_multiplier": 3.510858,
+      "deadline_miss_rate": 0.012007,
+      "memory_pressure": 0.979459,
+      "drop_rate": 0.478533
+    },
+    "measured_qos_sweep_mobilevit_s_20_0fps_q5_d0_normal": {
+      "latency_multiplier": 3.386592,
+      "deadline_miss_rate": 0.0,
+      "memory_pressure": 0.986781,
+      "drop_rate": 0.484794
+    },
+    "measured_qos_sweep_mobilevit_xxs_20_0fps_q1_d0_normal": {
+      "latency_multiplier": 1.02681,
+      "deadline_miss_rate": 0.0,
+      "memory_pressure": 0.935865,
+      "drop_rate": 0.005381
+    },
+    "measured_qos_sweep_mobilevit_xxs_20_0fps_q10_d0_normal": {
+      "latency_multiplier": 1.038349,
+      "deadline_miss_rate": 0.0,
+      "memory_pressure": 0.934473,
+      "drop_rate": 0.013453
+    },
+    "measured_qos_sweep_mobilevit_xxs_20_0fps_q5_d0_normal": {
+      "latency_multiplier": 1.0,
+      "deadline_miss_rate": 0.0,
+      "memory_pressure": 0.938536,
+      "drop_rate": 0.004464
+    }
+  },
+  "metadata": {
+    "schema": "eda_lite_os_profiles/v2",
+    "provenance_status": "unverified",
+    "unverified_reasons": [
+      "teammate-provided artifact (commit 3340326); raw ROS2 CSVs, publisher logs, run metadata and ros2_runtime_summary.csv are not in the repository, so these values cannot be regenerated or hash-verified",
+      "legacy calibration (audit P1-7): latency_multiplier = avg_latency / min(avg_latency over BOTH models) and memory_pressure = avg_memory / max(avg_memory over BOTH models); MobileViT-S idle therefore shows ~3.3x 'pressure' that is only the model being slower",
+      "resource limits were never verified (no run metadata); the old wrapper labelled unconstrained fallback runs 'normal' (audit P1-8)"
+    ],
+    "calibration": {
+      "latency": {
+        "method": "legacy_global_min_baseline_across_models"
+      },
+      "memory": {
+        "method": "legacy_global_max_rss_across_models"
+      }
+    },
+    "profiles": {
+      "measured_fps_sweep_mobilevit_s_10_0fps_q5_d0_normal": {
+        "model_name": "mobilevit_s",
+        "scenario": "fps_sweep",
+        "input_fps": "10.0",
+        "qos_depth": "5",
+        "fake_delay_ms": "0",
+        "resource_profile": "normal",
+        "measurement_class": "unknown",
+        "derived_from": "profile name (no run metadata exists)"
+      },
+      "measured_fps_sweep_mobilevit_s_20_0fps_q5_d0_normal": {
+        "model_name": "mobilevit_s",
+        "scenario": "fps_sweep",
+        "input_fps": "20.0",
+        "qos_depth": "5",
+        "fake_delay_ms": "0",
+        "resource_profile": "normal",
+        "measurement_class": "unknown",
+        "derived_from": "profile name (no run metadata exists)"
+      },
+      "measured_fps_sweep_mobilevit_s_30_0fps_q5_d0_normal": {
+        "model_name": "mobilevit_s",
+        "scenario": "fps_sweep",
+        "input_fps": "30.0",
+        "qos_depth": "5",
+        "fake_delay_ms": "0",
+        "resource_profile": "normal",
+        "measurement_class": "unknown",
+        "derived_from": "profile name (no run metadata exists)"
+      },
+      "measured_fps_sweep_mobilevit_s_5_0fps_q5_d0_normal": {
+        "model_name": "mobilevit_s",
+        "scenario": "fps_sweep",
+        "input_fps": "5.0",
+        "qos_depth": "5",
+        "fake_delay_ms": "0",
+        "resource_profile": "normal",
+        "measurement_class": "unknown",
+        "derived_from": "profile name (no run metadata exists)"
+      },
+      "measured_fps_sweep_mobilevit_xxs_10_0fps_q5_d0_normal": {
+        "model_name": "mobilevit_xxs",
+        "scenario": "fps_sweep",
+        "input_fps": "10.0",
+        "qos_depth": "5",
+        "fake_delay_ms": "0",
+        "resource_profile": "normal",
+        "measurement_class": "unknown",
+        "derived_from": "profile name (no run metadata exists)"
+      },
+      "measured_fps_sweep_mobilevit_xxs_20_0fps_q5_d0_normal": {
+        "model_name": "mobilevit_xxs",
+        "scenario": "fps_sweep",
+        "input_fps": "20.0",
+        "qos_depth": "5",
+        "fake_delay_ms": "0",
+        "resource_profile": "normal",
+        "measurement_class": "unknown",
+        "derived_from": "profile name (no run metadata exists)"
+      },
+      "measured_fps_sweep_mobilevit_xxs_30_0fps_q5_d0_normal": {
+        "model_name": "mobilevit_xxs",
+        "scenario": "fps_sweep",
+        "input_fps": "30.0",
+        "qos_depth": "5",
+        "fake_delay_ms": "0",
+        "resource_profile": "normal",
+        "measurement_class": "unknown",
+        "derived_from": "profile name (no run metadata exists)"
+      },
+      "measured_fps_sweep_mobilevit_xxs_5_0fps_q5_d0_normal": {
+        "model_name": "mobilevit_xxs",
+        "scenario": "fps_sweep",
+        "input_fps": "5.0",
+        "qos_depth": "5",
+        "fake_delay_ms": "0",
+        "resource_profile": "normal",
+        "measurement_class": "unknown",
+        "derived_from": "profile name (no run metadata exists)"
+      },
+      "measured_overload_sweep_mobilevit_s_20_0fps_q5_d0_normal": {
+        "model_name": "mobilevit_s",
+        "scenario": "overload_sweep",
+        "input_fps": "20.0",
+        "qos_depth": "5",
+        "fake_delay_ms": "0",
+        "resource_profile": "normal",
+        "measurement_class": "unknown",
+        "derived_from": "profile name (no run metadata exists)"
+      },
+      "measured_overload_sweep_mobilevit_s_20_0fps_q5_d150_normal": {
+        "model_name": "mobilevit_s",
+        "scenario": "overload_sweep",
+        "input_fps": "20.0",
+        "qos_depth": "5",
+        "fake_delay_ms": "150",
+        "resource_profile": "normal",
+        "measurement_class": "unknown",
+        "derived_from": "profile name (no run metadata exists)"
+      },
+      "measured_overload_sweep_mobilevit_s_20_0fps_q5_d30_normal": {
+        "model_name": "mobilevit_s",
+        "scenario": "overload_sweep",
+        "input_fps": "20.0",
+        "qos_depth": "5",
+        "fake_delay_ms": "30",
+        "resource_profile": "normal",
+        "measurement_class": "unknown",
+        "derived_from": "profile name (no run metadata exists)"
+      },
+      "measured_overload_sweep_mobilevit_s_20_0fps_q5_d80_normal": {
+        "model_name": "mobilevit_s",
+        "scenario": "overload_sweep",
+        "input_fps": "20.0",
+        "qos_depth": "5",
+        "fake_delay_ms": "80",
+        "resource_profile": "normal",
+        "measurement_class": "unknown",
+        "derived_from": "profile name (no run metadata exists)"
+      },
+      "measured_overload_sweep_mobilevit_xxs_20_0fps_q5_d0_normal": {
+        "model_name": "mobilevit_xxs",
+        "scenario": "overload_sweep",
+        "input_fps": "20.0",
+        "qos_depth": "5",
+        "fake_delay_ms": "0",
+        "resource_profile": "normal",
+        "measurement_class": "unknown",
+        "derived_from": "profile name (no run metadata exists)"
+      },
+      "measured_overload_sweep_mobilevit_xxs_20_0fps_q5_d150_normal": {
+        "model_name": "mobilevit_xxs",
+        "scenario": "overload_sweep",
+        "input_fps": "20.0",
+        "qos_depth": "5",
+        "fake_delay_ms": "150",
+        "resource_profile": "normal",
+        "measurement_class": "unknown",
+        "derived_from": "profile name (no run metadata exists)"
+      },
+      "measured_overload_sweep_mobilevit_xxs_20_0fps_q5_d30_normal": {
+        "model_name": "mobilevit_xxs",
+        "scenario": "overload_sweep",
+        "input_fps": "20.0",
+        "qos_depth": "5",
+        "fake_delay_ms": "30",
+        "resource_profile": "normal",
+        "measurement_class": "unknown",
+        "derived_from": "profile name (no run metadata exists)"
+      },
+      "measured_overload_sweep_mobilevit_xxs_20_0fps_q5_d80_normal": {
+        "model_name": "mobilevit_xxs",
+        "scenario": "overload_sweep",
+        "input_fps": "20.0",
+        "qos_depth": "5",
+        "fake_delay_ms": "80",
+        "resource_profile": "normal",
+        "measurement_class": "unknown",
+        "derived_from": "profile name (no run metadata exists)"
+      },
+      "measured_qos_sweep_mobilevit_s_20_0fps_q1_d0_normal": {
+        "model_name": "mobilevit_s",
+        "scenario": "qos_sweep",
+        "input_fps": "20.0",
+        "qos_depth": "1",
+        "fake_delay_ms": "0",
+        "resource_profile": "normal",
+        "measurement_class": "unknown",
+        "derived_from": "profile name (no run metadata exists)"
+      },
+      "measured_qos_sweep_mobilevit_s_20_0fps_q10_d0_normal": {
+        "model_name": "mobilevit_s",
+        "scenario": "qos_sweep",
+        "input_fps": "20.0",
+        "qos_depth": "10",
+        "fake_delay_ms": "0",
+        "resource_profile": "normal",
+        "measurement_class": "unknown",
+        "derived_from": "profile name (no run metadata exists)"
+      },
+      "measured_qos_sweep_mobilevit_s_20_0fps_q5_d0_normal": {
+        "model_name": "mobilevit_s",
+        "scenario": "qos_sweep",
+        "input_fps": "20.0",
+        "qos_depth": "5",
+        "fake_delay_ms": "0",
+        "resource_profile": "normal",
+        "measurement_class": "unknown",
+        "derived_from": "profile name (no run metadata exists)"
+      },
+      "measured_qos_sweep_mobilevit_xxs_20_0fps_q1_d0_normal": {
+        "model_name": "mobilevit_xxs",
+        "scenario": "qos_sweep",
+        "input_fps": "20.0",
+        "qos_depth": "1",
+        "fake_delay_ms": "0",
+        "resource_profile": "normal",
+        "measurement_class": "unknown",
+        "derived_from": "profile name (no run metadata exists)"
+      },
+      "measured_qos_sweep_mobilevit_xxs_20_0fps_q10_d0_normal": {
+        "model_name": "mobilevit_xxs",
+        "scenario": "qos_sweep",
+        "input_fps": "20.0",
+        "qos_depth": "10",
+        "fake_delay_ms": "0",
+        "resource_profile": "normal",
+        "measurement_class": "unknown",
+        "derived_from": "profile name (no run metadata exists)"
+      },
+      "measured_qos_sweep_mobilevit_xxs_20_0fps_q5_d0_normal": {
+        "model_name": "mobilevit_xxs",
+        "scenario": "qos_sweep",
+        "input_fps": "20.0",
+        "qos_depth": "5",
+        "fake_delay_ms": "0",
+        "resource_profile": "normal",
+        "measurement_class": "unknown",
+        "derived_from": "profile name (no run metadata exists)"
+      }
+    },
+    "note": "Definitions are kept exactly as delivered. Use only with allow_unverified_os_profiles=true and label every result UNVERIFIED. Model names in metadata.profiles are parsed from the profile names."
+  }
+}

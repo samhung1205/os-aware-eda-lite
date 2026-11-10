@@ -53,6 +53,11 @@ for qos in $QOS_VALUES; do
   run_id="qos_sweep_${MODEL_NAME}_${RESOURCE_PROFILE}_${INPUT_FPS}fps_qos${qos}_d${FAKE_DELAY_MS}_${RUN_TAG}"
   output_csv="$RESULTS_DIR/${run_id}.csv"
   run_prepare "$run_id" "$output_csv" || exit $?
+  run_capture_metadata "$run_id" "$output_csv" "$RESOURCE_PROFILE" \
+    scenario=qos_sweep model_name="$MODEL_NAME" model_path="$MODEL_PATH" \
+    input_fps="$INPUT_FPS" qos_depth="$qos" fake_delay_ms="$FAKE_DELAY_MS" \
+    deadline_ms="$DEADLINE_MS" run_seconds="$RUN_SECONDS" warmup_frames="$WARMUP_FRAMES" \
+    dataset_path="$DATASET_PATH" launch_target="${launch_target[*]}" || exit $?
   echo "Running QoS sweep: QoS depth ${qos} for ${RUN_SECONDS} seconds..."
   set +e
   "${timeout_cmd[@]}" ros2 launch "${launch_target[@]}" \

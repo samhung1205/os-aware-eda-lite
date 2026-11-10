@@ -17,6 +17,12 @@ Measurement definitions (one summary row per configuration + run):
 - deadline miss: a processed frame with ``latency_ms > deadline_ms``. Dropped
   frames are never deadline misses; the miss rate is divided by processed frames
   and therefore cannot exceed 100%.
+- run conditions: ``<run_id>.meta.json`` next to the detector CSV (written by
+  ``src.ros2_runtime.run_metadata``) supplies ``measurement_class`` and the
+  effective memory limit; runs without it are ``measurement_class=unknown``.
+
+Provenance: ``main`` also writes ``<summary stem>.manifest.json`` with the
+SHA-256 of the summary and of every raw input (see ``src/provenance.py``).
 """
 
 from __future__ import annotations
@@ -24,11 +30,14 @@ from __future__ import annotations
 import argparse
 import csv
 from dataclasses import dataclass
+import json
 from html import escape
 from math import ceil
 from pathlib import Path
 from statistics import mean, pstdev
-from typing import Iterable
+from typing import Any, Iterable
+
+from src.provenance import CLASS_UNKNOWN, write_summary_manifest
 
 
 GROUP_FIELDS = [
@@ -80,7 +89,14 @@ SUMMARY_FIELDS = [
     "avg_artificial_delay_ms",
     "p95_inference_ms",
     "timing_schema",
+    # Added in Phase 1 / Batch 3 (run metadata, see src/ros2_runtime/run_metadata.py).
+    "measurement_class",
+    "memory_limit_mb",
+    "host_memory_mb",
+    "run_metadata",
 ]
+
+RUN_METADATA_SUFFIX = ".meta.json"
 
 FIGURE_METRICS = [
     ("avg_latency_ms", "Average latency (ms)", "ros2_avg_latency.svg"),
@@ -137,10 +153,29 @@ def main() -> None:
     args = _parse_args()
     rows = load_runtime_rows(args.input)
     publisher_frames = load_publisher_frames(args.input)
+    run_metadata = load_run_metadata(args.input)
     summary_rows = build_runtime_summary(
-        rows, publisher_frames=publisher_frames, warmup_frames=args.warmup_frames
+        rows,
+        publisher_frames=publisher_frames,
+        warmup_frames=args.warmup_frames,
+        run_metadata=run_metadata,
     )
     write_runtime_summary(args.summary_output, summary_rows)
+    manifest = write_summary_manifest(
+        args.summary_output,
+        inputs=collect_input_files(args.input, run_metadata),
+        runs=[
+            {
+                "run_id": row["run_id"],
+                "run_metadata": run_metadata.get(row["run_id"], (None, None))[0],
+                "measurement_class": row["measurement_class"],
+            }
+            for row in summary_rows
+        ],
+        settings={"warmup_frames": args.warmup_frames},
+        manifest_path=args.manifest_output,
+    )
+    print(f"Wrote provenance manifest to {manifest}")
 
     if args.figures_dir:
         written = write_runtime_svgs(summary_rows, args.figures_dir)
@@ -173,6 +208,69 @@ def load_runtime_rows(input_paths: Iterable[str | Path]) -> list[RuntimeRow]:
     return rows
 
 
+def load_run_metadata(input_paths: Iterable[str | Path]) -> dict[str, tuple[Path, dict[str, Any]]]:
+    """Load ``<run_id>.meta.json`` files that sit next to the detector CSVs.
+
+    Returns ``{run_id: (path, payload)}``. A metadata file whose ``run_id`` does
+    not match its CSV, or two files for one run, raise ValueError.
+    """
+
+    found: dict[str, tuple[Path, dict[str, Any]]] = {}
+    for csv_path in _expand_input_paths(input_paths):
+        if _is_publisher_log(csv_path):
+            continue
+        meta_path = csv_path.with_name(csv_path.name[: -len(".csv")] + RUN_METADATA_SUFFIX) \
+            if csv_path.name.endswith(".csv") else None
+        if meta_path is None or not meta_path.is_file():
+            continue
+        payload = json.loads(meta_path.read_text(encoding="utf-8"))
+        run_id = str(payload.get("run_id") or "")
+        if not run_id:
+            raise ValueError(f"{meta_path} has no run_id.")
+        if run_id in found and found[run_id][0] != meta_path:
+            raise ValueError(f"run_id '{run_id}' has two metadata files: {found[run_id][0]}, {meta_path}.")
+        csv_run_ids = _csv_run_ids(csv_path)
+        if csv_run_ids and csv_run_ids != {run_id}:
+            raise ValueError(f"{meta_path} is for run_id '{run_id}' but {csv_path} contains {sorted(csv_run_ids)}.")
+        found[run_id] = (meta_path, payload)
+    return found
+
+
+def collect_input_files(
+    input_paths: Iterable[str | Path],
+    run_metadata: dict[str, tuple[Path, dict[str, Any]]],
+) -> list[tuple[Path, str]]:
+    """Every raw file the summary depends on, as ``(path, kind)``."""
+
+    files = [
+        (path, "publisher_csv" if _is_publisher_log(path) else "detector_csv")
+        for path in _expand_input_paths(input_paths)
+    ]
+    files += [(path, "run_metadata") for path, _ in run_metadata.values()]
+    return files
+
+
+def _csv_run_ids(path: Path) -> set[str]:
+    with path.open("r", encoding="utf-8", newline="") as file:
+        return {(row.get("run_id") or "").strip() for row in csv.DictReader(file)} - {""}
+
+
+def _run_conditions(meta: dict[str, Any] | None) -> dict[str, str]:
+    """Summary columns taken from a run's metadata (empty when absent)."""
+
+    if not meta:
+        return {"measurement_class": CLASS_UNKNOWN, "memory_limit_mb": "", "host_memory_mb": ""}
+    limits = meta.get("resource_limits") or {}
+    effective = limits.get("effective") or {}
+    memory_max = effective.get("memory_max_bytes")
+    host_memory = (meta.get("host") or {}).get("memory_total_mb")
+    return {
+        "measurement_class": str(limits.get("measurement_class") or CLASS_UNKNOWN),
+        "memory_limit_mb": _format_number(memory_max / (1024 * 1024)) if isinstance(memory_max, int) else "",
+        "host_memory_mb": "" if host_memory is None else _format_number(float(host_memory)),
+    }
+
+
 def load_publisher_frames(input_paths: Iterable[str | Path]) -> dict[str, list[int]]:
     """Load publisher logs (``<run_id>.publisher.csv``) as {run_id: [frame_id, ...]}."""
 
@@ -197,11 +295,13 @@ def build_runtime_summary(
     rows: Iterable[RuntimeRow],
     publisher_frames: dict[str, list[int]] | None = None,
     warmup_frames: int = 0,
+    run_metadata: dict[str, tuple[Path, dict[str, Any]]] | None = None,
 ) -> list[dict[str, str]]:
     """Summarise runtime rows with one summary row per configuration and run.
 
     ``publisher_frames`` maps run_id to published frame ids; ``warmup_frames``
-    additionally excludes the first N received rows of every run. Raises
+    additionally excludes the first N received rows of every run;
+    ``run_metadata`` maps run_id to ``(path, payload)`` of its ``.meta.json``. Raises
     ValueError when rows from different runs cannot be separated safely (see
     validate_run_integrity) or a run reports more than one deadline_ms.
     """
@@ -209,6 +309,7 @@ def build_runtime_summary(
     if warmup_frames < 0:
         raise ValueError("warmup_frames must be non-negative.")
     publisher_frames = publisher_frames or {}
+    run_metadata = run_metadata or {}
     groups: dict[tuple[str, str, str, str, str, str, str], list[RuntimeRow]] = {}
     for row in rows:
         groups.setdefault(row.group_key(), []).append(row)
@@ -229,6 +330,8 @@ def build_runtime_summary(
         deadline_ms = _run_deadline(group_rows, key)
         deadline_misses = sum(1 for row in processed_rows if row.deadline_miss)
         timing_schemas = {row.timing_schema for row in group_rows}
+        meta_path, meta = run_metadata.get(key[6], (None, None))
+        conditions = _run_conditions(meta)
 
         summary_rows.append(
             {
@@ -269,6 +372,8 @@ def build_runtime_summary(
                     _percentile(_values(processed_rows, "inference_ms"), 95)
                 ),
                 "timing_schema": timing_schemas.pop() if len(timing_schemas) == 1 else "mixed",
+                **conditions,
+                "run_metadata": "" if meta_path is None else Path(meta_path).name,
             }
         )
     return summary_rows
@@ -730,6 +835,11 @@ def _parse_args() -> argparse.Namespace:
         default=0,
         help="Also exclude the first N received frames of every run (in addition to rows "
         "the detector flagged warmup=1). Default: 0.",
+    )
+    parser.add_argument(
+        "--manifest-output",
+        default=None,
+        help="Provenance manifest path. Default: <summary stem>.manifest.json next to the summary.",
     )
     return parser.parse_args()
 

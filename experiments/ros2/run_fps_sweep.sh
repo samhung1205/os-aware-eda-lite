@@ -53,6 +53,11 @@ for fps in $FPS_VALUES; do
   run_id="fps_sweep_${MODEL_NAME}_${RESOURCE_PROFILE}_${fps}fps_qos${QOS_DEPTH}_d${FAKE_DELAY_MS}_${RUN_TAG}"
   output_csv="$RESULTS_DIR/${run_id}.csv"
   run_prepare "$run_id" "$output_csv" || exit $?
+  run_capture_metadata "$run_id" "$output_csv" "$RESOURCE_PROFILE" \
+    scenario=fps_sweep model_name="$MODEL_NAME" model_path="$MODEL_PATH" \
+    input_fps="$fps" qos_depth="$QOS_DEPTH" fake_delay_ms="$FAKE_DELAY_MS" \
+    deadline_ms="$DEADLINE_MS" run_seconds="$RUN_SECONDS" warmup_frames="$WARMUP_FRAMES" \
+    dataset_path="$DATASET_PATH" launch_target="${launch_target[*]}" || exit $?
   echo "Running FPS sweep: ${fps} FPS for ${RUN_SECONDS} seconds..."
   set +e
   "${timeout_cmd[@]}" ros2 launch "${launch_target[@]}" \

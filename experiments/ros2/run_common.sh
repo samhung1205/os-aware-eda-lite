@@ -4,6 +4,15 @@
 # One sweep point = one launch = one run:
 #   $RESULTS_DIR/<run_id>.csv            detector rows
 #   $RESULTS_DIR/<run_id>.publisher.csv  published frames
+#   $RESULTS_DIR/<run_id>.meta.json      run conditions (src/ros2_runtime/run_metadata.py):
+#                                        git commit, OS/kernel, CPU, Python/Torch, ROS 2/RMW,
+#                                        QoS, net.core.* buffers, requested vs effective limits
+#
+# Resource limits: wrappers export REQUESTED_CPUS / REQUESTED_MEMORY_MAX for what they
+# asked taskset / systemd-run for. run_capture_metadata runs inside the same scope as
+# the launch, reads the limits actually in effect, and fails the run when a requested
+# limit is not verified (set ALLOW_UNVERIFIED_LIMITS=1 to keep going; the run is then
+# recorded as constraint_unverified / constraint_failed, never as constrained).
 # A run is successful only if it was still running when `timeout` stopped it
 # (exit 124) and the detector CSV contains at least one data row. Any other exit
 # means the launch ended early (start-up or runtime failure); its CSVs are renamed
@@ -17,12 +26,35 @@ run_prepare() {
     return 2
   fi
   local path
-  for path in "$output_csv" "${output_csv%.csv}.publisher.csv"; do
+  for path in "$output_csv" "${output_csv%.csv}.publisher.csv" "${output_csv%.csv}.meta.json"; do
     if [[ -e "$path" ]]; then
       echo "錯誤：${path} 已存在，拒絕 append 或覆寫。請改用新的 RUN_TAG。" >&2
       return 1
     fi
   done
+}
+
+# Usage: run_capture_metadata <run_id> <output_csv> <resource_profile> [key=value ...]
+run_capture_metadata() {
+  local run_id="$1" output_csv="$2" resource_profile="$3"
+  shift 3
+  local meta="${output_csv%.csv}.meta.json"
+  local args=(--output "$meta" --run-id "$run_id" --resource-profile "$resource_profile"
+              --requested-cpus "${REQUESTED_CPUS:-}" --requested-memory-max "${REQUESTED_MEMORY_MAX:-}")
+  local kv
+  for kv in "$@"; do
+    args+=(--param "$kv")
+  done
+  if [[ "${ALLOW_UNVERIFIED_LIMITS:-0}" != "1" ]]; then
+    args+=(--require-applied)
+  fi
+  local status=0
+  "${PYTHON_BIN:-python3}" -m src.ros2_runtime.run_metadata "${args[@]}" || status=$?
+  if [[ "$status" -ne 0 ]]; then
+    [[ -e "$meta" ]] && mv "$meta" "$meta.failed"
+    echo "錯誤：${run_id} 的 run metadata 檢查失敗（exit ${status}），未啟動 launch。" >&2
+    return "$status"
+  fi
 }
 
 # Usage: run_finish <launch_exit_status> <output_csv> <label>
@@ -39,7 +71,7 @@ run_finish() {
     return 0
   fi
   local path
-  for path in "$output_csv" "${output_csv%.csv}.publisher.csv"; do
+  for path in "$output_csv" "${output_csv%.csv}.publisher.csv" "${output_csv%.csv}.meta.json"; do
     if [[ -e "$path" ]]; then
       mv "$path" "$path.failed"
     fi

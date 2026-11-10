@@ -41,4 +41,6 @@ Each sweep point is one run: the scripts pass a unique `run_id` and write `$RESU
 
 A sweep point succeeds only if it was still running when `timeout` stopped it (exit 124) and the detector CSV has data rows. If the launch ends earlier (for example the detector fails at start-up; the launch file shuts down as soon as either node exits), the script stops with an error and renames that run's CSVs to `*.failed`. `WARMUP_FRAMES` (default 10) marks the first processed frames of every run as warm-up.
 
-Optional OS tuning such as `sysctl` changes, `taskset`, cgroups, or conda/RoboStack setup belongs to the external ROS2 environment until it is verified. Do not report generated CSVs as measured runtime data unless they came from a real ROS2 run.
+Before each launch the scripts write `$RESULTS_DIR/<run_id>.meta.json` (`python3 -m src.ros2_runtime.run_metadata`, run from the repository root): git commit, OS/kernel, CPU, Python/torch versions, `ROS_DISTRO` / `RMW_IMPLEMENTATION` / DDS transport variables, node QoS, `net.core.*` buffers as read, the experiment parameters, and requested (`REQUESTED_CPUS`, `REQUESTED_MEMORY_MAX`) vs effective limits with a `measurement_class`. A run whose requested limits cannot be verified fails before launch unless `ALLOW_UNVERIFIED_LIMITS=1`.
+
+The scripts never run `sudo` or change sysctls, cgroups or conda/RoboStack setup. Do not report generated CSVs as measured runtime data unless they came from a real ROS2 run and `python3 scripts/check_runtime_provenance.py` reports `VERIFIED`.

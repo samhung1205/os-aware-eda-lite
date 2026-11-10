@@ -119,9 +119,9 @@ os_aware_total_cost =
 
 Runtime-derived profiles：
 
-- `experiments/eda_lite/runtime_os_profiles.json` contains 22 `measured_*` profiles for MobileViT-XXS and MobileViT-S.
+- `experiments/eda_lite/runtime_os_profiles.legacy_unverified.json` contains 22 teammate-provided `measured_*` profiles for MobileViT-XXS and MobileViT-S.
 
-These profiles are derived from teammate runtime artifacts. Because raw ROS2 CSVs are not currently checked in, the report should mention this provenance limitation.
+These profiles are **UNVERIFIED**: no raw ROS2 CSVs, publisher logs, run metadata or runtime summary exist for them, `scripts/check_runtime_provenance.py` reports `BLOCKED`, and they use the legacy cross-model calibration (MobileViT-S idle already shows a ≈3.3× latency multiplier only because it is slower than XXS). Any number or figure derived from them must be labelled UNVERIFIED (the six-line figures carry `[OS profile: UNVERIFIED]` in their titles). They must not be presented as measured results.
 
 ### 5.4 Reproduction Commands
 
@@ -290,14 +290,14 @@ python3 -m src.ros2_runtime.build_os_profiles \
   --profile-prefix measured
 ```
 
-Only after these steps may the report call the runtime profiles measured.
+Only after these steps, with `build_os_profiles --require-verified` succeeding and `scripts/check_runtime_provenance.py` reporting `VERIFIED`, may the report call the runtime profiles measured.
 
 ## 8. Limitations
 
 - MobileViT profiles are simplified coarse estimates, not exact ONNX-derived model graphs.
 - Energy and latency are simulator estimates, not hardware measurements.
 - The simulator does not implement full EDA tensor splitting, memory planning, NPU scheduling, or code generation.
-- The current repo has no measured ROS2 runtime CSV yet.
+- The current repo has no measured ROS2 runtime CSV yet; the teammate-provided runtime-derived profiles and ROS2 figures are UNVERIFIED (provenance check: BLOCKED).
 - `runtime_os_profiles.example.json` is example data only.
 - COCO128 is used only as a small image input source, not as YOLO training/evaluation.
 - LLM/long-context KV-cache analysis remains background motivation, not implemented functionality.

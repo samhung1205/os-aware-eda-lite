@@ -7,14 +7,26 @@ import json
 from pathlib import Path
 from typing import Any
 
-from .run_simulation import run_simulation_with_config, write_simulation_csv
+from .run_simulation import (
+    run_simulation_with_config,
+    write_simulation_csv,
+    write_simulation_provenance,
+)
 
 
 def main() -> None:
     args = _parse_args()
     rows = run_profile_sweep(args.config)
     write_simulation_csv(args.output, rows)
-    print(f"Wrote {len(rows)} multi-profile simulation rows to {args.output}")
+    config_path = Path(args.config)
+    config = _load_profile_sweep_config(config_path)
+    simulation_config = _require_dict(config, "simulation")
+    simulation_config.setdefault("__config_dir", str(config_path.resolve().parent))
+    profiles = [_resolve_path(config_path.parent, p) for p in _require_string_list(config, "profiles")]
+    sidecar = write_simulation_provenance(
+        args.output, rows, config_path, simulation_config, profiles, "src.eda_lite.run_profile_sweep"
+    )
+    print(f"Wrote {len(rows)} multi-profile simulation rows to {args.output} (provenance: {sidecar})")
 
 
 def run_profile_sweep(config_path: str | Path) -> list[dict[str, Any]]:

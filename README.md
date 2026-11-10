@@ -50,6 +50,17 @@ Check whether runtime artifacts are complete enough for measured-result reportin
 python3 scripts/check_runtime_provenance.py
 ```
 
+It verifies the hash chain raw CSVs + run metadata → `ros2_runtime_summary.csv` (+ `.manifest.json`) → `runtime_os_profiles.json` → simulation CSVs (`*.provenance.json` sidecars). Exit 0 = `VERIFIED`, 1 = `BLOCKED` (a link is missing — currently there is **no raw ROS2 data in the repository**), 2 = `BROKEN` (a file no longer matches its recorded hash, or a sidecar is stale).
+
+Provenance status of OS profile sources (written per simulation row as `os_profile_provenance`):
+
+| Status | Meaning | Usable by the simulator |
+|---|---|---|
+| `builtin` / `inline` | `pure`, `normal`, … or profiles defined in the config | yes |
+| `example` | `runtime_os_profiles.example.json`, illustrative values | yes, never report as measured |
+| `verified` | built by `build_os_profiles` from a summary whose manifest verifies down to raw CSVs and run metadata | yes |
+| `unverified` | anything else, e.g. `runtime_os_profiles.legacy_unverified.json` (22 teammate-provided `measured_*` profiles without raw data, legacy cross-model calibration) | only with `"allow_unverified_os_profiles": true`; figures are titled `[OS profile: UNVERIFIED]` |
+
 ## 🚀 完整端到端執行流程 (End-to-End Pipeline)
 
 本專案所有的 `.sh` 腳本與 Python 模組已經高度自動化。請依照以下四個步驟順序執行，即可完整重現專題的所有數據與圖表：
@@ -64,7 +75,7 @@ bash scripts/install_ros2_conda.sh
 `setup_env.sh` creates or reuses the `eda_lite` conda environment. `install_ros2_conda.sh` should run after that environment exists.
 
 ### 步驟 1：執行 ROS 2 硬體壓力測試 (實機量測)
-確保已設定好上述環境與 ROS 2 變數後，執行自動化總管腳本，它會自動限制 CPU/RAM 資源並連續跑完 FPS、QoS、Overload 三大測試，產出 22 份 CSV 原始數據：
+確保已設定好上述環境與 ROS 2 變數後，執行自動化總管腳本，它會要求 CPU/RAM 資源限制並連續跑完 FPS、QoS、Overload 三大測試（每個 run 產生 `<run_id>.csv`、`<run_id>.publisher.csv`、`<run_id>.meta.json`）。限制是否真的生效由每個 run 的 metadata 讀回確認，未生效的 run 會直接失敗：
 ```bash
 bash scripts/run_baseline_experiments.sh
 ```
@@ -86,16 +97,17 @@ python3 -m src.ros2_runtime.build_os_profiles \
   --output experiments/eda_lite/runtime_os_profiles.json \
   --profile-prefix measured
 ```
-*(註：轉換完成後，請確保 `experiments/eda_lite/mobilevit_runtime_aware_sweep.json` 指向了該設定檔)*
+*(註：輸出的 `metadata.provenance_status` 必須是 `verified`（可加 `--require-verified` 強制）；之後再把 `experiments/eda_lite/mobilevit_runtime_aware_sweep.json` 的 `os_profile_file` 改指向 `runtime_os_profiles.json`。預設仍指向 example profiles。)*
 
 ### 步驟 4：執行 EDA-Lite 模擬與產出最終 6 條線比較圖
 依序執行 Pure（`pure` profile：只有 energy + 正常 latency cost，無 OS 懲罰）與 OS-Aware（一個 runtime-derived profile）的模擬，最後將它們疊加成對比圖：
 ```bash
 bash scripts/rebuild_eda_lite_figures.sh
 ```
-The script rebuilds MobileViT-S and MobileViT-XXS pure simulation CSVs, runtime-aware simulation CSVs, and the final six-line comparison figures. The compared profiles are not hard-coded in Python; override them with environment variables:
+The script first runs `check_runtime_provenance.py` (stops on `BROKEN`), then rebuilds MobileViT-S and MobileViT-XXS pure simulation CSVs, runtime-aware simulation CSVs (each with a `.provenance.json` sidecar), and the final six-line comparison figures. Each model only receives OS profiles measured on that model. By default the OS profiles come from `mobilevit_runtime_aware_sweep_legacy_unverified.json` (the teammate-provided profiles, **UNVERIFIED**), so the figure titles carry `[OS profile: UNVERIFIED]`. The compared profiles and source are not hard-coded in Python; override them with environment variables:
 
 ```bash
+RUNTIME_SWEEP_CONFIG=experiments/eda_lite/mobilevit_runtime_aware_sweep_legacy_unverified.json \
 OS_PROFILE_S=measured_overload_sweep_mobilevit_s_20_0fps_q5_d150_normal \
 OS_PROFILE_XXS=measured_overload_sweep_mobilevit_xxs_20_0fps_q5_d150_normal \
 PURE_PROFILE=pure FIGURES_ROOT=results/figures/eda_lite \
@@ -113,6 +125,7 @@ OS_Final/
   README.md
   跨平台輕量化模型效能分析與模擬.pdf
   src/
+    provenance.py            # hash chain / manifest / provenance status helpers
     eda_lite/
       model_loader.py
       schedulers.py
@@ -123,6 +136,7 @@ OS_Final/
     ros2_runtime/
       analyze_runtime.py
       build_os_profiles.py
+      run_metadata.py        # <run_id>.meta.json: requested vs effective limits, versions, RMW/QoS
     ros2_yolo11/
       analyze_runtime.py
       detector_node_notes.md
@@ -138,8 +152,10 @@ OS_Final/
     eda_lite/
       mobilevit_sram_sweep.json
       mobilevit_profile_sweep.json
-      mobilevit_runtime_aware_sweep.json
+      mobilevit_runtime_aware_sweep.json                  # default: example profiles
+      mobilevit_runtime_aware_sweep_legacy_unverified.json
       runtime_os_profiles.example.json
+      runtime_os_profiles.legacy_unverified.json          # teammate-provided, UNVERIFIED
       edge_profile_sweep.json
       yolo11_profile_sweep.json
     ros2/
@@ -249,7 +265,16 @@ Run the two-model baseline wrapper:
 bash scripts/run_baseline_experiments.sh
 ```
 
-On Linux, the wrapper uses `taskset` and `systemd-run` to apply 2-core / 2GB resource limits. On macOS or environments without those tools, it falls back to running the sweep scripts without Linux resource isolation; this is useful for functional checks but should not be reported as the constrained OS measurement condition.
+On Linux, the wrapper requests 2-core / 2GB limits with `taskset -c $CPU_SET` and `systemd-run --user --scope -p MemoryMax=$MEMORY_MAX` (defaults `0,1` / `2G`) and exports them as `REQUESTED_CPUS` / `REQUESTED_MEMORY_MAX`. Requesting is not the same as applying: `systemd-run --user` silently ignores `MemoryMax` without cgroup v2 memory-controller delegation. Before every launch, `run_capture_metadata` (in `experiments/ros2/run_common.sh`) runs `python3 -m src.ros2_runtime.run_metadata` inside the same scope and writes `$RESULTS_DIR/<run_id>.meta.json` with:
+
+- run_id, git commit (+ dirty flag), OS/kernel, CPU model, logical CPUs, host RAM, Python, torch/timm/numpy/opencv/psutil versions;
+- `ROS_DISTRO`, `RMW_IMPLEMENTATION` (unset = distro default), DDS transport variables (`FASTDDS_BUILTIN_TRANSPORTS`, `FASTRTPS_DEFAULT_PROFILES_FILE`, `CYCLONEDDS_URI`, `ROS_LOCALHOST_ONLY`, …), the node QoS (reliable publisher depth 10 → best-effort subscription depth `qos_depth`), and `net.core.{r,w}mem_{max,default}` as read;
+- requested limits, effective limits (CPU affinity, cgroup `memory.max` / `cpu.max`) and `measurement_class`: `constrained` (every requested limit read back and matching), `unconstrained` (none requested), `constraint_unverified` (could not read back, e.g. macOS / cgroup v1) or `constraint_failed` (read back and not in effect);
+- the experiment parameters (scenario, model, fps, QoS depth, delay, deadline, run seconds, warm-up, dataset, launch target).
+
+If a requested limit is not verified, the run fails before launch (`*.meta.json.failed`); `ALLOW_UNVERIFIED_LIMITS=1` lets it continue, recorded as `constraint_unverified`/`constraint_failed`, and OS profiles built from it stay `unverified`. Without `taskset`/`systemd-run` the wrappers request nothing and label the runs `resource_profile=unconstrained` (`tuned_unconstrained`), never `normal`.
+
+`scripts/run_os_tuned_experiments.sh` never runs `sudo` or changes sysctls. It requires `net.core.rmem_max >= TARGET_RMEM_MAX` (default 4194304) to be set by you beforehand and otherwise exits with the command to run manually. A larger `rmem_max` is only a cap: DDS may not request bigger buffers, and same-host Fast DDS may use shared memory, so the buffer may not matter. The actual values and RMW/transport settings are in each run's metadata; do not assume the tuning improved DDS.
 
 The launch file is expected to accept arguments such as `dataset_path`, `input_fps`, `qos_depth`, `model_path`, `model_name`, `fake_inference_delay_ms`, `deadline_ms`, `resource_profile`, `scenario`, `output_csv`, `run_id`, and `warmup_frames`. If the adapted ROS2 project uses different launch argument names, update the shell scripts.
 
@@ -348,8 +373,9 @@ Runtime summary columns:
 - `avg_artificial_delay_ms`
 - `p95_inference_ms`
 - `timing_schema`
+- `measurement_class`, `memory_limit_mb` (effective cgroup limit), `host_memory_mb`, `run_metadata` (from `<run_id>.meta.json`; `unknown`/empty when absent)
 
-The newer columns are appended after the original ones, so existing column order is unchanged.
+The newer columns are appended after the original ones, so existing column order is unchanged. The analyzer also writes `<summary stem>.manifest.json` (`--manifest-output` to override) with the SHA-256 of the summary and of every detector CSV, publisher log and run metadata file it read.
 
 ## Build Runtime OS Profiles
 
@@ -362,6 +388,12 @@ python3 -m src.ros2_runtime.build_os_profiles \
   --profile-prefix measured
 ```
 
+Calibration (audit P1-7):
+
+- `latency_multiplier = avg_latency_ms / baseline`, where the baseline is the **same model's** idle run under the same `resource_profile`: `fake_delay_ms = 0`, `fps_sweep` preferred, lowest `input_fps`, then lowest `qos_depth`; repeated runs averaged. Models are never normalised against each other. `--baseline-resource-profile normal` makes e.g. `tuned` runs use the `normal` idle run; `--baseline-latency-ms 40` or `--baseline-latency-ms mobilevit_xxs=40 mobilevit_s=120` overrides it. A model without an idle run is an error.
+- `memory_pressure = avg_memory_mb / reference`, reference = `--memory-reference-mb`, else the run's effective cgroup limit (`memory_limit_mb`), else host RAM (`host_memory_mb`). No reference → error (the old max-RSS normalisation is gone).
+- `metadata` records every baseline (value, condition, run_ids), each profile's model/run/measurement class/memory reference, the source summary + manifest SHA-256, and `provenance_status` (`verified` only if the manifest verifies to raw CSVs and every run has metadata with `measurement_class` `constrained` or `unconstrained`). `--require-verified` writes nothing otherwise.
+
 Then update `experiments/eda_lite/mobilevit_runtime_aware_sweep.json` so `os_profile_file` points to `runtime_os_profiles.json`, and run:
 
 ```bash
@@ -371,8 +403,11 @@ python3 -m src.eda_lite.run_simulation \
   --output results/csv/eda_lite_mobilevit_runtime_aware_sweep.csv
 ```
 
-`mobilevit_runtime_aware_sweep.json` uses `runtime_os_profiles.example.json` by default. That example file is not measured data.
-In the current branch, `mobilevit_runtime_aware_sweep.json` points to `runtime_os_profiles.json`, which contains teammate-provided runtime-derived `measured_*` profiles. See `report/runtime_result_provenance.md` before using those numbers in the final report.
+`mobilevit_runtime_aware_sweep.json` uses `runtime_os_profiles.example.json` by default (rows labelled `example`; not measured data). The teammate-provided `measured_*` profiles were moved to `runtime_os_profiles.legacy_unverified.json`; `mobilevit_runtime_aware_sweep_legacy_unverified.json` runs them with `allow_unverified_os_profiles: true` (rows labelled `unverified`). See `report/runtime_result_provenance.md` before using any runtime-derived number.
+
+Model matching: runtime-derived profiles carry the ROS2 model they were measured on (`metadata.profiles[name].model_name`), and model profiles declare `runtime_model_name` (`mobilevit_xxs` / `mobilevit_s`). Profiles listed by the file are filtered to the simulated model; an explicitly configured profile from another model is an error.
+
+Every `run_simulation` / `run_profile_sweep` output gets `<output stem>.provenance.json` with the SHA-256 of the output CSV, config, model profile(s) and OS profile file plus its provenance status, so `check_runtime_provenance.py` can flag stale CSVs.
 
 ## Model Profile Format
 
@@ -536,6 +571,7 @@ python3 -m unittest discover -s tests
 - ROS2 runtime analyzer can infer dropped frames from `frame_id` gaps.
 - ROS2 runtime summary can convert deadline, memory, and drop pressure into OS profiles.
 - old OS profile JSON without `drop_rate` remains compatible.
+- provenance chain end to end on synthetic temp data (verified / tampered / missing metadata / unapplied limits / stale sidecar), legacy profiles refused without opt-in and never mixed across models, per-model calibration and memory references, run metadata limits classification and scripts (`tests/test_provenance_calibration.py`).
 
 ## Correctness / Reproducibility Audit
 
@@ -545,7 +581,7 @@ Known correctness and reproducibility issues (P0/P1/P2) are tracked in `report/a
 python3 scripts/audit_repro.py
 ```
 
-Each case prints `REPRODUCED` (still present) or `FIXED`. The script is read-only and uses only the standard library.
+Each case prints `REPRODUCED` (still present), `FIXED`, or `BLOCKED` (code fixed, but confirming it needs data from a real ROS2 run, e.g. P0-3 raw CSVs, P1-8 cgroup read-back on Linux). The script is read-only and uses only the standard library.
 
 ## Reporting Rules
 
@@ -571,5 +607,5 @@ Each case prints `REPRODUCED` (still present) or `FIXED`. The script is read-onl
 
 1. 撰寫 report methodology 與 limitations。
 2. 實際 ROS2 workspace 準備完成後，執行 FPS/QoS/overload experiments 並保存 raw CSV。
-3. 用真實 ROS2 summary 產生 `runtime_os_profiles.json`，再重跑 `mobilevit_runtime_aware_sweep.json`。
+3. 用真實 ROS2 summary 產生 `runtime_os_profiles.json`（`--require-verified`），把 `mobilevit_runtime_aware_sweep.json` 改指向它，再重跑。
 4. 產生 final figures 並寫 results discussion。

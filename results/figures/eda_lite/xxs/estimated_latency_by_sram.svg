@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="920" height="560" viewBox="0 0 920 560">
 <style>text{font-family:Arial,sans-serif;fill:#1f2933}.axis{stroke:#334155;stroke-width:1.2}.grid{stroke:#d7dee8;stroke-width:1}.label{font-size:14px}.tick{font-size:12px;fill:#52616f}.title{font-size:20px;font-weight:700}.legend{font-size:13px}</style>
 <rect x="0" y="0" width="920" height="560" fill="#ffffff"/>
-<text class="title" x="460.0" y="34" text-anchor="middle">mobilevit_xxs_simplified_profile_estimate - Estimated latency (ms)</text>
+<text class="title" x="460.0" y="34" text-anchor="middle">mobilevit_xxs_simplified_profile_estimate - Estimated latency (ms) [OS profile: UNVERIFIED]</text>
 <line class="grid" x1="100" y1="478.0" x2="892" y2="478.0"/>
 <text class="tick" x="90" y="482.0" text-anchor="end">0</text>
 <line class="grid" x1="100" y1="376.5" x2="892" y2="376.5"/>

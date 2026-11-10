@@ -31,15 +31,15 @@ python3 scripts/audit_repro.py P0-1 P1-1  # 只跑指定 case
 |---|---|---|---|---|
 | P0-1 | P0 | DP objective | DP 最小化的是 per-subgraph 加總 surrogate，不是報告中的 `os_aware_total_cost`（**Batch 2 已修正**） | `P0-1` |
 | P0-2 | P0 | ROS 2 CSV 混用 | detector 以 append 寫入、`frame_id` 每次從 0 起算，重跑會讓掉幀率從 49.5% 變 0%（**PR-A1 已修正**） | `P0-2` |
-| P0-3 | P0 | Provenance | 主流程吃的 22 個 `measured_*` profiles 無法從 repo 重建；已追蹤 runtime-aware CSV 已過期 | `P0-3` |
+| P0-3 | P0 | Provenance | 主流程吃的 22 個 `measured_*` profiles 無法從 repo 重建；已追蹤 runtime-aware CSV 已過期（**Batch 3：機制已修正，資料 BLOCKED**：需實機 raw CSV） | `P0-3` |
 | P1-1 | P1 | Greedy 剪枝 | SRAM 可行性非單調，greedy 第一次不可行就停，會漏掉更長融合，甚至誤報不可行（**Batch 2 已修正**） | `P1-1` |
 | P1-2 | P1 | Sweep 健壯性 | 任一 scheduler 不可行就整個 sweep 中止，SRAM 無法往下掃（**Batch 2 已修正**） | `P1-2` |
 | P1-3 | P1 | OS-aware 鑑別力 | deadline 項恆為 0、22 個 OS profiles 從未改變任何排程、DP 與 greedy 88/88 相同（**Batch 2 已修正語意：`pure`、平手標示、profile 參數化；「不改變排程」是資料事實，已記錄**） | `P1-3` |
 | P1-4 | P1 | Deadline 一致性 | ROS 2 用 100 ms、EDA-Lite 用 33.3 ms；dropped rows 會算進 miss 數但分母只算 processed（**Batch 1 修正 runtime 端；Batch 2 修正 EDA-Lite 端**） | `P1-4`、`P1-4S` + 靜態 |
 | P1-5 | P1 | frame_id 掉幀推估 | 開頭/結尾掉幀看不到、explicit drop 會關掉 gap 推估、group key 未正規化（甚至 TypeError）（**Batch 1 已修正**） | `P1-5` |
 | P1-6 | P1 | 時間戳記語意 | `inference_ms` 含假延遲、混用時鐘、warm-up 未剔除、`received_at_ns` 未使用（**Batch 1 已修正**） | `P1-6` |
-| P1-7 | P1 | OS profile 正規化 | latency/memory baseline 跨模型取全域 min/max，S 模型 idle 也有 3.4× multiplier | `P1-7` |
-| P1-8 | P1 | 實驗條件可追溯 | 資源限制 fallback 仍標 `normal`、tuned 只改 `rmem_max`、檔名沒有 run id | 靜態 |
+| P1-7 | P1 | OS profile 正規化 | latency/memory baseline 跨模型取全域 min/max，S 模型 idle 也有 3.4× multiplier（**Batch 3 已修正**；legacy profiles 無原始資料，無法重算，標為 UNVERIFIED） | `P1-7` |
+| P1-8 | P1 | 實驗條件可追溯 | 資源限制 fallback 仍標 `normal`、tuned 只改 `rmem_max`、檔名沒有 run id（**Batch 3：程式已修正，Linux 實機驗證 BLOCKED**） | `P1-8` |
 | P2-1 | P2 | CI | 沒有任何 CI | 靜態 |
 | P2-2 | P2 | 依賴 | `requirements.txt` 未鎖版本、Python 版本不一致、ROS 依賴不在清單 | 靜態 |
 | P2-3 | P2 | Repo 衛生 | 18 個 `__pycache__`/`.DS_Store` 被追蹤；`*.csv` 被 ignore 但仍有 11 個 CSV 被追蹤 | 靜態 |

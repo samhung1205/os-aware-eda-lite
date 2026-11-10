@@ -106,14 +106,18 @@ experiments/eda_lite/mobilevit_sram_sweep.json
 experiments/eda_lite/mobilevit_profile_sweep.json
 experiments/eda_lite/mobilevit_runtime_aware_sweep.json
 experiments/eda_lite/mobilevit_sensitivity_sweep.json
+experiments/eda_lite/mobilevit_runtime_aware_sweep_legacy_unverified.json
 experiments/eda_lite/runtime_os_profiles.example.json
+experiments/eda_lite/runtime_os_profiles.legacy_unverified.json
 ```
 
 Purpose:
 
 - `mobilevit_sram_sweep.json`: single-profile SRAM/scheduler/OS-profile sweep.
 - `mobilevit_profile_sweep.json`: MobileViT-XXS vs MobileViT-S simplified profile comparison.
-- `mobilevit_runtime_aware_sweep.json`: EDA-Lite sweep using OS profiles from an external JSON file.
+- `mobilevit_runtime_aware_sweep.json`: EDA-Lite sweep using OS profiles from an external JSON file. Default: `runtime_os_profiles.example.json` (rows `os_profile_provenance=example`). Point it at `runtime_os_profiles.json` only after that file is `verified`.
+- `mobilevit_runtime_aware_sweep_legacy_unverified.json`: runs the teammate-provided profiles with `allow_unverified_os_profiles: true`; rows are `unverified`, figures titled `[OS profile: UNVERIFIED]`.
+- `runtime_os_profiles.legacy_unverified.json`: the 22 teammate-provided `measured_*` profiles (values unchanged, metadata added). No raw CSVs, summary or run metadata exist for them and they use the legacy cross-model calibration, so they are **UNVERIFIED**, never measured evidence.
 - `mobilevit_sensitivity_sweep.json`: SRAM (128–2048 KB) x simulation deadline (top-level `deadline_ms` list) x built-in profiles, all four schedulers including `exhaustive`.
 - `runtime_os_profiles.example.json`: example runtime-derived OS pressure profile file. It is not measured data.
 
@@ -137,7 +141,10 @@ src/ros2_runtime/
 Main modules:
 
 - `analyze_runtime.py`: analyzes ROS2 runtime CSVs per configuration and `run_id`, rejects mixed runs, infers dropped frames from `frame_id` gaps when explicit dropped rows are absent, and generates runtime summary CSVs/SVG figures.
-- `build_os_profiles.py`: converts ROS2 runtime summary CSVs into EDA-Lite OS profile JSON, including latency, deadline miss, memory pressure, and drop pressure.
+- `build_os_profiles.py`: converts ROS2 runtime summary CSVs into EDA-Lite OS profile JSON, including latency, deadline miss, memory pressure, and drop pressure. Latency is normalised per model against that model's idle run (same resource profile); memory against a verifiable limit (CLI, cgroup `memory.max`, or host RAM — never max RSS). Writes `metadata` (baselines, per-profile model/run, source hashes, `provenance_status`).
+- `run_metadata.py`: writes `<run_id>.meta.json` per run (git commit, OS/kernel, CPU, Python/torch, ROS 2/RMW, QoS, `net.core.*`, requested vs effective limits, `measurement_class`, experiment parameters). Never changes system settings.
+
+Provenance helpers: `src/provenance.py` (SHA-256 records, summary manifest, OS profile status, simulation `.provenance.json` sidecars). `scripts/check_runtime_provenance.py` verifies raw → summary → profiles → simulation: exit 0 VERIFIED, 1 BLOCKED (link missing; currently no raw ROS2 data), 2 BROKEN (hash mismatch / stale).
 
 Legacy compatibility path:
 
@@ -219,7 +226,7 @@ python3 -m src.ros2_runtime.build_os_profiles \
   --profile-prefix measured
 ```
 
-After real ROS2 data exists, update `experiments/eda_lite/mobilevit_runtime_aware_sweep.json` so `os_profile_file` points to the generated `runtime_os_profiles.json`.
+Add `--require-verified` to refuse writing anything that does not verify back to raw CSVs + run metadata. After real ROS2 data exists and `python3 scripts/check_runtime_provenance.py` reports `VERIFIED`, update `experiments/eda_lite/mobilevit_runtime_aware_sweep.json` so `os_profile_file` points to the generated `runtime_os_profiles.json`.
 
 ### Run Runtime-Aware MobileViT EDA-Lite Sweep
 
@@ -267,6 +274,8 @@ Notes:
 - Timing: cross-process stamps use the host wall clock; stage durations (`preprocess_ms`, `artificial_delay_ms`, `inference_ms`) use `perf_counter`. `inference_ms` excludes the injected delay in current CSVs (`timing_schema=v2`).
 - Warm-up rows (`warmup=1`, detector `warmup_frames`, analyzer `--warmup-frames`) are excluded from statistics.
 - The launch file shuts down when either node exits; scripts treat any non-timeout end as failure and rename its CSVs to `*.failed`.
+- Run conditions: `<run_id>.meta.json` next to each CSV; the summary carries `measurement_class` (`constrained` / `unconstrained` / `constraint_unverified` / `constraint_failed` / `unknown`), `memory_limit_mb`, `host_memory_mb`. Requested limits that are not read back make the run fail (unless `ALLOW_UNVERIFIED_LIMITS=1`); wrappers without `taskset`/`systemd-run` label runs `unconstrained`, never `normal`. Scripts never run `sudo`; the tuned wrapper only checks `net.core.rmem_max`.
+- The analyzer writes `<summary stem>.manifest.json` with SHA-256 of the summary and every raw input.
 - ROS2 CSVs are runtime measurements only if they were generated by an actual ROS2 run.
 - Test, example, or synthetic CSVs must not be reported as measured results.
 
@@ -312,7 +321,7 @@ Built-in OS profiles:
 
 Summaries report scheduler ties as `greedy=dp` (never as a greedy win), and leave reductions empty when the `layerwise` baseline is missing or infeasible (`baseline_status`). On the MobileViT coarse profiles OS profiles change the reported cost but not the chosen partition; do not claim otherwise without new evidence.
 
-Custom OS profiles can be provided through `os_profile_file`.
+Custom OS profiles can be provided through `os_profile_file`. Each simulation row records `os_profile_provenance` (`builtin` / `inline` / `example` / `verified` / `unverified`). Unverified files are refused unless the config sets `"allow_unverified_os_profiles": true`. Model-specific runtime profiles only apply to the model profile with the matching `runtime_model_name` (MobileViT profiles declare `mobilevit_xxs` / `mobilevit_s`); mixing models is an error.
 
 Expected OS profile JSON shape:
 
@@ -345,7 +354,9 @@ When writing reports, slides, captions, or experiment discussion:
 - Explain the simplified memory, energy, MobileViT block, and communication-drop assumptions.
 - Explain that MobileViT profiles are coarse simulation profiles, not exact ONNX model structures.
 - If using `runtime_os_profiles.example.json`, state that it is an example profile, not measured data.
-- Only call ROS2 data "measured" after it comes from actual ROS2 experiment CSVs.
+- Only call ROS2 data "measured" after it comes from actual ROS2 experiment CSVs and `scripts/check_runtime_provenance.py` reports `VERIFIED`.
+- `runtime_os_profiles.legacy_unverified.json`, `results/figures/ros2/*.svg` and anything derived from them are UNVERIFIED teammate-provided artifacts; label them so.
+- Only call a run "constrained" when its metadata says `measurement_class=constrained`.
 - YOLO-related content is currently paused; do not frame the project as a YOLO project unless the user explicitly resumes that direction.
 
 ## Current Deliverables Present In Repo
@@ -358,20 +369,22 @@ Implemented:
 - EDA-Lite CSV outputs and SVG figure generation.
 - ROS2 experiment script templates with MobileViT defaults.
 - ROS2 runtime CSV analyzer with frame-gap drop inference.
-- ROS2 runtime summary to EDA-Lite OS profile converter.
+- ROS2 runtime summary to EDA-Lite OS profile converter (per-model calibration, provenance metadata).
+- Run metadata capture, provenance manifests/sidecars and `scripts/check_runtime_provenance.py`.
 - Unit tests.
 - README.
 - AI interaction log.
 
 Still not implemented / not present:
 
-- Actual ROS2 runtime measurements.
-- Vendored ROS2 MobileViT/UAV pipeline source.
+- Actual ROS2 runtime measurements (raw CSVs, publisher logs, run metadata, summary): the provenance check is BLOCKED until a real run.
+- Verified `runtime_os_profiles.json` (only the UNVERIFIED legacy file exists).
 - Real model weights.
 - ONNX parser.
 - Real LLM inference or KV-cache simulation.
-- Final report.
 - Final presentation slides.
+
+(`src/ros2_uav_pipeline/` and a draft `report/final_report.md` are present.)
 
 ## Suggested Next Steps
 
@@ -379,7 +392,7 @@ Prioritize in this order unless the user redirects:
 
 1. Draft report methodology and limitations based on MobileViT simplified simulation and ROS2 runtime-analysis pipeline.
 2. Once an external ROS2 workspace is available, run FPS/QoS/overload experiments and save raw CSVs under `results/raw/ros2/`.
-3. Convert real ROS2 summaries to `runtime_os_profiles.json`.
+3. Convert real ROS2 summaries to `runtime_os_profiles.json` with `--require-verified`; `check_runtime_provenance.py` must report `VERIFIED`.
 4. Re-run `mobilevit_runtime_aware_sweep.json` with real runtime-derived OS profiles.
 5. Generate final figures and write results discussion.
 

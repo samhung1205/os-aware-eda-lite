@@ -53,6 +53,11 @@ for delay_ms in $DELAY_VALUES_MS; do
   run_id="overload_sweep_${MODEL_NAME}_${RESOURCE_PROFILE}_${INPUT_FPS}fps_qos${QOS_DEPTH}_d${delay_ms}_${RUN_TAG}"
   output_csv="$RESULTS_DIR/${run_id}.csv"
   run_prepare "$run_id" "$output_csv" || exit $?
+  run_capture_metadata "$run_id" "$output_csv" "$RESOURCE_PROFILE" \
+    scenario=overload_sweep model_name="$MODEL_NAME" model_path="$MODEL_PATH" \
+    input_fps="$INPUT_FPS" qos_depth="$QOS_DEPTH" fake_delay_ms="$delay_ms" \
+    deadline_ms="$DEADLINE_MS" run_seconds="$RUN_SECONDS" warmup_frames="$WARMUP_FRAMES" \
+    dataset_path="$DATASET_PATH" launch_target="${launch_target[*]}" || exit $?
   echo "Running Overload sweep: Delay ${delay_ms}ms for ${RUN_SECONDS} seconds..."
   set +e
   "${timeout_cmd[@]}" ros2 launch "${launch_target[@]}" \

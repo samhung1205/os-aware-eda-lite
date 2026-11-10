@@ -42,6 +42,10 @@ class ModelProfile:
 
     model_name: str
     layers: tuple[LayerProfile, ...]
+    # Optional: the ROS2 model this simplified profile stands for (e.g.
+    # "mobilevit_xxs"). Runtime-derived OS profiles measured on another model
+    # are never applied to this one.
+    runtime_model_name: str | None = None
 
 
 def load_model_profile(path: str | Path) -> ModelProfile:
@@ -63,7 +67,12 @@ def load_model_profile(path: str | Path) -> ModelProfile:
         raise ValueError("Model profile requires a non-empty 'layers' list.")
 
     layers = tuple(_parse_layer(index, layer) for index, layer in enumerate(raw_layers))
-    return ModelProfile(model_name=model_name, layers=layers)
+    runtime_model_name = raw_profile.get("runtime_model_name")
+    if runtime_model_name is not None and (
+        not isinstance(runtime_model_name, str) or not runtime_model_name.strip()
+    ):
+        raise ValueError("'runtime_model_name' must be a non-empty string when present.")
+    return ModelProfile(model_name=model_name, layers=layers, runtime_model_name=runtime_model_name)
 
 
 def _parse_layer(index: int, raw_layer: Any) -> LayerProfile:

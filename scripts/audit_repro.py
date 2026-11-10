@@ -7,7 +7,9 @@ Standard library only. Run from the repository root:
     python3 scripts/audit_repro.py P0-1 P1-5  # selected cases
 
 Each case prints REPRODUCED when the audited defect is still present, or
-FIXED when the current code no longer shows it.
+FIXED when the current code no longer shows it. BLOCKED means the code-side
+fix is in place but verification needs data that only a real ROS2 run can
+produce (e.g. raw CSVs for P0-3); it is not a pass.
 """
 
 from __future__ import annotations
@@ -54,11 +56,16 @@ PROFILES = {
 }
 SRAM_CFG = REPO / "experiments/eda_lite/mobilevit_sram_sweep.json"
 RUNTIME_CFG = REPO / "experiments/eda_lite/mobilevit_runtime_aware_sweep.json"
-RUNTIME_PROFILES = REPO / "experiments/eda_lite/runtime_os_profiles.json"
+RUNTIME_PROFILES = REPO / "experiments/eda_lite/runtime_os_profiles.legacy_unverified.json"
+LEGACY_RUNTIME_CFG = REPO / "experiments/eda_lite/mobilevit_runtime_aware_sweep_legacy_unverified.json"
+BLOCKED: set[str] = set()
 
 
-def _verdict(case: str, reproduced: bool, detail: str) -> bool:
-    print(f"[{case}] {'REPRODUCED' if reproduced else 'FIXED'}: {detail}")
+def _verdict(case: str, reproduced: bool, detail: str, blocked: bool = False) -> bool:
+    label = "REPRODUCED" if reproduced else ("BLOCKED" if blocked else "FIXED")
+    if blocked and not reproduced:
+        BLOCKED.add(case)
+    print(f"[{case}] {label}: {detail}")
     return reproduced
 
 
@@ -389,17 +396,33 @@ def case_p1_7() -> bool:
     rows = [
         dict(scenario="fps_sweep", model_name=m, input_fps="20", qos_depth="5", fake_delay_ms="0",
              resource_profile="normal", avg_latency_ms=str(lat), deadline_miss_rate_pct="0",
-             drop_rate_pct="0", avg_memory_mb=str(mem))
+             drop_rate_pct="0", avg_memory_mb=str(mem), memory_limit_mb="2048", run_id=f"idle_{m}")
         for m, lat, mem in (("mobilevit_xxs", 40, 300), ("mobilevit_s", 120, 600))
     ]
     defs = build_os_profile_payload(rows, profile_prefix="measured")["os_profile_definitions"]
     for name, d in defs.items():
         print(f"  idle {name}: {d}")
+    s_idle = defs["measured_fps_sweep_mobilevit_s_20fps_q5_d0_normal"]["latency_multiplier"]
+    s_mem = defs["measured_fps_sweep_mobilevit_s_20fps_q5_d0_normal"]["memory_pressure"]
+    no_ref = [dict(r, memory_limit_mb="") for r in rows]
+    try:
+        build_os_profile_payload(no_ref, profile_prefix="measured")
+        max_rss_fallback = True
+    except ValueError:
+        max_rss_fallback = False
+    legacy = _load_cfg(LEGACY_RUNTIME_CFG) if LEGACY_RUNTIME_CFG.exists() else _load_cfg(RUNTIME_CFG)
+    xxs_profiles = {r["os_profile"] for r in run_simulation_with_config(PROFILES["xxs"], legacy)}
+    mixed = any("mobilevit_s_" in name for name in xxs_profiles)
     real = json.loads(RUNTIME_PROFILES.read_text(encoding="utf-8"))["os_profile_definitions"]
     mem = [d["memory_pressure"] for d in real.values()]
-    print(f"  checked-in measured profiles: memory_pressure range {min(mem)}..{max(mem)}")
-    s_idle = defs["measured_fps_sweep_mobilevit_s_20fps_q5_d0_normal"]["latency_multiplier"]
-    return _verdict("P1-7", s_idle > 1.0, "idle MobileViT-S gets latency_multiplier > 1 from XXS baseline")
+    print(f"  memory_pressure for 600 MB with a 2048 MB limit: {s_mem}; "
+          f"max-RSS fallback without a reference: {max_rss_fallback}")
+    print(f"  XXS runtime-aware sweep uses MobileViT-S profiles: {mixed} ({len(xxs_profiles)} profiles)")
+    print(f"  legacy (unverified) profiles still carry the old calibration: memory_pressure "
+          f"{min(mem)}..{max(mem)} (not regenerable without raw data)")
+    return _verdict("P1-7", s_idle > 1.0 or max_rss_fallback or mixed,
+                    "idle MobileViT-S gets latency_multiplier > 1 from XXS baseline / max-RSS memory / "
+                    "profiles mixed across models")
 
 
 def case_p0_3() -> bool:
@@ -408,17 +431,75 @@ def case_p0_3() -> bool:
                           capture_output=True, text=True)
     print("  " + proc.stdout.strip().replace("\n", "\n  "))
     tracked = REPO / "results/csv/eda_lite_mobilevit_runtime_aware_sweep.csv"
+    regen = run_simulation_with_config(PROFILES["xxs"], _load_cfg(RUNTIME_CFG))
     stale = False
     if tracked.exists():
         with tracked.open(encoding="utf-8", newline="") as f:
-            tracked_profiles = {r["os_profile"] for r in csv.DictReader(f)}
-        regen = run_simulation_with_config(PROFILES["xxs"], _load_cfg(RUNTIME_CFG))
-        regen_profiles = {r["os_profile"] for r in regen}
-        stale = tracked_profiles != regen_profiles
-        print(f"  tracked {tracked.name}: profiles={sorted(tracked_profiles)[:2]}...; "
-              f"current config regenerates {len(regen)} rows with {len(regen_profiles)} measured_* profiles")
-    return _verdict("P0-3", proc.returncode != 0 or stale,
-                    "measured_* profiles lack raw CSV/summary; tracked runtime-aware CSV is stale")
+            tracked_rows = list(csv.DictReader(f))
+        key = lambda r: (r["os_profile"], r["sram_kb"], r["scheduler"], r["os_aware_total_cost"], r["subgraphs"])  # noqa: E731
+        stale = sorted(map(key, tracked_rows)) != sorted(map(key, regen))
+        print(f"  tracked {tracked.name}: {len(tracked_rows)} rows; regeneration from the default "
+              f"config matches: {not stale}")
+    default_sources = {r.get("os_profile_provenance") for r in regen}
+    unlabeled_default = not default_sources <= {"example", "verified"}
+    legacy_cfg = _load_cfg(LEGACY_RUNTIME_CFG) if LEGACY_RUNTIME_CFG.exists() else None
+    silently_used = False
+    if legacy_cfg is not None:
+        strict = dict(legacy_cfg)
+        strict.pop("allow_unverified_os_profiles", None)
+        try:
+            run_simulation_with_config(PROFILES["xxs"], strict)
+            silently_used = True
+        except ValueError:
+            pass
+        labels = {r["os_profile_provenance"] for r in run_simulation_with_config(PROFILES["xxs"], legacy_cfg)}
+        silently_used = silently_used or labels != {"unverified"}
+    false_pass = proc.returncode == 0 and not any((REPO / "results/raw/ros2").glob("*.csv"))
+    print(f"  default config OS profile sources: {sorted(default_sources)}; unverified profiles usable "
+          f"without opt-in/label: {silently_used}; check passes without raw data: {false_pass}")
+    reproduced = stale or unlabeled_default or silently_used or false_pass or proc.returncode == 2
+    return _verdict(
+        "P0-3", reproduced,
+        "measured_* profiles lack raw CSV/summary; tracked runtime-aware CSV is stale"
+        + ("" if reproduced else " -- mechanism fixed; raw ROS2 data still missing (needs a real run)"),
+        blocked=proc.returncode == 1,
+    )
+
+
+def case_p1_8() -> bool:
+    """Run conditions (limits, RMW, QoS, versions) are not recorded; fallback runs are labelled 'normal'."""
+    from src.ros2_runtime.run_metadata import classify_limits, collect_run_metadata
+
+    requested = {"cpus": [0, 1], "memory_max_bytes": 2 * 1024**3}
+    unreadable = classify_limits(requested, {"cpus_allowed": None, "memory_max_bytes": None})[1]
+    ignored = classify_limits(requested, {"cpus_allowed": [0, 1], "memory_max_bytes": "max"})[1]
+    applied = classify_limits(requested, {"cpus_allowed": [0, 1], "memory_max_bytes": 2 * 1024**3})[1]
+    meta = collect_run_metadata("audit", "normal", "0,1", "2G", effective={"cpus_allowed": None,
+                                "memory_max_bytes": None})
+    fields = ("git", "host", "python", "packages", "ros2", "qos", "network_sysctl", "resource_limits")
+    missing = [f for f in fields if f not in meta]
+    scripts = {name: (REPO / name).read_text(encoding="utf-8") for name in (
+        "scripts/run_baseline_experiments.sh", "scripts/run_os_tuned_experiments.sh",
+        "experiments/ros2/run_fps_sweep.sh", "experiments/ros2/run_qos_sweep.sh",
+        "experiments/ros2/run_overload_sweep.sh")}
+    runs_sudo = any(line.strip().startswith("sudo ") for text in scripts.values() for line in text.splitlines())
+    fallback_ok = all('RESOURCE_PROFILE="$UNCONSTRAINED_PROFILE"' in scripts[n] for n in (
+        "scripts/run_baseline_experiments.sh", "scripts/run_os_tuned_experiments.sh"))
+    captures = all("run_capture_metadata" in scripts[n] for n in scripts if n.startswith("experiments/"))
+    print(f"  limits requested but unreadable -> {unreadable}; requested but not in effect -> {ignored}; "
+          f"verified -> {applied}")
+    print(f"  metadata sections missing: {missing or '-'}; RMW recorded: "
+          f"{'RMW_IMPLEMENTATION' in meta['ros2']}; rmem_default recorded: "
+          f"{'net.core.rmem_default' in meta['network_sysctl']}")
+    print(f"  scripts run sudo: {runs_sudo}; unconstrained fallback relabelled: {fallback_ok}; "
+          f"every sweep run captures metadata: {captures}")
+    reproduced = (unreadable == "constrained" or ignored == "constrained" or applied != "constrained"
+                  or bool(missing) or runs_sudo or not fallback_ok or not captures)
+    return _verdict("P1-8", reproduced,
+                    "run conditions unrecorded; unconstrained fallback labelled as constrained"
+                    + ("" if reproduced else " -- code fixed; taskset/cgroup read-back still needs a "
+                       "Linux ROS2 run to confirm"),
+                    blocked=True)
 
 
 CASES = {
@@ -433,6 +514,7 @@ CASES = {
     "P1-5": case_p1_5,
     "P1-6": case_p1_6,
     "P1-7": case_p1_7,
+    "P1-8": case_p1_8,
     "LAUNCH": case_launch,
 }
 
@@ -449,6 +531,9 @@ def main(argv: list[str]) -> int:
         results[case] = CASES[case]()
     still = [c for c, r in results.items() if r]
     print(f"\nSummary: {len(still)}/{len(results)} reproduced: {', '.join(still) or '-'}")
+    blocked = [c for c in results if c in BLOCKED]
+    if blocked:
+        print(f"Blocked on real ROS2 data (code fixed, not verified by measurement): {', '.join(blocked)}")
     return 0
 
 

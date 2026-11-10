@@ -278,8 +278,10 @@ class EdaLiteTest(unittest.TestCase):
         )
 
     def test_mobilevit_runtime_aware_sweep_config_uses_os_profile_file(self):
+        # Batch 3 (P0-3): the default runtime-aware config uses the example
+        # profiles (labelled "example") until verified measured profiles exist.
         repo_root = Path(__file__).resolve().parents[1]
-        os_profile_path = repo_root / "experiments/eda_lite/runtime_os_profiles.json"
+        os_profile_path = repo_root / "experiments/eda_lite/runtime_os_profiles.example.json"
         os_profile_payload = json.loads(os_profile_path.read_text(encoding="utf-8"))
         os_profile_names = os_profile_payload["os_profiles"]
 
@@ -290,7 +292,7 @@ class EdaLiteTest(unittest.TestCase):
 
         self.assertEqual(len(rows), 4 * 3 * len(os_profile_names))
         self.assertEqual({row["os_profile"] for row in rows}, set(os_profile_names))
-        self.assertTrue(all(name.startswith("measured_") for name in os_profile_names))
+        self.assertEqual({row["os_profile_provenance"] for row in rows}, {"example"})
 
 
 def _small_layers():

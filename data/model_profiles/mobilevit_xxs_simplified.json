@@ -1,5 +1,6 @@
 {
   "model_name": "mobilevit_xxs_simplified_profile_estimate",
+  "runtime_model_name": "mobilevit_xxs",
   "layers": [
     {
       "name": "stem_conv",

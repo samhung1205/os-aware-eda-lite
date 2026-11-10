@@ -3,6 +3,11 @@
 The baseline uses the ``pure`` OS profile (latency multiplier 1.0, no deadline,
 memory, or communication pressure). Both profiles are chosen on the command
 line; nothing is hard-coded here.
+
+Chart titles state where the OS-aware profile came from (the CSV's
+``os_profile_provenance`` column): profiles that are not builtin, inline or
+verified measured data get an ``[OS profile: UNVERIFIED]`` / ``[... EXAMPLE]``
+tag, so a figure can never pass unverified runtime data off as measured.
 """
 
 import argparse
@@ -115,9 +120,25 @@ def generate_6line_charts(model, pure_csv, os_csv, os_profile_name, out_dir, pur
             d["scheduler"] += " (OS-Aware)"
             combined.append(ResultRow(d))
 
+    tag = provenance_tag(rows_os, model, os_profile_name)
     for metric_name, y_label, filename in PLOT_METRICS:
-        title = f"{model} - {y_label}"
+        title = f"{model} - {y_label}{tag}"
         build_combined_chart(combined, metric_name, title, y_label, f"{out_dir}/{filename}")
+
+TRUSTED_PROVENANCE = {"builtin", "inline", "verified"}
+
+
+def provenance_tag(rows, model, profile):
+    """Title suffix for an OS profile whose data is not verified (empty if trusted)."""
+
+    statuses = {
+        (r.values.get("os_profile_provenance") or "unknown")
+        for r in rows
+        if r.text("os_profile") == profile and r.text("model_name") == model
+    }
+    untrusted = sorted(statuses - TRUSTED_PROVENANCE)
+    return f" [OS profile: {'/'.join(s.upper() for s in untrusted)}]" if untrusted else ""
+
 
 def _parse_args():
     parser = argparse.ArgumentParser(description="Six-line pure vs OS-aware EDA-Lite charts.")

@@ -218,3 +218,21 @@ Implementation decision:
 Important limitation:
 
 - On the MobileViT coarse profiles no OS profile or deadline changes a schedule; only SRAM feasibility does. This is reported as-is. Runtime-aware costs with measured `latency_multiplier` up to 30.2 are dominated by the deadline term, which inherits P1-7 (cross-model normalisation) and P0-3 (unverifiable measured profiles).
+
+## 2026-11-10 Phase 1 / Batch 3: Experiment Provenance & OS Profile Calibration
+
+Prompt summary:
+
+- Fix audit P0-3 (provenance), P1-7 (OS profile calibration) and P1-8 (run reproducibility) with minimal changes, without fabricating measurements or forcing the provenance check to pass.
+
+Implementation decision:
+
+- Checkpoint-commit Batch 2 (`9eb6341`) first. `plot_6lines.py` was staged as a Batch-2-only blob (the user's `SIX_LINE_METRICS` hunk removed in the index) so the user's change stays uncommitted in the working tree; the staged snapshot passed the tests on its own.
+- Hash chain instead of a single `MANIFEST.sha256`: the analyzer writes `<summary>.manifest.json` (raw CSV / publisher log / run metadata hashes), `build_os_profiles` records the summary + manifest hashes and a `provenance_status`, every simulation CSV gets a `.provenance.json` sidecar. `check_runtime_provenance.py` distinguishes VERIFIED / BLOCKED / BROKEN.
+- The 22 teammate-provided profiles are kept value-for-value but moved to `runtime_os_profiles.legacy_unverified.json` and marked `unverified`; `runtime_os_profiles.json` is reserved for verified pipeline output. The default runtime-aware config points back to the example profiles; a separate legacy config opts in to unverified data and every row/figure says so.
+- Calibration per model and resource profile against the comparable idle run (not the global minimum); memory pressure against a verifiable limit (CLI, cgroup `memory.max`, host RAM) instead of max RSS. Model-specific profiles only apply to the matching `runtime_model_name`.
+- Run metadata is captured by a stdlib module inside the same taskset/systemd-run scope as the launch; requested and effective limits are recorded separately and a run is `constrained` only if every requested limit is read back. Scripts never call `sudo`; the tuned wrapper only checks `rmem_max`.
+
+Important limitation:
+
+- No raw ROS2 data exists, so P0-3 is BLOCKED (mechanism verified only with synthetic temp data in tests) and the legacy profiles cannot be recalibrated. P1-8's cgroup/affinity read-back is unit-tested with a fake `/proc` and cgroup tree but has not run on Linux with ROS 2.

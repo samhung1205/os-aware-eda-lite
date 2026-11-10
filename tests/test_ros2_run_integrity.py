@@ -182,7 +182,8 @@ class SummaryOutputTest(unittest.TestCase):
                 "run_b.csv": HEADER + _run_rows("run_b", range(5)),
             }
         )
-        payload = build_os_profile_payload(summary, profile_prefix="measured")
+        # Batch 3: memory pressure needs a real limit (no max-RSS fallback).
+        payload = build_os_profile_payload(summary, profile_prefix="measured", memory_reference_mb=2048)
 
         self.assertEqual(len(set(payload["os_profiles"])), 2)
 
