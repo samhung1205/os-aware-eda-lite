@@ -103,9 +103,19 @@ SUMMARY_FIELDS = [
     "memory_limit_mb",
     "host_memory_mb",
     "run_metadata",
+    # Added in Phase 2 / Batch 2 (baseline benchmark).
+    "p50_latency_ms",
+    "p50_transport_ms",
+    "p95_transport_ms",
+    "p50_inference_ms",
+    "avg_service_ms",
+    "offered_fps",
+    "processed_fps",
+    "max_memory_mb",
 ]
 
 RUN_METADATA_SUFFIX = ".meta.json"
+RUNTIME_PROBE_SUFFIX = ".probe.json"
 
 FIGURE_METRICS = [
     ("avg_latency_ms", "Average latency (ms)", "ros2_avg_latency.svg"),
@@ -139,6 +149,8 @@ class RuntimeRow:
     preprocess_ms: float | None = None
     artificial_delay_ms: float | None = None
     timing_schema: str = "legacy"
+    published_at_ns: int | None = None
+    completed_at_ns: int | None = None
 
     @property
     def processed(self) -> bool:
@@ -168,6 +180,7 @@ def main() -> None:
         publisher_frames=publisher_frames,
         warmup_frames=args.warmup_frames,
         run_metadata=run_metadata,
+        publisher_times=load_publisher_times(args.input),
     )
     write_runtime_summary(args.summary_output, summary_rows)
     manifest = write_summary_manifest(
@@ -256,6 +269,12 @@ def collect_input_files(
         for path in _expand_input_paths(input_paths)
     ]
     files += [(path, "run_metadata") for path, _ in run_metadata.values()]
+    # Runtime probe (DDS transport + resource samples), when the run wrote one.
+    for path, kind in list(files):
+        if kind == "detector_csv" and path.name.endswith(".csv"):
+            probe = path.with_name(path.name[: -len(".csv")] + RUNTIME_PROBE_SUFFIX)
+            if probe.is_file():
+                files.append((probe, "runtime_probe"))
     return files
 
 
@@ -300,11 +319,43 @@ def load_publisher_frames(input_paths: Iterable[str | Path]) -> dict[str, list[i
     return frames
 
 
+def load_publisher_times(input_paths: Iterable[str | Path]) -> dict[str, dict[int, int]]:
+    """Publisher logs as {run_id: {frame_id: published_at_ns}} (rows without a stamp skipped)."""
+
+    times: dict[str, dict[int, int]] = {}
+    for path in _expand_input_paths(input_paths):
+        if not _is_publisher_log(path):
+            continue
+        with path.open("r", encoding="utf-8", newline="") as file:
+            for raw_row in csv.DictReader(file):
+                run_id = (raw_row.get("run_id") or "").strip()
+                frame_id = _optional_int(raw_row.get("frame_id"))
+                stamp = _optional_int(raw_row.get("published_at_ns"))
+                if run_id and frame_id is not None and stamp is not None:
+                    times.setdefault(run_id, {})[frame_id] = stamp
+    return times
+
+
+def _rate_fps(stamps_ns: list[int]) -> float | None:
+    """Events per second over the span of the stamps: (n - 1) / (last - first)."""
+
+    if len(stamps_ns) < 2:
+        return None
+    span = (max(stamps_ns) - min(stamps_ns)) / 1e9
+    return None if span <= 0 else (len(stamps_ns) - 1) / span
+
+
+def _service_ms(row: RuntimeRow) -> float | None:
+    parts = (row.preprocess_ms, row.artificial_delay_ms, row.inference_ms)
+    return None if any(p is None for p in parts) else sum(parts)  # type: ignore[arg-type]
+
+
 def build_runtime_summary(
     rows: Iterable[RuntimeRow],
     publisher_frames: dict[str, list[int]] | None = None,
     warmup_frames: int = 0,
     run_metadata: dict[str, tuple[Path, dict[str, Any]]] | None = None,
+    publisher_times: dict[str, dict[int, int]] | None = None,
 ) -> list[dict[str, str]]:
     """Summarise runtime rows with one summary row per configuration and run.
 
@@ -318,6 +369,7 @@ def build_runtime_summary(
     if warmup_frames < 0:
         raise ValueError("warmup_frames must be non-negative.")
     publisher_frames = publisher_frames or {}
+    publisher_times = publisher_times or {}
     run_metadata = run_metadata or {}
     groups: dict[tuple[str, str, str, str, str, str, str], list[RuntimeRow]] = {}
     for row in rows:
@@ -341,6 +393,13 @@ def build_runtime_summary(
         timing_schemas = {row.timing_schema for row in group_rows}
         meta_path, meta = run_metadata.get(key[6], (None, None))
         conditions = _run_conditions(meta)
+        run_times = publisher_times.get(key[6], {})
+        offered_stamps = [run_times[f] for f in (published or []) if f in run_times]
+        completed_stamps = [row.completed_at_ns for row in processed_rows if row.completed_at_ns is not None]
+        transports = _values(processed_rows, "transport_ms")
+        inferences = _values(processed_rows, "inference_ms")
+        services = [v for v in (_service_ms(row) for row in processed_rows) if v is not None]
+        memories = _values(measured, "memory_mb")
 
         summary_rows.append(
             {
@@ -383,6 +442,14 @@ def build_runtime_summary(
                 "timing_schema": timing_schemas.pop() if len(timing_schemas) == 1 else "mixed",
                 **conditions,
                 "run_metadata": "" if meta_path is None else Path(meta_path).name,
+                "p50_latency_ms": _format_optional(_percentile(latencies, 50)),
+                "p50_transport_ms": _format_optional(_percentile(transports, 50)),
+                "p95_transport_ms": _format_optional(_percentile(transports, 95)),
+                "p50_inference_ms": _format_optional(_percentile(inferences, 50)),
+                "avg_service_ms": _format_optional(_average(services)),
+                "offered_fps": _format_optional(_rate_fps(offered_stamps)),
+                "processed_fps": _format_optional(_rate_fps(completed_stamps)),
+                "max_memory_mb": _format_optional(max(memories) if memories else None),
             }
         )
     return summary_rows
@@ -693,6 +760,8 @@ def _parse_runtime_row(
         preprocess_ms=_optional_float(raw_row.get("preprocess_ms")),
         artificial_delay_ms=_optional_float(raw_row.get("artificial_delay_ms")),
         timing_schema=timing_schema,
+        published_at_ns=_optional_int(raw_row.get("published_at_ns")),
+        completed_at_ns=_optional_int(raw_row.get("completed_at_ns")),
     )
 
 

@@ -21,6 +21,19 @@ SWEEPS="${SWEEPS:-fps qos overload}"
 # 主機有 swap 時，只設 MemoryMax 會讓超出限制的頁面被換出而不是 OOM；預設同時禁止 swap（0）。
 # 設為空字串可回到只設 MemoryMax。實際值記錄在 meta.json effective.memory_swap_max_bytes。
 MEMORY_SWAP_MAX="${MEMORY_SWAP_MAX-0}"
+# 共用主機：以低優先權執行（nice，不需要 sudo）。實際 nice 值記錄在 meta.json process.nice 與 probe.json。
+NICE_LEVEL="${NICE_LEVEL:-10}"
+# Fast DDS XML profile 只對 rmw_fastrtps_cpp 有效：設定 profile 時固定 RMW，拒絕其他 RMW。
+DDS_PROFILE="${FASTRTPS_DEFAULT_PROFILES_FILE:-${FASTDDS_DEFAULT_PROFILES_FILE:-}}"
+if [[ -n "$DDS_PROFILE" ]]; then
+  if [[ -n "${RMW_IMPLEMENTATION:-}" && "${RMW_IMPLEMENTATION}" != "rmw_fastrtps_cpp" ]]; then
+    echo "錯誤：Fast DDS profile ${DDS_PROFILE} 需要 RMW_IMPLEMENTATION=rmw_fastrtps_cpp（目前 ${RMW_IMPLEMENTATION}）。" >&2
+    exit 2
+  fi
+  export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+  echo "DDS profile: ${DDS_PROFILE}（RMW_IMPLEMENTATION=rmw_fastrtps_cpp；執行期由 <run_id>.probe.json 驗證）"
+fi
+echo "ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-<unset>}  NICE_LEVEL=${NICE_LEVEL}"
 # 同一批次共用 RUN_TAG，每個 sweep 點仍有唯一 run_id 與獨立 CSV。
 export RUN_TAG="${RUN_TAG:-$(date +%Y%m%dT%H%M%S)_$$}"
 
@@ -32,11 +45,11 @@ run_sweep() {
     # 每個 run 的 <run_id>.meta.json 會在 scope 內讀回實際生效的限制，未生效則該 run 失敗。
     REQUESTED_CPUS="$CPU_SET" REQUESTED_MEMORY_MAX="$MEMORY_MAX" \
       taskset -c "$CPU_SET" systemd-run --user --scope -p MemoryMax="$MEMORY_MAX" \
-        ${MEMORY_SWAP_MAX:+-p MemorySwapMax="$MEMORY_SWAP_MAX"} bash "$script_path"
+        ${MEMORY_SWAP_MAX:+-p MemorySwapMax="$MEMORY_SWAP_MAX"} nice -n "$NICE_LEVEL" bash "$script_path"
   else
     # 沒有套用任何限制：label 改成 *_unconstrained，不可與受限 run 混為一談。
     echo "警告：找不到 taskset/systemd-run，以「無資源限制」執行 $script_path（resource_profile=${UNCONSTRAINED_PROFILE}）"
-    RESOURCE_PROFILE="$UNCONSTRAINED_PROFILE" REQUESTED_CPUS="" REQUESTED_MEMORY_MAX="" bash "$script_path"
+    RESOURCE_PROFILE="$UNCONSTRAINED_PROFILE" REQUESTED_CPUS="" REQUESTED_MEMORY_MAX="" nice -n "$NICE_LEVEL" bash "$script_path"
   fi
 }
 

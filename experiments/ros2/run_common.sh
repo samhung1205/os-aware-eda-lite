@@ -26,7 +26,7 @@ run_prepare() {
     return 2
   fi
   local path
-  for path in "$output_csv" "${output_csv%.csv}.publisher.csv" "${output_csv%.csv}.meta.json"; do
+  for path in "$output_csv" "${output_csv%.csv}.publisher.csv" "${output_csv%.csv}.meta.json" "${output_csv%.csv}.probe.json"; do
     if [[ -e "$path" ]]; then
       echo "錯誤：${path} 已存在，拒絕 append 或覆寫。請改用新的 RUN_TAG。" >&2
       return 1
@@ -57,6 +57,53 @@ run_capture_metadata() {
   fi
 }
 
+# Runtime probe (Phase 2 / Batch 2, src/ros2_runtime/runtime_probe.py): runs in the same
+# scope as the launch and writes <run_id>.probe.json with the DDS transport actually used
+# (UDP sockets, Fast DDS /dev/shm segment sizes), per-node CPU / RSS / affinity / nice,
+# cgroup memory and host load. RUNTIME_PROBE=0 disables it. With an SHM-only
+# FASTRTPS_DEFAULT_PROFILES_FILE and REQUIRE_DDS_VERIFIED=1 (default when a profile is set)
+# a run whose probe does not confirm the profile is failed.
+# Usage: run_start_probe <run_id> <output_csv>
+run_start_probe() {
+  PROBE_PID=""
+  [[ "${RUNTIME_PROBE:-1}" == "1" ]] || return 0
+  local run_id="$1" output_csv="$2"
+  "${PYTHON_BIN:-python3}" -m src.ros2_runtime.runtime_probe \
+    --output "${output_csv%.csv}.probe.json" --run-id "$run_id" \
+    --max-seconds "$(( ${RUN_SECONDS:-60} + 60 ))" \
+    --dds-profile "${FASTRTPS_DEFAULT_PROFILES_FILE:-${FASTDDS_DEFAULT_PROFILES_FILE:-}}" &
+  PROBE_PID=$!
+}
+
+# Usage: run_stop_probe
+run_stop_probe() {
+  [[ -n "${PROBE_PID:-}" ]] || return 0
+  kill -TERM "$PROBE_PID" 2>/dev/null || true
+  wait "$PROBE_PID" 2>/dev/null || true
+  PROBE_PID=""
+}
+
+# Prints a failure reason when the probe does not confirm the requested DDS profile.
+_probe_check() {
+  local output_csv="$1" probe="${1%.csv}.probe.json"
+  local profile="${FASTRTPS_DEFAULT_PROFILES_FILE:-${FASTDDS_DEFAULT_PROFILES_FILE:-}}"
+  [[ "${RUNTIME_PROBE:-1}" == "1" && -n "$profile" && "${REQUIRE_DDS_VERIFIED:-1}" == "1" ]] || return 0
+  if [[ ! -f "$probe" ]]; then
+    echo "缺少 runtime probe 輸出 ${probe}，無法確認 DDS profile 已載入"
+    return 0
+  fi
+  "${PYTHON_BIN:-python3}" - "$probe" <<'PY'
+import json, sys
+dds = json.load(open(sys.argv[1]))["dds"]
+if not dds.get("expect_shm_only"):
+    # Only SHM-only profiles can be confirmed from sockets / segments. Anything else
+    # (unparseable XML, UDP profile) cannot be verified: refuse instead of passing silently.
+    print("DDS profile 不是可解析的 SHM-only profile，無法於執行期驗證（設 REQUIRE_DDS_VERIFIED=0 才可執行）")
+elif not dds.get("verified"):
+    print("DDS profile 未在執行期確認：" + "; ".join(dds.get("reasons") or ["unknown"]))
+PY
+}
+
 # Usage: run_finish <launch_exit_status> <output_csv> <label>
 run_finish() {
   local status="$1" output_csv="$2" label="$3"
@@ -65,13 +112,15 @@ run_finish() {
     reason="launch 在 RUN_SECONDS 之前結束（exit ${status}），視為啟動或執行失敗"
   elif [[ ! -f "$output_csv" ]] || [[ "$(wc -l < "$output_csv")" -lt 2 ]]; then
     reason="到時結束但 detector 沒有處理任何 frame（${output_csv} 無資料列）"
+  else
+    reason="$(_probe_check "$output_csv")"
   fi
   if [[ -z "$reason" ]]; then
     echo "完成：${label}（到時正常結束）"
     return 0
   fi
   local path
-  for path in "$output_csv" "${output_csv%.csv}.publisher.csv" "${output_csv%.csv}.meta.json"; do
+  for path in "$output_csv" "${output_csv%.csv}.publisher.csv" "${output_csv%.csv}.meta.json" "${output_csv%.csv}.probe.json"; do
     if [[ -e "$path" ]]; then
       mv "$path" "$path.failed"
     fi

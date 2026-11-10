@@ -76,7 +76,10 @@ class DdsProfileTest(unittest.TestCase):
 
     def test_metadata_records_profile_path_and_hash(self):
         info = dds_profile_info({"FASTRTPS_DEFAULT_PROFILES_FILE": str(FASTDDS_PROFILE)})
-        self.assertEqual(info, {"path": str(FASTDDS_PROFILE), "sha256": sha256_file(FASTDDS_PROFILE)})
+        self.assertEqual(info["path"], str(FASTDDS_PROFILE))
+        self.assertEqual(info["sha256"], sha256_file(FASTDDS_PROFILE))
+        self.assertTrue(info["parsed"]["shm_only"])
+        self.assertEqual(info["parsed"]["shm_segment_size"], 16 * 1024 * 1024)
         self.assertIsNone(dds_profile_info({})["path"])
         missing = dds_profile_info({"FASTRTPS_DEFAULT_PROFILES_FILE": "/nonexistent/profile.xml"})
         self.assertIsNone(missing["sha256"])

@@ -58,6 +58,7 @@ for qos in $QOS_VALUES; do
     deadline_ms="$DEADLINE_MS" run_seconds="$RUN_SECONDS" warmup_frames="$WARMUP_FRAMES" \
     dataset_path="$DATASET_PATH" launch_target="${launch_target[*]}" || exit $?
   echo "Running QoS sweep: QoS depth ${qos} for ${RUN_SECONDS} seconds..."
+  run_start_probe "$run_id" "$output_csv"
   set +e
   "${timeout_cmd[@]}" ros2 launch "${launch_target[@]}" \
     dataset_path:="$DATASET_PATH" \
@@ -73,5 +74,6 @@ for qos in $QOS_VALUES; do
     warmup_frames:="$WARMUP_FRAMES"
   status=$?
   set -e
+  run_stop_probe
   run_finish "$status" "$output_csv" "QoS sweep $run_id" || exit 1
 done

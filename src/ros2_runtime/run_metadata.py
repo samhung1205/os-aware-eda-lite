@@ -206,7 +206,56 @@ def dds_profile_info(environ: dict[str, str] | None = None) -> dict[str, Any]:
         digest = sha256_file(path)
     except OSError as exc:
         return {"path": path, "sha256": None, "note": f"profile not readable: {exc}"}
-    return {"path": path, "sha256": digest}
+    return {"path": path, "sha256": digest, "parsed": parse_fastdds_profile(path)}
+
+
+def parse_fastdds_profile(path: str) -> dict[str, Any]:
+    """Static summary of a Fast DDS XML profile: transports of the default participant.
+
+    This only shows what the file asks for; whether the running processes used it is
+    checked at run time by ``src/ros2_runtime/runtime_probe.py`` (``<run_id>.probe.json``).
+    """
+
+    import xml.etree.ElementTree as ET
+
+    try:
+        root = ET.parse(path).getroot()
+    except (ET.ParseError, OSError) as exc:
+        return {"valid_xml": False, "error": str(exc)}
+
+    def local(tag: str) -> str:
+        return tag.rsplit("}", 1)[-1]
+
+    descriptors: dict[str, dict[str, Any]] = {}
+    default_participant: dict[str, Any] | None = None
+    for elem in root.iter():
+        if local(elem.tag) == "transport_descriptor":
+            fields = {local(child.tag): (child.text or "").strip() for child in elem}
+            tid = fields.get("transport_id", "")
+            descriptors[tid] = {"type": fields.get("type"),
+                                "segment_size": int(fields["segment_size"])
+                                if fields.get("segment_size", "").isdigit() else None}
+        elif local(elem.tag) == "participant" and elem.get("is_default_profile") == "true":
+            user = [(e.text or "").strip() for e in elem.iter() if local(e.tag) == "transport_id"]
+            builtin = [(e.text or "").strip().lower() for e in elem.iter()
+                       if local(e.tag) == "useBuiltinTransports"]
+            default_participant = {"profile_name": elem.get("profile_name"),
+                                   "user_transports": user,
+                                   "use_builtin_transports": None if not builtin else builtin[0] == "true"}
+    shm_only = bool(
+        default_participant
+        and default_participant["use_builtin_transports"] is False
+        and default_participant["user_transports"]
+        and all((descriptors.get(t) or {}).get("type") == "SHM" for t in default_participant["user_transports"])
+    )
+    segment = None
+    if shm_only:
+        sizes = [descriptors[t]["segment_size"] for t in default_participant["user_transports"]
+                 if descriptors[t]["segment_size"]]
+        segment = max(sizes) if sizes else None
+    return {"valid_xml": True, "transport_descriptors": descriptors,
+            "default_participant": default_participant, "shm_only": shm_only,
+            "shm_segment_size": segment}
 
 
 def classify_limits(requested: dict[str, Any], effective: dict[str, Any]) -> tuple[dict[str, bool | None], str]:
@@ -259,6 +308,7 @@ def collect_run_metadata(
         "packages": {name: _package_version(name) for name in PACKAGES},
         "ros2": {name: os.environ.get(name) for name in ROS_ENV_VARS},
         "dds_profile": dds_profile_info(),
+        "process": {"nice": os.nice(0) if hasattr(os, "nice") else None},
         "qos": NODE_QOS,
         "network_sysctl": {f"net.core.{name}": _read_int(Path("/proc/sys/net/core") / name) for name in NET_SYSCTLS},
         "transport_note": TRANSPORT_NOTE,
