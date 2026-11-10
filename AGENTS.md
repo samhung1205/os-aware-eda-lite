@@ -145,6 +145,7 @@ Main modules:
 - `run_metadata.py`: writes `<run_id>.meta.json` per run (git commit, OS/kernel, CPU, Python/torch, ROS 2/RMW, QoS, `net.core.*`, requested vs effective limits, `measurement_class`, experiment parameters, parsed Fast DDS profile, `process.nice`). Never changes system settings.
 - `runtime_probe.py` (Phase 2 / Batch 2): `<run_id>.probe.json` from the launch scope — UDP sockets and Fast DDS `/dev/shm` segment sizes of both nodes (runtime proof the SHM-only XML was applied), per-node CPU/RSS/affinity/nice, cgroup memory, host load, SMT-sibling busy time. The sweep scripts fail a run whose probe does not confirm an SHM-only profile.
 - `aggregate_baseline.py` (Phase 2 / Batch 2): per-run table + per-condition mean/SD/min/max across runs (run = replicate), capacity / utilization / expected overload drop / `drop_cause`, SVG figures, SHA-256 manifest.
+- `aggregate_scheduling.py` (Phase 3 / Batch 1): scheduling runs → per-run table (arm / block / position from meta.json, probe fields, `on_time_fps`), per-arm across-run stats, within-block paired differences vs a reference arm (default `legacy_q1`), SHA-256 manifest.
 
 Provenance helpers: `src/provenance.py` (SHA-256 records, summary manifest, OS profile status, simulation `.provenance.json` sidecars). `scripts/check_runtime_provenance.py` verifies raw → summary → profiles → simulation: exit 0 VERIFIED (current state, Phase 2 / Batch 2), 1 BLOCKED (link missing), 2 BROKEN (hash mismatch / stale).
 
@@ -185,7 +186,9 @@ Pipeline semantics (Phase 1 / Batch 4, audit P2-6):
 - Start-up (Phase 2 / Batch 1): the detector subscribes after the model and CSV are ready; the publisher starts frame 0 (and its log) only once a subscriber is matched. Float parameters (`input_fps`, `deadline_ms`) use `dynamic_typing` so `input_fps:=5` works.
 - DDS transport: on the Phase 2 server the RMW default transports lose 50–85% of the ~1 MB best-effort frames (rmem_max 212992). `experiments/ros2/fastdds_shm_large.xml` (Fast DDS SHM-only, 16 MB segment) delivers all frames (verified lossless up to 50 FPS in Batch 2); set `FASTRTPS_DEFAULT_PROFILES_FILE` to it. `<run_id>.meta.json` records it under `dds_profile` (path + SHA-256 + parsed); `<run_id>.probe.json` verifies at run time that it was applied. Do not mix transport settings within one comparison.
 - Overload queue semantics (Batch 2 finding): under overload the single-threaded detector always serves the oldest of the `qos_depth` frames kept by KEEP_LAST, so queue wait ≈ `qos_depth / input_fps` and drop rate ≈ `1 - 1/ρ` (ρ = input_fps × service time) independent of depth.
-- Wrappers: `MODELS` / `SWEEPS` narrow a batch; `MEMORY_SWAP_MAX` (default 0) adds `MemorySwapMax` because the host has swap; `memory.swap.max` is recorded (informational). Choose `CPU_SET` from the allowed, idle CPUs (Phase 2 server: i7-13700, P-cores 0–15, E-cores 16–23; smoke test used 12,14), never assume `0,1`.
+- Scheduling (Phase 3 / Batch 1, `src/ros2_uav_pipeline/mobilevit_uav_pipeline/scheduling.py`, stdlib, unit-tested without ROS): detector `scheduler_policy` = `legacy_qos` (default; unchanged Phase 2 path, inference in the subscription callback, DDS KEEP_LAST is the only queue) or `fifo` / `latest_frame` / `adaptive` (ingestion callback → bounded application queue → exactly one inference worker thread; main thread only spins the executor). Exact semantics in the module docstring. Every frame that reaches the app queue gets exactly one CSV row (processed / `drop_reason` / `shutdown_pending` / `shutdown_inflight`); a worker exception ends the run (exit 1 → `*.failed`). DDS queue ≠ application queue: legacy drops are `dds_unreceived_frames`, app drops are `app_policy_dropped_frames`.
+- `intra_op_threads` (torch + OpenCV, default 0 = library defaults): with the node's imports, OpenMP work on the main thread runs on ~1 core while a worker thread gets 2 (torch ~35 % faster) and a busy-spinning OpenCV helper. Comparisons across arms must use one value (the sched sweep uses 1 for every arm, matching the effective Batch 2 behaviour). Phase 2 runs used the default.
+- Wrappers: `MODELS` / `SWEEPS` narrow a batch (`SWEEPS=sched` runs `experiments/ros2/run_sched_sweep.sh`; `experiments/ros2/run_sched_pilot.sh` is the interleaved pilot driver); `MEMORY_SWAP_MAX` (default 0) adds `MemorySwapMax` because the host has swap; `memory.swap.max` is recorded (informational). Choose `CPU_SET` from the allowed, idle CPUs (Phase 2 server: i7-13700, P-cores 0–15, E-cores 16–23; smoke test used 12,14), never assume `0,1`.
 
 ### 6. CI, Environment And Repository Hygiene (Phase 1 / Batch 4)
 
@@ -403,9 +406,9 @@ Implemented:
 Still not implemented / not present:
 
 - EDA-Lite runtime-aware sweep re-run with the verified `runtime_os_profiles.json` (Batch 2 generated the file; `mobilevit_runtime_aware_sweep.json` still points at the example file).
-- FIFO / Latest-Frame / Adaptive scheduling (Phase 3).
+- Formal large-scale A/B benchmark of the scheduling policies (Phase 3 / Batch 1 ran only a short interleaved pilot under `results/raw/ros2_phase3_pilot/`, outside the Phase 2 provenance chain).
 - Real model weights (the detector uses random-init timm weights; latency only).
-- Adaptive / runtime scheduling (EDA-Lite schedules offline; OS profiles only re-weight the cost).
+- Runtime-aware EDA-Lite scheduling (EDA-Lite schedules offline; OS profiles only re-weight the cost; the ROS 2 frame scheduler is separate and does not feed EDA-Lite).
 - ONNX parser.
 - Real LLM inference or KV-cache simulation.
 - Final presentation slides.
@@ -418,7 +421,7 @@ Prioritize in this order unless the user redirects:
 
 1. Draft report methodology and limitations based on MobileViT simplified simulation and ROS2 runtime-analysis pipeline.
 2. (Done in Phase 2 / Batch 2) formal FPS/QoS/overload baseline under `results/raw/ros2/`, verified `runtime_os_profiles.json`, provenance `VERIFIED`.
-3. Phase 3: FIFO / Latest-Frame / Adaptive scheduling compared against the Batch 2 baseline (same controls).
+3. Phase 3: (Batch 1 done: policies + pilot, `report/PHASE3_BATCH1_RESULT.md`) formal interleaved A/B benchmark of the scheduling arms (≥ 3 runs × 60 s, same controls, `intra_op_threads=1` for every arm).
 4. Re-run `mobilevit_runtime_aware_sweep.json` with real runtime-derived OS profiles.
 5. Generate final figures and write results discussion.
 

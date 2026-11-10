@@ -292,3 +292,21 @@ Implementation decision:
 Important limitation:
 
 - Shared host with `powersave` governor and no cpuset isolation: MobileViT-S inference varies 52.6–64.6 ms across runs, which makes drop rates near capacity vary (S at 20 FPS: 8.5–20.7 %). Weights are random-init (latency only). Tuned (rmem) experiments not run.
+
+
+## 2026-11-11 Phase 3 / Batch 1: Runtime Scheduling & Queue Management
+
+Prompt summary:
+
+- Implement and compare FIFO, Latest-Frame and Deadline-Aware Adaptive frame scheduling in the same ROS 2 + MobileViT pipeline: separate ingestion from inference (bounded application queue, one inference worker), keep QoS depth 1/5 as the legacy baseline, extend logging / analyzer (queue wait, frame age, drop reasons, DDS vs policy vs shutdown drops), same Batch 2 controls, regression tests, short interleaved Linux pilot; no push / merge, no EDA-Lite or dashboard changes, Phase 2 artifacts untouched.
+
+Implementation decision:
+
+- Policies live in a stdlib module (`scheduling.py`) with pure `admit` / `select` functions and a lock + condition-variable `FrameScheduler`, so semantics, the queue bound, the accounting invariant and shutdown are tested without ROS. `legacy_qos` stays the default and is the untouched Phase 2 code path.
+- Adaptive uses only past information (P90 of the last 32 completed non-warm-up service times, arrival rate at ingestion, current queue); parameters were fixed before any pilot data (quantile 0.9, window 32, margin 0, overload threshold 1.0) and not tuned afterwards.
+- The first real smoke run showed the worker-thread arms computing ~35 % faster than the legacy arm. Isolated outside ROS: with the node's import order, OpenMP work on the main thread runs on ~1 core even with 2 threads, while a worker thread uses 2; OpenCV's OpenMP helper additionally busy-spins (~20 % CPU) in a worker thread. Rather than accept a confounded comparison, added an explicit `intra_op_threads` control (torch + OpenCV) set to 1 for every arm (equal to the effective Batch 2 behaviour) and recorded it per row.
+- Pilot data goes to `results/raw/ros2_phase3_pilot/` so the verified Phase 2 chain (`results/raw/ros2` → runtime summary → OS profiles) is not touched.
+
+Important limitation:
+
+- Pilot only (3 repeats × 40 s, 4 conditions); the host is shared, governor `powersave`, and service time drifts between sessions (XXS ~16 ms today vs 18.4 ms in Batch 2), so XXS 60 FPS is near ρ ≈ 1 rather than clearly overloaded. Not a formal benchmark.

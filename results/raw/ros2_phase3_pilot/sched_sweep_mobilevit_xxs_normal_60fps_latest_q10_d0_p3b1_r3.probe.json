@@ -1,0 +1,103 @@
+{
+  "cgroup": "/sys/fs/cgroup/user.slice/user-1007.slice/user@1007.service/app.slice/run-r43b46347370644fe89e8c74625009962.scope",
+  "cgroup_usage": {
+    "cpu_usage_usec_at_end": 185546179,
+    "max_memory_current_mb": 357.2,
+    "max_swap_current_bytes": 0,
+    "memory_peak_mb": 367.8
+  },
+  "dds": {
+    "expect_shm_only": true,
+    "expected_segment_bytes": 16777216,
+    "max_udp_sockets": {
+      "detector": 0,
+      "publisher": 0
+    },
+    "reasons": [],
+    "shm_segment_sizes": [
+      52400,
+      16802336
+    ],
+    "verified": true
+  },
+  "ended_at": 1794341800.5894246,
+  "host": {
+    "loadavg_1m_max": 2.42,
+    "loadavg_1m_min": 2.21,
+    "udp_snmp_delta": {
+      "InDatagrams": 112,
+      "InErrors": 0,
+      "RcvbufErrors": 0
+    },
+    "watched_cpus_busy_pct": {
+      "12": 56.58,
+      "13": 0.44,
+      "14": 58.81,
+      "15": 0.0
+    }
+  },
+  "interval_s": 1.0,
+  "nodes": {
+    "detector": {
+      "avg_cpu_percent_sampled": 101.41,
+      "cpus_allowed": [
+        "12,14"
+      ],
+      "max_rss_mb": 413.0,
+      "max_threads": 11,
+      "max_udp_sockets": 0,
+      "nice": [
+        10
+      ],
+      "pid": 1181978,
+      "samples": 40,
+      "shm_segment_sizes": [
+        52400,
+        16802336
+      ],
+      "shm_segments": [
+        "/dev/shm/fastrtps_9af13dd053c54ac7",
+        "/dev/shm/fastrtps_ca1921305d5f4237",
+        "/dev/shm/fastrtps_port29150",
+        "/dev/shm/fastrtps_port29162",
+        "/dev/shm/fastrtps_port29163",
+        "/dev/shm/fastrtps_port29164",
+        "/dev/shm/fastrtps_port29165"
+      ]
+    },
+    "publisher": {
+      "avg_cpu_percent_sampled": 14.04,
+      "cpus_allowed": [
+        "12,14"
+      ],
+      "max_rss_mb": 122.1,
+      "max_threads": 10,
+      "max_udp_sockets": 0,
+      "nice": [
+        10
+      ],
+      "pid": 1181976,
+      "samples": 39,
+      "shm_segment_sizes": [
+        52400,
+        16802336
+      ],
+      "shm_segments": [
+        "/dev/shm/fastrtps_9af13dd053c54ac7",
+        "/dev/shm/fastrtps_ca1921305d5f4237",
+        "/dev/shm/fastrtps_port29150",
+        "/dev/shm/fastrtps_port29162",
+        "/dev/shm/fastrtps_port29163",
+        "/dev/shm/fastrtps_port29164",
+        "/dev/shm/fastrtps_port29165"
+      ]
+    }
+  },
+  "probe_cpus_allowed": [
+    12,
+    14
+  ],
+  "run_id": "sched_sweep_mobilevit_xxs_normal_60fps_latest_q10_d0_p3b1_r3",
+  "schema": "ros2_runtime_probe/v1",
+  "started_at": 1794341759.9501998
+}

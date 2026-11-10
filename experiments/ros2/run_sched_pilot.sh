@@ -11,7 +11,7 @@
 #   Each (repeat, condition) is one call of scripts/run_baseline_experiments.sh SWEEPS=sched,
 #   i.e. the same taskset / systemd-run (MemoryMax, MemorySwapMax) / nice scope and DDS gates
 #   as the Phase 2 baseline. RUN_TAG = <PILOT_TAG>_r<repeat>.
-# Requires a clean git tree (the commit is recorded in every meta.json).
+# Requires a clean git tree before EVERY block (the commit and dirty flag go into every meta.json).
 set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")/../.."
 
@@ -55,6 +55,12 @@ printf '  %s\n' "${plan[@]}"
 
 for entry in "${plan[@]}"; do
   IFS='|' read -r r model fps arm_order <<< "$entry"
+  # Re-check before every block: an edit made while the pilot runs (even documentation) would
+  # otherwise be recorded as git.dirty=true in the following runs' meta.json.
+  if [[ -n "$(git status --porcelain --untracked-files=no)" ]]; then
+    echo "錯誤：pilot 執行期間 git working tree 被修改；停止於 repeat ${r} ${model} ${fps} FPS 之前。" >&2
+    exit 3
+  fi
   echo "== $(date -Is) repeat ${r} ${model} ${fps} FPS: ${arm_order}"
   MODELS="$model" SWEEPS=sched INPUT_FPS="$fps" SCHED_ARMS="$arm_order" \
     RUN_TAG="${PILOT_TAG}_r${r}" bash scripts/run_baseline_experiments.sh

@@ -15,7 +15,9 @@ Lightweight MobileViT simulation for ROS2 OS-level edge AI performance analysis.
 | **Unverified legacy measurements** | `runtime_os_profiles.legacy_unverified.json`, `results/figures/ros2/*.svg`, anything derived from them | teammate-provided, no raw data → **UNVERIFIED**; refused unless a config opts in; figures tagged `[OS profile: UNVERIFIED]` |
 | **Verified ROS 2 measurements** | `results/raw/ros2/` → `results/csv/ros2_runtime_summary.csv` → `runtime_os_profiles.json`; baseline tables `results/csv/ros2_baseline_{runs,conditions}.csv`, figures `results/figures/ros2_baseline/` | **Phase 2 / Batch 2 baseline**: 75 constrained runs (CPU 12,14 / 4G / swap 0, Fast DDS SHM profile verified at run time); `check_runtime_provenance.py` reports `VERIFIED` |
 
-Phase 2 / Batch 2 ran the formal ROS 2 baseline (MobileViT-XXS / S × FPS 5–30, QoS depth 1/5/10, overload delay 0–150 ms, 3 runs each, plus an XXS 40/50/60 FPS capacity extension); see `report/PHASE2_BATCH2_RESULT.md`. The EDA-Lite runtime-aware sweep is **not** yet re-run with the measured profiles, and there is **no adaptive / runtime scheduler** — OS profiles only re-weight the offline EDA-Lite cost model (on the MobileViT profiles they do not change the chosen partition).
+Phase 2 / Batch 2 ran the formal ROS 2 baseline (MobileViT-XXS / S × FPS 5–30, QoS depth 1/5/10, overload delay 0–150 ms, 3 runs each, plus an XXS 40/50/60 FPS capacity extension); see `report/PHASE2_BATCH2_RESULT.md`. The EDA-Lite runtime-aware sweep is **not** yet re-run with the measured profiles; OS profiles only re-weight the offline EDA-Lite cost model (on the MobileViT profiles they do not change the chosen partition).
+
+Phase 3 / Batch 1 added **runtime frame scheduling in the ROS 2 detector** (`fifo`, `latest_frame`, `adaptive`; legacy QoS-depth behaviour kept as `legacy_qos`) and ran a short interleaved pilot (`results/raw/ros2_phase3_pilot/`, not part of the Phase 2 provenance chain); see `report/PHASE3_BATCH1_RESULT.md`. The pilot is preliminary evidence, not the formal A/B benchmark.
 
 ## Quickstart (simulator, analysis and tests — nothing to install)
 
@@ -326,6 +328,34 @@ Run identity (P0-2 fix):
 - The analyzer summarises each `(configuration, run_id)` separately and writes a `run_id` summary column. Instead of de-duplicating, it raises an error when a `frame_id` repeats within one run, when one `run_id` is used by several configurations, or when a legacy CSV contains appended runs (repeated or decreasing `frame_id`).
 - Legacy CSVs without `run_id` are still accepted: each file is treated as one run with `run_id = legacy:<csv path>`.
 - Each run also writes `$RESULTS_DIR/<run_id>.publisher.csv` (published frames), and failed runs are renamed to `*.failed`; see “Measurement definitions” below.
+
+### Scheduling policies (Phase 3 / Batch 1)
+
+The detector parameter `scheduler_policy` selects the execution path (`src/ros2_uav_pipeline/mobilevit_uav_pipeline/scheduling.py` documents the exact semantics):
+
+| Policy | Queue | Discard rule |
+|---|---|---|
+| `legacy_qos` (default) | DDS KEEP_LAST(`qos_depth`) only; inference runs in the subscription callback | DDS overwrites the oldest sample (not observable by the app) |
+| `fifo` | bounded app queue (`queue_capacity`, default 5), arrival order | full → `fifo_overflow=reject_newest` (tail drop, default) or `evict_oldest` |
+| `latest_frame` | at most 1 pending frame | a newer frame supersedes the pending one |
+| `adaptive` | bounded app queue, evict oldest when full | deadline feasibility from past service times (`adaptive_window`, `adaptive_quantile`, `adaptive_margin_ms`), EDF when ρ̂ < `adaptive_overload_threshold`, newest feasible frame otherwise; waits for a fresh frame when none is feasible |
+
+The application policies share one architecture: ingestion callback (timestamps + enqueue only) → bounded queue → exactly one inference worker thread. Every frame that reaches the queue gets exactly one CSV row (processed, `drop_reason`, or `shutdown_pending` / `shutdown_inflight` on shutdown). `intra_op_threads` (torch + OpenCV) must be equal across compared arms (the sweep uses 1; see the report for why).
+
+```bash
+# one model / FPS point, all arms (inside the same constrained scope as the baseline):
+MODELS=mobilevit_s SWEEPS=sched INPUT_FPS=20 SCHED_ARMS="legacy_qos:1 legacy_qos:5 fifo latest_frame adaptive" \
+  RESULTS_DIR=results/raw/ros2_phase3_pilot bash scripts/run_baseline_experiments.sh
+# interleaved pilot (rotated arm order per repeat; DRY_RUN=1 prints the plan):
+REPEATS=3 RUN_SECONDS=40 bash experiments/ros2/run_sched_pilot.sh
+python3 -m src.ros2_runtime.analyze_runtime --input results/raw/ros2_phase3_pilot \
+  --summary-output results/csv/ros2_phase3_pilot_summary.csv --warmup-frames 10
+python3 -m src.ros2_runtime.aggregate_scheduling --summary results/csv/ros2_phase3_pilot_summary.csv \
+  --raw-dir results/raw/ros2_phase3_pilot --runs-output results/csv/ros2_phase3_pilot_runs.csv \
+  --conditions-output results/csv/ros2_phase3_pilot_arms.csv --paired-output results/csv/ros2_phase3_pilot_paired.csv
+```
+
+Summary columns added for scheduling (appended; older columns unchanged): `scheduler_policy`, `queue_capacity`, `scheduler_params`, the disjoint split of `dropped_frames` into `app_policy_dropped_frames` / `shutdown_unfinished_frames` / `dds_unreceived_frames` / `tail_unobserved_frames` / `other_dropped_frames`, `policy_drop_reasons`, `app_policy_drop_rate_pct`, queue wait and frame-age percentiles, `max_queue_len`, `scheduler_decisions`, `intra_op_threads`.
 
 Do not report runtime data as fully auditable measured results unless CSVs were generated by a real ROS2 run and the raw CSVs or runtime summary CSV are available.
 

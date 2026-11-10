@@ -491,6 +491,11 @@ class ScriptTest(unittest.TestCase):
         for cond, first in firsts.items():
             self.assertEqual(len(set(first)), 3, cond)  # a different arm starts each repeat
 
+    def test_pilot_rechecks_clean_tree_before_every_block(self):
+        text = (REPO / "experiments/ros2/run_sched_pilot.sh").read_text()
+        loop = text[text.index('for entry in "${plan[@]}"; do'):]
+        self.assertLess(loop.index("git status --porcelain"), loop.index("run_baseline_experiments.sh"))
+
     def test_wrapper_knows_sched_sweep(self):
         text = (REPO / "scripts/run_baseline_experiments.sh").read_text()
         self.assertIn("sched) ", text)
