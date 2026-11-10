@@ -136,7 +136,8 @@ class SummaryRateColumnsTest(unittest.TestCase):
         self.assertAlmostEqual(float(summary["avg_service_ms"]), 50.5)
         self.assertEqual(summary["max_memory_mb"], "110")
         self.assertEqual(summary["dropped_frames"], "5")
-        self.assertEqual(SUMMARY_FIELDS[-8:], [
+        start = SUMMARY_FIELDS.index("p50_latency_ms")  # Batch 2 block, later batches append after it
+        self.assertEqual(SUMMARY_FIELDS[start:start + 8], [
             "p50_latency_ms", "p50_transport_ms", "p95_transport_ms", "p50_inference_ms",
             "avg_service_ms", "offered_fps", "processed_fps", "max_memory_mb"])
 

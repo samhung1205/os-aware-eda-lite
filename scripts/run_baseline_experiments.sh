@@ -64,7 +64,9 @@ for model in $MODELS; do
       fps) echo ">> 啟動 FPS 壓力測試..."; run_sweep experiments/ros2/run_fps_sweep.sh ;;
       qos) echo ">> 啟動 QoS 深度測試..."; run_sweep experiments/ros2/run_qos_sweep.sh ;;
       overload) echo ">> 啟動 CPU 過載延遲測試..."; run_sweep experiments/ros2/run_overload_sweep.sh ;;
-      *) echo "錯誤：未知的 SWEEPS 項目 '$sweep'（允許 fps qos overload）。" >&2; exit 2 ;;
+      # Phase 3 / Batch 1: scheduling arms (SCHED_ARMS) at one INPUT_FPS, same scope/limits.
+      sched) echo ">> 啟動排程策略比較..."; run_sweep experiments/ros2/run_sched_sweep.sh ;;
+      *) echo "錯誤：未知的 SWEEPS 項目 '$sweep'（允許 fps qos overload sched）。" >&2; exit 2 ;;
     esac
   done
 done

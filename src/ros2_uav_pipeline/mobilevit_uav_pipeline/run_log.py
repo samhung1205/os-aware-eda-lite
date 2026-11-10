@@ -36,7 +36,17 @@ DETECTOR_CSV_HEADER = [
     "published_at_ns", "received_at_ns", "completed_at_ns",
     "latency_ms", "transport_ms", "preprocess_ms", "artificial_delay_ms", "inference_ms",
     "deadline_miss", "dropped", "cpu_percent", "memory_mb",
+    # Phase 3 / Batch 1 (application scheduling). Appended so the older columns keep
+    # their positions; CSVs without them are legacy_qos runs.
+    *[
+        "scheduler_policy", "queue_capacity", "scheduler_params", "drop_reason",
+        "enqueued_at_ns", "dequeued_at_ns", "started_at_ns", "dropped_at_ns",
+        "queue_wait_ms", "frame_age_at_start_ms", "queue_len_at_enqueue", "queue_len_at_dequeue",
+        "scheduler_decision", "est_service_ms", "est_utilization", "predicted_latency_ms",
+        "intra_op_threads",
+    ],
 ]
+SCHEDULING_CSV_COLUMNS = DETECTOR_CSV_HEADER[DETECTOR_CSV_HEADER.index("scheduler_policy"):]
 
 # Publisher CSV (one row per published frame): <run_id>.publisher.csv
 PUBLISHER_CSV_HEADER = ["run_id", "frame_id", "published_at_ns"]
@@ -167,3 +177,27 @@ def frame_timing(
         "inference_ms": (inferred_perf_ns - delayed_perf_ns) / 1e6,
         "deadline_miss": 1 if latency_ms > deadline_ms else 0,
     }
+
+
+def queue_timing(
+    published_at_ns: int,
+    enqueued_at_ns: int | None,
+    dequeued_at_ns: int | None,
+    started_at_ns: int,
+) -> dict[str, float | None]:
+    """Application-queue timing of one frame (all wall-clock ns, same host clock).
+
+    - ``queue_wait_ms``: enqueue -> dequeue in the application queue (None in
+      ``legacy_qos`` mode, which has no application queue)
+    - ``frame_age_at_start_ms``: published -> processing start (freshness of the
+      frame when the worker starts on it; includes DDS + ingestion + queue wait)
+    """
+
+    wait = None
+    if enqueued_at_ns is not None and dequeued_at_ns is not None:
+        wait = (dequeued_at_ns - enqueued_at_ns) / 1e6
+    return {
+        "queue_wait_ms": wait,
+        "frame_age_at_start_ms": (started_at_ns - published_at_ns) / 1e6,
+    }
+

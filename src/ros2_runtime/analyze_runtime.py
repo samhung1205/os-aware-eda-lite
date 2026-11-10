@@ -26,6 +26,19 @@ Measurement definitions (one summary row per configuration + run):
 - ``avg_cpu_percent`` averages ``psutil.Process.cpu_percent()`` of the detector
   process (per process, can exceed 100 on several cores; psutil reports 0.0 for
   the first call). ``avg_memory_mb`` averages the detector's RSS.
+- scheduling (Phase 3 / Batch 1): ``scheduler_policy`` / ``queue_capacity`` /
+  ``scheduler_params`` come from the detector rows (CSVs without them are
+  ``legacy_qos``); one run must report exactly one policy, and it must match the
+  ``scheduler_policy`` parameter in its ``.meta.json`` when that is recorded.
+  ``dropped_frames`` keeps its definition and is split, without overlap, into
+  ``app_policy_dropped_frames`` (explicit rows with a policy ``drop_reason``),
+  ``shutdown_unfinished_frames`` (still queued / in flight when the run stopped),
+  ``other_dropped_frames`` (conversion errors, legacy explicit rows),
+  ``dds_unreceived_frames`` (published but never reached the detector callback:
+  DDS KEEP_LAST overwrite or transport loss) and ``tail_unobserved_frames``
+  (published after the last frame the detector saw: end-of-run truncation).
+  ``queue_wait_ms`` = application-queue enqueue -> dequeue; ``frame_age_at_start_ms``
+  = publish -> processing start (freshness).
 - run conditions: ``<run_id>.meta.json`` next to the detector CSV (written by
   ``src.ros2_runtime.run_metadata``) supplies ``measurement_class`` and the
   effective memory limit; runs without it are ``measurement_class=unknown``.
@@ -112,7 +125,36 @@ SUMMARY_FIELDS = [
     "offered_fps",
     "processed_fps",
     "max_memory_mb",
+    # Added in Phase 3 / Batch 1 (application scheduling).
+    "scheduler_policy",
+    "queue_capacity",
+    "scheduler_params",
+    "app_policy_dropped_frames",
+    "shutdown_unfinished_frames",
+    "dds_unreceived_frames",
+    "tail_unobserved_frames",
+    "other_dropped_frames",
+    "policy_drop_reasons",
+    "app_policy_drop_rate_pct",
+    "avg_queue_wait_ms",
+    "p50_queue_wait_ms",
+    "p95_queue_wait_ms",
+    "p99_queue_wait_ms",
+    "avg_frame_age_at_start_ms",
+    "p50_frame_age_at_start_ms",
+    "p95_frame_age_at_start_ms",
+    "max_queue_len",
+    "scheduler_decisions",
+    "intra_op_threads",
 ]
+
+# Mirrors src/ros2_uav_pipeline/mobilevit_uav_pipeline/scheduling.py (a test keeps them equal;
+# the analyzer must stay importable without the ROS package).
+LEGACY_POLICY = "legacy_qos"
+POLICY_DROP_REASONS = frozenset({
+    "queue_full_reject_newest", "queue_full_evict_oldest", "superseded", "deadline_infeasible",
+})
+SHUTDOWN_DROP_REASONS = frozenset({"shutdown_pending", "shutdown_inflight"})
 
 RUN_METADATA_SUFFIX = ".meta.json"
 RUNTIME_PROBE_SUFFIX = ".probe.json"
@@ -151,6 +193,15 @@ class RuntimeRow:
     timing_schema: str = "legacy"
     published_at_ns: int | None = None
     completed_at_ns: int | None = None
+    scheduler_policy: str = LEGACY_POLICY
+    queue_capacity: str = ""
+    scheduler_params: str = ""
+    drop_reason: str = ""
+    queue_wait_ms: float | None = None
+    frame_age_at_start_ms: float | None = None
+    queue_len_at_enqueue: int | None = None
+    scheduler_decision: str = ""
+    intra_op_threads: str = ""
 
     @property
     def processed(self) -> bool:
@@ -191,6 +242,9 @@ def main() -> None:
                 "run_id": row["run_id"],
                 "run_metadata": run_metadata.get(row["run_id"], (None, None))[0],
                 "measurement_class": row["measurement_class"],
+                "scheduler_policy": row["scheduler_policy"],
+                "queue_capacity": row["queue_capacity"],
+                "scheduler_params": row["scheduler_params"],
             }
             for row in summary_rows
         ],
@@ -400,6 +454,11 @@ def build_runtime_summary(
         inferences = _values(processed_rows, "inference_ms")
         services = [v for v in (_service_ms(row) for row in processed_rows) if v is not None]
         memories = _values(measured, "memory_mb")
+        breakdown = _drop_breakdown(measured, published, accounting)
+        scheduling = _run_scheduling(group_rows, key, meta)
+        waits = _values(processed_rows, "queue_wait_ms")
+        ages = _values(processed_rows, "frame_age_at_start_ms")
+        queue_lens = [row.queue_len_at_enqueue for row in measured if row.queue_len_at_enqueue is not None]
 
         summary_rows.append(
             {
@@ -450,9 +509,92 @@ def build_runtime_summary(
                 "offered_fps": _format_optional(_rate_fps(offered_stamps)),
                 "processed_fps": _format_optional(_rate_fps(completed_stamps)),
                 "max_memory_mb": _format_optional(max(memories) if memories else None),
+                **scheduling,
+                **breakdown,
+                "app_policy_drop_rate_pct": _format_optional(
+                    None if breakdown["app_policy_dropped_frames"] == ""
+                    else _rate_pct(int(breakdown["app_policy_dropped_frames"]), total_frames)
+                ),
+                "avg_queue_wait_ms": _format_optional(_average(waits)),
+                "p50_queue_wait_ms": _format_optional(_percentile(waits, 50)),
+                "p95_queue_wait_ms": _format_optional(_percentile(waits, 95)),
+                "p99_queue_wait_ms": _format_optional(_percentile(waits, 99)),
+                "avg_frame_age_at_start_ms": _format_optional(_average(ages)),
+                "p50_frame_age_at_start_ms": _format_optional(_percentile(ages, 50)),
+                "p95_frame_age_at_start_ms": _format_optional(_percentile(ages, 95)),
+                "max_queue_len": "" if not queue_lens else str(max(queue_lens)),
+                "scheduler_decisions": _count_text(row.scheduler_decision for row in processed_rows),
             }
         )
     return summary_rows
+
+
+def _count_text(values: Iterable[str]) -> str:
+    """``value:count`` pairs sorted by value, empty values ignored."""
+
+    counts: dict[str, int] = {}
+    for value in values:
+        if value:
+            counts[value] = counts.get(value, 0) + 1
+    return ";".join(f"{value}:{counts[value]}" for value in sorted(counts))
+
+
+def _drop_breakdown(
+    measured: list[RuntimeRow], published: list[int] | None, accounting: str
+) -> dict[str, str]:
+    """Split ``dropped_frames`` into disjoint causes (they always sum to it)."""
+
+    keys = ["app_policy_dropped_frames", "shutdown_unfinished_frames", "dds_unreceived_frames",
+            "tail_unobserved_frames", "other_dropped_frames", "policy_drop_reasons"]
+    if accounting == ACCOUNTING_UNAVAILABLE:
+        return {k: "" for k in keys}
+    received_ids = {row.frame_id for row in measured if row.frame_id is not None and not row.dropped}
+    explicit = [row for row in measured if row.dropped]
+    explicit_ids = {row.frame_id for row in explicit if row.frame_id is not None}
+    observed_ids = received_ids | explicit_ids
+    policy = [row for row in explicit if row.drop_reason in POLICY_DROP_REASONS]
+    shutdown = [row for row in explicit if row.drop_reason in SHUTDOWN_DROP_REASONS]
+    other = len(explicit) - len(policy) - len(shutdown)
+    if published is not None:
+        window = set(published) | observed_ids
+    elif accounting == ACCOUNTING_RANGE:
+        window = set(range(min(observed_ids), max(observed_ids) + 1))
+    else:
+        window = set()
+    unseen = window - observed_ids
+    last_seen = max(observed_ids) if observed_ids else None
+    tail = {f for f in unseen if last_seen is None or f > last_seen}
+    return {
+        "app_policy_dropped_frames": str(len(policy)),
+        "shutdown_unfinished_frames": str(len(shutdown)),
+        "dds_unreceived_frames": str(len(unseen - tail)),
+        "tail_unobserved_frames": str(len(tail)),
+        "other_dropped_frames": str(other),
+        "policy_drop_reasons": _count_text(row.drop_reason for row in policy),
+    }
+
+
+def _run_scheduling(
+    group_rows: list[RuntimeRow], key: tuple[str, ...], meta: dict[str, Any] | None
+) -> dict[str, str]:
+    """The one scheduler configuration of a run (cross-checked against its metadata)."""
+
+    configs = {(row.scheduler_policy, row.queue_capacity, row.scheduler_params, row.intra_op_threads)
+               for row in group_rows}
+    if len(configs) > 1:
+        raise ValueError(
+            f"run_id '{key[6]}': rows report several scheduler configurations {sorted(configs)}; "
+            "one run must use one scheduler policy."
+        )
+    policy, capacity, params, threads = configs.pop()
+    requested = ((meta or {}).get("experiment") or {}).get("scheduler_policy")
+    if requested is not None and str(requested) != policy:
+        raise ValueError(
+            f"run_id '{key[6]}': run metadata requested scheduler_policy '{requested}' but the "
+            f"detector logged '{policy}'."
+        )
+    return {"scheduler_policy": policy, "queue_capacity": capacity, "scheduler_params": params,
+            "intra_op_threads": threads}
 
 
 def _measurement_window(
@@ -762,6 +904,15 @@ def _parse_runtime_row(
         timing_schema=timing_schema,
         published_at_ns=_optional_int(raw_row.get("published_at_ns")),
         completed_at_ns=_optional_int(raw_row.get("completed_at_ns")),
+        scheduler_policy=_text_or_default(raw_row.get("scheduler_policy"), LEGACY_POLICY).strip(),
+        queue_capacity=(raw_row.get("queue_capacity") or "").strip(),
+        scheduler_params=(raw_row.get("scheduler_params") or "").strip(),
+        drop_reason=(raw_row.get("drop_reason") or "").strip(),
+        queue_wait_ms=_optional_float(raw_row.get("queue_wait_ms")),
+        frame_age_at_start_ms=_optional_float(raw_row.get("frame_age_at_start_ms")),
+        queue_len_at_enqueue=_optional_int(raw_row.get("queue_len_at_enqueue")),
+        scheduler_decision=(raw_row.get("scheduler_decision") or "").strip(),
+        intra_op_threads=(raw_row.get("intra_op_threads") or "").strip(),
     )
 
 

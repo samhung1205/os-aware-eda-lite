@@ -46,6 +46,19 @@ ARGUMENTS = [
     ('output_csv', 'auto'),
     ('run_id', 'auto'),
     ('warmup_frames', '10'),
+    # Phase 3 / Batch 1 application scheduling (detector only). legacy_qos = Phase 2 behaviour.
+    ('scheduler_policy', 'legacy_qos'),
+    ('queue_capacity', '5'),
+    ('fifo_overflow', 'reject_newest'),
+    ('adaptive_window', '32'),
+    ('adaptive_quantile', '0.9'),
+    ('adaptive_margin_ms', '0.0'),
+    ('adaptive_overload_threshold', '1.0'),
+    ('intra_op_threads', '0'),
+]
+SCHEDULER_ARGUMENTS = [
+    'scheduler_policy', 'queue_capacity', 'fifo_overflow', 'adaptive_window',
+    'adaptive_quantile', 'adaptive_margin_ms', 'adaptive_overload_threshold', 'intra_op_threads',
 ]
 
 
@@ -83,6 +96,7 @@ def _launch_setup(context, *args, **kwargs):
         ('output_csv', detector_csv),
         ('run_id', run_id),
         ('warmup_frames', value['warmup_frames']),
+        *[(name, value[name]) for name in SCHEDULER_ARGUMENTS],
     ])
 
     # 任一 node 結束（啟動失敗、例外或被停止）就結束整個 launch，

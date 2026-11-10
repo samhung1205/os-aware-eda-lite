@@ -27,3 +27,7 @@ data/raw/coco128.zip
 !results/raw/ros2/*.csv
 !results/csv/*.csv
 results/raw/ros2/*.failed
+# Phase 3 / Batch 1 pilot (short interleaved scheduling runs): tracked like raw/ros2, kept
+# apart so the verified Phase 2 baseline chain (raw/ros2 -> runtime summary) is untouched.
+!results/raw/ros2_phase3_pilot/*.csv
+results/raw/ros2_phase3_pilot/*.failed

@@ -262,8 +262,21 @@ class TimingAndWarmupTest(unittest.TestCase):
 
         self.assertNotIn("get_clock()", source)
         self.assertNotIn("get_clock()", publisher)
-        self.assertEqual(source.count("time.time_ns()"), 2)  # received + completed
-        self.assertEqual(source.count("time.perf_counter_ns()"), 4)
+        # Wall clock only for stamps compared across threads / processes, perf_counter only for
+        # in-process stage durations -- checked per code path (Phase 3 added the worker path).
+        def body(name):
+            start = source.index(f"    def {name}(")
+            end = source.find("\n    def ", start + 1)
+            return source[start:end if end != -1 else None]
+
+        legacy = body("listener_callback")
+        self.assertEqual(legacy.count("time.time_ns()"), 2)  # received + completed
+        self.assertEqual(legacy.count("time.perf_counter_ns()"), 4)
+        ingest = body("ingest_callback")
+        self.assertEqual((ingest.count("time.time_ns()"), ingest.count("time.perf_counter_ns()")), (1, 1))
+        worker = body("_process_item")
+        self.assertEqual(worker.count("time.time_ns()"), 2)  # processing start + completed
+        self.assertEqual(worker.count("time.perf_counter_ns()"), 4)
         self.assertIn("published_at_ns = time.time_ns()", publisher)
         self.assertNotIn("last_seq_id + 1", source)
         self.assertNotIn("torch.randn", source)
