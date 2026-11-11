@@ -196,3 +196,117 @@ class HostLoadGateTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+# ---------------------------------------------------------------- analysis tools (Batch 2)
+from src.ros2_runtime import aggregate_scheduling as agg  # noqa: E402
+from src.ros2_runtime import analyze_dynamic_phases as dyn  # noqa: E402
+from src.ros2_runtime import plot_scheduling as plot  # noqa: E402
+
+
+class PairedStatsTest(unittest.TestCase):
+    def test_t_interval_sign_counts_and_sign_flip(self):
+        stats = agg._paired_stats("d", [-10.0, -12.0, -8.0, -11.0, -9.0])
+        self.assertEqual((stats["d_n_neg"], stats["d_n_pos"]), ("5", "0"))
+        self.assertEqual(stats["d_signflip_p"], "0.0625")  # 2 / 32: smallest possible with n = 5
+        sd = 1.5811388300841898
+        self.assertAlmostEqual(float(stats["d_ci95_lo"]), -10 - 2.776 * sd / 5 ** 0.5, places=1)
+        self.assertAlmostEqual(float(stats["d_ci95_hi"]), -10 + 2.776 * sd / 5 ** 0.5, places=1)
+        self.assertEqual(agg._paired_stats("d", [3.0])["d_ci95_lo"], "")
+        self.assertEqual(agg.sign_flip_p([1.0, -1.0]), 1.0)
+        self.assertEqual(agg.t_crit_975(4), 2.776)
+        self.assertEqual(agg.t_crit_975(100), 1.96)
+
+    def test_scenario_keys_keep_dynamic_apart_and_batch1_output_unchanged(self):
+        base = {"model_name": "mobilevit_s", "input_fps": "10.0", "fake_delay_ms": "0", "run_tag": "b1"}
+        rows = [{**base, "scenario": sc, "scheduler_arm": arm, "effective_miss_rate_pct": v}
+                for sc, arm, v in (("sched_sweep", "latest_q10", "0"), ("sched_sweep", "adaptive_c5_q10", "0"),
+                                   ("sched_dynamic", "latest_q10", "8"), ("sched_dynamic", "adaptive_c5_q10", "6"))]
+        with self.assertRaisesRegex(ValueError, "two runs of arm"):
+            agg.build_paired(rows, "latest_q10")  # Batch 1 keys cannot tell them apart
+        recs = agg.build_paired(rows, "latest_q10", with_scenario=True, paired_stats=True)
+        self.assertEqual({r["scenario"]: r["d_effective_miss_rate_pct_mean"] for r in recs},
+                         {"sched_dynamic": "-2", "sched_sweep": "0"})
+        # Batch 1 call: no new columns
+        recs1 = agg.build_paired([r for r in rows if r["scenario"] == "sched_sweep"], "latest_q10")
+        self.assertNotIn("scenario", recs1[0])
+        self.assertNotIn("d_effective_miss_rate_pct_sd", recs1[0])
+
+    def test_effective_miss_excl_tail(self):
+        row = {"total_rows": "100", "dropped_frames": "10", "deadline_misses": "5",
+               "shutdown_unfinished_frames": "4", "tail_unobserved_frames": "1"}
+        self.assertAlmostEqual(agg.effective_miss_excl_tail(row), 100 * 10 / 95)
+        self.assertIn("effective_miss_excl_tail_pct", agg.derive({**row, "offered_fps": "20",
+                                                                 "avg_service_ms": "50",
+                                                                 "effective_miss_rate_pct": "15"}))
+
+
+class DynamicPhasesTest(unittest.TestCase):
+    def test_schedule_helpers_match_run_log(self):
+        s = "10@20,20@20,10@20"
+        self.assertEqual(dyn.parse_schedule(s), run_log.parse_fps_schedule(s))
+        for t in (0, 19.9, 20, 45, 99):
+            self.assertEqual(dyn.schedule_phase(dyn.parse_schedule(s), t),
+                             run_log.schedule_phase(run_log.parse_fps_schedule(s), t))
+
+    def test_outcomes_per_phase(self):
+        S = 1_000_000_000
+        schedule = [(10.0, 1.0), (20.0, 1.0)]
+        # frames 0..9 at 10 FPS (phase 0), 10..29 at 20 FPS (phase 1)
+        pub = {i: i * S // 10 for i in range(10)}
+        pub.update({10 + j: S + j * S // 20 for j in range(20)})
+        det = [{"frame_id": "0", "warmup": "1", "dropped": "0", "latency_ms": "50"},
+               {"frame_id": "1", "warmup": "0", "dropped": "0", "latency_ms": "150"}]  # late
+        det += [{"frame_id": str(i), "warmup": "0", "dropped": "0", "latency_ms": "60",
+                 "frame_age_at_start_ms": "1"} for i in range(2, 12)]
+        det += [{"frame_id": "12", "warmup": "0", "dropped": "1", "drop_reason": "deadline_infeasible"},
+                {"frame_id": "13", "warmup": "0", "dropped": "1", "drop_reason": "shutdown_pending"}]
+        # frames 14..29: no row, after the last seen frame -> end-of-run lost
+        p0, p1 = dyn.analyze_run(det, pub, schedule, 100.0, transient_s=0.18)
+        self.assertEqual((p0["published"], p0["late"], p0["on_time"], p0["dropped"]), (9, 1, 8, 0))
+        self.assertEqual((p1["published"], p1["on_time"], p1["dropped"], p1["end_of_run_lost"]), (20, 2, 18, 17))
+        self.assertAlmostEqual(p1["effective_miss_pct"], 90.0)
+        self.assertAlmostEqual(p1["effective_miss_excl_tail_pct"], 100 * 1 / 3)
+        self.assertEqual(p1["transient_published"], 4)  # frames 10..13 in the first 0.18 s
+        self.assertAlmostEqual(p1["transient_effective_miss_pct"], 50.0)
+        self.assertIsNone(p0["transient_effective_miss_pct"])
+        self.assertAlmostEqual(p1["offered_fps"], 20.0)
+        with self.assertRaisesRegex(ValueError, "two detector rows"):
+            dyn.analyze_run(det + det[-1:], pub, schedule, 100.0, 0.2)
+
+
+class PlotTest(unittest.TestCase):
+    def test_condition_labels_and_figures_render(self):
+        self.assertEqual(plot.condition_label({"model_name": "mobilevit_xxs", "input_fps": "30.0",
+                                               "fake_delay_ms": "25"}), "XXS 30 FPS +25 ms")
+        self.assertEqual(plot.condition_label({"model_name": "mobilevit_s", "scenario": "sched_dynamic",
+                                               "fps_schedule": "10@20,20@20,10@20", "input_fps": "10",
+                                               "fake_delay_ms": "0"}), "S dynamic 10-20-10 FPS")
+        runs = [{"model_name": "mobilevit_s", "input_fps": "20.0", "fake_delay_ms": "0", "run_tag": f"b{k}",
+                 "scheduler_arm": arm, "effective_miss_rate_pct": str(v + k)}
+                for k in (1, 2) for arm, v in (("latest_q10", 24), ("adaptive_c5_q10", 14))]
+        svg = plot.small_multiples(runs, "effective_miss_rate_pct", "t", "%")
+        self.assertTrue(svg.startswith("<svg") and svg.rstrip().endswith("</svg>"))
+        self.assertEqual(svg.count("<circle"), 4)  # one dot per run
+        self.assertIn("prefers-color-scheme: dark", svg)
+
+
+class Phase3ProvenanceTest(unittest.TestCase):
+    def test_pilot_is_not_verified(self):
+        # The Batch 1 pilot ran with git.dirty=true and older runtime code: the independent
+        # Phase 3 gate must refuse it (it stays labelled pilot).
+        proc = subprocess.run([sys.executable, "scripts/check_phase3_provenance.py",
+                               "--raw-dir", "results/raw/ros2_phase3_pilot",
+                               "--summary", "results/csv/ros2_phase3_pilot_summary.csv",
+                               "--manifest", "results/csv/ros2_phase3_pilot_arms.manifest.json"],
+                              cwd=REPO, capture_output=True, text=True)
+        self.assertEqual(proc.returncode, 2, proc.stdout[-2000:])
+        self.assertIn("git.dirty=True", proc.stdout)
+        self.assertIn("OK      blocks: 12 blocks", proc.stdout)
+
+    def test_missing_dataset_is_blocked(self):
+        proc = subprocess.run([sys.executable, "scripts/check_phase3_provenance.py",
+                               "--raw-dir", "results/raw/does_not_exist", "--summary", "nope.csv",
+                               "--manifest", "nope.manifest.json"],
+                              cwd=REPO, capture_output=True, text=True)
+        self.assertEqual(proc.returncode, 1, proc.stdout)

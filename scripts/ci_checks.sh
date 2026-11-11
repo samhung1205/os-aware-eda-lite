@@ -5,7 +5,7 @@
 #   bash scripts/ci_checks.sh tests          # unit / integration tests (stdlib only, verbose)
 #   bash scripts/ci_checks.sh shell          # bash -n on every shell script
 #   bash scripts/ci_checks.sh audit          # audit regressions: fails if any case is REPRODUCED
-#   bash scripts/ci_checks.sh provenance     # runtime provenance gate (see below)
+#   bash scripts/ci_checks.sh provenance     # runtime provenance gates: Phase 2 + Phase 3 (see below)
 #   bash scripts/ci_checks.sh repeat [N]     # run the test suite N times (default 5), keep every log
 #
 # Needs only python3 (3.10+), bash and git. No ROS 2, no pip packages.
@@ -98,6 +98,18 @@ check_provenance() {
       echo "!! provenance BROKEN (exit ${status})" >&2
       return "$status"
       ;;
+  esac
+  # Phase 3 formal scheduling benchmark: its own gate (a Phase 2 VERIFIED says nothing about it).
+  local p3=0
+  if [[ -f scripts/check_phase3_provenance.py ]]; then
+    "$PYTHON" scripts/check_phase3_provenance.py || p3=$?
+  else
+    p3=1
+  fi
+  case "$p3" in
+    0) echo "== phase 3 provenance: VERIFIED" ;;
+    1) echo "== phase 3 provenance: BLOCKED (formal scheduling data not present; not a pass, not a failure)" ;;
+    *) echo "!! phase 3 provenance BROKEN (exit ${p3})" >&2; return "$p3" ;;
   esac
 }
 
