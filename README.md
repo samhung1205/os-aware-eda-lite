@@ -19,6 +19,8 @@ Phase 2 / Batch 2 ran the formal ROS 2 baseline (MobileViT-XXS / S × FPS 5–30
 
 Phase 3 / Batch 1 added **runtime frame scheduling in the ROS 2 detector** (`fifo`, `latest_frame`, `adaptive`; legacy QoS-depth behaviour kept as `legacy_qos`) and ran a short interleaved pilot (`results/raw/ros2_phase3_pilot/`, not part of the Phase 2 provenance chain); see `report/PHASE3_BATCH1_RESULT.md`. The pilot is preliminary evidence, not the formal A/B benchmark.
 
+Phase 3 / Batch 2 ran the **formal interleaved A/B benchmark** (102 constrained 65 s runs, 17 blocks, 6 arms incl. the `deadline_guard` ablation and a dynamic 10 → 20 → 10 FPS condition; `results/raw/ros2_phase3_formal/`, independent gate `scripts/check_phase3_provenance.py` = `VERIFIED`); see `report/PHASE3_BATCH2_RESULT.md`. Result: deadline-aware dropping reduces effective miss vs Latest-Frame by ≈ 10.6 pp at S 20 FPS (5/5 blocks) and ≈ 4.1 pp under dynamic load (3/3), but the simpler Deadline-Guard is indistinguishable from Adaptive everywhere: the utilisation switch adds nothing measurable.
+
 ## Quickstart (simulator, analysis and tests — nothing to install)
 
 Python 3.10 – 3.13, standard library only (`requirements-sim.txt` is intentionally empty):
@@ -339,6 +341,7 @@ The detector parameter `scheduler_policy` selects the execution path (`src/ros2_
 | `fifo` | bounded app queue (`queue_capacity`, default 5), arrival order | full → `fifo_overflow=reject_newest` (tail drop, default) or `evict_oldest` |
 | `latest_frame` | at most 1 pending frame | a newer frame supersedes the pending one |
 | `adaptive` | bounded app queue, evict oldest when full | deadline feasibility from past service times (`adaptive_window`, `adaptive_quantile`, `adaptive_margin_ms`), EDF when ρ̂ < `adaptive_overload_threshold`, newest feasible frame otherwise; waits for a fresh frame when none is feasible |
+| `deadline_guard` (Batch 2 ablation) | same as `adaptive` | same estimator and feasibility check, **no utilisation switch**: always the newest feasible frame (= Latest-Frame + deadline guard) |
 
 The application policies share one architecture: ingestion callback (timestamps + enqueue only) → bounded queue → exactly one inference worker thread. Every frame that reaches the queue gets exactly one CSV row (processed, `drop_reason`, or `shutdown_pending` / `shutdown_inflight` on shutdown). `intra_op_threads` (torch + OpenCV) must be equal across compared arms (the sweep uses 1; see the report for why).
 
@@ -353,6 +356,28 @@ python3 -m src.ros2_runtime.analyze_runtime --input results/raw/ros2_phase3_pilo
 python3 -m src.ros2_runtime.aggregate_scheduling --summary results/csv/ros2_phase3_pilot_summary.csv \
   --raw-dir results/raw/ros2_phase3_pilot --runs-output results/csv/ros2_phase3_pilot_runs.csv \
   --conditions-output results/csv/ros2_phase3_pilot_arms.csv --paired-output results/csv/ros2_phase3_pilot_paired.csv
+```
+
+Formal A/B benchmark (Phase 3 / Batch 2, `report/PHASE3_BATCH2_RESULT.md`): `experiments/ros2/run_sched_formal.sh` runs interleaved blocks (every arm once per block, rotated order, blocks of each condition spread over the session), checks a clean git tree and a quiet host (`src.ros2_runtime.host_load_gate`, CPU_SET + SMT siblings) before every block, and writes to `results/raw/ros2_phase3_formal/`. The publisher's optional `fps_schedule` (`"10@20,20@20,10@20"` = FPS@seconds from frame 0; empty = fixed `input_fps`) drives the dynamic-load condition.
+
+```bash
+DRY_RUN=1 bash experiments/ros2/run_sched_formal.sh          # print the plan (17 blocks x 6 arms)
+bash experiments/ros2/run_sched_formal.sh                    # needs CPU_SET etc. as for the baseline
+python3 -m src.ros2_runtime.analyze_runtime --input results/raw/ros2_phase3_formal \
+  --summary-output results/csv/ros2_phase3_formal_summary.csv --warmup-frames 10
+python3 -m src.ros2_runtime.aggregate_scheduling --summary results/csv/ros2_phase3_formal_summary.csv \
+  --raw-dir results/raw/ros2_phase3_formal --runs-output results/csv/ros2_phase3_formal_runs.csv \
+  --conditions-output results/csv/ros2_phase3_formal_arms.csv --paired-output results/csv/ros2_phase3_formal_paired.csv \
+  --by-scenario --paired-stats --reference-arm latest_q10 --reference-arm guard_c5_q10 --reference-arm legacy_q1
+python3 -m src.ros2_runtime.analyze_dynamic_phases --raw-dir results/raw/ros2_phase3_formal \
+  --phases-output results/csv/ros2_phase3_formal_dynamic_phases.csv \
+  --arms-output results/csv/ros2_phase3_formal_dynamic_arms.csv \
+  --paired-output results/csv/ros2_phase3_formal_dynamic_paired.csv \
+  --reference-arm latest_q10 --reference-arm guard_c5_q10 --reference-arm legacy_q1
+python3 -m src.ros2_runtime.plot_scheduling --runs results/csv/ros2_phase3_formal_runs.csv \
+  --paired results/csv/ros2_phase3_formal_paired.csv \
+  --dynamic-arms results/csv/ros2_phase3_formal_dynamic_arms.csv --figures-dir results/figures/ros2_phase3_formal
+python3 scripts/check_phase3_provenance.py --expect-runs 102   # independent Phase 3 gate (0/1/2)
 ```
 
 Summary columns added for scheduling (appended; older columns unchanged): `scheduler_policy`, `queue_capacity`, `scheduler_params`, the disjoint split of `dropped_frames` into `app_policy_dropped_frames` / `shutdown_unfinished_frames` / `dds_unreceived_frames` / `tail_unobserved_frames` / `other_dropped_frames`, `policy_drop_reasons`, `app_policy_drop_rate_pct`, queue wait and frame-age percentiles, `max_queue_len`, `scheduler_decisions`, `intra_op_threads`.

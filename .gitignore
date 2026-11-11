@@ -31,3 +31,6 @@ results/raw/ros2/*.failed
 # apart so the verified Phase 2 baseline chain (raw/ros2 -> runtime summary) is untouched.
 !results/raw/ros2_phase3_pilot/*.csv
 results/raw/ros2_phase3_pilot/*.failed
+# Phase 3 / Batch 2 formal A/B benchmark: tracked; verified by scripts/check_phase3_provenance.py.
+!results/raw/ros2_phase3_formal/*.csv
+results/raw/ros2_phase3_formal/*.failed

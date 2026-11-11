@@ -310,3 +310,21 @@ Implementation decision:
 Important limitation:
 
 - Pilot only (3 repeats × 40 s, 4 conditions); the host is shared, governor `powersave`, and service time drifts between sessions (XXS ~16 ms today vs 18.4 ms in Batch 2), so XXS 60 FPS is near ρ ≈ 1 rather than clearly overloaded. Not a formal benchmark.
+
+
+## 2026-11-11 Phase 3 / Batch 2: Formal A/B Benchmark & Adaptive Validation
+
+Prompt summary:
+
+- Formal, reproducible interleaved A/B benchmark of the scheduling arms (S 20 FPS × ≥ 5 paired 60 s blocks; S 10 / 30, XXS controlled overload, a dynamic S 10 → 20 → 10 FPS condition × ≥ 3 blocks); a minimal `deadline_guard` ablation (same estimator / feasibility check as Adaptive, no utilisation switch); clean git state for every run; an independent Phase 3 provenance check; pre-declared metrics; paired statistics; no tuning of Adaptive; no push / merge.
+
+Implementation decision:
+
+- `deadline_guard` is one branch inside the existing adaptive selector (`overloaded = True`), so the two arms share every line of code except the switch. Adaptive's parameters and params text are unchanged from Batch 1.
+- Dynamic load = publisher `fps_schedule` (`10@20,20@20,10@20`, measured from frame 0, timer period changed in place); `@` instead of `:` because ROS 2 parameters are YAML-parsed (`10:20` → 620). Fixed-rate mode and the publisher log format are unchanged; the phase of each frame is derived from its publish time.
+- Measurements ran from a separate detached git worktree at the measurement commit, so editing analysis code in the main checkout could not make `git.dirty` true (the Batch 1 defect). A host load gate (CPU_SET + SMT siblings, loadavg) ran before every block; results were byte-compared after copying into the repository.
+- Primary metrics (effective miss, on-time FPS) and comparisons were fixed before analysis; the unit is the run, paired within blocks; 95 % t-intervals and exact sign-flip p-values are reported, with the caveat that n = 3–5 blocks.
+
+Important limitation:
+
+- Adaptive's utilisation switch never changed a decision that mattered: Deadline-Guard matched it in every condition. The improvement over Latest-Frame comes from the feasibility check (drop-and-wait), and only exists when one inter-arrival time + service time exceeds the deadline (S 20 FPS, dynamic phase 2), not at S 30 FPS or XXS + 25 ms. Single host, random-init weights, one deadline (100 ms), one parameter set.

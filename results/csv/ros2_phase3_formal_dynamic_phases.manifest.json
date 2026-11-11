@@ -1,0 +1,241 @@
+{
+  "generator": "src.ros2_runtime.analyze_dynamic_phases",
+  "transient_s": 3.0,
+  "reference_arms": [
+    "latest_q10",
+    "guard_c5_q10",
+    "legacy_q1"
+  ],
+  "inputs": [
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_adaptive_c5_q10_d0_p3b2_sdyn_b1.meta.json",
+      "sha256": "7ccd6dc5482f1e7ee12d2310b820cd1c74b0f2535e200ed8b0f72e868a01898c"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_adaptive_c5_q10_d0_p3b2_sdyn_b1.csv",
+      "sha256": "e35602289de03febf55d881d9d88b73d224d5c1bbe461b55c7fc3d2a189417cd"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_adaptive_c5_q10_d0_p3b2_sdyn_b1.publisher.csv",
+      "sha256": "d125caabc4581108191cfc07ee29c59a80291ac29ea3510bc7c64fafbe1b4d95"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_adaptive_c5_q10_d0_p3b2_sdyn_b2.meta.json",
+      "sha256": "acf34a718c69f44ea87f338305bce5b11ecb53af661f20378924c47c271c2764"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_adaptive_c5_q10_d0_p3b2_sdyn_b2.csv",
+      "sha256": "2cee8d183da82207e5505b660cb7e613eb31d8f4afa9c279625b746dd52b4223"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_adaptive_c5_q10_d0_p3b2_sdyn_b2.publisher.csv",
+      "sha256": "815999d10490a27ea47d82e2dd0533e95ad6d0b85e86a5aa5f6c7b75d62e2753"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_adaptive_c5_q10_d0_p3b2_sdyn_b3.meta.json",
+      "sha256": "28749ef763c75ca3f83e4c73404c4b6573e54442895179271bfe5626adda8d89"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_adaptive_c5_q10_d0_p3b2_sdyn_b3.csv",
+      "sha256": "680735eacbf536498b6b051bb166600971744a3bf29b07a8c291a53fdd4d926d"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_adaptive_c5_q10_d0_p3b2_sdyn_b3.publisher.csv",
+      "sha256": "56ad9d71198ddcda265e57a1c9350a4bfeda6f61bf9b54e8a6894f2de19a2f08"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_fifo_c5_q10_d0_p3b2_sdyn_b1.meta.json",
+      "sha256": "fda6ea0a8ecf8884775b4958410b0a8bfe06679da63823e737d78e2ea8b6214b"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_fifo_c5_q10_d0_p3b2_sdyn_b1.csv",
+      "sha256": "f73aea3846de244b241265c091f05c56ba4f11ba4fb0e7c9a74a8be828de8c42"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_fifo_c5_q10_d0_p3b2_sdyn_b1.publisher.csv",
+      "sha256": "b1a30c52520fadee0e449e032b924ca17bb9d1f0a516fd7d36ef05ffa70b0932"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_fifo_c5_q10_d0_p3b2_sdyn_b2.meta.json",
+      "sha256": "1f3a8cfbad421de398ffdd3984f193d3477170c316e140ddb71711d569e64f2a"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_fifo_c5_q10_d0_p3b2_sdyn_b2.csv",
+      "sha256": "9167a6243b6bd44b57b3663ed919d7ca2c9a4c0b16a0a0fe79492788d1b76b24"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_fifo_c5_q10_d0_p3b2_sdyn_b2.publisher.csv",
+      "sha256": "f588ac0a6b070d770cdffe3eaac3acaf412bfc709269c1a25e900aeb5504b8bf"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_fifo_c5_q10_d0_p3b2_sdyn_b3.meta.json",
+      "sha256": "ab40a0fba3e19947a99b7414832516b246e84b5b5755a44b0761ec13f26a52ae"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_fifo_c5_q10_d0_p3b2_sdyn_b3.csv",
+      "sha256": "8f23214947565e7b6b05404e89825989f620512c52426a6a956573c540379f7c"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_fifo_c5_q10_d0_p3b2_sdyn_b3.publisher.csv",
+      "sha256": "369963eaf576ca058bf5ae629883f28280dd45a2ef15394fd747b392ee0d3332"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_guard_c5_q10_d0_p3b2_sdyn_b1.meta.json",
+      "sha256": "c98e9574307682d7a66af8c628021e1772a720cc68b97ec9a311b2a915e90c59"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_guard_c5_q10_d0_p3b2_sdyn_b1.csv",
+      "sha256": "515f42d3fea3326f31f926f169b3d678de110d5f13cd436ac73117b997eb36ad"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_guard_c5_q10_d0_p3b2_sdyn_b1.publisher.csv",
+      "sha256": "430dbfbfc3a305372da3c5f2521da90c4c569ba4497716d276663bbe55d25b32"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_guard_c5_q10_d0_p3b2_sdyn_b2.meta.json",
+      "sha256": "58aba36ca0bac2ad82c9bf8ee60d14dd67457971ccde7461687b31124bae7ed2"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_guard_c5_q10_d0_p3b2_sdyn_b2.csv",
+      "sha256": "3e18fe4f8ce52a5e2d791ca0c2b28b58ef3dbcb45ac320400338beb01c530a0d"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_guard_c5_q10_d0_p3b2_sdyn_b2.publisher.csv",
+      "sha256": "4234676d33085f2af159a5e8922eb8f0e5f131ddfc8d2d13131502f9f173b353"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_guard_c5_q10_d0_p3b2_sdyn_b3.meta.json",
+      "sha256": "d72b3466bbe426e253e3deaf3b0ae09e491e751eef226cef998cf87626d760ec"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_guard_c5_q10_d0_p3b2_sdyn_b3.csv",
+      "sha256": "cfa3d9d85139f549db8fd2ea8b3140cd45cad95f04c2aacc9fc4715dee18eb11"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_guard_c5_q10_d0_p3b2_sdyn_b3.publisher.csv",
+      "sha256": "68e37c4c09f2f7ed1e419e85b493fe454c5c1ebb63eb13b2badf54187cb87a53"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_latest_q10_d0_p3b2_sdyn_b1.meta.json",
+      "sha256": "3a56af36536f20a53ea89a1ecaa69fa8a476fd4e6bbb22d6a6462f26fadc1108"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_latest_q10_d0_p3b2_sdyn_b1.csv",
+      "sha256": "193429777470aedc0ccc4fe657d96da099156ed5c5edd3601a2adcdf70eda1ff"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_latest_q10_d0_p3b2_sdyn_b1.publisher.csv",
+      "sha256": "90045af77103c850fb040da1494c496d0e54814224f9a2b9e0e127f7087a6dce"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_latest_q10_d0_p3b2_sdyn_b2.meta.json",
+      "sha256": "278480cd7657599f3b91269b91af20907d67d5475da7f5c3c0750ebb00b06d88"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_latest_q10_d0_p3b2_sdyn_b2.csv",
+      "sha256": "d731bad50348554051f5ad3c98f95046c8edca888799b740b2dd49eb2f6ac2cc"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_latest_q10_d0_p3b2_sdyn_b2.publisher.csv",
+      "sha256": "1baba6327506841a12fea9ff2064b1afaed2e0b323451f5144d9f35d767edc8a"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_latest_q10_d0_p3b2_sdyn_b3.meta.json",
+      "sha256": "1e26318278f4eb674abc95b037d4b624daa391f8247841fee7fa5cb07e64e870"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_latest_q10_d0_p3b2_sdyn_b3.csv",
+      "sha256": "179c8a371b6e831812c6fac64c69d429e3f25462ec2b97be81e1e6f68d68bea1"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_latest_q10_d0_p3b2_sdyn_b3.publisher.csv",
+      "sha256": "590567cf4e2a98e41bbad3e043fcf1ddf166ea22f2e59a2d09dfde2ec2a5a03e"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q1_d0_p3b2_sdyn_b1.meta.json",
+      "sha256": "4ffb59b1ebe6b9be819f7f16839550d8012816f40b05057ae99316915385bc14"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q1_d0_p3b2_sdyn_b1.csv",
+      "sha256": "1c929d79c77d86985504242e2499fe49007f4b2dd21a4adf0d36c58355615098"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q1_d0_p3b2_sdyn_b1.publisher.csv",
+      "sha256": "5d9f7a5517bf1c779436cc28a02e295d9cd3cacfa803e54559778d553c3a9bbd"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q1_d0_p3b2_sdyn_b2.meta.json",
+      "sha256": "1eaeee0bd7520373c6a154342db0a84674b9114a84e5f6379c56d0948b658beb"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q1_d0_p3b2_sdyn_b2.csv",
+      "sha256": "d96f96ad13cb9ee7bd53eb1602f3aa512241721fdf51354692562e36cabe8213"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q1_d0_p3b2_sdyn_b2.publisher.csv",
+      "sha256": "c254b8044c4014d63ff22e8178c6a37aa2d3cfb20cf1da97c3bfb4d8b5479f19"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q1_d0_p3b2_sdyn_b3.meta.json",
+      "sha256": "432a581793f0233e14f03f609c099c17565664c58e1977fb00cd33467e898006"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q1_d0_p3b2_sdyn_b3.csv",
+      "sha256": "45c359e124d371db255f2152b5ca0e5782dbb66eef1cd7c0472992339c19f719"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q1_d0_p3b2_sdyn_b3.publisher.csv",
+      "sha256": "25fee4193cb7472d7f72aa7c929e8114598796054579bbae5d8f4d4d6cfb6950"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q5_d0_p3b2_sdyn_b1.meta.json",
+      "sha256": "cd2075fd34472f43334555735f6c769bcb7bb979daaeb783b8fddca79dba137b"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q5_d0_p3b2_sdyn_b1.csv",
+      "sha256": "994575044a23f3d6b4ce71aaccc5f12fb64913287266697224d1b71b58db43af"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q5_d0_p3b2_sdyn_b1.publisher.csv",
+      "sha256": "a74cb4b0324739a9ea1719b7ff882800e64d718caae292144130a97aa66e3051"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q5_d0_p3b2_sdyn_b2.meta.json",
+      "sha256": "528b8e659cf160ca4b5ba38fc487306df62a80ed099cdc66846d61e9afb5f6ff"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q5_d0_p3b2_sdyn_b2.csv",
+      "sha256": "ba2501b28219bb5265db998da075943bbb9ed3cf03e6195e0be7389cc5413fa1"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q5_d0_p3b2_sdyn_b2.publisher.csv",
+      "sha256": "9351f60056099cc7a3d95a9cfebf0ca6dc087c6d925f7d4ff91037694a93e602"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q5_d0_p3b2_sdyn_b3.meta.json",
+      "sha256": "51abcc5a8b90f51588bba1aae8961caebf73a0ad8adc879359694766d0d19b9d"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q5_d0_p3b2_sdyn_b3.csv",
+      "sha256": "9113d44f1c869b9cd378ee129ddef67f946630df121fcc948cc350ebe49f4dab"
+    },
+    {
+      "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q5_d0_p3b2_sdyn_b3.publisher.csv",
+      "sha256": "46db91bb95a1bb6da51576f4ebb844cf33f1df32eb762c09a47918238ea04eef"
+    }
+  ],
+  "outputs": [
+    {
+      "path": "results/csv/ros2_phase3_formal_dynamic_phases.csv",
+      "sha256": "8bf9f59e95a365aff1fd4bf40f982c1f020551b5f89c5852c3db4bc18a8f69c8"
+    },
+    {
+      "path": "results/csv/ros2_phase3_formal_dynamic_arms.csv",
+      "sha256": "efaee0499ad60a34d8e6fdfcaad9f478ccee00c71b5a398fe061d2a07a7f437a"
+    },
+    {
+      "path": "results/csv/ros2_phase3_formal_dynamic_paired.csv",
+      "sha256": "a9dfb7948def613d88e84fcf25f718c73a7777b9b3f2e60a40de021d6b84c7f1"
+    }
+  ]
+}
