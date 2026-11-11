@@ -6,6 +6,7 @@
 #   bash scripts/ci_checks.sh shell          # bash -n on every shell script
 #   bash scripts/ci_checks.sh audit          # audit regressions: fails if any case is REPRODUCED
 #   bash scripts/ci_checks.sh provenance     # runtime provenance gates: Phase 2 + Phase 3 (see below)
+#   bash scripts/ci_checks.sh dashboard      # dashboard data bundle is current with the verified tables
 #   bash scripts/ci_checks.sh repeat [N]     # run the test suite N times (default 5), keep every log
 #
 # Needs only python3 (3.10+), bash and git. No ROS 2, no pip packages.
@@ -113,6 +114,16 @@ check_provenance() {
   esac
 }
 
+# Phase 4 dashboard: the committed bundle (dashboard/data/) must equal a fresh build from the
+# verified tables. Exit 1 BLOCKED / 2 BROKEN / 3 STALE all fail the check.
+# Before that, the Phase 2 / Phase 3 tables are rebuilt from the raw runs into a temp dir and
+# compared with the committed ones (scripts/check_table_regeneration.py), so CI covers
+# raw runs -> tables -> dashboard bundle.
+check_dashboard() {
+  "$PYTHON" scripts/check_table_regeneration.py
+  "$PYTHON" -m src.dashboard.build_data --check
+}
+
 cmd="${1:-all}"
 shift || true
 case "$cmd" in
@@ -121,14 +132,16 @@ case "$cmd" in
   shell) check_shell ;;
   audit) check_audit ;;
   provenance) check_provenance ;;
+  dashboard) check_dashboard ;;
   all)
     check_tests
     check_shell
     check_audit
     check_provenance
+    check_dashboard
     ;;
   *)
-    echo "usage: $0 {all|tests|repeat [N]|shell|audit|provenance}" >&2
+    echo "usage: $0 {all|tests|repeat [N]|shell|audit|provenance|dashboard}" >&2
     exit 2
     ;;
 esac

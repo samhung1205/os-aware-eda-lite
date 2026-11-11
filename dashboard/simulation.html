@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>EDA-Lite Simulation Explorer</title>
+  <meta name="description" content="EDA-Lite layer-fusion simulation estimates for simplified MobileViT profiles. Cost-model units, not hardware measurements.">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <h1>EDA-Lite · Simulation explorer</h1>
+        <span class="sub">offline layer-fusion cost model</span>
+        <span class="spacer"></span>
+        <span class="tag estimate" title="Simulation outputs in cost-model units; not measured on hardware">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 4.8v3.6M8 10.6v.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          Simulation estimates
+        </span>
+      </div>
+      <nav class="nav" aria-label="Sections">
+        <a href="index.html#overview">← Measured dashboard</a>
+        <span class="sep" aria-hidden="true"></span>
+        <a href="simulation.html" aria-current="page">EDA-Lite simulation</a>
+      </nav>
+    </div>
+  </header>
+  <main id="main">
+    <noscript><div class="empty-state"><h2>JavaScript is required</h2></div></noscript>
+    <section class="view" id="sim"></section>
+  </main>
+  <footer class="foot">
+    <span>Source: <code>results/csv/eda_lite_mobilevit_profile_sweep.csv</code> (+ <code>.provenance.json</code>), via <code>python3 -m src.dashboard.build_data</code></span>
+    <span>Estimates only. Nothing on this page is a runtime or energy measurement.</span>
+  </footer>
+  <script>
+    window.addEventListener("error", function (e) {
+      var m = document.getElementById("main"), d = document.createElement("div");
+      d.className = "callout"; d.setAttribute("role", "alert");
+      d.textContent = "Part of this page failed to render: " + e.message + " (" + (e.filename || "").split("/").pop() + ":" + e.lineno + ")";
+      if (m) m.prepend(d);
+    });
+  </script>
+  <script src="data/dashboard_data.js"></script>
+  <script src="assets/charts.js"></script>
+  <script src="assets/simulation.js"></script>
+</body>
+</html>

@@ -404,11 +404,11 @@ Implemented:
 - `results/README.md` tracking policy and provenance status.
 - README.
 - AI interaction log.
+- Phase 4 dashboard (`dashboard/`, static, offline) built by `src/dashboard/build_data.py` from the Phase 2 baseline and Phase 3 formal tables only; `--check` in CI; `scripts/check_table_regeneration.py` rebuilds the tables from raw runs; preview via `bash scripts/serve_dashboard.sh` (127.0.0.1 only). `report/PHASE4_RESULT.md`.
 
 Still not implemented / not present:
 
 - EDA-Lite runtime-aware sweep re-run with the verified `runtime_os_profiles.json` (Batch 2 generated the file; `mobilevit_runtime_aware_sweep.json` still points at the example file).
-- Final dashboard (Phase 3 / Batch 2 completed the formal A/B benchmark, `report/PHASE3_BATCH2_RESULT.md`).
 - Real model weights (the detector uses random-init timm weights; latency only).
 - Runtime-aware EDA-Lite scheduling (EDA-Lite schedules offline; OS profiles only re-weight the cost; the ROS 2 frame scheduler is separate and does not feed EDA-Lite).
 - ONNX parser.
@@ -423,7 +423,7 @@ Prioritize in this order unless the user redirects:
 
 1. Draft report methodology and limitations based on MobileViT simplified simulation and ROS2 runtime-analysis pipeline.
 2. (Done in Phase 2 / Batch 2) formal FPS/QoS/overload baseline under `results/raw/ros2/`, verified `runtime_os_profiles.json`, provenance `VERIFIED`.
-3. Phase 3: Batch 1 (policies + pilot) and Batch 2 (formal A/B, 102 runs, `report/PHASE3_BATCH2_RESULT.md`) done. Finding: deadline feasibility dropping beats Latest-Frame only when inter-arrival + service > deadline; Deadline-Guard = Adaptive (the utilisation switch adds nothing measurable). Next: final dashboard from the verified formal tables; report the guard as the effective mechanism.
+3. Phase 3: Batch 1 (policies + pilot) and Batch 2 (formal A/B, 102 runs, `report/PHASE3_BATCH2_RESULT.md`) done. Finding: deadline feasibility dropping beats Latest-Frame only when inter-arrival + service > deadline; Deadline-Guard = Adaptive (the utilisation switch adds nothing measurable). Phase 4 dashboard done (`report/PHASE4_RESULT.md`); it reports the guard as the effective mechanism.
 4. Re-run `mobilevit_runtime_aware_sweep.json` with real runtime-derived OS profiles.
 5. Generate final figures and write results discussion.
 
@@ -443,7 +443,8 @@ Avoid these unless explicitly requested:
 - Keep all experiment parameters in JSON config or shell-script environment variables.
 - Save generated tabular outputs as CSV.
 - Generate plots from scripts as SVG.
-- Update `README.md` whenever commands, file paths, or project scope changes.
+- Update `README.md` whenever commands, file paths, or project scope changes (detailed manual: `docs/REFERENCE.md`).
+- After changing any formal table or the dashboard builder, run `python3 -m src.dashboard.build_data` and commit `dashboard/data/` (CI fails on a STALE bundle). Never add pilot / legacy-unverified / example inputs to the builder; it rejects them.
 - Update `report/ai_interaction_log.md` for major AI-assisted decisions or direction changes.
 - Run `python3 -m unittest discover -s tests` (or `bash scripts/ci_checks.sh all`) after code changes.
 - Never commit `__pycache__`, `.pyc`, `.DS_Store` or Office lock files; follow `results/README.md` for what results to commit.

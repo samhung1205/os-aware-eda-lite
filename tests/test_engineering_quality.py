@@ -200,7 +200,7 @@ class DependencySplitTest(unittest.TestCase):
 
     def test_simulator_and_analysis_modules_import_only_the_standard_library(self):
         stdlib = set(sys.stdlib_module_names)
-        roots = [REPO / "src/eda_lite", REPO / "src/ros2_runtime", REPO / "src/provenance.py",
+        roots = [REPO / "src/eda_lite", REPO / "src/ros2_runtime", REPO / "src/dashboard", REPO / "src/provenance.py",
                  *sorted((REPO / "scripts").glob("*.py"))]
         files = [p for r in roots for p in (r.rglob("*.py") if r.is_dir() else [r])]
         for path in files:

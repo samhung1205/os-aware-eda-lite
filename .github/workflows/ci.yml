@@ -43,7 +43,7 @@ jobs:
           if-no-files-found: ignore
 
   checks:
-    name: shell syntax, audit regressions, provenance gate
+    name: shell syntax, audit regressions, provenance gate, dashboard data
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -57,6 +57,8 @@ jobs:
         run: bash scripts/ci_checks.sh audit
       - name: Runtime provenance gate (BLOCKED is reported, never upgraded to VERIFIED)
         run: bash scripts/ci_checks.sh provenance
+      - name: Tables rebuild from raw runs; dashboard data bundle is current
+        run: bash scripts/ci_checks.sh dashboard
 
   repeat:
     # Repeats the whole suite to surface intermittent failures (one unexplained error was

@@ -328,3 +328,23 @@ Implementation decision:
 Important limitation:
 
 - Adaptive's utilisation switch never changed a decision that mattered: Deadline-Guard matched it in every condition. The improvement over Latest-Frame comes from the feasibility check (drop-and-wait), and only exists when one inter-arrival time + service time exceeds the deadline (S 20 FPS, dynamic phase 2), not at S 30 FPS or XXS + 25 ms. Single host, random-init weights, one deadline (100 ms), one parameter set.
+
+
+## 2026-11-12 Phase 4: Dashboard & Portfolio Finalization
+
+Prompt summary:
+
+- Turn the project into a portfolio piece: a lightweight static dashboard (Overview, Baseline, Scheduling, Mechanism, Evidence + a separate EDA-Lite simulation entry) generated reproducibly from the verified Phase 2 / Phase 3 tables only; tests for the data pipeline; README rewrite with architecture diagram and screenshots; local preview via VS Code Remote SSH without exposing ports; no change to policies, cost model or measurement data; no push / merge.
+
+Implementation decision:
+
+- One stdlib builder (`src/dashboard/build_data.py`) computes every KPI and finding sentence from the CSVs and re-verifies all SHA-256 manifests; the front end (vanilla JS, inline SVG, no CDN) only formats. Output is deterministic so CI can byte-compare it (`--check`, exit 3 STALE). Missing input → BLOCKED, tampering / pilot / non-constrained / non-builtin simulation rows → BROKEN, and nothing is written.
+- Data is shipped as `dashboard_data.js` (`window.DASHBOARD_DATA`) besides the JSON, so the page also works from `file://`.
+- Headline capacity uses saturated throughput (processed FPS of overloaded runs, S 16.7 FPS) instead of 1000 / service time (16.8), because the former is what the detector actually delivered; both are shown.
+- Comparisons involving the legacy path are tagged `cross_architecture` and drawn in a separate panel; Adaptive − Guard is shown in every view where Guard appears, with "no measurable benefit (not an equivalence test)".
+- Added `scripts/check_table_regeneration.py` (raw → tables, compared to committed files) to the CI dashboard step. Phase 3 tables regenerate byte-identically; the two Phase 2 per-run tables match on all committed columns (the analyzer later gained 20 columns), so they were not rewritten.
+- The detailed README manual moved unchanged to `docs/REFERENCE.md`.
+
+Important limitation:
+
+- The dashboard shows one host and small block counts; it states this, reports intervals and sign counts, and makes no significance, cross-hardware or energy claim. EDA-Lite numbers are labelled estimates on a separate page and do not feed any KPI.
