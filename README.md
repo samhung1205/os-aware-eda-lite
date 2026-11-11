@@ -48,7 +48,7 @@ Filters (condition, metric, model) are kept in the URL, e.g. `index.html#schedul
 **Open it on the server (VS Code Remote SSH):**
 
 ```bash
-bash scripts/serve_dashboard.sh          # checks the data, then serves 127.0.0.1:8765
+bash scripts/serve_dashboard.sh          # checks the data, then serves 127.0.0.1:8765 (next free port if taken)
 ```
 
 VS Code forwards the port automatically (Ports panel → open in browser). The server binds to `127.0.0.1` only; nothing is exposed on the network. Without VS Code: `ssh -L 8765:127.0.0.1:8765 <server>`. Or open `dashboard/index.html` directly.

@@ -208,7 +208,7 @@ commit 7f0f160 to be an ancestor of HEAD.
 
 ### 5.5 部署方式
 
-- **目前（已提供，不公開）**：在 server 上執行 `bash scripts/serve_dashboard.sh`，只綁定 `127.0.0.1:8765`，先檢查 bundle 再啟動。透過 VS Code Remote SSH 的 port forwarding（或 `ssh -L 8765:127.0.0.1:8765 <server>`）預覽。也可以直接用 `file://` 開啟 `dashboard/index.html`。
+- **目前（已提供，不公開）**：在 server 上執行 `bash scripts/serve_dashboard.sh`，只綁定 `127.0.0.1`，先檢查 bundle 再啟動。預設 port 為 8765；在這台共用 server 上，8765 已被另一位使用者（uid 1006）的 systemd user service 佔用，所以腳本會自動改用 8765–8799 中第一個空的 port 並印出實際網址。若設定 `PORT=...`，則只用該 port，被佔用時直接停止並說明原因。透過 VS Code Remote SSH 的 port forwarding（或 `ssh -L 8765:127.0.0.1:8765 <server>`）預覽。也可以直接用 `file://` 開啟 `dashboard/index.html`。
 - **公開時（建議，未執行）**：用 GitHub Pages 發布 `dashboard/` 目錄。網站是純靜態，所有路徑都是相對路徑，可以在 `/<repo>/` 子路徑下運作。
   - 做法：新增一個 workflow，在 `main` push 時先執行 `python3 -m src.dashboard.build_data --check`，再用 `actions/upload-pages-artifact`（`path: dashboard`）與 `actions/deploy-pages` 部署。
   - 部署內容只有 HTML、CSS、JS 與 bundle，不含 raw metadata。
