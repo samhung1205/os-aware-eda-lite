@@ -51,6 +51,10 @@
     return fmt(v, nd);
   }
   function measure(str, size) { return String(str).length * (size || 12.5) * 0.56; }
+  function refLabel(s, px, y, label, W) {
+    const right = px + 4 + measure(label, 11.5) <= W;
+    return text(s, right ? px + 4 : px - 4, y, label, { class: "reflabel", "text-anchor": right ? "start" : "end" });
+  }
   function width(container) { return Math.max(280, Math.floor(container.clientWidth || 640)); }
 
   function tipAttrs(node, html, label) {
@@ -95,12 +99,17 @@
   document.addEventListener("pointermove", (e) => {
     if (tipEl && tipEl.classList.contains("on")) place(e.clientX, e.clientY);
   });
+  // Keyboard focus scrolls the mark into view; keep its tooltip attached instead of hiding it.
+  let focusTip = null;
   document.addEventListener("focusin", (e) => {
     const t = e.target.closest && e.target.closest("[data-tip]");
+    focusTip = t || null;
     if (t) { const r = t.getBoundingClientRect(); show(t, r.right, r.top); } else hide();
   });
-  document.addEventListener("focusout", hide);
-  window.addEventListener("scroll", hide, { passive: true });
+  document.addEventListener("focusout", () => { focusTip = null; hide(); });
+  window.addEventListener("scroll", () => {
+    if (focusTip && focusTip.isConnected) { const r = focusTip.getBoundingClientRect(); place(r.right, r.top); } else hide();
+  }, { passive: true });
 
   /* ---------- responsive mounting ---------- */
   const mounted = new Set();
@@ -178,7 +187,7 @@
       for (const ref of cfg.refs || []) {
         const px = x(ref.value);
         svg("line", { x1: px, x2: px, y1: top - 8, y2: plotBottom, class: "refline" }, s);
-        text(s, px + 4, top - 10, ref.label, { class: "reflabel" });
+        refLabel(s, px, top - 10, ref.label, W);
       }
       for (const item of layout) {
         if (item.group) { groupLabel(s, item.y + 17, item.group); continue; }
@@ -258,7 +267,8 @@
     return mount(container, (el, W) => {
       const narrow = W < 560;
       const H = cfg.height || (narrow ? 260 : 300);
-      const padL = cfg.yTitle ? 58 : 46, padR = cfg.endLabels ? (narrow ? 70 : 110) : 16, padT = 14, padB = cfg.xTitle ? 46 : 30;
+      const endW = cfg.endLabels ? Math.max(0, ...(cfg.series || []).map((sr) => measure(sr.name || "", 12))) + 14 : 0;
+      const padL = cfg.yTitle ? 58 : 46, padR = cfg.endLabels ? Math.min(narrow ? 130 : 160, Math.max(narrow ? 40 : 60, endW)) : 16, padT = 14, padB = cfg.xTitle ? 46 : 30;
       const xs = [], ys = [];
       cfg.series.forEach((sr) => sr.points.forEach((p) => { xs.push(p.x); ys.push(p.y); }));
       (cfg.refs || []).forEach((r) => { if (r.y !== undefined) ys.push(r.y); if (r.x !== undefined) xs.push(r.x); });
@@ -281,7 +291,9 @@
       if (cfg.diag) {
         const lo = Math.max(xd.lo, yd.lo), hi = Math.min(xd.hi, yd.hi);
         svg("line", { x1: x(lo), y1: y(lo), x2: x(hi), y2: y(hi), class: "refline" }, s);
-        const m = lo + (hi - lo) * (cfg.diagAt || 0.62);
+        let f = cfg.diagAt || 0.62;
+        while (f > 0.2 && x(lo + (hi - lo) * f) + 8 + measure(cfg.diag, 11.5) > W - 4) f -= 0.04;
+        const m = lo + (hi - lo) * f;
         text(s, x(m) + 8, y(m) + 16, cfg.diag, { class: "reflabel", "text-anchor": "start" });
       }
       for (const r of cfg.refs || []) {
@@ -290,7 +302,7 @@
           text(s, padL + 6, y(r.y) - 5, r.label, { class: "reflabel" });
         } else {
           svg("line", { x1: x(r.x), x2: x(r.x), y1: padT, y2: H - padB, class: "refline" }, s);
-          text(s, x(r.x) + 5, padT + 10, r.label, { class: "reflabel" });
+          refLabel(s, x(r.x) + 1, padT + 10, r.label, W - padR);
         }
       }
       const ends = [];
@@ -308,10 +320,10 @@
           ends.push({ x: x(last.x) + 8, y: y(last.y) + 4, name: sr.name });
         }
       }
-      // end labels: keep at least 14 px apart vertically
+      // end labels: keep at least 16 px apart vertically
       ends.sort((a, b) => a.y - b.y);
       for (let i = 1; i < ends.length; i++) {
-        if (Math.abs(ends[i].x - ends[i - 1].x) < 60 && ends[i].y - ends[i - 1].y < 14) ends[i].y = ends[i - 1].y + 14;
+        if (Math.abs(ends[i].x - ends[i - 1].x) < 60 && ends[i].y - ends[i - 1].y < 16) ends[i].y = ends[i - 1].y + 16;
       }
       ends.forEach((e) => text(s, e.x, e.y, e.name, { class: "vlabel" }));
       if (cfg.yTitle) {
@@ -331,7 +343,7 @@
     return mount(container, (el, W) => {
       const narrow = W < 560;
       const rows = cfg.rows;
-      const labelW = Math.min(narrow ? 112 : 180, Math.max(...rows.map((r) => measure(r.label, 12.5))) + 14);
+      const labelW = Math.min(narrow ? 140 : 180, Math.max(...rows.map((r) => measure(r.label, 12.5))) + 14);
       const valueW = narrow ? 58 : 84;
       const rowH = cfg.rowH || 32, barH = Math.min(18, rowH - 12), top = (cfg.refs || []).length ? 24 : 8, groupH = 26;
       let h = top; const layout = []; let lastGroup = null;
@@ -362,7 +374,9 @@
           acc += sg.v;
         });
         const endX = Math.max(x(acc), r.marker !== undefined && r.marker !== null ? x(r.marker) : 0);
-        text(s, endX + 7, y + 4, r.valueText !== undefined ? r.valueText : fmt(acc, cfg.nd), { class: "vlabel" + (r.dim ? " dim" : "") });
+        let vt = r.valueText !== undefined ? r.valueText : fmt(acc, cfg.nd);
+        if (r.valueNote && endX + 7 + measure(vt + " · " + r.valueNote, 12) <= W) vt += " · " + r.valueNote;
+        text(s, endX + 7, y + 4, vt, { class: "vlabel" + (r.dim ? " dim" : "") });
         if (r.marker !== undefined && r.marker !== null) {
           svg("line", { x1: x(r.marker), x2: x(r.marker), y1: y - barH / 2 - 4, y2: y + barH / 2 + 4, stroke: "var(--ink)", "stroke-width": 2 }, s);
         }
@@ -370,7 +384,7 @@
       for (const ref of cfg.refs || []) {
         const px = x(ref.value);
         svg("line", { x1: px, x2: px, y1: top - 8, y2: plotBottom, class: "refline" }, s);
-        text(s, px + 4, top - 10, ref.label, { class: "reflabel" });
+        refLabel(s, px, top - 10, ref.label, W);
       }
     });
   }
@@ -417,7 +431,7 @@
     return mount(container, (el, W) => {
       const H = 46;
       const dom = niceDomain(Math.min(est.lo, est.mean, 0, opts.min !== undefined ? opts.min : 0), Math.max(est.hi, est.mean, 0), 4, { zero: true });
-      const x = lin(dom.lo, dom.hi, 8, W - 8);
+      const x = lin(dom.lo, dom.hi, 16, W - 16);
       const s = svg("svg", { viewBox: `0 0 ${W} ${H}`, width: W, height: H, class: "ci-strip", role: "img", "aria-label": opts.label || "" }, el);
       for (const v of dom.ticks) {
         const px = Math.round(x(v)) + 0.5;

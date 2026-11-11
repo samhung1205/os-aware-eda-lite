@@ -364,7 +364,7 @@
     C.hbars(sec.querySelector("#m1"), {
       rows: Mx.feasibility.map((f) => ({ label: COND[f.condition].label, dim: !f.overloaded, segments: [
         { v: f.inter_arrival_ms, color: "var(--axis)", name: "inter-arrival" }, { v: f.service_ms, color: "var(--ink-2)", name: "service" }],
-        valueText: f.overloaded ? `${fmt(f.age_bound_ms, 0)} ms` : `${fmt(f.age_bound_ms, 0)} ms · not overloaded, age ≈ 0`,
+        valueText: `${fmt(f.age_bound_ms, 0)} ms`, valueNote: f.overloaded ? "" : "not overloaded, age ≈ 0",
         tip: tipRows(COND[f.condition].label, [["inter-arrival", fmt(f.inter_arrival_ms, 1) + " ms"], ["service (Latest)", fmt(f.service_ms, 1) + " ms"], ["sum", fmt(f.age_bound_ms, 1) + " ms"], ["ρ", fmt(f.utilization, 2)], ["overloaded", f.overloaded ? "yes" : "no"]]) })),
       refs: [{ value: Mx.feasibility[0].deadline_ms, label: `deadline ${fmt(Mx.feasibility[0].deadline_ms, 0)} ms` }], xTitle: "Milliseconds", rowH: 36, ariaLabel: "Inter-arrival plus service time versus deadline",
     });

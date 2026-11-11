@@ -122,6 +122,7 @@ results/raw/{ros2,ros2_phase3_formal}/<run_id>.{csv,publisher.csv,meta.json,prob
 - `python3 scripts/check_table_regeneration.py` rebuilds every Phase 2 / Phase 3 table from the raw runs into a temporary directory and compares: the 7 Phase 3 tables and the baseline condition table are byte-identical; the two Phase 2 per-run tables match on every committed column (the current analyzer appends 20 Phase 3 columns). The exact commands are in that script and in [`docs/REFERENCE.md`](docs/REFERENCE.md).
 - `python3 -m src.dashboard.build_data` then regenerates the dashboard bundle; output is deterministic (no timestamps), so `--check` can compare bytes.
 - CI (`.github/workflows/ci.yml`, locally `bash scripts/ci_checks.sh all`): tests on Python 3.10–3.13, `bash -n`, audit regressions, both provenance gates, table regeneration, dashboard bundle check.
+- The Phase 3 gate checks that the measurement commit `7f0f160` is an ancestor of `HEAD` with runtime code unchanged since. Use a full clone (not `--depth 1`), and merge this history without squashing or rebasing, or the gate reports `BROKEN`.
 - `results/README.md` lists every result file with its provenance status. Pilot data (`results/raw/ros2_phase3_pilot/`) is kept for the record; its gate reports `BROKEN` by design (dirty tree) and it is never used.
 
 ## Repository layout
@@ -159,6 +160,13 @@ docs/                    REFERENCE.md (detailed manual), images/ (dashboard scre
 - Pretrained weights to report accuracy alongside latency.
 - Re-run the EDA-Lite runtime-aware sweep with the verified `runtime_os_profiles.json` (currently only example / legacy profiles were used there).
 - Formal equivalence testing (TOST) with a pre-declared margin for Adaptive vs Guard.
+
+## Data and third-party notices
+
+- **Images are not redistributed.** The benchmark streams the COCO128 subset of COCO 2017 (Ultralytics release), downloaded by `experiments/ros2/prepare_coco128.sh` into the git-ignored `data/raw/images/`. COCO annotations are CC BY 4.0; the images remain under their original Flickr licenses ([COCO terms of use](https://cocodataset.org/#termsofuse)). The raw run logs in `results/raw/` record frame ids and timings only, no image content.
+- **Model.** MobileViT (Mehta & Rastegari, ICLR 2022) via `timm` (Apache-2.0) with random-initialised weights; no pretrained weights are included or downloaded. `data/model_profiles/*` are simplified block summaries derived from the published architecture.
+- **Runtime.** ROS 2 Humble and eProsima Fast DDS (Apache-2.0), PyTorch (BSD-3-Clause) — installed separately, not vendored.
+- **Run metadata.** `results/raw/**/*.meta.json` and `*.probe.json` record the measurement host's kernel, CPU model, cgroup scope and the local install paths of the Python / Fast DDS profile. They are part of the SHA-256 provenance chain and are kept unedited.
 
 ## Project history
 

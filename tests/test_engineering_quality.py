@@ -12,6 +12,7 @@ import importlib.util
 import json
 import math
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -276,6 +277,12 @@ class ContinuousIntegrationTest(unittest.TestCase):
             self.assertNotIn("conda", command)
             self.assertNotIn("apt", command)
         self.assertNotIn("continue-on-error", text)
+        # The Phase 3 gate needs the measurement commit in history: the job that runs it must not
+        # use the default shallow checkout (it would report BROKEN on GitHub but pass locally).
+        jobs = re.split(r"\n  (?=[a-z][\w-]*:\n)", text.split("\njobs:\n", 1)[1])
+        gate_jobs = [j for j in jobs if "ci_checks.sh provenance" in j]
+        self.assertEqual(len(gate_jobs), 1)
+        self.assertIn("fetch-depth: 0", gate_jobs[0])
 
     @unittest.skipIf(shutil.which("bash") is None, "bash required")
     def test_ci_script_syntax_and_usage(self):

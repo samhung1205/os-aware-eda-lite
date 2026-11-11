@@ -348,3 +348,22 @@ Implementation decision:
 Important limitation:
 
 - The dashboard shows one host and small block counts; it states this, reports intervals and sign counts, and makes no significance, cross-hardware or energy claim. EDA-Lite numbers are labelled estimates on a separate page and do not feed any KPI.
+
+
+## 2026-11-12 Final QA & Release Preparation
+
+Prompt summary:
+
+- Final QA before a public release: browser review of every dashboard view (desktop / phone, light / dark, filters, tooltips, tables), public-release safety (secrets, identifiers, third-party data), engineering re-verification, PR / release preparation, `report/FINAL_QA.md`; only minimal fixes for evidenced problems; no push / merge / deploy.
+
+Implementation decision:
+
+- Drove real Firefox through geckodriver with a stdlib WebDriver client and an in-page layout audit (132 states, 447 SVGs; true 390 px via an iframe because Firefox windows cannot be that narrow). Every reported defect was reproduced before fixing; detector artefacts (line-box overlap, hover right after scroll, Tab past the document) were triaged and documented instead of "fixed".
+- Fixed 8 UI defects with small changes in `charts.js` / `style.css` (keyboard tooltip lost on scroll, decorative marks swallowing hover, labels leaving the panel on narrow screens, dark-mode CI strip ticks, clipped minus sign).
+- Found that GitHub's default shallow checkout makes the Phase 3 gate BROKEN (measurement commit missing) although local CI passes; reproduced with `git clone --depth 1`, fixed with `fetch-depth: 0` on the gate job plus a regression test, and documented that the PR must be merged with a merge commit (squash / rebase would orphan `7f0f160`).
+- Independently re-derived all 525 paired estimates shown by the dashboard from the per-run table (0 differences).
+- Release safety: no secrets / keys / private IPs. Lab hostname, personal email and home paths in reports and the username / uid inside hashed raw metadata are listed with recommendations; raw metadata is deliberately not edited (it would break provenance). No LICENSE exists — left to the owner (teammate commits on `main`); README gained a third-party notice (COCO images are not redistributed).
+
+Important limitation:
+
+- Browser QA covered Firefox only; Chromium / Safari were not available on the server.
