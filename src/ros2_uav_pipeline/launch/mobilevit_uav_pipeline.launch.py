@@ -55,6 +55,8 @@ ARGUMENTS = [
     ('adaptive_margin_ms', '0.0'),
     ('adaptive_overload_threshold', '1.0'),
     ('intra_op_threads', '0'),
+    # Phase 3 / Batch 2: publisher-only piecewise input rate ("<fps>@<s>,..."; '' = fixed input_fps).
+    ('fps_schedule', ''),
 ]
 SCHEDULER_ARGUMENTS = [
     'scheduler_policy', 'queue_capacity', 'fifo_overflow', 'adaptive_window',
@@ -84,6 +86,7 @@ def _launch_setup(context, *args, **kwargs):
         ('input_fps', value['input_fps']),
         ('run_id', run_id),
         ('output_csv', publisher_csv_path(detector_csv)),
+        *([('fps_schedule', value['fps_schedule'])] if value['fps_schedule'].strip() else []),
     ])
     detector = _node_process(DETECTOR_SCRIPT, 'mobilevit_detector_node', [
         ('model_name', value['model_name']),

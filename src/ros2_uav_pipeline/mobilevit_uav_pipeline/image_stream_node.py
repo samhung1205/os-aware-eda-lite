@@ -13,10 +13,14 @@ import time
 
 try:  # installed package (ros2 run / ros2 launch <package>)
     from mobilevit_uav_pipeline.run_log import (
-        DISABLED, PUBLISHER_CSV_HEADER, create_run_csv, ns_to_stamp, resolve_run_id,
+        DISABLED, PUBLISHER_CSV_HEADER, create_run_csv, ns_to_stamp, parse_fps_schedule,
+        resolve_run_id, scheduled_fps,
     )
 except ImportError:  # executed by file path from the checked-in launch file
-    from run_log import DISABLED, PUBLISHER_CSV_HEADER, create_run_csv, ns_to_stamp, resolve_run_id
+    from run_log import (
+        DISABLED, PUBLISHER_CSV_HEADER, create_run_csv, ns_to_stamp, parse_fps_schedule,
+        resolve_run_id, scheduled_fps,
+    )
 
 class ImageStreamNode(Node):
     def __init__(self):
@@ -31,11 +35,19 @@ class ImageStreamNode(Node):
         # 'none' = 不記錄（單獨執行時）。
         self.declare_parameter('run_id', 'auto')
         self.declare_parameter('output_csv', DISABLED)
+        # Phase 3 / Batch 2: optional piecewise-constant input rate "<fps>@<s>,<fps>@<s>,..."
+        # measured from frame 0. Empty (default) = the fixed input_fps (unchanged behaviour).
+        self.declare_parameter('fps_schedule', '', ParameterDescriptor(dynamic_typing=True))
         
         dataset_path = self.get_parameter('dataset_path').value
         input_fps = float(self.get_parameter('input_fps').value)
         if input_fps <= 0:
             raise ValueError('input_fps must be positive.')
+        self.fps_schedule = parse_fps_schedule(str(self.get_parameter('fps_schedule').value))
+        self.stream_start_perf = None
+        if self.fps_schedule:
+            input_fps = self.fps_schedule[0][0]  # the timer starts at the first segment's rate
+        self.current_fps = input_fps
         
         # 開啟資料夾中的第一張圖片作為預設圖片建立 Publisher，模擬網路堆疊中傳送端 (Sender)
         self.publisher_ = self.create_publisher(Image, 'image_raw', 10)
@@ -67,7 +79,8 @@ class ImageStreamNode(Node):
             self.publish_log = open(log_path, 'a', newline='', buffering=1)
             self.publish_writer = csv.writer(self.publish_log)
             self.get_logger().info(f'run_id={self.run_id}，發布紀錄寫入 {log_path}')
-        self.get_logger().info(f'影像發布節點已啟動，目標發布頻率：{input_fps} FPS')
+        self.get_logger().info(f'影像發布節點已啟動，目標發布頻率：{input_fps} FPS'
+                               + (f'，動態排程 {self.fps_schedule}' if self.fps_schedule else ''))
 
     def timer_callback(self):
         if not self.streaming:
@@ -75,6 +88,7 @@ class ImageStreamNode(Node):
                 self.get_logger().info('等待 subscriber（detector）就緒後才開始發布...', throttle_duration_sec=5.0)
                 return
             self.streaming = True
+            self.stream_start_perf = time.perf_counter()
             self.get_logger().info('偵測到 subscriber，開始發布 frame 0。')
         if not self.image_paths:
             # 如果沒有圖片，產生一個黑畫面作為 Fallback，避免程式崩潰
@@ -108,6 +122,18 @@ class ImageStreamNode(Node):
             self.publish_writer.writerow([self.run_id, self.seq_id, published_at_ns])
         self.get_logger().debug(f'已發布幀 {self.seq_id}')
         self.seq_id += 1
+        if self.fps_schedule:
+            self._apply_fps_schedule()
+
+    def _apply_fps_schedule(self):
+        """Switch the timer period when the schedule enters a new segment (dynamic mode only)."""
+        target = scheduled_fps(self.fps_schedule, time.perf_counter() - self.stream_start_perf)
+        if target != self.current_fps:
+            # rclpy Timer.timer_period_ns setter (rcl_timer_exchange_period): same timer,
+            # new period from the next call on; no timer is destroyed inside its own callback.
+            self.timer.timer_period_ns = int(round(1e9 / target))
+            self.get_logger().info(f'fps_schedule: {self.current_fps} -> {target} FPS at frame {self.seq_id}')
+            self.current_fps = target
 
 def main(args=None):
     rclpy.init(args=args)

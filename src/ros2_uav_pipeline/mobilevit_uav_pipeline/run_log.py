@@ -201,3 +201,56 @@ def queue_timing(
         "frame_age_at_start_ms": (started_at_ns - published_at_ns) / 1e6,
     }
 
+
+
+# ---------------------------------------------------------------- dynamic input rate (Phase 3 / Batch 2)
+
+def parse_fps_schedule(text: str | None) -> list[tuple[float, float]]:
+    """Parse ``"10@20,20@20,10@20"`` -> ``[(fps, seconds), ...]``; empty/``none`` -> ``[]``.
+
+    ``@`` (not ``:``) separates rate and duration: ROS 2 parameters are YAML-parsed and
+    YAML 1.1 reads ``10:20`` as the sexagesimal integer 620.
+
+    Each segment publishes at ``fps`` for ``seconds``, measured from frame 0 (the first
+    published frame, i.e. once the detector subscribed). After the last segment the
+    last rate continues until the run is stopped. ``[]`` = fixed ``input_fps`` (default).
+    """
+
+    text = (text or "").strip()
+    if not text or text.lower() == DISABLED:
+        return []
+    segments = []
+    for part in text.split(","):
+        try:
+            fps_text, seconds_text = part.split("@")
+            fps, seconds = float(fps_text), float(seconds_text)
+        except ValueError as exc:
+            raise ValueError(f"fps_schedule segment '{part}' is not '<fps>@<seconds>'.") from exc
+        if not fps > 0 or not seconds > 0:
+            raise ValueError(f"fps_schedule segment '{part}': fps and seconds must be positive.")
+        segments.append((fps, seconds))
+    return segments
+
+
+def scheduled_fps(schedule: list[tuple[float, float]], elapsed_s: float) -> float:
+    """Target rate ``elapsed_s`` seconds after frame 0 (the last rate continues at the end)."""
+
+    if not schedule:
+        raise ValueError("empty fps_schedule")
+    start = 0.0
+    for fps, seconds in schedule:
+        if elapsed_s < start + seconds:
+            return fps
+        start += seconds
+    return schedule[-1][0]
+
+
+def schedule_phase(schedule: list[tuple[float, float]], elapsed_s: float) -> int:
+    """0-based segment index at ``elapsed_s`` (after the end: the last segment's index)."""
+
+    start = 0.0
+    for index, (_, seconds) in enumerate(schedule):
+        if elapsed_s < start + seconds:
+            return index
+        start += seconds
+    return len(schedule) - 1

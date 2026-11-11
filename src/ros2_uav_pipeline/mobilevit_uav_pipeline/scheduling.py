@@ -54,6 +54,14 @@ Policies (exact semantics, see ``admit`` / ``select``):
 
     Only information observed before the decision is used (completed service
     times, past arrivals, current queue); parameters are fixed per run.
+``deadline_guard`` (Phase 3 / Batch 2 ablation)
+    Exactly ``adaptive`` (same queue, same service-time estimator, same feasibility
+    check, same ``no_estimate`` / ``wait`` / ``best_effort`` branches) **without the
+    utilisation switch**: whenever some frame is feasible it always serves the newest
+    feasible frame (decision ``newest_feasible``), whatever ``rho_hat`` is. It is
+    "Latest-Frame + deadline feasibility guard". Comparing it with ``adaptive``
+    isolates the contribution of the EDF / shed-load switch; comparing it with
+    ``latest_frame`` isolates the contribution of the feasibility check.
 """
 
 from __future__ import annotations
@@ -69,7 +77,10 @@ POLICY_LEGACY = "legacy_qos"
 POLICY_FIFO = "fifo"
 POLICY_LATEST = "latest_frame"
 POLICY_ADAPTIVE = "adaptive"
-APP_POLICIES = (POLICY_FIFO, POLICY_LATEST, POLICY_ADAPTIVE)
+POLICY_DEADLINE_GUARD = "deadline_guard"
+APP_POLICIES = (POLICY_FIFO, POLICY_LATEST, POLICY_ADAPTIVE, POLICY_DEADLINE_GUARD)
+# Policies that use the service-time estimator + deadline feasibility check.
+DEADLINE_AWARE_POLICIES = (POLICY_ADAPTIVE, POLICY_DEADLINE_GUARD)
 ALL_POLICIES = (POLICY_LEGACY, *APP_POLICIES)
 
 FIFO_REJECT_NEWEST = "reject_newest"
@@ -142,15 +153,16 @@ class SchedulerConfig:
         out: dict[str, Any] = {"capacity": self.effective_capacity}
         if self.policy == POLICY_FIFO:
             out["overflow"] = self.fifo_overflow
-        elif self.policy == POLICY_ADAPTIVE:
+        elif self.policy in DEADLINE_AWARE_POLICIES:
             out.update({
                 "overflow": FIFO_EVICT_OLDEST,
                 "window": int(self.adaptive_window),
                 "quantile": self.adaptive_quantile,
                 "margin_ms": self.adaptive_margin_ms,
-                "overload_threshold": self.adaptive_overload_threshold,
                 "deadline_ms": self.deadline_ms,
             })
+            if self.policy == POLICY_ADAPTIVE:  # the guard has no utilisation switch
+                out["overload_threshold"] = self.adaptive_overload_threshold
         return out
 
     def params_text(self) -> str:
@@ -302,7 +314,10 @@ def _select_adaptive(
 
     if feasible:
         rho = est.utilization
-        overloaded = rho is not None and rho >= config.adaptive_overload_threshold
+        if config.policy == POLICY_DEADLINE_GUARD:
+            overloaded = True  # no utilisation switch: always the newest feasible frame
+        else:
+            overloaded = rho is not None and rho >= config.adaptive_overload_threshold
         index = feasible[-1] if overloaded else feasible[0]
         decision = DECISION_NEWEST_FEASIBLE if overloaded else DECISION_EDF
     else:
