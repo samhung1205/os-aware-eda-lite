@@ -1,8 +1,9 @@
 # Reference manual
 
 Detailed operating notes moved out of the top-level README in Phase 4 (content unchanged).
-For the project overview, results, reproducibility and limitations see [`../README.md`](../README.md);
-for the dashboard see [`../dashboard/`](../dashboard/) and `report/PHASE4_RESULT.md`.
+For the user guide see [`../README.md`](../README.md) (Traditional Chinese); results, method and limitations are in
+[`RESEARCH_REPORT.md`](RESEARCH_REPORT.md), the data chain in [`DATA_PROVENANCE.md`](DATA_PROVENANCE.md), and the
+development history in [`DEVELOPMENT_HISTORY.md`](DEVELOPMENT_HISTORY.md). For the dashboard see [`../dashboard/`](../dashboard/) and `report/PHASE4_RESULT.md`.
 
 ## Requirements
 

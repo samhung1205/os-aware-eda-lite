@@ -1,180 +1,427 @@
 # OS-Aware Edge AI Runtime
 
-**OS-Aware Edge AI Runtime** is a measured study of **frame scheduling for a MobileViT detector in ROS 2** on a resource-constrained Linux host, plus an offline **EDA-inspired layer-fusion simulator**. Every runtime number is traced by SHA-256 from raw per-frame logs to the dashboard, and simulation estimates are kept visibly separate from measurements.
+在資源受限的 Linux 主機上，量測 **ROS 2 MobileViT 偵測節點的 frame scheduling（影格排程）**，並附一個離線的 **EDA-Lite layer-fusion simulator（層融合模擬器）**。
 
-![Dashboard overview](docs/images/dashboard_overview.png)
+這份 README 是**使用說明書**：說明這個專案是什麼、怎麼安裝、怎麼看 Dashboard、怎麼執行模擬器與 ROS 2 實驗、怎麼驗證資料。研究結果的完整論述、開發過程與紀錄放在 [`docs/`](docs/)。
 
-| | |
+![Dashboard 總覽](docs/images/dashboard_overview.png)
+
+---
+
+## 目錄
+
+1. [這個專案在做什麼](#1-這個專案在做什麼)
+2. [環境需求](#2-環境需求)
+3. [快速開始（5 分鐘）](#3-快速開始5-分鐘)
+4. [使用 Dashboard](#4-使用-dashboard)
+5. [使用 EDA-Lite 模擬器](#5-使用-eda-lite-模擬器)
+6. [執行 ROS 2 實驗（進階）](#6-執行-ros-2-實驗進階)
+7. [分析資料與驗證 Provenance](#7-分析資料與驗證-provenance)
+8. [測試與 CI](#8-測試與-ci)
+9. [專案結構](#9-專案結構)
+10. [常見問題（FAQ）](#10-常見問題faq)
+11. [使用限制與注意事項](#11-使用限制與注意事項)
+12. [延伸文件](#12-延伸文件)
+13. [資料與第三方授權](#13-資料與第三方授權)
+
+---
+
+## 1. 這個專案在做什麼
+
+| 項目 | 說明 |
 |---|---|
-| **Question** | When a ROS 2 vision node is overloaded, which frame-scheduling policy keeps the most frames inside a 100 ms end-to-end deadline, and why? |
-| **System** | ROS 2 Humble · Fast DDS shared memory (verified at run time) · MobileViT-S / XXS (timm) · 2 pinned CPU cores, 4 GiB, no swap |
-| **Evidence** | 177 constrained runs: 75-run baseline + 102-run interleaved A/B benchmark (17 blocks × 6 policies), provenance gates `VERIFIED` |
-| **Answer** | Dropping frames that can no longer meet their deadline cuts effective miss by **10.65 pp** vs Latest-Frame at the primary condition. Adaptive's utilisation switch adds **nothing measurable** on top. |
-| **Dashboard** | Static, offline, five views + a separate simulation page: [`dashboard/`](dashboard/) · `bash scripts/serve_dashboard.sh` |
+| **研究問題** | 當 ROS 2 視覺節點過載（overloaded）時，哪一種 frame scheduling policy 能讓最多 frame 在 100 ms 端到端 deadline 內完成？為什麼？ |
+| **系統** | ROS 2 Humble · Fast DDS shared memory（每次 run 都在執行期驗證）· MobileViT-S / XXS（timm）· 2 顆綁定的 CPU core、4 GiB 記憶體、無 swap |
+| **證據** | 177 個受限條件（constrained）run：75 個 baseline + 102 個交錯式 A/B benchmark（17 blocks × 6 policies），provenance gate 皆為 `VERIFIED` |
+| **結論** | 丟棄「預測已無法趕上 deadline」的 frame（**Deadline-Guard**），在主要條件下比 Latest-Frame 降低 effective miss **10.65 pp**；Adaptive 的 utilisation switch 沒有可量測的額外效益。 |
 
-中文摘要：本專案在受限的 Linux 主機（2 個 CPU 核心、4 GiB、Fast DDS SHM）上，以 ROS 2 量測 MobileViT 偵測節點的排程策略。177 個受控 run（75 baseline + 102 交錯 A/B）顯示：真正有效的是「丟棄必定超時的 frame」（Deadline-Guard）；Adaptive 的利用率切換沒有觀察到額外貢獻。EDA-Lite 為離線模擬，數值為成本模型估計，與實測結果分開呈現。
+專案由兩個彼此獨立的部分組成：
 
-## Key findings
+- **ROS 2 runtime（實測）**：publisher 以固定或分段速率送出 COCO128 影像，detector 用四種排程策略（`fifo`、`latest_frame`、`deadline_guard`、`adaptive`）或 legacy 路徑處理。每一個數字都可以用 SHA-256 從原始 per-frame log 一路追到 Dashboard。
+- **EDA-Lite（模擬估計）**：受 *EDA: Energy-Efficient Inter-Layer Model Compilation for Edge DNN Inference Acceleration* 啟發的簡化 layer-fusion 模擬器，在 SRAM 限制下比較 `layerwise`、`greedy`、`dp`、`exhaustive` 排程，輸出 DRAM traffic、energy、latency 的**估計值**。它不重現原論文的 compiler，數值也不是硬體量測。
 
-All values are within-block paired differences (mean, 95 % Student-t interval, blocks lower / total) from `results/csv/ros2_phase3_formal_paired.csv`, as shown in the dashboard.
+> **重要**：實測結果（ROS 2）與模擬估計（EDA-Lite）在 Dashboard 與文件中永遠分開呈現，不可混用。
 
-1. **Capacity is set by service time, not transport.** Saturated, MobileViT-S processes **16.7 FPS** and MobileViT-XXS **53.0 FPS** (processed FPS of overloaded runs). Below capacity no run loses more than 0.03 % of frames; above it, drops follow `1 − 1/ρ` within 0.76 pp on average.
-2. **Deadline feasibility dropping is the effective mechanism.** At MobileViT-S 20 FPS (pre-registered primary condition, n = 5 blocks), **Deadline-Guard − Latest-Frame = −10.65 pp** effective miss, 95 % CI [−12.30, −9.01], lower in 5/5 blocks; late frames fall from 15.6 % to 0.3 % of processed frames at the cost of +2.7 pp drops.
-3. **Adaptive adds no measurable benefit over Deadline-Guard.** **Adaptive − Deadline-Guard = +0.07 pp**, 95 % CI [−0.95, 1.09] (3 lower / 2 higher); across all five conditions |Δ| ≤ 0.32 pp and every interval includes 0. In this load range the utilisation switch never changes the decisive choice. (No difference ≠ equivalence; no equivalence test was run.)
-4. **The benefit exists in one regime only.** It appears when the detector is overloaded *and* inter-arrival + service time exceeds the deadline (S 20 FPS: 50 + 57 ms > 100 ms). At S 30 FPS, XXS 30 FPS + 25 ms and S 10 FPS the intervals include 0, as the frame-age bound predicts.
-5. **Same ordering under a load step.** S 10 → 20 → 10 FPS (n = 3): Guard − Latest **−4.32 pp** [−5.55, −3.09], 3/3 blocks; Adaptive − Guard +0.24 pp.
+主要發現摘要（完整數字與解讀見 [`docs/RESEARCH_REPORT.md`](docs/RESEARCH_REPORT.md)）：
 
-Comparisons with the legacy path (inference inside the DDS callback) also contain an architecture difference and are reported separately, never as a policy effect.
+1. 超過處理能力後，throughput 停在 service-time 上限（S 約 16.7 FPS、XXS 約 53.0 FPS），drop rate 符合 `1 − 1/ρ`。
+2. 在 MobileViT-S 20 FPS 主要條件下，**Deadline-Guard − Latest-Frame = −10.65 pp**（95 % CI [−12.30, −9.01]，5/5 blocks 皆較低）。
+3. **Adaptive − Deadline-Guard = +0.07 pp**（CI 含 0），utilisation switch 沒有可量測的貢獻。
+4. 效益只出現在「過載 *且* inter-arrival + service time > deadline」的負載區間。
 
-## Dashboard
+---
 
-A static site in [`dashboard/`](dashboard/): plain HTML/CSS/JS, inline SVG charts, no CDN or framework, works offline and from `file://`.
+## 2. 環境需求
 
-| View | What it answers |
+| 用途 | Python | 依賴套件 | 安裝方式 |
+|---|---|---|---|
+| Dashboard、EDA-Lite 模擬器、資料分析、provenance 工具、測試 | 3.10 – 3.13 | **只用 standard library** | 不需安裝任何套件 |
+| ROS 2 實驗（publisher / detector 節點、sweep 腳本） | 3.10 | ROS 2 Humble（RoboStack）、conda `opencv`、`torch==2.5.1`、`timm==1.0.11` 等 | `conda env create -f environment.yml` |
+
+- 只想**看結果、跑模擬器、跑測試**：有 `python3` 和 `bash` 就夠了，Linux / macOS 皆可。
+- 想**重新量測 ROS 2**：需要 Linux、cgroup v2（`systemd-run`）、`taskset`、GNU `timeout`。詳見 [第 6 節](#6-執行-ros-2-實驗進階)。
+
+> 請使用 `python3`，不是 `python`。
+
+---
+
+## 3. 快速開始（5 分鐘）
+
+```bash
+git clone <repo-url> os-aware-eda-lite     # 請用完整 clone，不要 --depth 1（原因見 FAQ）
+cd os-aware-eda-lite
+
+python3 -m unittest discover -s tests                      # 1. 跑測試：266 tests（ROS 2 部分以 mock 進行）
+python3 scripts/check_runtime_provenance.py                # 2. Phase 2 baseline 資料驗證 → VERIFIED
+python3 scripts/check_phase3_provenance.py --expect-runs 102   # 3. Phase 3 A/B 資料驗證 → VERIFIED
+bash scripts/serve_dashboard.sh                            # 4. 開啟 Dashboard（127.0.0.1:8765）
+```
+
+第 4 步會先檢查 Dashboard 資料是否為最新，再啟動本機伺服器。用瀏覽器打開終端機顯示的網址即可。
+
+---
+
+## 4. 使用 Dashboard
+
+Dashboard 是放在 [`dashboard/`](dashboard/) 的純靜態網站（HTML / CSS / JS、inline SVG 圖表），**不需要網路、不用任何 CDN 或框架**，也可以直接從檔案開啟。
+
+### 4.1 開啟方式
+
+| 情境 | 做法 |
 |---|---|
-| **Overview** | Research questions, headline result with its interval, system architecture |
-| **Baseline** | Throughput saturation, drop model `1 − 1/ρ`, queue depth vs latency, injected delay (Phase 2) |
-| **Scheduling** | Six policies per condition: per-run dots, block-by-block slopes, paired differences with 95 % CI; legacy comparisons in their own panel |
-| **Mechanism** | Frame-age bound vs deadline, drop/late decomposition, queueing age, Adaptive − Guard ablation, dynamic load |
-| **Evidence** | Hash-chain checks, run inventory, controlled variables from every `meta.json`, method, limitations, excluded data, sources with SHA-256 |
-| **EDA-Lite simulation** (separate page) | Layer-fusion estimates by SRAM budget, scheduler and OS profile, labelled *Estimates* throughout |
+| 本機 | `bash scripts/serve_dashboard.sh`，打開 `http://127.0.0.1:8765/` |
+| 遠端伺服器 + VS Code Remote SSH | 執行同一個指令；VS Code 會自動轉發 port（Ports 面板 → Open in Browser） |
+| 遠端伺服器 + 一般 SSH | 本機執行 `ssh -L 8765:127.0.0.1:8765 <server>`，再打開 `http://127.0.0.1:8765/` |
+| 不想啟動伺服器 | 直接用瀏覽器開啟 `dashboard/index.html`（`file://` 也能用） |
 
-Filters (condition, metric, model) are kept in the URL, e.g. `index.html#scheduling?c=s20&m=on_time_fps`. Desktop and phone layouts, light and dark themes, hover / keyboard tooltips, and a table behind every chart.
+`serve_dashboard.sh` 的行為：
 
-| Scheduling | Mechanism | Phone |
+- 只綁定 `127.0.0.1`，不會對外網路開放。
+- 若 8765 已被占用（例如共用伺服器上的其他使用者），自動改用 8766–8799 中第一個空閒 port，並在終端機提示。
+- 指定 port：`PORT=9000 bash scripts/serve_dashboard.sh`（被占用時直接報錯，不會換 port）。
+- 啟動前會執行 `python3 -m src.dashboard.build_data --check`；資料過期時拒絕啟動並提示重建指令。
+- 按 `Ctrl-C` 停止。
+
+### 4.2 五個主要頁面 + 模擬頁
+
+| 頁面 | 網址 | 回答的問題 |
+|---|---|---|
+| **Overview** 總覽 | `index.html#overview` | 研究問題；主要結果（S 20 FPS：Latest-Frame 26.5 % → Deadline-Guard 15.9 %，Adaptive 15.9 % 並列；−10.65 pp、95 % CI）與限制說明；系統架構圖（點擊可開啟原尺寸 SVG） |
+| **Baseline** 基準量測 | `index.html#baseline` | Throughput 飽和、drop model `1 − 1/ρ`、queue depth 與 latency、注入延遲（Phase 2） |
+| **Scheduling** 排程比較 | `index.html#scheduling` | 每個條件下六種 policy：每個 run 的點、block 間連線、paired difference 與 95 % CI；legacy 比較獨立成一個面板 |
+| **Mechanism** 機制解釋 | `index.html#mechanism` | Deadline-Guard 如何決定 serve / drop 的概念示意（標示 *Concept illustration*，範例數值非實測）；之後是標示 *Measured* 的量測圖：Frame-age bound vs deadline、drop / late 分解、queueing age、Adaptive − Guard ablation、動態負載 |
+| **Evidence** 證據 | `index.html#evidence` | Hash-chain 檢查、run 清單、每個 `meta.json` 的控制變因、方法、限制、排除資料、各來源的 SHA-256 |
+| **EDA-Lite simulation**（獨立頁） | `simulation.html` | 不同 SRAM budget、scheduler、OS profile 下的 layer-fusion 估計值，全頁標示 *Estimates* |
+
+| Scheduling | Mechanism | 手機版 |
 |---|---|---|
 | ![Scheduling](docs/images/dashboard_scheduling.png) | ![Mechanism](docs/images/dashboard_mechanism.png) | ![Phone](docs/images/dashboard_mobile.png) |
 
-**Open it on the server (VS Code Remote SSH):**
+### 4.3 篩選條件與分享連結
 
-```bash
-bash scripts/serve_dashboard.sh          # checks the data, then serves 127.0.0.1:8765 (next free port if taken)
+篩選狀態會寫在網址裡，複製網址即可分享同一個畫面。例如：
+
+```text
+index.html#scheduling?c=s20&m=on_time_fps
+index.html#baseline?model=mobilevit_xxs
 ```
 
-VS Code forwards the port automatically (Ports panel → open in browser). The server binds to `127.0.0.1` only; nothing is exposed on the network. Without VS Code: `ssh -L 8765:127.0.0.1:8765 <server>`. Or open `dashboard/index.html` directly.
+| 參數 | 適用頁面 | 可用值 |
+|---|---|---|
+| `c` | Scheduling | `s20`（預設，主要條件）、`s10`、`s30`、`xxs30d25`、`sdyn`（S 10→20→10 FPS 動態負載） |
+| `mc` | Mechanism | 同上，但不含動態條件 `sdyn` |
+| `m` | Scheduling | `effective_miss_rate_pct`（預設）、`on_time_fps`、`p99_latency_ms` |
+| `model` | Baseline | `both`（預設）、`mobilevit_s`、`mobilevit_xxs` |
 
-**Data pipeline.** `python3 -m src.dashboard.build_data` reads only the Phase 2 baseline and Phase 3 formal tables (plus built-in-profile simulation estimates for the separate page), re-verifies every SHA-256 manifest down to the raw runs, and writes `dashboard/data/dashboard_data.{json,js}` and a manifest. All KPIs and finding sentences are computed there; the front end only formats them. It refuses to write anything if an input is missing (exit 1 `BLOCKED`), a hash or invariant fails, or pilot / legacy-unverified / example data appears (exit 2 `BROKEN`). `--check` exits 3 `STALE` if the committed bundle differs from a fresh build.
+其他操作：
 
-## Architecture
+- **導覽**：桌面版頂端直接列出所有頁面；手機（寬度 ≤ 640 px）點 **Sections** 按鈕展開選單，點選連結、按 `Esc` 或點選單外即收合。模擬頁的導覽同樣列出全部五個量測頁。
+- **圖表**：滑鼠移過或用鍵盤（`Tab`）聚焦圖上的點可看 tooltip；每張圖下方都有對應的資料表。
+- **主題**：依系統設定自動切換淺色 / 深色。
+- **標籤**：*Measured* 為實測、*Estimates* 為模擬估計、*Concept illustration* 為示意圖。
 
-![Architecture](dashboard/assets/architecture.svg)
+### 4.4 重建 Dashboard 資料
 
-- **Publisher** `image_stream_node`: COCO128 frames (~1 MB) at a fixed rate or a step schedule (`fps_schedule="10@20,20@20,10@20"`), one log row per published frame.
-- **Transport**: Fast DDS SHM-only profile (16 MiB segment). A runtime probe proves per run that no UDP socket was opened and the segment size matches; otherwise the run fails.
-- **Detector** `mobilevit_detector_node`, two execution paths:
-  - *legacy*: inference inside the DDS callback; KEEP_LAST depth is the only queue;
-  - *application*: ingestion callback → bounded queue (capacity 5) → one inference worker, with policy `fifo`, `latest_frame`, `deadline_guard` or `adaptive` (`src/ros2_uav_pipeline/mobilevit_uav_pipeline/scheduling.py`, unit-tested without ROS).
-- **Per-run evidence**: detector CSV, publisher CSV, `meta.json` (limits read back, versions, git commit/dirty), `probe.json`.
-- **Analysis** (`src/ros2_runtime/`, stdlib): per-run summary → per-condition / per-arm / paired / dynamic-phase tables, each with a SHA-256 manifest.
-- **Gates**: `scripts/check_runtime_provenance.py` (Phase 2) and `scripts/check_phase3_provenance.py` (Phase 3).
-- **EDA-Lite** (`src/eda_lite/`): simplified MobileViT block profiles → SRAM-constrained fusion (`layerwise`, `greedy`, exact `dp`, `exhaustive` oracle) → DRAM traffic, energy and latency *estimates*. Offline; not linked to the runtime KPIs.
-
-### Deadline-Guard vs Adaptive in one paragraph
-
-Both share the queue, a P90 service-time estimator over the last 32 frames and a feasibility check: a frame is dropped (`deadline_infeasible`) if `age + estimated service > deadline`. Deadline-Guard always serves the newest feasible frame. Adaptive additionally switches to EDF (oldest feasible) when estimated utilisation ρ̂ < 1. That switch can only matter when ≥ 2 feasible frames are queued while ρ̂ < 1, which did not happen often enough in these conditions to be measurable.
-
-## Quickstart
-
-Python 3.10–3.13, standard library only (nothing to install) for the simulator, analysis, dashboard and tests:
+只有在修改了正式表格或 `src/dashboard/build_data.py` 之後才需要：
 
 ```bash
-python3 -m unittest discover -s tests                 # 266 tests (ROS 2 parts are mocked)
-bash scripts/ci_checks.sh all                         # exactly what GitHub Actions runs
-python3 scripts/check_runtime_provenance.py           # Phase 2 gate -> VERIFIED
-python3 scripts/check_phase3_provenance.py --expect-runs 102   # Phase 3 gate -> VERIFIED
-python3 -m src.dashboard.build_data --check           # dashboard bundle current
-bash scripts/serve_dashboard.sh                       # preview on 127.0.0.1:8765
+python3 -m src.dashboard.build_data          # 重建 dashboard/data/dashboard_data.{json,js} 與 manifest
+python3 -m src.dashboard.build_data --check  # 只檢查是否為最新
 ```
 
-Run the simulator:
+| Exit code | 狀態 | 意義 |
+|---|---|---|
+| 0 | `OK` / `CURRENT` | 成功 / 已是最新 |
+| 1 | `BLOCKED` | 缺少輸入檔 |
+| 2 | `BROKEN` | Hash 或不變量檢查失敗，或混入 pilot / legacy-unverified / example 資料 |
+| 3 | `STALE` | （`--check`）已提交的 bundle 與重新建置的結果不同 |
+
+---
+
+## 5. 使用 EDA-Lite 模擬器
+
+EDA-Lite 讀取簡化的 MobileViT block profile（`data/model_profiles/mobilevit_{xxs,s}_simplified.json`），在 SRAM 限制下選擇 layer fusion 切分方式，輸出 CSV 估計值。**全部只需 standard library。**
+
+### 5.1 比較 MobileViT-XXS 與 MobileViT-S
 
 ```bash
 python3 -m src.eda_lite.run_profile_sweep \
   --config experiments/eda_lite/mobilevit_profile_sweep.json \
-  --output /tmp/eda_lite_mobilevit_profile_sweep.csv   # + .provenance.json sidecar
+  --output /tmp/eda_lite_mobilevit_profile_sweep.csv
 ```
 
-The ROS 2 benchmark itself needs Linux + ROS 2 Humble (`conda env create -f environment.yml`); see [`experiments/ros2/README.md`](experiments/ros2/README.md) and [`docs/REFERENCE.md`](docs/REFERENCE.md).
+輸出旁會產生 `.provenance.json` sidecar，記錄 config、profile 與輸出的 SHA-256。
 
-## Benchmark methodology
+### 5.2 單一 profile 的 SRAM sweep
 
-| Item | Setting |
+```bash
+python3 -m src.eda_lite.run_simulation \
+  --profile data/model_profiles/mobilevit_xxs_simplified.json \
+  --config experiments/eda_lite/mobilevit_sram_sweep.json \
+  --output /tmp/eda_lite_mobilevit_xxs_sram_sweep.csv
+```
+
+### 5.3 摘要與 SVG 圖表
+
+```bash
+python3 -m src.eda_lite.analyze_results \
+  --input /tmp/eda_lite_mobilevit_profile_sweep.csv \
+  --summary-output /tmp/eda_lite_mobilevit_profile_summary.csv \
+  --figures-dir /tmp/eda_lite_figures \
+  --plot-os-profile normal \
+  --plot-model mobilevit_s_simplified_profile_estimate
+```
+
+CSV 含多個模型時，**一定要加 `--plot-model`**，避免把不同模型畫在同一張圖。
+
+### 5.4 可用的設定檔
+
+| 設定檔 | 用途 |
 |---|---|
-| Host | Intel i7-13700, Ubuntu 22.04, kernel 6.8; CPUs 12 and 14 via `taskset`; `systemd-run --scope` MemoryMax 4 GiB, swap 0; `nice 10`; no sudo, no sysctl changes |
-| Middleware | ROS 2 Humble, `rmw_fastrtps_cpp`, SHM-only XML (hash recorded, applied state probed per run), `ROS_DOMAIN_ID=87` |
-| Workload | COCO128 images; publisher RELIABLE depth 10 → detector BEST_EFFORT KEEP_LAST; timm MobileViT with random weights (latency only) |
-| Metrics | Effective miss = (late + dropped) / published; on-time FPS; P50/P95/P99 end-to-end latency; drop and late shares; frame age at inference start; CPU / RSS / cgroup peak |
-| Phase 2 baseline | 2 models × input rate / queue depth / injected delay, 3 runs each, 60 s (75 runs) |
-| Phase 3 formal A/B | 5 conditions × 6 arms in interleaved blocks with rotated arm order (S 20 FPS: 5 blocks; others: 3), 65 s runs, load gate before every block, measured from a clean detached worktree (102 runs) |
-| Statistics | Run = unit. Within-block paired differences, 95 % Student-t interval, block sign counts, exact sign-flip p (floor 0.0625 at n = 5, so reported as consistency, not significance). Analysis plan and Adaptive parameters fixed before the formal data |
-| Controls | 25 settings read from every Phase 3 `meta.json` and required identical (Evidence view) |
+| `experiments/eda_lite/mobilevit_profile_sweep.json` | XXS vs S 比較 |
+| `experiments/eda_lite/mobilevit_sram_sweep.json` | 單一 profile 的 SRAM / scheduler / OS profile sweep |
+| `experiments/eda_lite/mobilevit_sensitivity_sweep.json` | SRAM 128–2048 KB × 模擬 deadline × 內建 profile，四種 scheduler |
+| `experiments/eda_lite/mobilevit_runtime_aware_sweep.json` | 從外部 JSON 讀 OS profile（預設是 **example** 檔，不是量測資料） |
 
-## Reproducibility
+### 5.5 輸出欄位怎麼讀
+
+- **Scheduler**：`layerwise`（不融合，baseline）、`greedy`、`dp`（精確最小化總成本）、`exhaustive`（窮舉 oracle，層數 ≤ 20，用來驗證 `dp`）。
+- **內建 OS profile**：`pure`（純 compiler，無 OS 壓力）、`normal`、`high_latency`、`high_memory_pressure`。
+- **主要欄位**：selected subgraphs、DRAM traffic、energy、latency、peak SRAM、max fusion depth、`os_aware_total_cost` 及其各項、`feasible` / `infeasible_reason`。
+- 所有 energy / latency 都是 **cost-model 單位的估計值**，不是硬體量測；摘要中 scheduler 平手會標成 `greedy=dp`。
+
+成本模型公式、profile 與 config 格式見 [`docs/REFERENCE.md`](docs/REFERENCE.md)。
+
+---
+
+## 6. 執行 ROS 2 實驗（進階）
+
+> 只有想**重新量測**時才需要。看結果與驗證資料不需要 ROS 2。
+
+### 6.1 安裝
+
+```bash
+conda env create -f environment.yml          # ROS 2 Humble（RoboStack）、Python 3.10、pinned torch / timm
+# 或用凍結版：conda env create -f environment.lock.yml
+bash experiments/ros2/prepare_coco128.sh     # 下載 COCO128 影像到 data/raw/images/（git-ignored）
+```
+
+- `cv2` 來自 conda-forge `opencv`，請勿在 ROS 環境中 `pip install opencv-python`；`numpy` 必須 `< 2`。
+- Detector 使用 `timm.create_model(..., pretrained=False)`：**隨機權重，只量 latency，不量 accuracy**。
+
+### 6.2 系統架構
+
+![Architecture](dashboard/assets/architecture.svg)
+
+- **Publisher** `image_stream_node`：以固定速率或分段速率（`fps_schedule="10@20,20@20,10@20"`）送出約 1 MB 的 COCO128 影像，每個 frame 寫一列 log。
+- **Transport**：Fast DDS SHM-only profile（16 MiB segment）。每次 run 會用 runtime probe 證明沒有開 UDP socket、segment 大小正確，否則該 run 失敗。
+- **Detector** `mobilevit_detector_node`，兩種執行路徑：
+  - *legacy*：在 DDS callback 內直接推論，KEEP_LAST depth 是唯一的 queue；
+  - *application*：ingestion callback → bounded queue（capacity 5）→ 單一 inference worker，policy 為 `fifo`、`latest_frame`、`deadline_guard` 或 `adaptive`。
+- **每個 run 的證據檔**：detector CSV、publisher CSV、`meta.json`（讀回的資源限制、版本、git commit / dirty）、`probe.json`。
+
+### 6.3 排程策略說明
+
+| Policy | 行為 |
+|---|---|
+| `legacy_qos` | 推論在 DDS callback 內，等於 Phase 2 原始路徑 |
+| `fifo` | 依到達順序處理 |
+| `latest_frame` | 永遠處理最新的 frame |
+| `deadline_guard` | 若 `frame age + 預估 service time > deadline` 就丟棄（`deadline_infeasible`），再處理最新的可行 frame |
+| `adaptive` | 同 Deadline-Guard，但預估 utilisation ρ̂ < 1 時改用 EDF（最舊的可行 frame） |
+
+`deadline_guard` 與 `adaptive` 共用 P90 service-time 估計（最近 32 個 frame）。
+
+### 6.4 執行實驗
+
+建議設定（Phase 2 / 3 使用的受限條件）：
+
+```bash
+export CPU_SET=12,14 MEMORY_MAX=4G MEMORY_SWAP_MAX=0 NICE_LEVEL=10
+export ROS_DOMAIN_ID=87 RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+export FASTRTPS_DEFAULT_PROFILES_FILE="$PWD/experiments/ros2/fastdds_shm_large.xml"
+```
+
+`CPU_SET` 請選擇**本機允許且閒置的 CPU**，不要假設是 `0,1`。
+
+| 目的 | 指令 |
+|---|---|
+| Baseline（FPS / QoS / overload sweep，受限 scope） | `bash scripts/run_baseline_experiments.sh` |
+| 單一 sweep | `bash experiments/ros2/run_fps_sweep.sh`、`run_qos_sweep.sh`、`run_overload_sweep.sh` |
+| 單一條件下比較所有 policy | `SWEEPS=sched bash scripts/run_baseline_experiments.sh` |
+| 正式交錯式 A/B benchmark | `bash experiments/ros2/run_sched_formal.sh` |
+| 只印出計畫不執行 | 在 pilot / formal driver 前加 `DRY_RUN=1` |
+
+注意事項：
+
+- 腳本**不會**執行 `sudo` 或修改 sysctl；資源限制無法讀回驗證時，run 會在啟動前失敗。
+- 每個 run 寫獨立的 `<run_id>.csv`，不會覆寫或附加到既有資料；失敗的 run 會被改名為 `*.failed`。
+- 正式 driver 在每個 block 前要求 git tree 乾淨（否則 exit 3），並等待主機負載降低（`host_load_gate`，逾時 exit 4）。
+
+完整的環境變數與參數：[`experiments/ros2/README.md`](experiments/ros2/README.md)、[`docs/REFERENCE.md`](docs/REFERENCE.md)。
+
+---
+
+## 7. 分析資料與驗證 Provenance
+
+### 7.1 資料流
 
 ```text
-results/raw/{ros2,ros2_phase3_formal}/<run_id>.{csv,publisher.csv,meta.json,probe.json}   (never edited)
-  → results/csv/*_summary.csv + .manifest.json             analyze_runtime
-  → results/csv/ros2_baseline_*.csv, ros2_phase3_formal_*.csv + manifests
+results/raw/{ros2,ros2_phase3_formal}/<run_id>.{csv,publisher.csv,meta.json,probe.json}   （原始資料，永不修改）
+  → results/csv/*_summary.csv + .manifest.json                    analyze_runtime
+  → results/csv/ros2_baseline_*.csv、ros2_phase3_formal_*.csv + manifests
   → scripts/check_runtime_provenance.py / check_phase3_provenance.py   VERIFIED
-  → dashboard/data/dashboard_data.{json,js} + .manifest.json   src.dashboard.build_data
+  → dashboard/data/dashboard_data.{json,js} + .manifest.json       src.dashboard.build_data
 ```
 
-- `python3 scripts/check_table_regeneration.py` rebuilds every Phase 2 / Phase 3 table from the raw runs into a temporary directory and compares: the 7 Phase 3 tables and the baseline condition table are byte-identical; the two Phase 2 per-run tables match on every committed column (the current analyzer appends 20 Phase 3 columns). The exact commands are in that script and in [`docs/REFERENCE.md`](docs/REFERENCE.md).
-- `python3 -m src.dashboard.build_data` then regenerates the dashboard bundle; output is deterministic (no timestamps), so `--check` can compare bytes.
-- CI (`.github/workflows/ci.yml`, locally `bash scripts/ci_checks.sh all`): tests on Python 3.10–3.13, `bash -n`, audit regressions, both provenance gates, table regeneration, dashboard bundle check.
-- The Phase 3 gate checks that the measurement commit `7f0f160` is an ancestor of `HEAD` with runtime code unchanged since. Use a full clone (not `--depth 1`), and merge this history without squashing or rebasing, or the gate reports `BROKEN`.
-- `results/README.md` lists every result file with its provenance status. Pilot data (`results/raw/ros2_phase3_pilot/`) is kept for the record; its gate reports `BROKEN` by design (dirty tree) and it is never used.
+### 7.2 常用指令
 
-## Repository layout
+```bash
+# 分析 ROS 2 原始 CSV → 每個 run 的摘要 + SVG
+python3 -m src.ros2_runtime.analyze_runtime \
+  --input results/raw/ros2 \
+  --summary-output /tmp/ros2_runtime_summary.csv \
+  --figures-dir /tmp/ros2_figures
+
+# 驗證資料鏈
+python3 scripts/check_runtime_provenance.py                    # Phase 2
+python3 scripts/check_phase3_provenance.py --expect-runs 102   # Phase 3
+
+# 從 raw 重建所有正式表格並比對
+python3 scripts/check_table_regeneration.py
+```
+
+### 7.3 驗證結果代碼
+
+| Exit code | 狀態 | 意義 |
+|---|---|---|
+| 0 | `VERIFIED` | 原始資料 → 摘要 → 表格的 SHA-256 全部吻合 |
+| 1 | `BLOCKED` | 缺少某個環節（例如 CI 沒有 ROS 2 時屬正常） |
+| 2 | `BROKEN` | Hash 不符、資料過期，或資源限制未驗證 |
+
+`results/raw/ros2_phase3_pilot/` 的 pilot 資料因當時 working tree 是 dirty，gate 會刻意回報 `BROKEN`，該資料僅作紀錄、從未使用。
+
+各結果檔案的追蹤規則與可信程度見 [`results/README.md`](results/README.md)；完整的可重現性說明見 [`docs/DATA_PROVENANCE.md`](docs/DATA_PROVENANCE.md)。
+
+---
+
+## 8. 測試與 CI
+
+```bash
+python3 -m unittest discover -s tests     # 266 tests，stdlib only
+bash scripts/ci_checks.sh all             # 與 GitHub Actions 完全相同的檢查
+```
+
+`ci_checks.sh` 也可以只跑單一步驟：
+
+| 步驟 | 內容 |
+|---|---|
+| `tests` | 單元 / 整合測試 |
+| `shell` | 所有 shell script 的 `bash -n` 語法檢查 |
+| `audit` | `scripts/audit_repro.py --strict` 回歸檢查 |
+| `provenance` | Phase 2 + Phase 3 provenance gate |
+| `dashboard` | Dashboard bundle 是否為最新 |
+| `repeat [N]` | 連續跑 N 次測試（預設 5） |
+
+CI（`.github/workflows/ci.yml`）在 Python 3.10–3.13 上執行上述檢查，不安裝 ROS 2。
+
+---
+
+## 9. 專案結構
 
 ```text
-src/ros2_uav_pipeline/   ROS 2 package: publisher, detector, scheduling policies, launch file
-src/ros2_runtime/        analysis: analyze_runtime, aggregate_{baseline,scheduling}, analyze_dynamic_phases,
-                         run_metadata, runtime_probe, host_load_gate, build_os_profiles, plot_scheduling
-src/eda_lite/            simulator: model_loader, cost_model, schedulers, run_simulation, run_profile_sweep, ...
-src/dashboard/           build_data.py: verified tables -> dashboard bundle
-src/provenance.py        SHA-256 records, manifests, provenance status
-dashboard/               index.html, simulation.html, assets/ (style, charts, app, architecture.svg), data/
-experiments/ros2/        sweep / formal-A/B drivers, Fast DDS SHM profile
-experiments/eda_lite/    simulation configs, OS profiles (verified / example / legacy-unverified)
-results/                 raw/ (runs), csv/ (tables + manifests), figures/ (script-generated SVG)
-scripts/                 CI steps, provenance gates, table regeneration check, dashboard server
-tests/                   unittest, stdlib only
-report/                  per-phase result reports, final report draft, AI interaction log
-docs/                    REFERENCE.md (detailed manual), images/ (dashboard screenshots)
+src/ros2_uav_pipeline/   ROS 2 package：publisher、detector、排程策略（scheduling.py）、launch file
+src/ros2_runtime/        分析工具：analyze_runtime、aggregate_{baseline,scheduling}、analyze_dynamic_phases、
+                         run_metadata、runtime_probe、host_load_gate、build_os_profiles、plot_scheduling
+src/eda_lite/            模擬器：model_loader、cost_model、schedulers、run_simulation、run_profile_sweep…
+src/dashboard/           build_data.py：已驗證表格 → Dashboard 資料 bundle
+src/provenance.py        SHA-256 紀錄、manifest、provenance 狀態
+dashboard/               index.html、simulation.html、assets/、data/
+experiments/ros2/        sweep / 正式 A/B driver、Fast DDS SHM profile
+experiments/eda_lite/    模擬設定、OS profile（verified / example / legacy-unverified）
+data/model_profiles/     簡化的 MobileViT block profile
+results/                 raw/（原始 run）、csv/（表格 + manifest）、figures/（腳本產生的 SVG）
+scripts/                 CI 步驟、provenance gate、表格重建檢查、Dashboard 伺服器
+tests/                   unittest，stdlib only
+docs/                    使用參考手冊、研究報告、資料來源報告、開發歷程、截圖
+report/                  各階段的詳細結果報告、final report 草稿、AI interaction log
 ```
 
-## Limitations
+---
 
-- **One host, one session per phase.** Results describe this i7-13700 with two P-cores, the `powersave` governor and a shared machine (load gate + nice). They do not establish behaviour on other hardware.
-- **Small samples.** 5 blocks for the primary condition, 3 for the others. Effect sizes and intervals are reported; no claim of statistical significance is made.
-- **One parameter set.** 100 ms deadline, queue capacity 5, one Adaptive configuration, one step pattern. The utilisation switch might matter with ρ ≈ 1 and longer queues, deadlines far above service time, or high service-time variance; untested.
-- **Architecture effects.** Legacy vs application differs by more than the policy (XXS application arms are ~1.2 ms/frame slower; legacy service time varies more between runs, cause not measured).
-- **Latency only.** Random-initialised weights, no accuracy. **No energy was measured**; EDA-Lite energy is a cost-model estimate.
-- **EDA-Lite is a simplified simulator.** Coarse block profiles (not ONNX-exact), lightweight cost model; it is inspired by, and does not reproduce, the EDA compiler paper. OS profiles re-weight the cost but do not change the chosen partition on these profiles.
+## 10. 常見問題（FAQ）
 
-## Future work
+**Q：`check_phase3_provenance.py` 回報 `BROKEN`，但我什麼都沒改？**
+A：這個 gate 會確認量測時的 commit `7f0f160` 是 `HEAD` 的祖先，且 runtime 程式碼之後沒有變動。請使用完整 clone（不要 `--depth 1`）；合併此歷史時不要 squash 或 rebase。
 
-- Probe the regimes where Adaptive could differ: ρ ≈ 1 with longer queues, larger deadline / service ratios, bursty or high-variance service times.
-- Repeat on other hardware and across days; add a CPU governor / isolation sweep.
-- Pretrained weights to report accuracy alongside latency.
-- Re-run the EDA-Lite runtime-aware sweep with the verified `runtime_os_profiles.json` (currently only example / legacy profiles were used there).
-- Formal equivalence testing (TOST) with a pre-declared margin for Adaptive vs Guard.
+**Q：`serve_dashboard.sh` 說資料不是最新？**
+A：執行 `python3 -m src.dashboard.build_data` 重建，然後提交 `dashboard/data/`（CI 會檢查）。
 
-## Data and third-party notices
+**Q：Port 8765 被占用？**
+A：腳本會自動改用下一個空閒 port 並提示；或用 `PORT=<port>` 指定。
 
-- **Images are not redistributed.** The benchmark streams the COCO128 subset of COCO 2017 (Ultralytics release), downloaded by `experiments/ros2/prepare_coco128.sh` into the git-ignored `data/raw/images/`. COCO annotations are CC BY 4.0; the images remain under their original Flickr licenses ([COCO terms of use](https://cocodataset.org/#termsofuse)). The raw run logs in `results/raw/` record frame ids and timings only, no image content.
-- **Model.** MobileViT (Mehta & Rastegari, ICLR 2022) via `timm` (Apache-2.0) with random-initialised weights; no pretrained weights are included or downloaded. `data/model_profiles/*` are simplified block summaries derived from the published architecture.
-- **Runtime.** ROS 2 Humble and eProsima Fast DDS (Apache-2.0), PyTorch (BSD-3-Clause) — installed separately, not vendored.
-- **Run metadata.** `results/raw/**/*.meta.json` and `*.probe.json` record the measurement host's kernel, CPU model, cgroup scope and the local install paths of the Python / Fast DDS profile. They are part of the SHA-256 provenance chain and are kept unedited.
+**Q：可以把 EDA-Lite 的 energy 當成實際耗電嗎？**
+A：不行。EDA-Lite 的 energy / latency 都是 cost-model 估計值；本專案**沒有量測任何能耗**。
 
-## Project history
+**Q：為什麼 detector 用隨機權重？**
+A：本研究只關心排程與 latency，不評估偵測準確度；隨機權重的計算量與預訓練權重相同。
 
-| Phase | Result | Report |
-|---|---|---|
-| 1 | EDA-Lite simulator, audit fixes, CI, provenance tooling | `report/PHASE1_*` |
-| 2 | Linux + ROS 2 environment; 75-run constrained baseline, provenance VERIFIED | `report/PHASE2_BATCH{1,2}_RESULT.md` |
-| 3 | Scheduling policies + pilot; 102-run formal A/B with Deadline-Guard ablation | `report/PHASE3_BATCH{1,2}_RESULT.md` |
-| 4 | Dashboard, data pipeline, documentation | `report/PHASE4_RESULT.md` |
+**Q：`runtime_os_profiles.example.json` 或 `legacy_unverified` 的資料可以當量測結果引用嗎？**
+A：不行。example 是範例，legacy-unverified 沒有原始資料可驗證。只有 provenance gate 回報 `VERIFIED` 的 ROS 2 資料才能稱為「measured」。
 
-Detailed command reference, CSV contracts, config formats and cost-model notes: [`docs/REFERENCE.md`](docs/REFERENCE.md). Contributor / agent rules: [`AGENTS.md`](AGENTS.md).
+---
+
+## 11. 使用限制與注意事項
+
+- **單一主機、單一 session**：結果僅描述這台 i7-13700（兩顆 P-core、`powersave` governor、共用主機）。
+- **樣本數小**：主要條件 5 blocks，其他條件 3 blocks；只報告 effect size 與信賴區間，不宣稱統計顯著。
+- **單一參數組合**：100 ms deadline、queue capacity 5、一組 Adaptive 參數、一種負載階梯。
+- **只量 latency**：隨機權重、無 accuracy、無能耗量測。
+- **Legacy vs application** 的差異包含架構差異，不能歸因於 policy。
+- **EDA-Lite 是簡化模擬器**：coarse block profile（非 ONNX 精確結構）；OS profile 只改變成本權重，在這些 profile 上不改變選出的切分。
+
+詳細討論與未來工作見 [`docs/RESEARCH_REPORT.md`](docs/RESEARCH_REPORT.md)。
+
+---
+
+## 12. 延伸文件
+
+| 文件 | 內容 |
+|---|---|
+| [`docs/README.md`](docs/README.md) | 文件索引 |
+| [`docs/RESEARCH_REPORT.md`](docs/RESEARCH_REPORT.md) | 研究結果報告：主要發現、機制、方法、限制、未來工作 |
+| [`docs/DATA_PROVENANCE.md`](docs/DATA_PROVENANCE.md) | 資料來源與可重現性報告 |
+| [`docs/DEVELOPMENT_HISTORY.md`](docs/DEVELOPMENT_HISTORY.md) | 開發歷程與各階段報告索引 |
+| [`docs/REFERENCE.md`](docs/REFERENCE.md) | 詳細指令參考、CSV 規格、設定檔格式、成本模型（英文） |
+| [`experiments/ros2/README.md`](experiments/ros2/README.md) | ROS 2 實驗腳本與環境變數 |
+| [`results/README.md`](results/README.md) | 結果檔案清單與 provenance 狀態 |
+| [`AGENTS.md`](AGENTS.md) | 貢獻者 / AI agent 規則 |
+
+---
+
+## 13. 資料與第三方授權
+
+- **影像不隨 repo 散佈**：benchmark 使用 COCO 2017 的 COCO128 子集（Ultralytics 版本），由 `experiments/ros2/prepare_coco128.sh` 下載到 git-ignored 的 `data/raw/images/`。COCO annotations 為 CC BY 4.0，影像保留原 Flickr 授權（[COCO terms of use](https://cocodataset.org/#termsofuse)）。`results/raw/` 只記錄 frame id 與時間，不含影像內容。
+- **模型**：MobileViT（Mehta & Rastegari, ICLR 2022），透過 `timm`（Apache-2.0）建立隨機權重，不包含也不下載預訓練權重。`data/model_profiles/*` 是依公開架構整理的簡化 block 摘要。
+- **Runtime**：ROS 2 Humble、eProsima Fast DDS（Apache-2.0）、PyTorch（BSD-3-Clause），需另行安裝，未隨 repo 提供。
+- **Run metadata**：`results/raw/**/*.meta.json` 與 `*.probe.json` 記錄了量測主機的 kernel、CPU 型號、cgroup scope 及本機安裝路徑；它們是 SHA-256 provenance 鏈的一部分，保持原樣不修改。

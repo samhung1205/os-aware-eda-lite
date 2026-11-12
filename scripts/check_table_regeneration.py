@@ -2,7 +2,7 @@
 
     python3 scripts/check_table_regeneration.py [--keep DIR]
 
-Runs the same commands that produced ``results/csv/ros2_*`` (README -> Reproducibility) into a
+Runs the same commands that produced ``results/csv/ros2_*`` (docs/DATA_PROVENANCE.md) into a
 temporary directory -- the committed files are never touched -- then compares:
 
 * every Phase 3 formal table and ``ros2_baseline_conditions.csv``: byte-identical;

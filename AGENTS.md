@@ -445,7 +445,7 @@ Avoid these unless explicitly requested:
 - Keep all experiment parameters in JSON config or shell-script environment variables.
 - Save generated tabular outputs as CSV.
 - Generate plots from scripts as SVG.
-- Update `README.md` whenever commands, file paths, or project scope changes (detailed manual: `docs/REFERENCE.md`).
+- Update `README.md` whenever commands, file paths, or project scope changes. README is the Traditional Chinese user manual (English technical terms kept); research findings / method / limitations go in `docs/RESEARCH_REPORT.md`, the data chain in `docs/DATA_PROVENANCE.md`, phase history in `docs/DEVELOPMENT_HISTORY.md`, the detailed manual in `docs/REFERENCE.md`.
 - After changing any formal table or the dashboard builder, run `python3 -m src.dashboard.build_data` and commit `dashboard/data/` (CI fails on a STALE bundle). Never add pilot / legacy-unverified / example inputs to the builder; it rejects them.
 - Update `report/ai_interaction_log.md` for major AI-assisted decisions or direction changes.
 - Run `python3 -m unittest discover -s tests` (or `bash scripts/ci_checks.sh all`) after code changes.

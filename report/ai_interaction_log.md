@@ -386,3 +386,29 @@ Important limitation:
 - Follow-up (owner decision): the project name is unified as "OS-Aware Edge AI Runtime" (dashboard, README, AGENTS.md, architecture title, package docstring, setup script, draft final report). "EDA-Lite" now names only the simulator, and "OS-aware" EDA-Lite rows keep their technical meaning; historical log entries were not rewritten.
 - Cross-browser check with Playwright Chromium 158 (Blink, as in Chrome) and WebKit 27.2 (Safari's engine), installed in a scratch directory only: 90 layout states per engine with 0 problems, 0 JS errors, all filters / deep links / hover / keyboard / touch checks pass (the only miss is a sub-pixel bar segment that also misses in Firefox).
 - System fonts (no bundled typeface); WebKit on Linux stands in for Safari, so a check on real macOS / iOS Safari is still recommended.
+
+## 2026-11-12
+
+Prompt summary:
+
+- Rewrite the top-level README as a Traditional Chinese user manual (English technical terms kept) and move the development / research record out of it into `docs/` as reports.
+
+Implementation decision:
+
+- `README.md` now covers what the project is, requirements, quickstart, dashboard usage (views, URL parameters, serve script, rebuild exit codes), EDA-Lite usage, ROS 2 experiments, provenance checks, tests / CI, layout, FAQ, limitations and notices.
+- Former README content moved, translated, to `docs/RESEARCH_REPORT.md` (findings, mechanism, methodology, limitations, future work), `docs/DATA_PROVENANCE.md` (data chain, gates, regeneration, CI) and `docs/DEVELOPMENT_HISTORY.md` (phase history + categorized index of `report/`); `docs/README.md` indexes them. No numbers changed; `report/` files are unchanged.
+- Follow-up after the Final Visual Polish: README dashboard section updated for the Overview hero result, enlargeable architecture diagram, mobile **Sections** menu and the *Measured* / *Concept illustration* labels; `docs/DEVELOPMENT_HISTORY.md` and `docs/README.md` list the `polish_*` screenshots.
+
+## 2026-11-12 Dashboard Final Visual Polish
+
+Prompt summary:
+
+- Final polish within the existing design: stronger Overview main result, enlargeable architecture diagram, accessible mobile navigation, a labelled Deadline-Guard concept illustration, and evidence-matched technical wording.
+
+Implementation decision:
+
+- Hero result values come from `D.kpis` / `armRow()`; Adaptive is shown beside Deadline-Guard, not as the winner. Limitations note added under the hero.
+- Mobile nav: collapsible button + vertical list (`assets/nav.js`), all six destinations on both pages.
+- Concept illustration uses fixed example values and is labelled as such; only the deadline is read from the bundle. The measured chart is tagged Measured.
+- Wording: "pre-registered" → pre-specified (internal plan, no external registration); no "identical host state"; "predicted to miss" instead of "certain to be late". Builder strings changed and the bundle rebuilt: 8 string fields changed, 0 numeric fields.
+- Verified in Firefox, Chromium 158 and WebKit 27.2; CI exit 0. Not committed.
