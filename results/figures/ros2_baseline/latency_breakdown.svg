@@ -1,0 +1,176 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="724" viewBox="0 0 760 724" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="12">
+<rect width="760" height="724" fill="#fcfcfb"/>
+<text x="16" y="24" font-size="15" font-weight="600" fill="#0b0b0b">Where the end-to-end latency goes</text>
+<text x="16" y="42" fill="#52514e">transport = publish → callback start (DDS + executor queue wait); artificial delay is injected sleep, not inference</text>
+<rect x="16" y="54" width="12" height="12" rx="2" fill="#2a78d6"/>
+<text x="33" y="64" fill="#0b0b0b">transport + queue</text>
+<rect x="165" y="54" width="12" height="12" rx="2" fill="#1baf7a"/>
+<text x="182" y="64" fill="#0b0b0b">preprocess</text>
+<rect x="265" y="54" width="12" height="12" rx="2" fill="#eda100"/>
+<text x="282" y="64" fill="#0b0b0b">artificial delay</text>
+<rect x="407" y="54" width="12" height="12" rx="2" fill="#eb6834"/>
+<text x="424" y="64" fill="#0b0b0b">inference</text>
+<line x1="250.0" x2="250.0" y1="78" y2="690" stroke="#e4e3df"/>
+<text x="250.0" y="704" text-anchor="middle" fill="#52514e">0</text>
+<line x1="346.0" x2="346.0" y1="78" y2="690" stroke="#e4e3df"/>
+<text x="346.0" y="704" text-anchor="middle" fill="#52514e">200</text>
+<line x1="442.0" x2="442.0" y1="78" y2="690" stroke="#e4e3df"/>
+<text x="442.0" y="704" text-anchor="middle" fill="#52514e">400</text>
+<line x1="538.0" x2="538.0" y1="78" y2="690" stroke="#e4e3df"/>
+<text x="538.0" y="704" text-anchor="middle" fill="#52514e">600</text>
+<line x1="634.0" x2="634.0" y1="78" y2="690" stroke="#e4e3df"/>
+<text x="634.0" y="704" text-anchor="middle" fill="#52514e">800</text>
+<line x1="730.0" x2="730.0" y1="78" y2="690" stroke="#e4e3df"/>
+<text x="730.0" y="704" text-anchor="middle" fill="#52514e">1000</text>
+<text x="490.0" y="720" text-anchor="middle" fill="#52514e">mean latency component across runs (ms)</text>
+<text x="242" y="96" text-anchor="end" fill="#0b0b0b">S fps 5fps q5 d0</text>
+<rect x="250.0" y="84" width="0.5" height="16" rx="2" fill="#2a78d6"><title>S fps 5fps q5 d0: transport + queue 0.6 ms</title></rect>
+<rect x="250.3" y="84" width="0.5" height="16" rx="2" fill="#1baf7a"><title>S fps 5fps q5 d0: preprocess 0.4 ms</title></rect>
+<rect x="250.5" y="84" width="0.5" height="16" rx="2" fill="#eda100"><title>S fps 5fps q5 d0: artificial delay 0.0 ms</title></rect>
+<rect x="250.5" y="84" width="26.4" height="16" rx="2" fill="#eb6834"><title>S fps 5fps q5 d0: inference 59.1 ms</title></rect>
+<text x="282.8" y="96" fill="#52514e">60</text>
+<text x="242" y="120" text-anchor="end" fill="#0b0b0b">S fps 10fps q5 d0</text>
+<rect x="250.0" y="108" width="0.5" height="16" rx="2" fill="#2a78d6"><title>S fps 10fps q5 d0: transport + queue 0.5 ms</title></rect>
+<rect x="250.3" y="108" width="0.5" height="16" rx="2" fill="#1baf7a"><title>S fps 10fps q5 d0: preprocess 0.4 ms</title></rect>
+<rect x="250.4" y="108" width="0.5" height="16" rx="2" fill="#eda100"><title>S fps 10fps q5 d0: artificial delay 0.0 ms</title></rect>
+<rect x="250.4" y="108" width="27.3" height="16" rx="2" fill="#eb6834"><title>S fps 10fps q5 d0: inference 60.9 ms</title></rect>
+<text x="283.7" y="120" fill="#52514e">62</text>
+<text x="242" y="144" text-anchor="end" fill="#0b0b0b">S fps 20fps q5 d0</text>
+<rect x="250.0" y="132" width="106.0" height="16" rx="2" fill="#2a78d6"><title>S fps 20fps q5 d0: transport + queue 224.9 ms</title></rect>
+<rect x="358.0" y="132" width="0.5" height="16" rx="2" fill="#1baf7a"><title>S fps 20fps q5 d0: preprocess 0.3 ms</title></rect>
+<rect x="358.1" y="132" width="0.5" height="16" rx="2" fill="#eda100"><title>S fps 20fps q5 d0: artificial delay 0.0 ms</title></rect>
+<rect x="358.1" y="132" width="27.4" height="16" rx="2" fill="#eb6834"><title>S fps 20fps q5 d0: inference 61.2 ms</title></rect>
+<text x="391.5" y="144" fill="#52514e">286</text>
+<text x="242" y="168" text-anchor="end" fill="#0b0b0b">S fps 30fps q5 d0</text>
+<rect x="250.0" y="156" width="70.2" height="16" rx="2" fill="#2a78d6"><title>S fps 30fps q5 d0: transport + queue 150.5 ms</title></rect>
+<rect x="322.2" y="156" width="0.5" height="16" rx="2" fill="#1baf7a"><title>S fps 30fps q5 d0: preprocess 0.3 ms</title></rect>
+<rect x="322.4" y="156" width="0.5" height="16" rx="2" fill="#eda100"><title>S fps 30fps q5 d0: artificial delay 0.0 ms</title></rect>
+<rect x="322.4" y="156" width="27.2" height="16" rx="2" fill="#eb6834"><title>S fps 30fps q5 d0: inference 60.9 ms</title></rect>
+<text x="355.6" y="168" fill="#52514e">212</text>
+<text x="242" y="192" text-anchor="end" fill="#0b0b0b">XXS fps 5fps q5 d0</text>
+<rect x="250.0" y="180" width="0.5" height="16" rx="2" fill="#2a78d6"><title>XXS fps 5fps q5 d0: transport + queue 0.6 ms</title></rect>
+<rect x="250.3" y="180" width="0.5" height="16" rx="2" fill="#1baf7a"><title>XXS fps 5fps q5 d0: preprocess 0.4 ms</title></rect>
+<rect x="250.5" y="180" width="0.5" height="16" rx="2" fill="#eda100"><title>XXS fps 5fps q5 d0: artificial delay 0.0 ms</title></rect>
+<rect x="250.5" y="180" width="7.1" height="16" rx="2" fill="#eb6834"><title>XXS fps 5fps q5 d0: inference 19.0 ms</title></rect>
+<text x="263.7" y="192" fill="#52514e">20</text>
+<text x="242" y="216" text-anchor="end" fill="#0b0b0b">XXS fps 10fps q5 d0</text>
+<rect x="250.0" y="204" width="0.5" height="16" rx="2" fill="#2a78d6"><title>XXS fps 10fps q5 d0: transport + queue 0.6 ms</title></rect>
+<rect x="250.3" y="204" width="0.5" height="16" rx="2" fill="#1baf7a"><title>XXS fps 10fps q5 d0: preprocess 0.4 ms</title></rect>
+<rect x="250.5" y="204" width="0.5" height="16" rx="2" fill="#eda100"><title>XXS fps 10fps q5 d0: artificial delay 0.0 ms</title></rect>
+<rect x="250.5" y="204" width="7.0" height="16" rx="2" fill="#eb6834"><title>XXS fps 10fps q5 d0: inference 18.9 ms</title></rect>
+<text x="263.5" y="216" fill="#52514e">20</text>
+<text x="242" y="240" text-anchor="end" fill="#0b0b0b">XXS fps 20fps q5 d0</text>
+<rect x="250.0" y="228" width="0.5" height="16" rx="2" fill="#2a78d6"><title>XXS fps 20fps q5 d0: transport + queue 0.5 ms</title></rect>
+<rect x="250.3" y="228" width="0.5" height="16" rx="2" fill="#1baf7a"><title>XXS fps 20fps q5 d0: preprocess 0.4 ms</title></rect>
+<rect x="250.4" y="228" width="0.5" height="16" rx="2" fill="#eda100"><title>XXS fps 20fps q5 d0: artificial delay 0.0 ms</title></rect>
+<rect x="250.4" y="228" width="6.9" height="16" rx="2" fill="#eb6834"><title>XXS fps 20fps q5 d0: inference 18.5 ms</title></rect>
+<text x="263.3" y="240" fill="#52514e">19</text>
+<text x="242" y="264" text-anchor="end" fill="#0b0b0b">XXS fps 30fps q5 d0</text>
+<rect x="250.0" y="252" width="0.5" height="16" rx="2" fill="#2a78d6"><title>XXS fps 30fps q5 d0: transport + queue 0.5 ms</title></rect>
+<rect x="250.3" y="252" width="0.5" height="16" rx="2" fill="#1baf7a"><title>XXS fps 30fps q5 d0: preprocess 0.4 ms</title></rect>
+<rect x="250.4" y="252" width="0.5" height="16" rx="2" fill="#eda100"><title>XXS fps 30fps q5 d0: artificial delay 0.0 ms</title></rect>
+<rect x="250.4" y="252" width="7.0" height="16" rx="2" fill="#eb6834"><title>XXS fps 30fps q5 d0: inference 18.8 ms</title></rect>
+<text x="263.4" y="264" fill="#52514e">20</text>
+<text x="242" y="288" text-anchor="end" fill="#0b0b0b">XXS fps 40fps q5 d0</text>
+<rect x="250.0" y="276" width="0.5" height="16" rx="2" fill="#2a78d6"><title>XXS fps 40fps q5 d0: transport + queue 0.5 ms</title></rect>
+<rect x="250.3" y="276" width="0.5" height="16" rx="2" fill="#1baf7a"><title>XXS fps 40fps q5 d0: preprocess 0.4 ms</title></rect>
+<rect x="250.4" y="276" width="0.5" height="16" rx="2" fill="#eda100"><title>XXS fps 40fps q5 d0: artificial delay 0.0 ms</title></rect>
+<rect x="250.4" y="276" width="6.7" height="16" rx="2" fill="#eb6834"><title>XXS fps 40fps q5 d0: inference 18.2 ms</title></rect>
+<text x="263.2" y="288" fill="#52514e">19</text>
+<text x="242" y="312" text-anchor="end" fill="#0b0b0b">XXS fps 50fps q5 d0</text>
+<rect x="250.0" y="300" width="0.5" height="16" rx="2" fill="#2a78d6"><title>XXS fps 50fps q5 d0: transport + queue 0.7 ms</title></rect>
+<rect x="250.3" y="300" width="0.5" height="16" rx="2" fill="#1baf7a"><title>XXS fps 50fps q5 d0: preprocess 0.3 ms</title></rect>
+<rect x="250.5" y="300" width="0.5" height="16" rx="2" fill="#eda100"><title>XXS fps 50fps q5 d0: artificial delay 0.0 ms</title></rect>
+<rect x="250.5" y="300" width="6.7" height="16" rx="2" fill="#eb6834"><title>XXS fps 50fps q5 d0: inference 18.0 ms</title></rect>
+<text x="263.2" y="312" fill="#52514e">19</text>
+<text x="242" y="336" text-anchor="end" fill="#0b0b0b">XXS fps 60fps q5 d0</text>
+<rect x="250.0" y="324" width="34.2" height="16" rx="2" fill="#2a78d6"><title>XXS fps 60fps q5 d0: transport + queue 75.4 ms</title></rect>
+<rect x="286.2" y="324" width="0.5" height="16" rx="2" fill="#1baf7a"><title>XXS fps 60fps q5 d0: preprocess 0.3 ms</title></rect>
+<rect x="286.3" y="324" width="0.5" height="16" rx="2" fill="#eda100"><title>XXS fps 60fps q5 d0: artificial delay 0.0 ms</title></rect>
+<rect x="286.3" y="324" width="6.7" height="16" rx="2" fill="#eb6834"><title>XXS fps 60fps q5 d0: inference 18.1 ms</title></rect>
+<text x="299.0" y="336" fill="#52514e">94</text>
+<text x="242" y="360" text-anchor="end" fill="#0b0b0b">S overload 20fps q5 d0</text>
+<rect x="250.0" y="348" width="105.9" height="16" rx="2" fill="#2a78d6"><title>S overload 20fps q5 d0: transport + queue 224.8 ms</title></rect>
+<rect x="357.9" y="348" width="0.5" height="16" rx="2" fill="#1baf7a"><title>S overload 20fps q5 d0: preprocess 0.3 ms</title></rect>
+<rect x="358.1" y="348" width="0.5" height="16" rx="2" fill="#eda100"><title>S overload 20fps q5 d0: artificial delay 0.0 ms</title></rect>
+<rect x="358.1" y="348" width="26.2" height="16" rx="2" fill="#eb6834"><title>S overload 20fps q5 d0: inference 58.7 ms</title></rect>
+<text x="390.2" y="360" fill="#52514e">284</text>
+<text x="242" y="384" text-anchor="end" fill="#0b0b0b">S overload 20fps q5 d30</text>
+<rect x="250.0" y="372" width="106.3" height="16" rx="2" fill="#2a78d6"><title>S overload 20fps q5 d30: transport + queue 225.6 ms</title></rect>
+<rect x="358.3" y="372" width="0.5" height="16" rx="2" fill="#1baf7a"><title>S overload 20fps q5 d30: preprocess 0.3 ms</title></rect>
+<rect x="358.4" y="372" width="12.5" height="16" rx="2" fill="#eda100"><title>S overload 20fps q5 d30: artificial delay 30.2 ms</title></rect>
+<rect x="372.9" y="372" width="26.3" height="16" rx="2" fill="#eb6834"><title>S overload 20fps q5 d30: inference 59.0 ms</title></rect>
+<text x="405.3" y="384" fill="#52514e">315</text>
+<text x="242" y="408" text-anchor="end" fill="#0b0b0b">S overload 20fps q5 d80</text>
+<rect x="250.0" y="396" width="106.2" height="16" rx="2" fill="#2a78d6"><title>S overload 20fps q5 d80: transport + queue 225.5 ms</title></rect>
+<rect x="358.2" y="396" width="0.5" height="16" rx="2" fill="#1baf7a"><title>S overload 20fps q5 d80: preprocess 0.3 ms</title></rect>
+<rect x="358.4" y="396" width="36.6" height="16" rx="2" fill="#eda100"><title>S overload 20fps q5 d80: artificial delay 80.4 ms</title></rect>
+<rect x="397.0" y="396" width="27.0" height="16" rx="2" fill="#eb6834"><title>S overload 20fps q5 d80: inference 60.5 ms</title></rect>
+<text x="430.1" y="408" fill="#52514e">367</text>
+<text x="242" y="432" text-anchor="end" fill="#0b0b0b">S overload 20fps q5 d150</text>
+<rect x="250.0" y="420" width="106.6" height="16" rx="2" fill="#2a78d6"><title>S overload 20fps q5 d150: transport + queue 226.2 ms</title></rect>
+<rect x="358.6" y="420" width="0.5" height="16" rx="2" fill="#1baf7a"><title>S overload 20fps q5 d150: preprocess 0.3 ms</title></rect>
+<rect x="358.7" y="420" width="70.3" height="16" rx="2" fill="#eda100"><title>S overload 20fps q5 d150: artificial delay 150.7 ms</title></rect>
+<rect x="431.1" y="420" width="27.5" height="16" rx="2" fill="#eb6834"><title>S overload 20fps q5 d150: inference 61.4 ms</title></rect>
+<text x="464.6" y="432" fill="#52514e">439</text>
+<text x="242" y="456" text-anchor="end" fill="#0b0b0b">XXS overload 20fps q5 d0</text>
+<rect x="250.0" y="444" width="0.5" height="16" rx="2" fill="#2a78d6"><title>XXS overload 20fps q5 d0: transport + queue 0.6 ms</title></rect>
+<rect x="250.3" y="444" width="0.5" height="16" rx="2" fill="#1baf7a"><title>XXS overload 20fps q5 d0: preprocess 0.4 ms</title></rect>
+<rect x="250.5" y="444" width="0.5" height="16" rx="2" fill="#eda100"><title>XXS overload 20fps q5 d0: artificial delay 0.0 ms</title></rect>
+<rect x="250.5" y="444" width="6.9" height="16" rx="2" fill="#eb6834"><title>XXS overload 20fps q5 d0: inference 18.6 ms</title></rect>
+<text x="263.4" y="456" fill="#52514e">20</text>
+<text x="242" y="480" text-anchor="end" fill="#0b0b0b">XXS overload 20fps q5 d30</text>
+<rect x="250.0" y="468" width="0.5" height="16" rx="2" fill="#2a78d6"><title>XXS overload 20fps q5 d30: transport + queue 0.6 ms</title></rect>
+<rect x="250.3" y="468" width="0.5" height="16" rx="2" fill="#1baf7a"><title>XXS overload 20fps q5 d30: preprocess 0.3 ms</title></rect>
+<rect x="250.5" y="468" width="12.5" height="16" rx="2" fill="#eda100"><title>XXS overload 20fps q5 d30: artificial delay 30.2 ms</title></rect>
+<rect x="264.9" y="468" width="6.2" height="16" rx="2" fill="#eb6834"><title>XXS overload 20fps q5 d30: inference 17.1 ms</title></rect>
+<text x="277.1" y="480" fill="#52514e">48</text>
+<text x="242" y="504" text-anchor="end" fill="#0b0b0b">XXS overload 20fps q5 d80</text>
+<rect x="250.0" y="492" width="107.2" height="16" rx="2" fill="#2a78d6"><title>XXS overload 20fps q5 d80: transport + queue 227.4 ms</title></rect>
+<rect x="359.2" y="492" width="0.5" height="16" rx="2" fill="#1baf7a"><title>XXS overload 20fps q5 d80: preprocess 0.3 ms</title></rect>
+<rect x="359.3" y="492" width="36.6" height="16" rx="2" fill="#eda100"><title>XXS overload 20fps q5 d80: artificial delay 80.4 ms</title></rect>
+<rect x="397.9" y="492" width="7.0" height="16" rx="2" fill="#eb6834"><title>XXS overload 20fps q5 d80: inference 18.7 ms</title></rect>
+<text x="410.9" y="504" fill="#52514e">327</text>
+<text x="242" y="528" text-anchor="end" fill="#0b0b0b">XXS overload 20fps q5 d150</text>
+<rect x="250.0" y="516" width="106.3" height="16" rx="2" fill="#2a78d6"><title>XXS overload 20fps q5 d150: transport + queue 225.6 ms</title></rect>
+<rect x="358.3" y="516" width="0.5" height="16" rx="2" fill="#1baf7a"><title>XXS overload 20fps q5 d150: preprocess 0.3 ms</title></rect>
+<rect x="358.4" y="516" width="70.3" height="16" rx="2" fill="#eda100"><title>XXS overload 20fps q5 d150: artificial delay 150.7 ms</title></rect>
+<rect x="430.8" y="516" width="6.9" height="16" rx="2" fill="#eb6834"><title>XXS overload 20fps q5 d150: inference 18.5 ms</title></rect>
+<text x="443.7" y="528" fill="#52514e">395</text>
+<text x="242" y="552" text-anchor="end" fill="#0b0b0b">S qos 20fps q1 d0</text>
+<rect x="250.0" y="540" width="10.2" height="16" rx="2" fill="#2a78d6"><title>S qos 20fps q1 d0: transport + queue 25.4 ms</title></rect>
+<rect x="262.2" y="540" width="0.5" height="16" rx="2" fill="#1baf7a"><title>S qos 20fps q1 d0: preprocess 0.3 ms</title></rect>
+<rect x="262.4" y="540" width="0.5" height="16" rx="2" fill="#eda100"><title>S qos 20fps q1 d0: artificial delay 0.0 ms</title></rect>
+<rect x="262.4" y="540" width="26.4" height="16" rx="2" fill="#eb6834"><title>S qos 20fps q1 d0: inference 59.2 ms</title></rect>
+<text x="294.8" y="552" fill="#52514e">85</text>
+<text x="242" y="576" text-anchor="end" fill="#0b0b0b">S qos 20fps q5 d0</text>
+<rect x="250.0" y="564" width="105.9" height="16" rx="2" fill="#2a78d6"><title>S qos 20fps q5 d0: transport + queue 224.8 ms</title></rect>
+<rect x="357.9" y="564" width="0.5" height="16" rx="2" fill="#1baf7a"><title>S qos 20fps q5 d0: preprocess 0.3 ms</title></rect>
+<rect x="358.1" y="564" width="0.5" height="16" rx="2" fill="#eda100"><title>S qos 20fps q5 d0: artificial delay 0.0 ms</title></rect>
+<rect x="358.1" y="564" width="25.2" height="16" rx="2" fill="#eb6834"><title>S qos 20fps q5 d0: inference 56.6 ms</title></rect>
+<text x="389.2" y="576" fill="#52514e">282</text>
+<text x="242" y="600" text-anchor="end" fill="#0b0b0b">S qos 20fps q10 d0</text>
+<rect x="250.0" y="588" width="222.6" height="16" rx="2" fill="#2a78d6"><title>S qos 20fps q10 d0: transport + queue 467.9 ms</title></rect>
+<rect x="474.6" y="588" width="0.5" height="16" rx="2" fill="#1baf7a"><title>S qos 20fps q10 d0: preprocess 0.3 ms</title></rect>
+<rect x="474.8" y="588" width="0.5" height="16" rx="2" fill="#eda100"><title>S qos 20fps q10 d0: artificial delay 0.0 ms</title></rect>
+<rect x="474.8" y="588" width="25.7" height="16" rx="2" fill="#eb6834"><title>S qos 20fps q10 d0: inference 57.6 ms</title></rect>
+<text x="506.4" y="600" fill="#52514e">526</text>
+<text x="242" y="624" text-anchor="end" fill="#0b0b0b">XXS qos 20fps q1 d0</text>
+<rect x="250.0" y="612" width="0.5" height="16" rx="2" fill="#2a78d6"><title>XXS qos 20fps q1 d0: transport + queue 0.6 ms</title></rect>
+<rect x="250.3" y="612" width="0.5" height="16" rx="2" fill="#1baf7a"><title>XXS qos 20fps q1 d0: preprocess 0.4 ms</title></rect>
+<rect x="250.5" y="612" width="0.5" height="16" rx="2" fill="#eda100"><title>XXS qos 20fps q1 d0: artificial delay 0.0 ms</title></rect>
+<rect x="250.5" y="612" width="7.0" height="16" rx="2" fill="#eb6834"><title>XXS qos 20fps q1 d0: inference 18.7 ms</title></rect>
+<text x="263.4" y="624" fill="#52514e">20</text>
+<text x="242" y="648" text-anchor="end" fill="#0b0b0b">XXS qos 20fps q5 d0</text>
+<rect x="250.0" y="636" width="0.5" height="16" rx="2" fill="#2a78d6"><title>XXS qos 20fps q5 d0: transport + queue 0.6 ms</title></rect>
+<rect x="250.3" y="636" width="0.5" height="16" rx="2" fill="#1baf7a"><title>XXS qos 20fps q5 d0: preprocess 0.4 ms</title></rect>
+<rect x="250.5" y="636" width="0.5" height="16" rx="2" fill="#eda100"><title>XXS qos 20fps q5 d0: artificial delay 0.0 ms</title></rect>
+<rect x="250.5" y="636" width="7.0" height="16" rx="2" fill="#eb6834"><title>XXS qos 20fps q5 d0: inference 18.8 ms</title></rect>
+<text x="263.5" y="648" fill="#52514e">20</text>
+<text x="242" y="672" text-anchor="end" fill="#0b0b0b">XXS qos 20fps q10 d0</text>
+<rect x="250.0" y="660" width="0.5" height="16" rx="2" fill="#2a78d6"><title>XXS qos 20fps q10 d0: transport + queue 0.5 ms</title></rect>
+<rect x="250.3" y="660" width="0.5" height="16" rx="2" fill="#1baf7a"><title>XXS qos 20fps q10 d0: preprocess 0.4 ms</title></rect>
+<rect x="250.4" y="660" width="0.5" height="16" rx="2" fill="#eda100"><title>XXS qos 20fps q10 d0: artificial delay 0.0 ms</title></rect>
+<rect x="250.4" y="660" width="6.8" height="16" rx="2" fill="#eb6834"><title>XXS qos 20fps q10 d0: inference 18.3 ms</title></rect>
+<text x="263.2" y="672" fill="#52514e">19</text>
+</svg>

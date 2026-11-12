@@ -5,7 +5,8 @@
 #   bash scripts/ci_checks.sh tests          # unit / integration tests (stdlib only, verbose)
 #   bash scripts/ci_checks.sh shell          # bash -n on every shell script
 #   bash scripts/ci_checks.sh audit          # audit regressions: fails if any case is REPRODUCED
-#   bash scripts/ci_checks.sh provenance     # runtime provenance gate (see below)
+#   bash scripts/ci_checks.sh provenance     # runtime provenance gates: Phase 2 + Phase 3 (see below)
+#   bash scripts/ci_checks.sh dashboard      # dashboard data bundle is current with the verified tables
 #   bash scripts/ci_checks.sh repeat [N]     # run the test suite N times (default 5), keep every log
 #
 # Needs only python3 (3.10+), bash and git. No ROS 2, no pip packages.
@@ -99,6 +100,28 @@ check_provenance() {
       return "$status"
       ;;
   esac
+  # Phase 3 formal scheduling benchmark: its own gate (a Phase 2 VERIFIED says nothing about it).
+  local p3=0
+  if [[ -f scripts/check_phase3_provenance.py ]]; then
+    "$PYTHON" scripts/check_phase3_provenance.py || p3=$?
+  else
+    p3=1
+  fi
+  case "$p3" in
+    0) echo "== phase 3 provenance: VERIFIED" ;;
+    1) echo "== phase 3 provenance: BLOCKED (formal scheduling data not present; not a pass, not a failure)" ;;
+    *) echo "!! phase 3 provenance BROKEN (exit ${p3})" >&2; return "$p3" ;;
+  esac
+}
+
+# Phase 4 dashboard: the committed bundle (dashboard/data/) must equal a fresh build from the
+# verified tables. Exit 1 BLOCKED / 2 BROKEN / 3 STALE all fail the check.
+# Before that, the Phase 2 / Phase 3 tables are rebuilt from the raw runs into a temp dir and
+# compared with the committed ones (scripts/check_table_regeneration.py), so CI covers
+# raw runs -> tables -> dashboard bundle.
+check_dashboard() {
+  "$PYTHON" scripts/check_table_regeneration.py
+  "$PYTHON" -m src.dashboard.build_data --check
 }
 
 cmd="${1:-all}"
@@ -109,14 +132,16 @@ case "$cmd" in
   shell) check_shell ;;
   audit) check_audit ;;
   provenance) check_provenance ;;
+  dashboard) check_dashboard ;;
   all)
     check_tests
     check_shell
     check_audit
     check_provenance
+    check_dashboard
     ;;
   *)
-    echo "usage: $0 {all|tests|repeat [N]|shell|audit|provenance}" >&2
+    echo "usage: $0 {all|tests|repeat [N]|shell|audit|provenance|dashboard}" >&2
     exit 2
     ;;
 esac

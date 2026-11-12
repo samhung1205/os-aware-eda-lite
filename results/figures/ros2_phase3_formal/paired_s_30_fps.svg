@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="290" viewBox="0 0 760 290" role="img" aria-label="S 30 FPS: paired difference in effective miss (pp)">
+<style>
+.s{fill:#fcfcfb}.t1{fill:#0b0b0b}.t2{fill:#52514e}.mu{fill:#898781}.g{stroke:#e1e0d9}.ax{stroke:#c3c2b7}
+.a0{fill:#2a78d6;stroke:#2a78d6}.a1{fill:#eb6834;stroke:#eb6834}.a2{fill:#1baf7a;stroke:#1baf7a}.a3{fill:#eda100;stroke:#eda100}.a4{fill:#e87ba4;stroke:#e87ba4}.a5{fill:#008300;stroke:#008300}
+.dot{stroke:#fcfcfb;stroke-width:1.5}.rd{fill:#fcfcfb;stroke:#0b0b0b}
+@media (prefers-color-scheme: dark){.s{fill:#1a1a19}.t1{fill:#f0efec}.t2{fill:#c3c2b7}.g{stroke:#2c2c2a}
+.ax{stroke:#383835}.a0{fill:#3987e5;stroke:#3987e5}.a1{fill:#d95926;stroke:#d95926}.a2{fill:#199e70;stroke:#199e70}.a3{fill:#c98500;stroke:#c98500}.a4{fill:#d55181;stroke:#d55181}.a5{fill:#008300;stroke:#008300}.dot{stroke:#1a1a19}.rd{fill:#1a1a19;stroke:#f0efec}}
+text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-variant-numeric:tabular-nums}
+</style>
+<rect class="s" width="760" height="290"/>
+<text class="t1" x="20" y="28" font-size="16" font-weight="600">S 30 FPS: paired difference in effective miss (pp)</text>
+<text class="t2" x="20" y="48" font-size="12">mean within-block difference, 95% t-interval (line), individual blocks (dots); left of 0 = first arm lower</text>
+<line class="g" x1="250.0" x2="250.0" y1="70" y2="240" stroke-width="1"/><text class="mu" x="250.0" y="256" font-size="10" text-anchor="middle">-4 pp</text>
+<line class="g" x1="367.5" x2="367.5" y1="70" y2="240" stroke-width="1"/><text class="mu" x="367.5" y="256" font-size="10" text-anchor="middle">-2 pp</text>
+<line class="ax" x1="485.0" x2="485.0" y1="70" y2="240" stroke-width="1"/><text class="mu" x="485.0" y="256" font-size="10" text-anchor="middle">+0 pp</text>
+<line class="g" x1="602.5" x2="602.5" y1="70" y2="240" stroke-width="1"/><text class="mu" x="602.5" y="256" font-size="10" text-anchor="middle">+2 pp</text>
+<line class="g" x1="720.0" x2="720.0" y1="70" y2="240" stroke-width="1"/><text class="mu" x="720.0" y="256" font-size="10" text-anchor="middle">+4 pp</text>
+<text class="t1" x="20" y="91.0" font-size="12">Adaptive − Latest (n=3)</text>
+<line class="a0" stroke="#2a78d6" x1="447.1" x2="531.9" y1="87.0" y2="87.0" stroke-width="2"/>
+<g><title>block difference -0.13 pp</title><circle class="mu" fill="#898781" cx="477.1" cy="96.0" r="3" fill-opacity="0.7"/></g>
+<g><title>block difference -0.04 pp</title><circle class="mu" fill="#898781" cx="482.4" cy="96.0" r="3" fill-opacity="0.7"/></g>
+<g><title>block difference +0.41 pp</title><circle class="mu" fill="#898781" cx="509.0" cy="96.0" r="3" fill-opacity="0.7"/></g>
+<g><title>Adaptive − Latest: mean +0.08 pp, 95% CI [-0.65, +0.80]</title><circle class="a0 dot" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5" cx="489.5" cy="87.0" r="5"/></g>
+<text class="t1" x="20" y="125.0" font-size="12">Adaptive − Deadline-Guard (n=3)</text>
+<line class="a0" stroke="#2a78d6" x1="424.9" x2="582.3" y1="121.0" y2="121.0" stroke-width="2"/>
+<g><title>block difference -0.21 pp</title><circle class="mu" fill="#898781" cx="472.6" cy="130.0" r="3" fill-opacity="0.7"/></g>
+<g><title>block difference +0.30 pp</title><circle class="mu" fill="#898781" cx="502.3" cy="130.0" r="3" fill-opacity="0.7"/></g>
+<g><title>block difference +0.87 pp</title><circle class="mu" fill="#898781" cx="535.9" cy="130.0" r="3" fill-opacity="0.7"/></g>
+<g><title>Adaptive − Deadline-Guard: mean +0.32 pp, 95% CI [-1.02, +1.66]</title><circle class="a0 dot" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5" cx="503.6" cy="121.0" r="5"/></g>
+<text class="t1" x="20" y="159.0" font-size="12">Deadline-Guard − Latest (n=3)</text>
+<line class="a0" stroke="#2a78d6" x1="429.8" x2="511.9" y1="155.0" y2="155.0" stroke-width="2"/>
+<g><title>block difference +0.08 pp</title><circle class="mu" fill="#898781" cx="489.5" cy="164.0" r="3" fill-opacity="0.7"/></g>
+<g><title>block difference -0.34 pp</title><circle class="mu" fill="#898781" cx="465.1" cy="164.0" r="3" fill-opacity="0.7"/></g>
+<g><title>block difference -0.46 pp</title><circle class="mu" fill="#898781" cx="458.0" cy="164.0" r="3" fill-opacity="0.7"/></g>
+<g><title>Deadline-Guard − Latest: mean -0.24 pp, 95% CI [-0.94, +0.46]</title><circle class="a0 dot" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5" cx="470.9" cy="155.0" r="5"/></g>
+<text class="t1" x="20" y="193.0" font-size="12">Latest − Legacy d1 (n=3)</text>
+<line class="a0" stroke="#2a78d6" x1="292.1" x2="431.3" y1="189.0" y2="189.0" stroke-width="2"/>
+<g><title>block difference -1.57 pp</title><circle class="mu" fill="#898781" cx="393.0" cy="198.0" r="3" fill-opacity="0.7"/></g>
+<g><title>block difference -2.24 pp</title><circle class="mu" fill="#898781" cx="353.1" cy="198.0" r="3" fill-opacity="0.7"/></g>
+<g><title>block difference -2.49 pp</title><circle class="mu" fill="#898781" cx="339.0" cy="198.0" r="3" fill-opacity="0.7"/></g>
+<g><title>Latest − Legacy d1: mean -2.10 pp, 95% CI [-3.28, -0.91]</title><circle class="a0 dot" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5" cx="361.7" cy="189.0" r="5"/></g>
+<text class="t1" x="20" y="227.0" font-size="12">Adaptive − Legacy d1 (n=3)</text>
+<line class="a0" stroke="#2a78d6" x1="322.7" x2="409.7" y1="223.0" y2="223.0" stroke-width="2"/>
+<g><title>block difference -1.70 pp</title><circle class="mu" fill="#898781" cx="385.1" cy="232.0" r="3" fill-opacity="0.7"/></g>
+<g><title>block difference -2.29 pp</title><circle class="mu" fill="#898781" cx="350.5" cy="232.0" r="3" fill-opacity="0.7"/></g>
+<g><title>block difference -2.08 pp</title><circle class="mu" fill="#898781" cx="363.0" cy="232.0" r="3" fill-opacity="0.7"/></g>
+<g><title>Adaptive − Legacy d1: mean -2.02 pp, 95% CI [-2.76, -1.28]</title><circle class="a0 dot" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5" cx="366.2" cy="223.0" r="5"/></g>
+</svg>

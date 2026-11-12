@@ -1,0 +1,2875 @@
+{
+  "schema": "ros2_runtime_summary_manifest/v1",
+  "generator": "src.ros2_runtime.analyze_runtime",
+  "git": {
+    "commit": "7f0f160a73c888c0ee0e49b3ed3fce04845fd9cc",
+    "dirty": true
+  },
+  "settings": {
+    "warmup_frames": 10
+  },
+  "summary": {
+    "path": "ros2_phase3_formal_summary.csv",
+    "sha256": "0cad18167f9b84c53ee1e1f120e2103e28b4cf29f248d1237208fc39e74709f8"
+  },
+  "inputs": [
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_adaptive_c5_q10_d0_p3b2_sdyn_b1.csv",
+      "sha256": "e35602289de03febf55d881d9d88b73d224d5c1bbe461b55c7fc3d2a189417cd",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_adaptive_c5_q10_d0_p3b2_sdyn_b1.publisher.csv",
+      "sha256": "d125caabc4581108191cfc07ee29c59a80291ac29ea3510bc7c64fafbe1b4d95",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_adaptive_c5_q10_d0_p3b2_sdyn_b2.csv",
+      "sha256": "2cee8d183da82207e5505b660cb7e613eb31d8f4afa9c279625b746dd52b4223",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_adaptive_c5_q10_d0_p3b2_sdyn_b2.publisher.csv",
+      "sha256": "815999d10490a27ea47d82e2dd0533e95ad6d0b85e86a5aa5f6c7b75d62e2753",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_adaptive_c5_q10_d0_p3b2_sdyn_b3.csv",
+      "sha256": "680735eacbf536498b6b051bb166600971744a3bf29b07a8c291a53fdd4d926d",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_adaptive_c5_q10_d0_p3b2_sdyn_b3.publisher.csv",
+      "sha256": "56ad9d71198ddcda265e57a1c9350a4bfeda6f61bf9b54e8a6894f2de19a2f08",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_fifo_c5_q10_d0_p3b2_sdyn_b1.csv",
+      "sha256": "f73aea3846de244b241265c091f05c56ba4f11ba4fb0e7c9a74a8be828de8c42",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_fifo_c5_q10_d0_p3b2_sdyn_b1.publisher.csv",
+      "sha256": "b1a30c52520fadee0e449e032b924ca17bb9d1f0a516fd7d36ef05ffa70b0932",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_fifo_c5_q10_d0_p3b2_sdyn_b2.csv",
+      "sha256": "9167a6243b6bd44b57b3663ed919d7ca2c9a4c0b16a0a0fe79492788d1b76b24",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_fifo_c5_q10_d0_p3b2_sdyn_b2.publisher.csv",
+      "sha256": "f588ac0a6b070d770cdffe3eaac3acaf412bfc709269c1a25e900aeb5504b8bf",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_fifo_c5_q10_d0_p3b2_sdyn_b3.csv",
+      "sha256": "8f23214947565e7b6b05404e89825989f620512c52426a6a956573c540379f7c",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_fifo_c5_q10_d0_p3b2_sdyn_b3.publisher.csv",
+      "sha256": "369963eaf576ca058bf5ae629883f28280dd45a2ef15394fd747b392ee0d3332",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_guard_c5_q10_d0_p3b2_sdyn_b1.csv",
+      "sha256": "515f42d3fea3326f31f926f169b3d678de110d5f13cd436ac73117b997eb36ad",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_guard_c5_q10_d0_p3b2_sdyn_b1.publisher.csv",
+      "sha256": "430dbfbfc3a305372da3c5f2521da90c4c569ba4497716d276663bbe55d25b32",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_guard_c5_q10_d0_p3b2_sdyn_b2.csv",
+      "sha256": "3e18fe4f8ce52a5e2d791ca0c2b28b58ef3dbcb45ac320400338beb01c530a0d",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_guard_c5_q10_d0_p3b2_sdyn_b2.publisher.csv",
+      "sha256": "4234676d33085f2af159a5e8922eb8f0e5f131ddfc8d2d13131502f9f173b353",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_guard_c5_q10_d0_p3b2_sdyn_b3.csv",
+      "sha256": "cfa3d9d85139f549db8fd2ea8b3140cd45cad95f04c2aacc9fc4715dee18eb11",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_guard_c5_q10_d0_p3b2_sdyn_b3.publisher.csv",
+      "sha256": "68e37c4c09f2f7ed1e419e85b493fe454c5c1ebb63eb13b2badf54187cb87a53",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_latest_q10_d0_p3b2_sdyn_b1.csv",
+      "sha256": "193429777470aedc0ccc4fe657d96da099156ed5c5edd3601a2adcdf70eda1ff",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_latest_q10_d0_p3b2_sdyn_b1.publisher.csv",
+      "sha256": "90045af77103c850fb040da1494c496d0e54814224f9a2b9e0e127f7087a6dce",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_latest_q10_d0_p3b2_sdyn_b2.csv",
+      "sha256": "d731bad50348554051f5ad3c98f95046c8edca888799b740b2dd49eb2f6ac2cc",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_latest_q10_d0_p3b2_sdyn_b2.publisher.csv",
+      "sha256": "1baba6327506841a12fea9ff2064b1afaed2e0b323451f5144d9f35d767edc8a",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_latest_q10_d0_p3b2_sdyn_b3.csv",
+      "sha256": "179c8a371b6e831812c6fac64c69d429e3f25462ec2b97be81e1e6f68d68bea1",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_latest_q10_d0_p3b2_sdyn_b3.publisher.csv",
+      "sha256": "590567cf4e2a98e41bbad3e043fcf1ddf166ea22f2e59a2d09dfde2ec2a5a03e",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q1_d0_p3b2_sdyn_b1.csv",
+      "sha256": "1c929d79c77d86985504242e2499fe49007f4b2dd21a4adf0d36c58355615098",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q1_d0_p3b2_sdyn_b1.publisher.csv",
+      "sha256": "5d9f7a5517bf1c779436cc28a02e295d9cd3cacfa803e54559778d553c3a9bbd",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q1_d0_p3b2_sdyn_b2.csv",
+      "sha256": "d96f96ad13cb9ee7bd53eb1602f3aa512241721fdf51354692562e36cabe8213",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q1_d0_p3b2_sdyn_b2.publisher.csv",
+      "sha256": "c254b8044c4014d63ff22e8178c6a37aa2d3cfb20cf1da97c3bfb4d8b5479f19",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q1_d0_p3b2_sdyn_b3.csv",
+      "sha256": "45c359e124d371db255f2152b5ca0e5782dbb66eef1cd7c0472992339c19f719",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q1_d0_p3b2_sdyn_b3.publisher.csv",
+      "sha256": "25fee4193cb7472d7f72aa7c929e8114598796054579bbae5d8f4d4d6cfb6950",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q5_d0_p3b2_sdyn_b1.csv",
+      "sha256": "994575044a23f3d6b4ce71aaccc5f12fb64913287266697224d1b71b58db43af",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q5_d0_p3b2_sdyn_b1.publisher.csv",
+      "sha256": "a74cb4b0324739a9ea1719b7ff882800e64d718caae292144130a97aa66e3051",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q5_d0_p3b2_sdyn_b2.csv",
+      "sha256": "ba2501b28219bb5265db998da075943bbb9ed3cf03e6195e0be7389cc5413fa1",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q5_d0_p3b2_sdyn_b2.publisher.csv",
+      "sha256": "9351f60056099cc7a3d95a9cfebf0ca6dc087c6d925f7d4ff91037694a93e602",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q5_d0_p3b2_sdyn_b3.csv",
+      "sha256": "9113d44f1c869b9cd378ee129ddef67f946630df121fcc948cc350ebe49f4dab",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q5_d0_p3b2_sdyn_b3.publisher.csv",
+      "sha256": "46db91bb95a1bb6da51576f4ebb844cf33f1df32eb762c09a47918238ea04eef",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_adaptive_c5_q10_d0_p3b2_s10_b1.csv",
+      "sha256": "fd72ffca807b7f03034d5dcfb087a6ec8bdb0f91cea7881be2b48eb0320683e1",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_adaptive_c5_q10_d0_p3b2_s10_b1.publisher.csv",
+      "sha256": "efdaf93f9eb2271dd60541c5ddc170515afb770000169bf25d2ea91483c14f49",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_adaptive_c5_q10_d0_p3b2_s10_b2.csv",
+      "sha256": "968215a6ec6f66342753aeea4686fe8ce6703957e93295cefaaa531559f7df5c",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_adaptive_c5_q10_d0_p3b2_s10_b2.publisher.csv",
+      "sha256": "74a3782967a3356dc8a20c60b738c4979b3b088d1627b495b448020186cd4b07",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_adaptive_c5_q10_d0_p3b2_s10_b3.csv",
+      "sha256": "8ca07679d4d99ff1ce939ce2032e690a13429d29e5162f767f21a1e7c1681b95",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_adaptive_c5_q10_d0_p3b2_s10_b3.publisher.csv",
+      "sha256": "934bb1197cbba4f90b91068d3eacd8bee73aff69c67361f35f2c05ec268b1eaf",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_fifo_c5_q10_d0_p3b2_s10_b1.csv",
+      "sha256": "b88d54fc1e28c7b40db89f4891d6e3c5899f21030208e7fe3928ce8279840416",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_fifo_c5_q10_d0_p3b2_s10_b1.publisher.csv",
+      "sha256": "23b5e759693efcfda15d84bba6a38af358b9afa2710daeb3007c6277db201eda",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_fifo_c5_q10_d0_p3b2_s10_b2.csv",
+      "sha256": "3d8f564907e97c6cd4e2958bab24dee5221841bcd7af040baba18a28c8199476",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_fifo_c5_q10_d0_p3b2_s10_b2.publisher.csv",
+      "sha256": "3f444ff6ef1b33816b60988cd8ff5574f8fc452ad9bcdd154569a3bb64af42b2",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_fifo_c5_q10_d0_p3b2_s10_b3.csv",
+      "sha256": "ef41710eb1721d91d9d48609de3b241b63e5ea73454b41317c82ff48db9fc29a",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_fifo_c5_q10_d0_p3b2_s10_b3.publisher.csv",
+      "sha256": "dff34f50c2908f38875034d1d4c430e6a1a52cd5b15c85cea9503457a828487c",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_guard_c5_q10_d0_p3b2_s10_b1.csv",
+      "sha256": "06aee39e32879c87dfe61cfa6f496bcf4f4fe638918de1f15f92a94ea68004ef",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_guard_c5_q10_d0_p3b2_s10_b1.publisher.csv",
+      "sha256": "8cba61406f0ab751d65cc993f5d19b8ba53a928d2f7246ea2c756c90ed1acfcd",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_guard_c5_q10_d0_p3b2_s10_b2.csv",
+      "sha256": "018cdf78c9fc20a7871e88078f1b51baa645845aefbbe76f1e4ec289f15a7278",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_guard_c5_q10_d0_p3b2_s10_b2.publisher.csv",
+      "sha256": "3186574922ecd5538894ef9662fb23e3e0b28f582032215210ed3ea06b9d0b8c",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_guard_c5_q10_d0_p3b2_s10_b3.csv",
+      "sha256": "3f1b47eac0bf1a6fdc427e49769687dac354e46bbd019fd09d8b29184e7068f0",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_guard_c5_q10_d0_p3b2_s10_b3.publisher.csv",
+      "sha256": "fc6a907e65cf9501c6628ca26e7cbcb9770f78aaaab9800be104aafdc4576610",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_latest_q10_d0_p3b2_s10_b1.csv",
+      "sha256": "563c1fb28c02e7cd888b78b3546e99ce81bbafd6fe561503ec2cab06b07572a6",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_latest_q10_d0_p3b2_s10_b1.publisher.csv",
+      "sha256": "1b11ae960e4155152ce4745fdab855f48eeac69c42dfbd11a9c60b451efc6745",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_latest_q10_d0_p3b2_s10_b2.csv",
+      "sha256": "950a7768d7660df99435bf7ee579d094aef197f62f58d444fe75f65d50f754c0",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_latest_q10_d0_p3b2_s10_b2.publisher.csv",
+      "sha256": "eece412f922f7be35bb4b19f0ac14c35fab9dce6f1fe3eac06e09c8e2c1cb5e7",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_latest_q10_d0_p3b2_s10_b3.csv",
+      "sha256": "117604db63b47a19513b5c0845de0b1c2cc6c7e43fe68f6fbf079bbbe9b6b63b",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_latest_q10_d0_p3b2_s10_b3.publisher.csv",
+      "sha256": "1b65ed5849c60137fbfa3a77a88493e860c6e03394001a9a599dc3d3758e1e59",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_legacy_q1_d0_p3b2_s10_b1.csv",
+      "sha256": "b22d540285a6cd1a1b054c82c7056cc228b6acdd185d9e14359c6068e055b022",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_legacy_q1_d0_p3b2_s10_b1.publisher.csv",
+      "sha256": "721805e6a3a00e337b7ea9820a1bb0c27065b98a208ccd35f0cffede6623446f",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_legacy_q1_d0_p3b2_s10_b2.csv",
+      "sha256": "d1e9d9a533e054a542292ef68cfe0535700d9fe98729022c7fb50691753280a3",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_legacy_q1_d0_p3b2_s10_b2.publisher.csv",
+      "sha256": "4512a52dae845d452fcc98584d398d18481dcea5dc5f38d794fe238f8365011e",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_legacy_q1_d0_p3b2_s10_b3.csv",
+      "sha256": "087ed7b7d3c425e63319ec10577a4327a08e73a1e9b9847c5d1c27ef8dd8abb2",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_legacy_q1_d0_p3b2_s10_b3.publisher.csv",
+      "sha256": "7e64b5003c8f70e85e12afe11e0da066a0763bbf845d55bd543bca7359615963",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_legacy_q5_d0_p3b2_s10_b1.csv",
+      "sha256": "1ff917ae14751ef74e4f87b959ac7d5e657a622be5a7ef7fec78e2af1c901763",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_legacy_q5_d0_p3b2_s10_b1.publisher.csv",
+      "sha256": "2dfc5d5f7e4519c4eac24779a172e0dfa680c1d4b7c2601e65b3aca5982866bd",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_legacy_q5_d0_p3b2_s10_b2.csv",
+      "sha256": "714658dd992db638a8a3129a109c2fe604f40628020fb07685f3aa137cbee387",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_legacy_q5_d0_p3b2_s10_b2.publisher.csv",
+      "sha256": "0959b0ae10f59c58f86b92b9573f3c1b1bb7d81362f643cbc04dc49dfecd0d99",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_legacy_q5_d0_p3b2_s10_b3.csv",
+      "sha256": "9de37e63a7904e0d6f5947d6e93987f87a4103d8e04f21914bd60f243ee20899",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_legacy_q5_d0_p3b2_s10_b3.publisher.csv",
+      "sha256": "15466ca70161bb41e44303d1b947270918d444fd598084951ef3d6cd007a3e7a",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_adaptive_c5_q10_d0_p3b2_s20_b1.csv",
+      "sha256": "7300151778c3521c238510a1f7c913917d841f6340e5ef93ba1efb7a19366b18",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_adaptive_c5_q10_d0_p3b2_s20_b1.publisher.csv",
+      "sha256": "6d6d5ee9798736e24f8bb1648af6cd8ce7bf049039b746dcc1e27dcb7313515d",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_adaptive_c5_q10_d0_p3b2_s20_b2.csv",
+      "sha256": "2cceef2e5c7e059f2b47e2ecca0ba2371cb7e282ba8d50467bf2f093611f3227",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_adaptive_c5_q10_d0_p3b2_s20_b2.publisher.csv",
+      "sha256": "90bc3515728c02a32470af9f45444407ce89165ed16bdc5c66c2e8a48604dd73",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_adaptive_c5_q10_d0_p3b2_s20_b3.csv",
+      "sha256": "47e08eb520ada52c5a0e576601fd0ea62bee63fd4bc5493f8f1ee26c98c12b18",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_adaptive_c5_q10_d0_p3b2_s20_b3.publisher.csv",
+      "sha256": "8bcee3d67aff84cb89ac5a21eff174207315e41d5c6e35f14d0819671e5d4ac0",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_adaptive_c5_q10_d0_p3b2_s20_b4.csv",
+      "sha256": "d58f05106e372e855efb18ae26479dd37096bbc4f5054453b39dea41eea5e963",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_adaptive_c5_q10_d0_p3b2_s20_b4.publisher.csv",
+      "sha256": "c38ad226311b2dc37a9fd768019bb7a0465125484b939bb1191e1cea46e0102a",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_adaptive_c5_q10_d0_p3b2_s20_b5.csv",
+      "sha256": "fc1df311d87d10d4681b0ab0fd11c7db1882914d23f8099d585b22e7d0e3bef8",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_adaptive_c5_q10_d0_p3b2_s20_b5.publisher.csv",
+      "sha256": "64051a27ae5e95f0ce027b8f4c2b64ca5b69c61cf5a5cf0a8e7b02bea88573ff",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_fifo_c5_q10_d0_p3b2_s20_b1.csv",
+      "sha256": "684707086e781889c4fdca90cc90e55735e45a1d8eed56164b1e33bf19dbb941",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_fifo_c5_q10_d0_p3b2_s20_b1.publisher.csv",
+      "sha256": "79ea7882571887193d0f18240847789282af7644d6dc7909cf63914e71548fdb",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_fifo_c5_q10_d0_p3b2_s20_b2.csv",
+      "sha256": "60a536fff3ca12c1d77fbef4c73e0bc1d889070048645a87be3b6219fa928cf8",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_fifo_c5_q10_d0_p3b2_s20_b2.publisher.csv",
+      "sha256": "62bc046c56b4cfd536fb63515609c0a897f475146b6c35ad3342322b83724710",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_fifo_c5_q10_d0_p3b2_s20_b3.csv",
+      "sha256": "ebd95d8564b09e533d8670f0a0d6d46df6221f412c8850143abe05c95598b45f",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_fifo_c5_q10_d0_p3b2_s20_b3.publisher.csv",
+      "sha256": "b1f8c602cdad8b338f540ac85eaed6bdd696c5c1054a7ffe591ea4d124b4bbeb",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_fifo_c5_q10_d0_p3b2_s20_b4.csv",
+      "sha256": "c630af4decaf1e2306a46f2473f98204717f50c696bf25717b935e079ab75b1e",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_fifo_c5_q10_d0_p3b2_s20_b4.publisher.csv",
+      "sha256": "952ed809ebd2ea30223f082abfcc16d388c5df8ee69399e6a6a9f89bf2d7eefd",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_fifo_c5_q10_d0_p3b2_s20_b5.csv",
+      "sha256": "6bbdfd77cd0944ed25799df1b3a11cc75909d2021124927852a5b6814d92a71c",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_fifo_c5_q10_d0_p3b2_s20_b5.publisher.csv",
+      "sha256": "82e3b68486a79ce53f3bc7cb27ded53f405bb219b9ca6fe0b5cb3ad4c8c86c84",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_guard_c5_q10_d0_p3b2_s20_b1.csv",
+      "sha256": "5cf881e2bd3fac4482f177bb182c38097b65945d283cb1461b6311d9c244ca7e",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_guard_c5_q10_d0_p3b2_s20_b1.publisher.csv",
+      "sha256": "90ab3dd08c19924c94783ec93acc3c87cfdeac2e0a7566599421d551c0ae3123",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_guard_c5_q10_d0_p3b2_s20_b2.csv",
+      "sha256": "70bce1f9654b54186fef10d2b61634ec6e624e40b12b6c0263f3dca3968a0b7f",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_guard_c5_q10_d0_p3b2_s20_b2.publisher.csv",
+      "sha256": "12b3f7a108dfc458a2f67847ce5ffd53493438dc82c51f6712395ec68ab5bb2d",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_guard_c5_q10_d0_p3b2_s20_b3.csv",
+      "sha256": "418607a22c0b441e6ba34c701fc662206535d40ca178117c27d6cc8d7aa1909e",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_guard_c5_q10_d0_p3b2_s20_b3.publisher.csv",
+      "sha256": "1f0eb84aacf09b599701152423e34b924380ff8b5de33009cb38a1bfd6a8f900",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_guard_c5_q10_d0_p3b2_s20_b4.csv",
+      "sha256": "2f767d758a3db0d3193658938e9b6ec18e2672cd2f4495ab3974618e08037815",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_guard_c5_q10_d0_p3b2_s20_b4.publisher.csv",
+      "sha256": "19e122052a7128f01d3618a828ef5b15712df507fd538e4587452152b06e20b2",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_guard_c5_q10_d0_p3b2_s20_b5.csv",
+      "sha256": "4116354821473443d73e76b345fbb3949e18eb885d3efacd30113d9b7002355b",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_guard_c5_q10_d0_p3b2_s20_b5.publisher.csv",
+      "sha256": "8ac33b32165da64e9efefa6fadfe051abd2924aa00f5767baeadf003f4046ff9",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_latest_q10_d0_p3b2_s20_b1.csv",
+      "sha256": "eb2729aaf2c9f9351422545a05cc09ea4a0efe52cba03df8b9fdb17417c8a72d",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_latest_q10_d0_p3b2_s20_b1.publisher.csv",
+      "sha256": "602bb36badfbbeb957e58d1047a8fe371ab13dc414c64b8fa76c8109d4e852c4",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_latest_q10_d0_p3b2_s20_b2.csv",
+      "sha256": "42275e6f58fcc31661a802d277990ef7c62efb0c7bedb25d02747e86f80fd92e",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_latest_q10_d0_p3b2_s20_b2.publisher.csv",
+      "sha256": "852c74302b802a21311f58b86719d549a59b71d39b4630c7c1da5d8d3bcb6b2a",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_latest_q10_d0_p3b2_s20_b3.csv",
+      "sha256": "13e44b2ab5a13183e6d51b027e861da7a436605311b5d5ba0aa772d8e9f30762",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_latest_q10_d0_p3b2_s20_b3.publisher.csv",
+      "sha256": "5bdbb1ec2f8cc8041d6748eebac8889811d0d4730bd816cbfd98999fa239c5c5",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_latest_q10_d0_p3b2_s20_b4.csv",
+      "sha256": "9e530932f3ed5d1a4ad9fd11129b4eca4066fd4d60c8fbe3b572c336694b0f79",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_latest_q10_d0_p3b2_s20_b4.publisher.csv",
+      "sha256": "47baa6b1c2395b8deed7e6c34f08a44cc068d1d0259397839316cc47d12d39c4",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_latest_q10_d0_p3b2_s20_b5.csv",
+      "sha256": "fc78cf7f2ea131ce434cc261cf4b3dad0e730d79ab794f6a691b06e76c97d519",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_latest_q10_d0_p3b2_s20_b5.publisher.csv",
+      "sha256": "4d5f542488bda9be0ce56894a9137c51ff6ba7cc094cc25c53a424fbd3b214bd",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q1_d0_p3b2_s20_b1.csv",
+      "sha256": "6ce5efaea2f49a5933a23be371ebc9d18edfbd103c664be3b8a978b67246bef5",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q1_d0_p3b2_s20_b1.publisher.csv",
+      "sha256": "86fa088d856360f60b883523b9e0583b2d692e6d389d779cbc997b54125c9a9a",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q1_d0_p3b2_s20_b2.csv",
+      "sha256": "b9dfddcab7014650cb6c16eb18b9a915451ca19277aa3829911289ce7b31be57",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q1_d0_p3b2_s20_b2.publisher.csv",
+      "sha256": "432f5187628a04eac5f64a3acc4dbfcaf3a804f9d07d5f3c9b7c398f5a8cd22f",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q1_d0_p3b2_s20_b3.csv",
+      "sha256": "95633b7a54e3507878e60d83cde68acacf43993af59e4873b706050ff9650e8b",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q1_d0_p3b2_s20_b3.publisher.csv",
+      "sha256": "3376703913a9746da7a75c5881ed08e588ee62f7363ae9aec039bb5aa379378e",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q1_d0_p3b2_s20_b4.csv",
+      "sha256": "95c8b76322268aebe037cdb55640c5443b23c194dda73a73be1771cfe5e3fa52",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q1_d0_p3b2_s20_b4.publisher.csv",
+      "sha256": "72a7a1c5037eb13f1dda313f6350bfde18b3bfdb13fab2c4ffcc3f43d0b60e72",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q1_d0_p3b2_s20_b5.csv",
+      "sha256": "82c017b1a89c3d2e0486ac4401edee1c587ba80a211643c2a1c1422d72eb76f5",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q1_d0_p3b2_s20_b5.publisher.csv",
+      "sha256": "5dd2adcf6ace0535d88b379fc99532a4754e12ab86f0d89e22c2769780188943",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q5_d0_p3b2_s20_b1.csv",
+      "sha256": "3d9ab7a4b559e70ca4e65db630cdc4c560c83efdb0d0af0cd084392bb0630046",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q5_d0_p3b2_s20_b1.publisher.csv",
+      "sha256": "aca311610b9d91cc8f4563aefcdfbebcd419f5f52fbad01964570a92eba6ba12",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q5_d0_p3b2_s20_b2.csv",
+      "sha256": "d055d13a476c50c2bc521261df7d4ea6e208470850c73c50cdcf3d8249c3b85a",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q5_d0_p3b2_s20_b2.publisher.csv",
+      "sha256": "e416d7d4cf378a9e19519356751812c8806056c7e9a4e7ff20e4aa497927c683",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q5_d0_p3b2_s20_b3.csv",
+      "sha256": "6f7bd013a8f5f69fd8f3a288568ee35d86c8478856075360870712b7ed9c0b81",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q5_d0_p3b2_s20_b3.publisher.csv",
+      "sha256": "9da9ecd7bed4c7f10413866cfcba91a0597b3cb50d340d809828419261c80f65",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q5_d0_p3b2_s20_b4.csv",
+      "sha256": "17d22525d5e1903eaa9a696a3b21662d0bd8f4a79c53eeb28e1da4764533a4ec",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q5_d0_p3b2_s20_b4.publisher.csv",
+      "sha256": "b20db1ccf482adecb2e1f1f738343e09239c5f68e1feef15c8de20f8e50980e7",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q5_d0_p3b2_s20_b5.csv",
+      "sha256": "cf0161b314e987fc76630d88441d04c63b0937ae36e9499a8f451551047a3572",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q5_d0_p3b2_s20_b5.publisher.csv",
+      "sha256": "dd8cc1319907f4dadbebfd751a519f89bf332956076b20c4e03480020285db4d",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_adaptive_c5_q10_d0_p3b2_s30_b1.csv",
+      "sha256": "ad8bca0e587545c0d5850060654c7d623968cb8edc0f9e67b3096f90f4e5c3ed",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_adaptive_c5_q10_d0_p3b2_s30_b1.publisher.csv",
+      "sha256": "9615cfa70d9e38997e47d1bf64a3295ec4a3691ffdb14d65b30d70f3cc0d292e",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_adaptive_c5_q10_d0_p3b2_s30_b2.csv",
+      "sha256": "985497f06a5a0be5876869257ddf5f7f5cf91d0b4a4d4d89c3fb3a157eedb109",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_adaptive_c5_q10_d0_p3b2_s30_b2.publisher.csv",
+      "sha256": "4e7b2ed8f5a1209b2c1eb6643c8d6718741214b54ac21d724ec624fe04274fff",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_adaptive_c5_q10_d0_p3b2_s30_b3.csv",
+      "sha256": "d65de37f1eb1eeca408aa1264f8662bcdf89b12f38556ef1b6a96c0b67a9d4ea",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_adaptive_c5_q10_d0_p3b2_s30_b3.publisher.csv",
+      "sha256": "084e3c90bbf0dc9d8da43b99bf96bbd146cddc1b718fe9472dadfe74b5527aa5",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_fifo_c5_q10_d0_p3b2_s30_b1.csv",
+      "sha256": "726baee73aae596a11a18b8263a283b0b43230dab0e593e15f75d857c0f2c734",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_fifo_c5_q10_d0_p3b2_s30_b1.publisher.csv",
+      "sha256": "4cb25ac18fc944a45c2ca7de44684a3e1ca16f3460d50ac168572a688970e3a4",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_fifo_c5_q10_d0_p3b2_s30_b2.csv",
+      "sha256": "ce62b823d9dcb5721c00b79ba748a36a526b314fafbbf2613ccc038a15601fa2",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_fifo_c5_q10_d0_p3b2_s30_b2.publisher.csv",
+      "sha256": "a6de1f320d8a9e7a894201a8c617395c4416acdbffca8698b197382f6bea963b",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_fifo_c5_q10_d0_p3b2_s30_b3.csv",
+      "sha256": "52d21031811b990f32d622495b1cd94bd2670855a688da65123e81f0766e7e56",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_fifo_c5_q10_d0_p3b2_s30_b3.publisher.csv",
+      "sha256": "b3b4ae52001d0d30a53ad70a6b61de98f07429966e8e99d31e8b532ea67d4035",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_guard_c5_q10_d0_p3b2_s30_b1.csv",
+      "sha256": "f94ee786fceae2474e0f8294e35a715c68a18388ad9fa46853e444973a396473",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_guard_c5_q10_d0_p3b2_s30_b1.publisher.csv",
+      "sha256": "edd258d2db1298e5abe56121e69fde0b9b847de2a66370b84e465daa10fd29bc",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_guard_c5_q10_d0_p3b2_s30_b2.csv",
+      "sha256": "cf739c541ecb77d453a20c3fd66847c6ad5264d4beff1ced0c7e426efc87ffbd",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_guard_c5_q10_d0_p3b2_s30_b2.publisher.csv",
+      "sha256": "7fc4a94a7ad1445c8055fc73d3a22358dec7640355eb8085cca91bfff53d3c9d",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_guard_c5_q10_d0_p3b2_s30_b3.csv",
+      "sha256": "259f550807eb7bee533ee21918d6a8f63741c49c501ad7498ddbef3fd6a15289",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_guard_c5_q10_d0_p3b2_s30_b3.publisher.csv",
+      "sha256": "081b434f53ea5c8c2a8d765c92878741bfe7dc3a4647e4a3e4386b7fd18f77fa",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_latest_q10_d0_p3b2_s30_b1.csv",
+      "sha256": "174ffa89945d55aee6b3f352a672fa85d0ad9d473f40c999394cf6d33f0a83e0",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_latest_q10_d0_p3b2_s30_b1.publisher.csv",
+      "sha256": "4dbedf4809686483004c00c668bd44920a5722596d2fff47099a9fb2537f0f8a",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_latest_q10_d0_p3b2_s30_b2.csv",
+      "sha256": "5fa866f62063e49d5ed0f7cfb00e8078bfa791613053c10ddc0000f98ecda737",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_latest_q10_d0_p3b2_s30_b2.publisher.csv",
+      "sha256": "ea60027c47e7f8e252fc5fd1ca17ee2e2678fa89d5578d3860e0b531c47a4318",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_latest_q10_d0_p3b2_s30_b3.csv",
+      "sha256": "5dbbb7d85df4316d53810040ef15a20e4db2ecf63bc4c7a8ea2677ad258c3c82",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_latest_q10_d0_p3b2_s30_b3.publisher.csv",
+      "sha256": "4356a37671f8d0102c54461180f40e8cb0d4f121bad2c4bbd2614f42ee4ccff6",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_legacy_q1_d0_p3b2_s30_b1.csv",
+      "sha256": "ad11b65ec385ea5bcfd606cbafa1655774edb59dd1911eb96eb4d4d57d47842f",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_legacy_q1_d0_p3b2_s30_b1.publisher.csv",
+      "sha256": "6bbe7d962d24875c7b706a1a2a237d7370860fa4fda09489b63eff7b39c1a0ed",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_legacy_q1_d0_p3b2_s30_b2.csv",
+      "sha256": "01a39f3afaf8e66605a23cea3d8a453f7069877f7b5a5bedc6adb92f2514db17",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_legacy_q1_d0_p3b2_s30_b2.publisher.csv",
+      "sha256": "500f5bad8d60bd5dc192d390d788373fcafe30e772eb16c47169fe7b9eebc886",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_legacy_q1_d0_p3b2_s30_b3.csv",
+      "sha256": "f9f5870c88505d26c4142a433dc3d8af48b413f829927d9502c43bc03b34fb65",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_legacy_q1_d0_p3b2_s30_b3.publisher.csv",
+      "sha256": "065c26a64758da3af925a1029e72c1371c124fed8eb98a37b96904dc322a171f",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_legacy_q5_d0_p3b2_s30_b1.csv",
+      "sha256": "1fe6caecbce0e09f9d6792f2542557ca172b2b9c6042cda31b87d7b9b81193df",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_legacy_q5_d0_p3b2_s30_b1.publisher.csv",
+      "sha256": "c43291bd4714b24f19bf58ab6fdfa2a2216e578b64228924bcca454e7079e4ec",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_legacy_q5_d0_p3b2_s30_b2.csv",
+      "sha256": "528d6bccd17ae9039e25bf1440f5d4bd0be201ad831f8240e00f0ba700ccd47a",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_legacy_q5_d0_p3b2_s30_b2.publisher.csv",
+      "sha256": "e9b61ff0e156bc4aebf5eefc39f869c23b7339aadc3ea54562fcc9d7b701ba48",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_legacy_q5_d0_p3b2_s30_b3.csv",
+      "sha256": "1dfb4721c1da368b865c99ac16fdef29a54f6a3309804dc554e04101675b39f2",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_legacy_q5_d0_p3b2_s30_b3.publisher.csv",
+      "sha256": "71839b81ca0596422a754e40b904a8e112343f104f5f8ce73e2fe29ba3e8e459",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_adaptive_c5_q10_d25_p3b2_xxs30d25_b1.csv",
+      "sha256": "f5817e28ce9a560c14e9e1df1f270e63dd0e4fc445dbfd626af3ef2f40da9871",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_adaptive_c5_q10_d25_p3b2_xxs30d25_b1.publisher.csv",
+      "sha256": "0293c371778950b86a3958d4734ae6648f97251a77e5eb86f6f2821b5e41b638",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_adaptive_c5_q10_d25_p3b2_xxs30d25_b2.csv",
+      "sha256": "4ea6ed7248c93b5973c17f7343b172e89920656d4fedfe22b0594ec898bdbc2a",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_adaptive_c5_q10_d25_p3b2_xxs30d25_b2.publisher.csv",
+      "sha256": "77d120bb156ab2004ab4fb9f88137a396e3958a1ad3c7d093f4c59929242c1af",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_adaptive_c5_q10_d25_p3b2_xxs30d25_b3.csv",
+      "sha256": "84c3146606a9f652877997032e71fea1ddc2a065d6c115880c2c63ce5a8f1d75",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_adaptive_c5_q10_d25_p3b2_xxs30d25_b3.publisher.csv",
+      "sha256": "eacd3060f3d225dc8156553d3884a66b4ce86a7f86cf2c13ac5f49899a3e9379",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_fifo_c5_q10_d25_p3b2_xxs30d25_b1.csv",
+      "sha256": "6a82eae5380a6224e2260fefe41273536ee395c066d68d699f337268fd2bbc05",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_fifo_c5_q10_d25_p3b2_xxs30d25_b1.publisher.csv",
+      "sha256": "35adea51001a3261b9450683f444ad71cfb5d1852a58b12b18db1884148226ec",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_fifo_c5_q10_d25_p3b2_xxs30d25_b2.csv",
+      "sha256": "1d2413db368b43ddb0b889dee68663ce8f513f11f5262f957ab48e066c683e6c",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_fifo_c5_q10_d25_p3b2_xxs30d25_b2.publisher.csv",
+      "sha256": "193ac378df58df39e678783d673e8e3e4b4237c5c92c8bd9316a0a73a75b75c7",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_fifo_c5_q10_d25_p3b2_xxs30d25_b3.csv",
+      "sha256": "74e3b82ee6c8102c5dc056e98a52e9dcf4227257cd9191d0466b691daed23fdb",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_fifo_c5_q10_d25_p3b2_xxs30d25_b3.publisher.csv",
+      "sha256": "95629983aa844269a1cbe5855cfd81abbf3cd7663560a55f5bd1e2f37ebdbc5c",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_guard_c5_q10_d25_p3b2_xxs30d25_b1.csv",
+      "sha256": "a25065a23dc240dd2c82b8223af97e2c277820e8d3d0bdc6abe934c71d903a2b",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_guard_c5_q10_d25_p3b2_xxs30d25_b1.publisher.csv",
+      "sha256": "6cabc87904f93f74ce2bdf4ffdd1be99372c68de76f20d3a082a6edaf3ad45b2",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_guard_c5_q10_d25_p3b2_xxs30d25_b2.csv",
+      "sha256": "76cd9abd8acd5748f90bf8c4a3542972b0c0483a8656100984e19de2b419d87c",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_guard_c5_q10_d25_p3b2_xxs30d25_b2.publisher.csv",
+      "sha256": "3a8a957414f8b3b304594e5edb95c52cbc3c7b9a7e0535b68888133c1dbfd097",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_guard_c5_q10_d25_p3b2_xxs30d25_b3.csv",
+      "sha256": "fbb84765909ede9ef9e11527537a1d4247bb48629809442fd61178cb80618d73",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_guard_c5_q10_d25_p3b2_xxs30d25_b3.publisher.csv",
+      "sha256": "4f84406a30d1839ef2ebfcbe2cee13633f7726a3ff3a64560a4a5676a508effc",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_latest_q10_d25_p3b2_xxs30d25_b1.csv",
+      "sha256": "a5aebe4d0f9c4cef67f3e44e47751780f7ee93402ed7ea5bbc8d87b56dc2f3f3",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_latest_q10_d25_p3b2_xxs30d25_b1.publisher.csv",
+      "sha256": "63be1d4b22cca3fac77f665f6a49bbda35bff69d322d0498b673f4487c865fd4",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_latest_q10_d25_p3b2_xxs30d25_b2.csv",
+      "sha256": "f81363defc0c85bda6beffe01432222574e684b285523d4fd4c7c7e048726a6f",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_latest_q10_d25_p3b2_xxs30d25_b2.publisher.csv",
+      "sha256": "4ce939ecce41371a1dc2a56feea009017de084283fec0a6b6e5d0701b4fad579",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_latest_q10_d25_p3b2_xxs30d25_b3.csv",
+      "sha256": "17ff490a137c1fe390d5138ba86b93830347605933e7e3f0739256d530bd692f",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_latest_q10_d25_p3b2_xxs30d25_b3.publisher.csv",
+      "sha256": "6f4fa8c247da98a3c56180eb3b24bf52621b4e541c705d4a367f5309b0c4dcd7",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_legacy_q1_d25_p3b2_xxs30d25_b1.csv",
+      "sha256": "11abc9b1e6ff589b7297c1ad23312d6c2e663d25d2fc424aa655fc2276e786b1",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_legacy_q1_d25_p3b2_xxs30d25_b1.publisher.csv",
+      "sha256": "a48672572211556eca53a2915a2c3db144ff1551234b9718d37d5fdc9d888b05",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_legacy_q1_d25_p3b2_xxs30d25_b2.csv",
+      "sha256": "0bc319528cb020fdae4d62404ea5ea1cd8b6f0004f3aac87a973c5526822576e",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_legacy_q1_d25_p3b2_xxs30d25_b2.publisher.csv",
+      "sha256": "94f0cb3ee198d0db7a83549b7af28287e3fbdc6fa5702688d8a69d44d955c71a",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_legacy_q1_d25_p3b2_xxs30d25_b3.csv",
+      "sha256": "de38c24f7e1e5aebd17236eb6f754d8ad691a0d6f3148b05825738eeba8637d0",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_legacy_q1_d25_p3b2_xxs30d25_b3.publisher.csv",
+      "sha256": "ccf27021f03a1d177a742e532c7dc03ace979ffbec13463bb9fc92ef17cbe4d3",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_legacy_q5_d25_p3b2_xxs30d25_b1.csv",
+      "sha256": "fb897fc0d3f1b5ecccf943000ddd2a3f1d722fa23d8c37bd2538ba1e3146232d",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_legacy_q5_d25_p3b2_xxs30d25_b1.publisher.csv",
+      "sha256": "60609678f71d23b3af120d71ef6b212b91fe8146d2943550efe3ed655e0b61b5",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_legacy_q5_d25_p3b2_xxs30d25_b2.csv",
+      "sha256": "b7c946363a0f408c59faf4ae0dc96f731100e2735f514b555fb7c50f19ff2e13",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_legacy_q5_d25_p3b2_xxs30d25_b2.publisher.csv",
+      "sha256": "bd8f7956be31a29765c1be14e794f11edd2c30a642e8042e30731dacde9f8fff",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_legacy_q5_d25_p3b2_xxs30d25_b3.csv",
+      "sha256": "27264e3b2d6d301b58f2eca58bdbb6a6dbcf842361fceabda9d0dbe0a5020d6d",
+      "kind": "detector_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_legacy_q5_d25_p3b2_xxs30d25_b3.publisher.csv",
+      "sha256": "5f5883b46174366c145a5ca0b4f38a5c5cacb88cfc6e7f654e73be29c9b00dc4",
+      "kind": "publisher_csv"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_adaptive_c5_q10_d0_p3b2_sdyn_b1.meta.json",
+      "sha256": "7ccd6dc5482f1e7ee12d2310b820cd1c74b0f2535e200ed8b0f72e868a01898c",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_adaptive_c5_q10_d0_p3b2_sdyn_b2.meta.json",
+      "sha256": "acf34a718c69f44ea87f338305bce5b11ecb53af661f20378924c47c271c2764",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_adaptive_c5_q10_d0_p3b2_sdyn_b3.meta.json",
+      "sha256": "28749ef763c75ca3f83e4c73404c4b6573e54442895179271bfe5626adda8d89",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_fifo_c5_q10_d0_p3b2_sdyn_b1.meta.json",
+      "sha256": "fda6ea0a8ecf8884775b4958410b0a8bfe06679da63823e737d78e2ea8b6214b",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_fifo_c5_q10_d0_p3b2_sdyn_b2.meta.json",
+      "sha256": "1f3a8cfbad421de398ffdd3984f193d3477170c316e140ddb71711d569e64f2a",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_fifo_c5_q10_d0_p3b2_sdyn_b3.meta.json",
+      "sha256": "ab40a0fba3e19947a99b7414832516b246e84b5b5755a44b0761ec13f26a52ae",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_guard_c5_q10_d0_p3b2_sdyn_b1.meta.json",
+      "sha256": "c98e9574307682d7a66af8c628021e1772a720cc68b97ec9a311b2a915e90c59",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_guard_c5_q10_d0_p3b2_sdyn_b2.meta.json",
+      "sha256": "58aba36ca0bac2ad82c9bf8ee60d14dd67457971ccde7461687b31124bae7ed2",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_guard_c5_q10_d0_p3b2_sdyn_b3.meta.json",
+      "sha256": "d72b3466bbe426e253e3deaf3b0ae09e491e751eef226cef998cf87626d760ec",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_latest_q10_d0_p3b2_sdyn_b1.meta.json",
+      "sha256": "3a56af36536f20a53ea89a1ecaa69fa8a476fd4e6bbb22d6a6462f26fadc1108",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_latest_q10_d0_p3b2_sdyn_b2.meta.json",
+      "sha256": "278480cd7657599f3b91269b91af20907d67d5475da7f5c3c0750ebb00b06d88",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_latest_q10_d0_p3b2_sdyn_b3.meta.json",
+      "sha256": "1e26318278f4eb674abc95b037d4b624daa391f8247841fee7fa5cb07e64e870",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q1_d0_p3b2_sdyn_b1.meta.json",
+      "sha256": "4ffb59b1ebe6b9be819f7f16839550d8012816f40b05057ae99316915385bc14",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q1_d0_p3b2_sdyn_b2.meta.json",
+      "sha256": "1eaeee0bd7520373c6a154342db0a84674b9114a84e5f6379c56d0948b658beb",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q1_d0_p3b2_sdyn_b3.meta.json",
+      "sha256": "432a581793f0233e14f03f609c099c17565664c58e1977fb00cd33467e898006",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q5_d0_p3b2_sdyn_b1.meta.json",
+      "sha256": "cd2075fd34472f43334555735f6c769bcb7bb979daaeb783b8fddca79dba137b",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q5_d0_p3b2_sdyn_b2.meta.json",
+      "sha256": "528b8e659cf160ca4b5ba38fc487306df62a80ed099cdc66846d61e9afb5f6ff",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q5_d0_p3b2_sdyn_b3.meta.json",
+      "sha256": "51abcc5a8b90f51588bba1aae8961caebf73a0ad8adc879359694766d0d19b9d",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_adaptive_c5_q10_d0_p3b2_s10_b1.meta.json",
+      "sha256": "1b780280910dbe88d1940bb412600ac614dbcd8d05c79b9ca93070fbea98cfda",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_adaptive_c5_q10_d0_p3b2_s10_b2.meta.json",
+      "sha256": "f9291ac5b9205d0f368b868ecdc1b49eb394a5234ab91c6d3bc5c4d280795788",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_adaptive_c5_q10_d0_p3b2_s10_b3.meta.json",
+      "sha256": "51b1282a7ef102c50bcadf0c6a5247e7d3539fa2619b4b3ef9e43e00442d3359",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_fifo_c5_q10_d0_p3b2_s10_b1.meta.json",
+      "sha256": "cd66889a9e5b37b3d448c0cec019598974a371f1f34ef97c1bcd5b7a027af7d8",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_fifo_c5_q10_d0_p3b2_s10_b2.meta.json",
+      "sha256": "b23b8f0961c110bc20086496060dfe981ed5736841dc21c420fb32fec6e2cb46",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_fifo_c5_q10_d0_p3b2_s10_b3.meta.json",
+      "sha256": "9f13902796d85e099c2da851dd09102a82faefad55fd49024abc50b25c8f8ffe",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_guard_c5_q10_d0_p3b2_s10_b1.meta.json",
+      "sha256": "394a7cd20ddb0e2c1f498abbffc79a7ce1c750e775fbacc682b7672402d4dfaf",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_guard_c5_q10_d0_p3b2_s10_b2.meta.json",
+      "sha256": "fed25274e126932eb4de46aff34f8cbe5c9ae505e52b593cc2a233f768ecd1be",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_guard_c5_q10_d0_p3b2_s10_b3.meta.json",
+      "sha256": "6c1a93d6d6d86cbbaba842762a70fbd603832db2daa04f431131c9a52f51b881",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_latest_q10_d0_p3b2_s10_b1.meta.json",
+      "sha256": "1eba77a22b9700b37b05f6ce2dc9a669cd22c0ea00e27240e3118b59dac4ea28",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_latest_q10_d0_p3b2_s10_b2.meta.json",
+      "sha256": "483af49f88c4ef805df2c9a53a798b6fb45e1ec16028224fc148ead050671934",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_latest_q10_d0_p3b2_s10_b3.meta.json",
+      "sha256": "d99f7d2048c62e7cf60412d7fa90c632b900e26e589d32ee0d4d30e92dc13ced",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_legacy_q1_d0_p3b2_s10_b1.meta.json",
+      "sha256": "f7b37e8b0b0f073bb063a04075f39b225e23705c674ba0e64201c3ea19e1d0ad",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_legacy_q1_d0_p3b2_s10_b2.meta.json",
+      "sha256": "4be000c98ee0e00ff997bf3515a574717db3ef5692b7ba033afc068659b675a3",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_legacy_q1_d0_p3b2_s10_b3.meta.json",
+      "sha256": "43e5f219177ae1d817985b0c7edd22794b697c5a5342c0f4fd58aabeff3bfd87",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_legacy_q5_d0_p3b2_s10_b1.meta.json",
+      "sha256": "76fc7624dc2d9774e50ec0c2c5b5b2e2b10635c4f9463ad2b43de24423bb8944",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_legacy_q5_d0_p3b2_s10_b2.meta.json",
+      "sha256": "1e41cc1e0d11af098cc83f304802db0243498380545b03132e4cc1d285374dde",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_legacy_q5_d0_p3b2_s10_b3.meta.json",
+      "sha256": "0f9c9b37cce62a8a8a6fc05a14ccfca95733cdda9f3b1498753772c1ae77a90e",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_adaptive_c5_q10_d0_p3b2_s20_b1.meta.json",
+      "sha256": "31bba08346b0c5ccfaa4f6b95c3219e5a84267ce79d7073d005db10bdfe12135",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_adaptive_c5_q10_d0_p3b2_s20_b2.meta.json",
+      "sha256": "bbf4f948a88068d1f9ac2dc03be9e9fb38a7694a588115447b65d5f9070376b0",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_adaptive_c5_q10_d0_p3b2_s20_b3.meta.json",
+      "sha256": "dc690a3a0704b2d8c7ee191182976394dac427ca1efc133d222da838b0fbc7f4",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_adaptive_c5_q10_d0_p3b2_s20_b4.meta.json",
+      "sha256": "56b9819c67c52fd4a7c976aa26b9f02e6124c2ff2bc24159a38356af98a70dba",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_adaptive_c5_q10_d0_p3b2_s20_b5.meta.json",
+      "sha256": "a6ecf6b3bc61c87c9b49929c1b5e7bfa0f24c187a15b4a665f2641454837956c",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_fifo_c5_q10_d0_p3b2_s20_b1.meta.json",
+      "sha256": "a17f81323b20e15b3911f787929ab006eef0a00c530fb84445a370079d121e02",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_fifo_c5_q10_d0_p3b2_s20_b2.meta.json",
+      "sha256": "6b84b64a55ba962fe97e87418c10a148acbd031f9ac0a2d8841dc902beef147c",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_fifo_c5_q10_d0_p3b2_s20_b3.meta.json",
+      "sha256": "3866c0ce04dd454ff45d49eb7832044e23803e6104d6e9f70a61a04bb8f1c04b",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_fifo_c5_q10_d0_p3b2_s20_b4.meta.json",
+      "sha256": "fc67eb84afd7a2b4367b610a4073fd07ca4293a4f179a2aa359636718763bb60",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_fifo_c5_q10_d0_p3b2_s20_b5.meta.json",
+      "sha256": "05d1e94762567328db70ee50192806b3b9d2bc0425e3d812d2e2da084ad027f4",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_guard_c5_q10_d0_p3b2_s20_b1.meta.json",
+      "sha256": "087adab797dbc660c5233eefd3e23c8ee4d377163f22bc0459c023b857449867",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_guard_c5_q10_d0_p3b2_s20_b2.meta.json",
+      "sha256": "53233b3276e420e1505cff2cc856593e935cfb0f9c818e7687fbeeb83644a1e1",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_guard_c5_q10_d0_p3b2_s20_b3.meta.json",
+      "sha256": "736ff96d3b5da4190d86fd3dac77169903ed723e9d18a4f375456e4816b96ffe",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_guard_c5_q10_d0_p3b2_s20_b4.meta.json",
+      "sha256": "4572f8c08ef212fedf4beaa7dc7336eac2de709e540151d4bde476f4178fa7a6",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_guard_c5_q10_d0_p3b2_s20_b5.meta.json",
+      "sha256": "48d0e89b9ff749d9e9e4c73b61e613979c5739daa137631735cb05ea6eeb5139",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_latest_q10_d0_p3b2_s20_b1.meta.json",
+      "sha256": "1a9b0ebbd00258847767d98e49be5f322590bcd54e0daaeeb161250b51025cad",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_latest_q10_d0_p3b2_s20_b2.meta.json",
+      "sha256": "0a890bffbb7a6c1314edf13e80a6f36725d44990bb3beb7eeac65977dc6f5afd",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_latest_q10_d0_p3b2_s20_b3.meta.json",
+      "sha256": "35e52c83035357a175b48a212aaa2c86d52f282fc2de419b072cd8d824785404",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_latest_q10_d0_p3b2_s20_b4.meta.json",
+      "sha256": "e5c3a5ba9a717b2348c349d42adb0695c6eb511697e1ea823915916e77e203f9",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_latest_q10_d0_p3b2_s20_b5.meta.json",
+      "sha256": "9a3e558a5ac86960b4b9c22e131e5a4b56b7c04dfc24691d82b57083e7b63c7c",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q1_d0_p3b2_s20_b1.meta.json",
+      "sha256": "3606f97554a928bc7e1c4d1f320cafa7a0e513a45a2cd89c1e3c6d722218627f",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q1_d0_p3b2_s20_b2.meta.json",
+      "sha256": "d3896c772d85d71316f3208ccf44ca11c641123cf22a4a924266f21da9b285d8",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q1_d0_p3b2_s20_b3.meta.json",
+      "sha256": "3ae2023d560e67e238242bc95809706f5a65ef1e61373479506b0e4a850f4aca",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q1_d0_p3b2_s20_b4.meta.json",
+      "sha256": "a8d3c5c8fe3383e49c071ec965210882e20be30db453518a7fbac490f10d2f14",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q1_d0_p3b2_s20_b5.meta.json",
+      "sha256": "3b0d55dc353b6664b78367c5c7df7e9c6493f4b371a1b971bea76ba5ee4ee39d",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q5_d0_p3b2_s20_b1.meta.json",
+      "sha256": "3a358229d70b326caf35bd89ee8bf81fa575a286a9e4fab3515175d5f37b9990",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q5_d0_p3b2_s20_b2.meta.json",
+      "sha256": "789254cc42e42cb39863edeb83409471f588834a02364ce2f6b3d1059abb68ec",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q5_d0_p3b2_s20_b3.meta.json",
+      "sha256": "107970ac62b2fcfb375afbb679dc88ed8a6f05a3cbcd62a2ffc6182609c1d288",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q5_d0_p3b2_s20_b4.meta.json",
+      "sha256": "582db2a3c91d23af037d49de92d92595e8df90360900bc2fdbb3b9a01a41c8ef",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q5_d0_p3b2_s20_b5.meta.json",
+      "sha256": "f58552e8cb27c2945924a6fa4d5acfc37d930ce8919d5ec67927dee2205b1173",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_adaptive_c5_q10_d0_p3b2_s30_b1.meta.json",
+      "sha256": "5456742507d36a6871b00f39862689a310bed6c36f9d9c3b2b5fcd694d95c13d",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_adaptive_c5_q10_d0_p3b2_s30_b2.meta.json",
+      "sha256": "9d9592c7691844330cf3d124b6ad782089ceb3ad5a3b4da5f8f184050ce05fa3",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_adaptive_c5_q10_d0_p3b2_s30_b3.meta.json",
+      "sha256": "b88bd6b4c6b2846e9c5d3e7cad7c1d968cc45e5d9227df0a4cb5f9b6b892e69c",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_fifo_c5_q10_d0_p3b2_s30_b1.meta.json",
+      "sha256": "22f77ade7b6c13ea26f5b272d40a830b0397f7657f88baa227a3dd18ae8da1be",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_fifo_c5_q10_d0_p3b2_s30_b2.meta.json",
+      "sha256": "8439248b8436efa3b2e356037b128768d0ab488f0935b19ca1a91639159e6a77",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_fifo_c5_q10_d0_p3b2_s30_b3.meta.json",
+      "sha256": "505c1bb4e6bce57fbd26234378d21d20054b6512556c230b23eaf0e967d953e6",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_guard_c5_q10_d0_p3b2_s30_b1.meta.json",
+      "sha256": "ece20831974c02a4d8f3a1406092b79dba28071bbf4b23d916ebe04e94d3fbc2",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_guard_c5_q10_d0_p3b2_s30_b2.meta.json",
+      "sha256": "3f39233e52a1eb4ffe992e2e73f56eb0ee7ef34592625b0dea1d9a7b327c2b9c",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_guard_c5_q10_d0_p3b2_s30_b3.meta.json",
+      "sha256": "a6fc806ab11d4463403bc3c733f137368393a6143c67ded0574ac1197b1c19aa",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_latest_q10_d0_p3b2_s30_b1.meta.json",
+      "sha256": "ae1e2b59ccf5a3260242d88184a70c0688b88a46739c3aeb7bfb122408fbcd1c",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_latest_q10_d0_p3b2_s30_b2.meta.json",
+      "sha256": "310ae552b7c23e9c972f5cc76bb80ced9ee90b41d86583511b8d3c33959e0294",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_latest_q10_d0_p3b2_s30_b3.meta.json",
+      "sha256": "2d7db5a69b48af81b1a7a991a4fa8bfe7af35b42295a6917fb902108249f1ae2",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_legacy_q1_d0_p3b2_s30_b1.meta.json",
+      "sha256": "2c4935bad0da31ac6d1a50771c2aea6f8727c754177d032f617752ff616af97b",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_legacy_q1_d0_p3b2_s30_b2.meta.json",
+      "sha256": "7bf30825f25678db5b40e434a4245304142de28a88c1a33b75edf43f3b13c673",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_legacy_q1_d0_p3b2_s30_b3.meta.json",
+      "sha256": "3e1c0ea10da94a60c418a15bb5f28cd91bfbfbc8c32621cd2c28f734f21106e7",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_legacy_q5_d0_p3b2_s30_b1.meta.json",
+      "sha256": "f14357008048ff9a0f47f264d2cf59866a4c321a169772e9bc16c9d6b65de449",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_legacy_q5_d0_p3b2_s30_b2.meta.json",
+      "sha256": "17962344d81777324805aeadc50e7d1b7f0df502794402d97f0d5ea257b7caee",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_legacy_q5_d0_p3b2_s30_b3.meta.json",
+      "sha256": "270f016091323339bd668ec3acdec45aa376a0c495900e8bb630733d35b68182",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_adaptive_c5_q10_d25_p3b2_xxs30d25_b1.meta.json",
+      "sha256": "01f02229aeeec42bb08b14e5a1e77797b99e0e3d86771ccda538929d8103f410",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_adaptive_c5_q10_d25_p3b2_xxs30d25_b2.meta.json",
+      "sha256": "00b6b1d8782c7bfa303dfc412ec0c5a0df4423c9be3cb2c8bce2ad0f9431ce65",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_adaptive_c5_q10_d25_p3b2_xxs30d25_b3.meta.json",
+      "sha256": "904cc28de80b67d46ce8c0409bbc325c522ca171393524eafff67334b05035fc",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_fifo_c5_q10_d25_p3b2_xxs30d25_b1.meta.json",
+      "sha256": "5fbdda43f23c0377674427b811d55305631242940d32603a7c6ec1c5db974396",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_fifo_c5_q10_d25_p3b2_xxs30d25_b2.meta.json",
+      "sha256": "28df36c7db92c5c06eaa5418a107677e0e1a1c6b2f8561ba3cabfc87a9c28d5b",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_fifo_c5_q10_d25_p3b2_xxs30d25_b3.meta.json",
+      "sha256": "93ac0147bc48bb295996c2fef4cceb40648472866fe0368052419af16c569540",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_guard_c5_q10_d25_p3b2_xxs30d25_b1.meta.json",
+      "sha256": "952775847f4e8450377d96e13a2cb08ce9cd2c81edfad212ef46e5eba9382cc1",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_guard_c5_q10_d25_p3b2_xxs30d25_b2.meta.json",
+      "sha256": "3f1665206b65070f19cc3a3df2c82d952a82428588b723b74513acf471095464",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_guard_c5_q10_d25_p3b2_xxs30d25_b3.meta.json",
+      "sha256": "fcda30b89a66d2aeb45a19d3070981f19bb093a4868564a0b1a4783c3d28f294",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_latest_q10_d25_p3b2_xxs30d25_b1.meta.json",
+      "sha256": "2135b21410db879e6606ca2fea961abed8323b437e8f60b22fc062dfaaeda84e",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_latest_q10_d25_p3b2_xxs30d25_b2.meta.json",
+      "sha256": "1fa9ce1a197afa32f2b1b21a2db8f7c43312bfea4e00b4788562cccdeb167144",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_latest_q10_d25_p3b2_xxs30d25_b3.meta.json",
+      "sha256": "6286259a9aeb3d1b1b16a3b1dcfc360baacd9c0edd4ecb66b89de9e6513326a4",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_legacy_q1_d25_p3b2_xxs30d25_b1.meta.json",
+      "sha256": "f4ae80f3c1a78951ca5478b3235784bfe92fbff76752caabaffb82ce6ab2164d",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_legacy_q1_d25_p3b2_xxs30d25_b2.meta.json",
+      "sha256": "076db13fbb6437068f303cedd353dffbb7f7ce5cb5b905112a5c83e4a000ecca",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_legacy_q1_d25_p3b2_xxs30d25_b3.meta.json",
+      "sha256": "0278f258b21586fa50815fdd008fb8a2487860102660035a4dd5b63d57ab4170",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_legacy_q5_d25_p3b2_xxs30d25_b1.meta.json",
+      "sha256": "d2dab83a46d41f22ce8d2fa357ed741a5e6b36f61023bcab858ae55470085333",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_legacy_q5_d25_p3b2_xxs30d25_b2.meta.json",
+      "sha256": "3ab8c2cfa76f09649e06cdb2dbd173e32256256ee87f86674c847a32ac0cdd44",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_legacy_q5_d25_p3b2_xxs30d25_b3.meta.json",
+      "sha256": "50d2f677cc85df30e8500074730bde9437bcc42e17a029c3f3769c8754d948df",
+      "kind": "run_metadata"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_adaptive_c5_q10_d0_p3b2_sdyn_b1.probe.json",
+      "sha256": "e16c3b103348fe61f10b887bb65a0169733366170b1b515bf12a42dc5d769c6f",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_adaptive_c5_q10_d0_p3b2_sdyn_b2.probe.json",
+      "sha256": "993589b9d7b993465c737e8873effa9c29592f4dc5c44b3f1f5e620608a4f766",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_adaptive_c5_q10_d0_p3b2_sdyn_b3.probe.json",
+      "sha256": "cc2f295cca6ef0d51f71eb2bfe1af3f7e3f6244d4fcc82dda7d1d01f6ad8cdf3",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_fifo_c5_q10_d0_p3b2_sdyn_b1.probe.json",
+      "sha256": "99dfa8df9bb22afd8706c2c41036ad69612d40e0ae66838b8e01e2473be6a4b6",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_fifo_c5_q10_d0_p3b2_sdyn_b2.probe.json",
+      "sha256": "165d91733c349c7cfe021249607d674d8b4dcbb55bec1a71aadcddfefc2302c7",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_fifo_c5_q10_d0_p3b2_sdyn_b3.probe.json",
+      "sha256": "54a7c0d520c58656bd369945bf09f9d5d1facaf51df7eb5a70e34749d086d0c3",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_guard_c5_q10_d0_p3b2_sdyn_b1.probe.json",
+      "sha256": "725ede9d956605eec3516e4a04c3bfde880b96fff20ce1d9fc42466126a7889f",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_guard_c5_q10_d0_p3b2_sdyn_b2.probe.json",
+      "sha256": "35b49c17f6194d4cf4cb5aa5a9ca8c114de65bab01c4abcf241246dddbfb2097",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_guard_c5_q10_d0_p3b2_sdyn_b3.probe.json",
+      "sha256": "08f4a612f5883e9d7c2fa2b5b0b67e5ab8a91e9b84641ad08b0219f4888bd1a6",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_latest_q10_d0_p3b2_sdyn_b1.probe.json",
+      "sha256": "38a8d78e2495073348be32d74610368e73daf35f1cdfdbc8c05e97d3c90ea007",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_latest_q10_d0_p3b2_sdyn_b2.probe.json",
+      "sha256": "50da97b15c6009906d0bb422e8377da8d076d2bd91aa0e223dbb24819a95ddd5",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_latest_q10_d0_p3b2_sdyn_b3.probe.json",
+      "sha256": "ccec68356d3b6193306b839e5e67f17384297a26d75d12669f38ccea50ffb88b",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q1_d0_p3b2_sdyn_b1.probe.json",
+      "sha256": "8817778d795bd89de5bdf7edc9b7e021e802e3d2ce4c9d33380c0ff432a2385d",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q1_d0_p3b2_sdyn_b2.probe.json",
+      "sha256": "deb5e2addff7fdcc0b899a1f90bec64509cfb77c0ba0010c26ab10226585968e",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q1_d0_p3b2_sdyn_b3.probe.json",
+      "sha256": "a9ea76f972e02cd12fa7c430c8fdd2b1dceb6593960383acfdead89588b57089",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q5_d0_p3b2_sdyn_b1.probe.json",
+      "sha256": "cadaf7a527e348d7dc8ebe5b4d8032a9e8272913b23a556e96e8f06fc60add11",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q5_d0_p3b2_sdyn_b2.probe.json",
+      "sha256": "0ed820aae996cd6a30b351349765a00ffe0bfd43dbbdd6bb786ff7131123d278",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q5_d0_p3b2_sdyn_b3.probe.json",
+      "sha256": "d3968685907d768579c3dd8daba578bf0e7b1001627afa349033ab7ccf5a5070",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_adaptive_c5_q10_d0_p3b2_s10_b1.probe.json",
+      "sha256": "4a6b6dbe79e6ed23e1f03072a84f07b1e8e287e03e102cec59e19c78f27ab136",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_adaptive_c5_q10_d0_p3b2_s10_b2.probe.json",
+      "sha256": "9c942c3616412e56d6874b3025abdc1d0912fd3bf3f793c7f1d5db3c45970040",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_adaptive_c5_q10_d0_p3b2_s10_b3.probe.json",
+      "sha256": "d89d7fcd7a8f5888030566b3b8298a1c17fc939f27ca18090fe3087bba6d96db",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_fifo_c5_q10_d0_p3b2_s10_b1.probe.json",
+      "sha256": "84b3f311f7dffc322eff6fdcaf5c192a511af9e960bdaf698d46bc84ac742b2e",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_fifo_c5_q10_d0_p3b2_s10_b2.probe.json",
+      "sha256": "aff1577fe702a0581314ac5dbf51905a55d789bc1a4ab85626d3d88b35cddc09",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_fifo_c5_q10_d0_p3b2_s10_b3.probe.json",
+      "sha256": "8ae40ecd6d5202d77a827f5e54446bee44ab724e7df6d92776a64d1cb6c5df3f",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_guard_c5_q10_d0_p3b2_s10_b1.probe.json",
+      "sha256": "72342246325100408271d03cdd54f4e8052d9addbe296d75781e1459fc22e373",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_guard_c5_q10_d0_p3b2_s10_b2.probe.json",
+      "sha256": "adae4a584888c636b1baba990dc07fea292990bd08f8208527362c2e657b75db",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_guard_c5_q10_d0_p3b2_s10_b3.probe.json",
+      "sha256": "bda215cd66f640c344ee21992e6f725ff8728ca3894a97ef664a2dc829c009c1",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_latest_q10_d0_p3b2_s10_b1.probe.json",
+      "sha256": "b0095cc63f78402a72ce5bec7c9c126b58a4a0e8acd864cd97129ef4d42055f0",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_latest_q10_d0_p3b2_s10_b2.probe.json",
+      "sha256": "0ad36f8c0fd61f394ce8946649dd23921752922e8a33de26e15ea1ddad9af674",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_latest_q10_d0_p3b2_s10_b3.probe.json",
+      "sha256": "97a4257c1f914879769378d15648c726aa65c06b405ab4ac2914781a72f255d4",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_legacy_q1_d0_p3b2_s10_b1.probe.json",
+      "sha256": "402be791d0036c64a66b707567e6b022eb8d4bbc71adb9680708299937cf1394",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_legacy_q1_d0_p3b2_s10_b2.probe.json",
+      "sha256": "126c83849879df479325bd002d9aab28c40c0fb32389e2af811079da695f4697",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_legacy_q1_d0_p3b2_s10_b3.probe.json",
+      "sha256": "9cc236119c145b0087952e6ac3c2387acf86ae6cef5b20bbf5c34a0109043dfd",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_legacy_q5_d0_p3b2_s10_b1.probe.json",
+      "sha256": "19ec93c3528c5e89d9d7fd17ca114526af4e35ee8e6cec4375de8bab670fe580",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_legacy_q5_d0_p3b2_s10_b2.probe.json",
+      "sha256": "0fbe86a27cfd16a444cdebea6df644d8c830ef71282887b790bbf599af8857a9",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_legacy_q5_d0_p3b2_s10_b3.probe.json",
+      "sha256": "eb7f57711b9c26598bce34a2e0a3cb06dff930fc528f572f0050843497192c5e",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_adaptive_c5_q10_d0_p3b2_s20_b1.probe.json",
+      "sha256": "c3a30b170963b6ccb94d09528f27a5776b46ff3e5695df06d0f6789861e5fc59",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_adaptive_c5_q10_d0_p3b2_s20_b2.probe.json",
+      "sha256": "c46a6e0c08f17036a1d1b54506ec741c37bb52cbd5d7a7d80606f6c2b2e90bad",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_adaptive_c5_q10_d0_p3b2_s20_b3.probe.json",
+      "sha256": "96237b0663d14b82a2d7880f80051fe4c132e60bce6c0879cd07c8c05595ad9f",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_adaptive_c5_q10_d0_p3b2_s20_b4.probe.json",
+      "sha256": "c72fb7b85e51b7ba55c8e43da152e0c256a7abebbc52edc2661b49f4b0a73378",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_adaptive_c5_q10_d0_p3b2_s20_b5.probe.json",
+      "sha256": "2037efba07a5d66c34f36b732c3c509a26407e6a36ba2dad7026aab12478a2e2",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_fifo_c5_q10_d0_p3b2_s20_b1.probe.json",
+      "sha256": "98e08a81833ad9d9a16636b1983e23017c64a842a088bcd5ffade1baab0497e6",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_fifo_c5_q10_d0_p3b2_s20_b2.probe.json",
+      "sha256": "467ab4e282f3803d0136a086a2d71ba92afb7c22374751ad8a92615175dde641",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_fifo_c5_q10_d0_p3b2_s20_b3.probe.json",
+      "sha256": "5a02916b202b738387962d55f68f686cf506955896749dea5efd9596dace9d7a",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_fifo_c5_q10_d0_p3b2_s20_b4.probe.json",
+      "sha256": "c5d892adaab9ee01a0dae79bc7931f9855188c582010479b97004f9bce2b20c7",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_fifo_c5_q10_d0_p3b2_s20_b5.probe.json",
+      "sha256": "28e1af3783e3c14149e82fcd18f226d225cf47550499a82fb1b5b8925786579c",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_guard_c5_q10_d0_p3b2_s20_b1.probe.json",
+      "sha256": "b67c039e92423232ae5b4622c013cd33cfe12fd9f84a86eb5ea925ebb854c329",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_guard_c5_q10_d0_p3b2_s20_b2.probe.json",
+      "sha256": "f557b771d72c869bc0aa4ab11f0e1cc4bfb89c8efccd4e0b902257a808ee4090",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_guard_c5_q10_d0_p3b2_s20_b3.probe.json",
+      "sha256": "4159078893bbb86dd19ae5d0795d6c01f46b3317da954145bb6639da75ab919e",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_guard_c5_q10_d0_p3b2_s20_b4.probe.json",
+      "sha256": "07467b6458a25268392774bb001990ab72d7175381a553b09625f17d90814f08",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_guard_c5_q10_d0_p3b2_s20_b5.probe.json",
+      "sha256": "32276e0b92a3fe1271dea552ad31bc4bcadbe51279902a4badf6a97c3d03b2dc",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_latest_q10_d0_p3b2_s20_b1.probe.json",
+      "sha256": "6198306e624b685ad6726dda63f11dfc74e2d6d1bbdaae5a9625cfbe2200ce3e",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_latest_q10_d0_p3b2_s20_b2.probe.json",
+      "sha256": "65721ca1f03ac7550251f7f1034b41e3d89a5549d11396cdbd901928cbba4017",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_latest_q10_d0_p3b2_s20_b3.probe.json",
+      "sha256": "5a09926dffcc912164ee2c4724aff93da5260e9f4c6c631fab65c9f642d76e90",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_latest_q10_d0_p3b2_s20_b4.probe.json",
+      "sha256": "8c45f83821b215ed2faa333273a8a37fab3b7e256503b167a107c1e215107ebb",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_latest_q10_d0_p3b2_s20_b5.probe.json",
+      "sha256": "318f8165d90012972f8c8ddae1362f1f6b4a9affa3e0e01bca3347c17e7b6950",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q1_d0_p3b2_s20_b1.probe.json",
+      "sha256": "9991138e80ad5d9cc135e276bf8ee5cc3ecd0448dcf7175e33052b12bd5cff9d",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q1_d0_p3b2_s20_b2.probe.json",
+      "sha256": "7707db2f2ff5b97cf7b760d03d84b523a6a37a2a3f19a07b434bd18e2737dd46",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q1_d0_p3b2_s20_b3.probe.json",
+      "sha256": "c08329b9c3a2a89c49f0c7dd096409b693a72bbeab5582886f888729641dfb2d",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q1_d0_p3b2_s20_b4.probe.json",
+      "sha256": "b905adf1c0917690aa941635ce9fbfd1c9f90097e1db0a416f154ab2330cc48b",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q1_d0_p3b2_s20_b5.probe.json",
+      "sha256": "9c3405b4c646995bf1b02452fd1ec3ba3015a9735e1c8e40252c825cc2209fb4",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q5_d0_p3b2_s20_b1.probe.json",
+      "sha256": "d33f232ead4fde7dee014d896634f70ab326db220299b84be311ac60f6a09d4e",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q5_d0_p3b2_s20_b2.probe.json",
+      "sha256": "643d0df5924a8485f313d949fc5250db83fceac3b19082bd2e0375c47a1bdea2",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q5_d0_p3b2_s20_b3.probe.json",
+      "sha256": "d42b2781349e33a906b0ca09e1bf1063622fc3a86569a84425f6a466362f4084",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q5_d0_p3b2_s20_b4.probe.json",
+      "sha256": "2639674a361788843a4ae6299e93001d839af9a1006de7fe76cdaa05ced29102",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q5_d0_p3b2_s20_b5.probe.json",
+      "sha256": "8ddee4cc860796e2e78c1893627b47f4becea1f78896a81f5f3686c152fea935",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_adaptive_c5_q10_d0_p3b2_s30_b1.probe.json",
+      "sha256": "e4f306f81864880d2884305fda50f4da47be8c59753248a9adbc7653ccba5d76",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_adaptive_c5_q10_d0_p3b2_s30_b2.probe.json",
+      "sha256": "bb64d57705ff6c235e29c6b053ec3501383be969183f6ba69b5118fcbbcf1b45",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_adaptive_c5_q10_d0_p3b2_s30_b3.probe.json",
+      "sha256": "885725045d84fd0dcccf7df923f1f347dbbca5cb2c9790142000026c1609d94b",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_fifo_c5_q10_d0_p3b2_s30_b1.probe.json",
+      "sha256": "c25e147deeee937e8cc912d008ed0b6dbf200abba7bd045703db21beeca8db6b",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_fifo_c5_q10_d0_p3b2_s30_b2.probe.json",
+      "sha256": "990149227566fb16d67d15fcdf7f0f9406556dede94fc78dbd605eb4313c7479",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_fifo_c5_q10_d0_p3b2_s30_b3.probe.json",
+      "sha256": "85ce01aaf82b3ca5794bd7ee97561609c9eb2af8b1920c885c80f2ff79890d08",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_guard_c5_q10_d0_p3b2_s30_b1.probe.json",
+      "sha256": "4542bc44acbabb029eb24f61915763a122a7dcccbf58d3e37c736468bf3fa4e9",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_guard_c5_q10_d0_p3b2_s30_b2.probe.json",
+      "sha256": "e3f6a68db1884d34e82a1c0edb6fbadfb2e35dc4f0f6177e7fecd5cf59b20600",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_guard_c5_q10_d0_p3b2_s30_b3.probe.json",
+      "sha256": "ae72c701eb7ad58a32799dcd19b07f728201b87c380b0bf1d8357e61d8bf3677",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_latest_q10_d0_p3b2_s30_b1.probe.json",
+      "sha256": "9909a24b318f570f5cc3073cf566437257519d8178b5365e8069befbb0defb47",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_latest_q10_d0_p3b2_s30_b2.probe.json",
+      "sha256": "af5ffde519558544b2ad198635dcdf797aae9e3830bd9bb19769716770c61208",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_latest_q10_d0_p3b2_s30_b3.probe.json",
+      "sha256": "2da046f9b4444614796d22c654cfacc50feef8a4b5ddd29ff2761507d5c8cd31",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_legacy_q1_d0_p3b2_s30_b1.probe.json",
+      "sha256": "468b190d2d5a46b03022846e7c9e982b0a6480f803462ce4578592353294ac9a",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_legacy_q1_d0_p3b2_s30_b2.probe.json",
+      "sha256": "129fb114e59e6d6c6d3c372b177c435ad28d35d57ee4a1e265d014f80b7a7a3c",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_legacy_q1_d0_p3b2_s30_b3.probe.json",
+      "sha256": "bc19a6b89529ce969e3a1ffde1eeb4aab12fe6c876f1a58eb4f9b25dad3bc6d9",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_legacy_q5_d0_p3b2_s30_b1.probe.json",
+      "sha256": "24bb76d39100f32f8e57a89b1f4cd545e4d1cf9e707b02de7b9ce314515b6da9",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_legacy_q5_d0_p3b2_s30_b2.probe.json",
+      "sha256": "b35c843051def0a82c0f0ae4f8ffce1e13728a7f37e4b72849a5653661ff409b",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_legacy_q5_d0_p3b2_s30_b3.probe.json",
+      "sha256": "7005c42332d6d1639d7d0d04947b336e0d8e7c3a201e24370d1921cfcde07480",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_adaptive_c5_q10_d25_p3b2_xxs30d25_b1.probe.json",
+      "sha256": "ac2c87ae3500c2c9dba2df3c3d92de7f525890dd8dc21c999bee0f5bbf53dab4",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_adaptive_c5_q10_d25_p3b2_xxs30d25_b2.probe.json",
+      "sha256": "7a46743f8ad4cea9a2df9528f8822b947c39050ef94f24be010eed927c0698d1",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_adaptive_c5_q10_d25_p3b2_xxs30d25_b3.probe.json",
+      "sha256": "18b7f2e445eb643e2df7053a9a20939eccf6ca16324d9db053e41a5b07e763db",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_fifo_c5_q10_d25_p3b2_xxs30d25_b1.probe.json",
+      "sha256": "6cb4eddb9a0c72a5852dd79ab99618a02eb5ac52ced7f49c50c0fddabbc270f0",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_fifo_c5_q10_d25_p3b2_xxs30d25_b2.probe.json",
+      "sha256": "2b090f551060a524f0bea549e38437e5f3a7ee64d70ca6a449090280a876bb0f",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_fifo_c5_q10_d25_p3b2_xxs30d25_b3.probe.json",
+      "sha256": "1474f21528194c55e8bbf007a5b26e159855c42eb62c877715ac34e6228b3431",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_guard_c5_q10_d25_p3b2_xxs30d25_b1.probe.json",
+      "sha256": "d9c48575afbc697b665e61f3606fb6fc818999336dad63b9ab37852011fe7303",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_guard_c5_q10_d25_p3b2_xxs30d25_b2.probe.json",
+      "sha256": "2637118e93a802381dc27520e7f40007d52c66cf69cf91a254aac57de64178b7",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_guard_c5_q10_d25_p3b2_xxs30d25_b3.probe.json",
+      "sha256": "16db6ec08f1440f94bc0cdb9045b9dd7bcc46b91af76bb3b2096f69fecb06167",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_latest_q10_d25_p3b2_xxs30d25_b1.probe.json",
+      "sha256": "27c3cb38d26b3a1d48ce0fb4a7ad46790187d8bd5529a9b99b814a495adafc77",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_latest_q10_d25_p3b2_xxs30d25_b2.probe.json",
+      "sha256": "8a324fa2a0127a938cf6a23cf4dde142f9a5dc639f6698b288d30761d17086e6",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_latest_q10_d25_p3b2_xxs30d25_b3.probe.json",
+      "sha256": "a76f35957f53f8dc79a51d846f6968f0abbb083500ce928b018d9b2a4f61483c",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_legacy_q1_d25_p3b2_xxs30d25_b1.probe.json",
+      "sha256": "77b3cba46ca08867ac2efa90efce6cf3c5ef9e50dc5bf3fb64123277c5203138",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_legacy_q1_d25_p3b2_xxs30d25_b2.probe.json",
+      "sha256": "ba4bdb4fb9b29989163b43c3a548878f8a4d2af9d389070876a91a6f29c4a41f",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_legacy_q1_d25_p3b2_xxs30d25_b3.probe.json",
+      "sha256": "82630b55478b2be62236cf81c1200c0a63ae7f17441318d05c1b0eba08e3105b",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_legacy_q5_d25_p3b2_xxs30d25_b1.probe.json",
+      "sha256": "042b0d64d677cc8e89726ae696dc338f5299c3cbe8cfadac27e3358ff1801a47",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_legacy_q5_d25_p3b2_xxs30d25_b2.probe.json",
+      "sha256": "9434cc2ae0287c434aecf4791d6ce31c080bb9841b94c39a7b4faf9403bd3138",
+      "kind": "runtime_probe"
+    },
+    {
+      "path": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_legacy_q5_d25_p3b2_xxs30d25_b3.probe.json",
+      "sha256": "1a9f4b534945c13cdb6067b9094135d1363f9f69b152e8afed84d2a90483854a",
+      "kind": "runtime_probe"
+    }
+  ],
+  "runs": [
+    {
+      "run_id": "sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q1_d0_p3b2_sdyn_b1",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q1_d0_p3b2_sdyn_b1.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "legacy_qos",
+      "queue_capacity": "",
+      "scheduler_params": ""
+    },
+    {
+      "run_id": "sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q1_d0_p3b2_sdyn_b2",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q1_d0_p3b2_sdyn_b2.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "legacy_qos",
+      "queue_capacity": "",
+      "scheduler_params": ""
+    },
+    {
+      "run_id": "sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q1_d0_p3b2_sdyn_b3",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q1_d0_p3b2_sdyn_b3.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "legacy_qos",
+      "queue_capacity": "",
+      "scheduler_params": ""
+    },
+    {
+      "run_id": "sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q5_d0_p3b2_sdyn_b1",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q5_d0_p3b2_sdyn_b1.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "legacy_qos",
+      "queue_capacity": "",
+      "scheduler_params": ""
+    },
+    {
+      "run_id": "sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q5_d0_p3b2_sdyn_b2",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q5_d0_p3b2_sdyn_b2.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "legacy_qos",
+      "queue_capacity": "",
+      "scheduler_params": ""
+    },
+    {
+      "run_id": "sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q5_d0_p3b2_sdyn_b3",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q5_d0_p3b2_sdyn_b3.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "legacy_qos",
+      "queue_capacity": "",
+      "scheduler_params": ""
+    },
+    {
+      "run_id": "sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_adaptive_c5_q10_d0_p3b2_sdyn_b1",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_adaptive_c5_q10_d0_p3b2_sdyn_b1.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "adaptive",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;deadline_ms=100.0;margin_ms=0.0;overflow=evict_oldest;overload_threshold=1.0;quantile=0.9;window=32"
+    },
+    {
+      "run_id": "sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_adaptive_c5_q10_d0_p3b2_sdyn_b2",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_adaptive_c5_q10_d0_p3b2_sdyn_b2.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "adaptive",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;deadline_ms=100.0;margin_ms=0.0;overflow=evict_oldest;overload_threshold=1.0;quantile=0.9;window=32"
+    },
+    {
+      "run_id": "sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_adaptive_c5_q10_d0_p3b2_sdyn_b3",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_adaptive_c5_q10_d0_p3b2_sdyn_b3.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "adaptive",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;deadline_ms=100.0;margin_ms=0.0;overflow=evict_oldest;overload_threshold=1.0;quantile=0.9;window=32"
+    },
+    {
+      "run_id": "sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_fifo_c5_q10_d0_p3b2_sdyn_b1",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_fifo_c5_q10_d0_p3b2_sdyn_b1.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "fifo",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;overflow=reject_newest"
+    },
+    {
+      "run_id": "sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_fifo_c5_q10_d0_p3b2_sdyn_b2",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_fifo_c5_q10_d0_p3b2_sdyn_b2.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "fifo",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;overflow=reject_newest"
+    },
+    {
+      "run_id": "sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_fifo_c5_q10_d0_p3b2_sdyn_b3",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_fifo_c5_q10_d0_p3b2_sdyn_b3.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "fifo",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;overflow=reject_newest"
+    },
+    {
+      "run_id": "sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_guard_c5_q10_d0_p3b2_sdyn_b1",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_guard_c5_q10_d0_p3b2_sdyn_b1.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "deadline_guard",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;deadline_ms=100.0;margin_ms=0.0;overflow=evict_oldest;quantile=0.9;window=32"
+    },
+    {
+      "run_id": "sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_guard_c5_q10_d0_p3b2_sdyn_b2",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_guard_c5_q10_d0_p3b2_sdyn_b2.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "deadline_guard",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;deadline_ms=100.0;margin_ms=0.0;overflow=evict_oldest;quantile=0.9;window=32"
+    },
+    {
+      "run_id": "sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_guard_c5_q10_d0_p3b2_sdyn_b3",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_guard_c5_q10_d0_p3b2_sdyn_b3.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "deadline_guard",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;deadline_ms=100.0;margin_ms=0.0;overflow=evict_oldest;quantile=0.9;window=32"
+    },
+    {
+      "run_id": "sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_latest_q10_d0_p3b2_sdyn_b1",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_latest_q10_d0_p3b2_sdyn_b1.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "latest_frame",
+      "queue_capacity": "1",
+      "scheduler_params": "capacity=1"
+    },
+    {
+      "run_id": "sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_latest_q10_d0_p3b2_sdyn_b2",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_latest_q10_d0_p3b2_sdyn_b2.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "latest_frame",
+      "queue_capacity": "1",
+      "scheduler_params": "capacity=1"
+    },
+    {
+      "run_id": "sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_latest_q10_d0_p3b2_sdyn_b3",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_latest_q10_d0_p3b2_sdyn_b3.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "latest_frame",
+      "queue_capacity": "1",
+      "scheduler_params": "capacity=1"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_10fps_legacy_q1_d0_p3b2_s10_b1",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_legacy_q1_d0_p3b2_s10_b1.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "legacy_qos",
+      "queue_capacity": "",
+      "scheduler_params": ""
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_10fps_legacy_q1_d0_p3b2_s10_b2",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_legacy_q1_d0_p3b2_s10_b2.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "legacy_qos",
+      "queue_capacity": "",
+      "scheduler_params": ""
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_10fps_legacy_q1_d0_p3b2_s10_b3",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_legacy_q1_d0_p3b2_s10_b3.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "legacy_qos",
+      "queue_capacity": "",
+      "scheduler_params": ""
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_10fps_legacy_q5_d0_p3b2_s10_b1",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_legacy_q5_d0_p3b2_s10_b1.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "legacy_qos",
+      "queue_capacity": "",
+      "scheduler_params": ""
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_10fps_legacy_q5_d0_p3b2_s10_b2",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_legacy_q5_d0_p3b2_s10_b2.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "legacy_qos",
+      "queue_capacity": "",
+      "scheduler_params": ""
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_10fps_legacy_q5_d0_p3b2_s10_b3",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_legacy_q5_d0_p3b2_s10_b3.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "legacy_qos",
+      "queue_capacity": "",
+      "scheduler_params": ""
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_10fps_adaptive_c5_q10_d0_p3b2_s10_b1",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_adaptive_c5_q10_d0_p3b2_s10_b1.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "adaptive",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;deadline_ms=100.0;margin_ms=0.0;overflow=evict_oldest;overload_threshold=1.0;quantile=0.9;window=32"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_10fps_adaptive_c5_q10_d0_p3b2_s10_b2",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_adaptive_c5_q10_d0_p3b2_s10_b2.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "adaptive",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;deadline_ms=100.0;margin_ms=0.0;overflow=evict_oldest;overload_threshold=1.0;quantile=0.9;window=32"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_10fps_adaptive_c5_q10_d0_p3b2_s10_b3",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_adaptive_c5_q10_d0_p3b2_s10_b3.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "adaptive",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;deadline_ms=100.0;margin_ms=0.0;overflow=evict_oldest;overload_threshold=1.0;quantile=0.9;window=32"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_10fps_fifo_c5_q10_d0_p3b2_s10_b1",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_fifo_c5_q10_d0_p3b2_s10_b1.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "fifo",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;overflow=reject_newest"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_10fps_fifo_c5_q10_d0_p3b2_s10_b2",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_fifo_c5_q10_d0_p3b2_s10_b2.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "fifo",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;overflow=reject_newest"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_10fps_fifo_c5_q10_d0_p3b2_s10_b3",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_fifo_c5_q10_d0_p3b2_s10_b3.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "fifo",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;overflow=reject_newest"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_10fps_guard_c5_q10_d0_p3b2_s10_b1",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_guard_c5_q10_d0_p3b2_s10_b1.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "deadline_guard",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;deadline_ms=100.0;margin_ms=0.0;overflow=evict_oldest;quantile=0.9;window=32"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_10fps_guard_c5_q10_d0_p3b2_s10_b2",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_guard_c5_q10_d0_p3b2_s10_b2.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "deadline_guard",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;deadline_ms=100.0;margin_ms=0.0;overflow=evict_oldest;quantile=0.9;window=32"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_10fps_guard_c5_q10_d0_p3b2_s10_b3",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_guard_c5_q10_d0_p3b2_s10_b3.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "deadline_guard",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;deadline_ms=100.0;margin_ms=0.0;overflow=evict_oldest;quantile=0.9;window=32"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_10fps_latest_q10_d0_p3b2_s10_b1",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_latest_q10_d0_p3b2_s10_b1.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "latest_frame",
+      "queue_capacity": "1",
+      "scheduler_params": "capacity=1"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_10fps_latest_q10_d0_p3b2_s10_b2",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_latest_q10_d0_p3b2_s10_b2.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "latest_frame",
+      "queue_capacity": "1",
+      "scheduler_params": "capacity=1"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_10fps_latest_q10_d0_p3b2_s10_b3",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_latest_q10_d0_p3b2_s10_b3.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "latest_frame",
+      "queue_capacity": "1",
+      "scheduler_params": "capacity=1"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_20fps_legacy_q1_d0_p3b2_s20_b1",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q1_d0_p3b2_s20_b1.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "legacy_qos",
+      "queue_capacity": "",
+      "scheduler_params": ""
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_20fps_legacy_q1_d0_p3b2_s20_b2",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q1_d0_p3b2_s20_b2.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "legacy_qos",
+      "queue_capacity": "",
+      "scheduler_params": ""
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_20fps_legacy_q1_d0_p3b2_s20_b3",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q1_d0_p3b2_s20_b3.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "legacy_qos",
+      "queue_capacity": "",
+      "scheduler_params": ""
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_20fps_legacy_q1_d0_p3b2_s20_b4",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q1_d0_p3b2_s20_b4.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "legacy_qos",
+      "queue_capacity": "",
+      "scheduler_params": ""
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_20fps_legacy_q1_d0_p3b2_s20_b5",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q1_d0_p3b2_s20_b5.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "legacy_qos",
+      "queue_capacity": "",
+      "scheduler_params": ""
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_20fps_legacy_q5_d0_p3b2_s20_b1",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q5_d0_p3b2_s20_b1.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "legacy_qos",
+      "queue_capacity": "",
+      "scheduler_params": ""
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_20fps_legacy_q5_d0_p3b2_s20_b2",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q5_d0_p3b2_s20_b2.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "legacy_qos",
+      "queue_capacity": "",
+      "scheduler_params": ""
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_20fps_legacy_q5_d0_p3b2_s20_b3",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q5_d0_p3b2_s20_b3.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "legacy_qos",
+      "queue_capacity": "",
+      "scheduler_params": ""
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_20fps_legacy_q5_d0_p3b2_s20_b4",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q5_d0_p3b2_s20_b4.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "legacy_qos",
+      "queue_capacity": "",
+      "scheduler_params": ""
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_20fps_legacy_q5_d0_p3b2_s20_b5",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q5_d0_p3b2_s20_b5.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "legacy_qos",
+      "queue_capacity": "",
+      "scheduler_params": ""
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_20fps_adaptive_c5_q10_d0_p3b2_s20_b1",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_adaptive_c5_q10_d0_p3b2_s20_b1.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "adaptive",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;deadline_ms=100.0;margin_ms=0.0;overflow=evict_oldest;overload_threshold=1.0;quantile=0.9;window=32"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_20fps_adaptive_c5_q10_d0_p3b2_s20_b2",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_adaptive_c5_q10_d0_p3b2_s20_b2.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "adaptive",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;deadline_ms=100.0;margin_ms=0.0;overflow=evict_oldest;overload_threshold=1.0;quantile=0.9;window=32"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_20fps_adaptive_c5_q10_d0_p3b2_s20_b3",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_adaptive_c5_q10_d0_p3b2_s20_b3.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "adaptive",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;deadline_ms=100.0;margin_ms=0.0;overflow=evict_oldest;overload_threshold=1.0;quantile=0.9;window=32"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_20fps_adaptive_c5_q10_d0_p3b2_s20_b4",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_adaptive_c5_q10_d0_p3b2_s20_b4.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "adaptive",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;deadline_ms=100.0;margin_ms=0.0;overflow=evict_oldest;overload_threshold=1.0;quantile=0.9;window=32"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_20fps_adaptive_c5_q10_d0_p3b2_s20_b5",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_adaptive_c5_q10_d0_p3b2_s20_b5.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "adaptive",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;deadline_ms=100.0;margin_ms=0.0;overflow=evict_oldest;overload_threshold=1.0;quantile=0.9;window=32"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_20fps_fifo_c5_q10_d0_p3b2_s20_b1",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_fifo_c5_q10_d0_p3b2_s20_b1.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "fifo",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;overflow=reject_newest"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_20fps_fifo_c5_q10_d0_p3b2_s20_b2",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_fifo_c5_q10_d0_p3b2_s20_b2.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "fifo",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;overflow=reject_newest"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_20fps_fifo_c5_q10_d0_p3b2_s20_b3",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_fifo_c5_q10_d0_p3b2_s20_b3.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "fifo",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;overflow=reject_newest"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_20fps_fifo_c5_q10_d0_p3b2_s20_b4",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_fifo_c5_q10_d0_p3b2_s20_b4.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "fifo",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;overflow=reject_newest"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_20fps_fifo_c5_q10_d0_p3b2_s20_b5",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_fifo_c5_q10_d0_p3b2_s20_b5.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "fifo",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;overflow=reject_newest"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_20fps_guard_c5_q10_d0_p3b2_s20_b1",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_guard_c5_q10_d0_p3b2_s20_b1.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "deadline_guard",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;deadline_ms=100.0;margin_ms=0.0;overflow=evict_oldest;quantile=0.9;window=32"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_20fps_guard_c5_q10_d0_p3b2_s20_b2",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_guard_c5_q10_d0_p3b2_s20_b2.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "deadline_guard",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;deadline_ms=100.0;margin_ms=0.0;overflow=evict_oldest;quantile=0.9;window=32"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_20fps_guard_c5_q10_d0_p3b2_s20_b3",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_guard_c5_q10_d0_p3b2_s20_b3.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "deadline_guard",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;deadline_ms=100.0;margin_ms=0.0;overflow=evict_oldest;quantile=0.9;window=32"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_20fps_guard_c5_q10_d0_p3b2_s20_b4",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_guard_c5_q10_d0_p3b2_s20_b4.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "deadline_guard",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;deadline_ms=100.0;margin_ms=0.0;overflow=evict_oldest;quantile=0.9;window=32"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_20fps_guard_c5_q10_d0_p3b2_s20_b5",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_guard_c5_q10_d0_p3b2_s20_b5.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "deadline_guard",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;deadline_ms=100.0;margin_ms=0.0;overflow=evict_oldest;quantile=0.9;window=32"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_20fps_latest_q10_d0_p3b2_s20_b1",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_latest_q10_d0_p3b2_s20_b1.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "latest_frame",
+      "queue_capacity": "1",
+      "scheduler_params": "capacity=1"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_20fps_latest_q10_d0_p3b2_s20_b2",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_latest_q10_d0_p3b2_s20_b2.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "latest_frame",
+      "queue_capacity": "1",
+      "scheduler_params": "capacity=1"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_20fps_latest_q10_d0_p3b2_s20_b3",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_latest_q10_d0_p3b2_s20_b3.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "latest_frame",
+      "queue_capacity": "1",
+      "scheduler_params": "capacity=1"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_20fps_latest_q10_d0_p3b2_s20_b4",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_latest_q10_d0_p3b2_s20_b4.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "latest_frame",
+      "queue_capacity": "1",
+      "scheduler_params": "capacity=1"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_20fps_latest_q10_d0_p3b2_s20_b5",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_latest_q10_d0_p3b2_s20_b5.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "latest_frame",
+      "queue_capacity": "1",
+      "scheduler_params": "capacity=1"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_30fps_legacy_q1_d0_p3b2_s30_b1",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_legacy_q1_d0_p3b2_s30_b1.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "legacy_qos",
+      "queue_capacity": "",
+      "scheduler_params": ""
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_30fps_legacy_q1_d0_p3b2_s30_b2",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_legacy_q1_d0_p3b2_s30_b2.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "legacy_qos",
+      "queue_capacity": "",
+      "scheduler_params": ""
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_30fps_legacy_q1_d0_p3b2_s30_b3",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_legacy_q1_d0_p3b2_s30_b3.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "legacy_qos",
+      "queue_capacity": "",
+      "scheduler_params": ""
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_30fps_legacy_q5_d0_p3b2_s30_b1",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_legacy_q5_d0_p3b2_s30_b1.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "legacy_qos",
+      "queue_capacity": "",
+      "scheduler_params": ""
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_30fps_legacy_q5_d0_p3b2_s30_b2",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_legacy_q5_d0_p3b2_s30_b2.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "legacy_qos",
+      "queue_capacity": "",
+      "scheduler_params": ""
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_30fps_legacy_q5_d0_p3b2_s30_b3",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_legacy_q5_d0_p3b2_s30_b3.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "legacy_qos",
+      "queue_capacity": "",
+      "scheduler_params": ""
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_30fps_adaptive_c5_q10_d0_p3b2_s30_b1",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_adaptive_c5_q10_d0_p3b2_s30_b1.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "adaptive",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;deadline_ms=100.0;margin_ms=0.0;overflow=evict_oldest;overload_threshold=1.0;quantile=0.9;window=32"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_30fps_adaptive_c5_q10_d0_p3b2_s30_b2",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_adaptive_c5_q10_d0_p3b2_s30_b2.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "adaptive",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;deadline_ms=100.0;margin_ms=0.0;overflow=evict_oldest;overload_threshold=1.0;quantile=0.9;window=32"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_30fps_adaptive_c5_q10_d0_p3b2_s30_b3",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_adaptive_c5_q10_d0_p3b2_s30_b3.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "adaptive",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;deadline_ms=100.0;margin_ms=0.0;overflow=evict_oldest;overload_threshold=1.0;quantile=0.9;window=32"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_30fps_fifo_c5_q10_d0_p3b2_s30_b1",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_fifo_c5_q10_d0_p3b2_s30_b1.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "fifo",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;overflow=reject_newest"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_30fps_fifo_c5_q10_d0_p3b2_s30_b2",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_fifo_c5_q10_d0_p3b2_s30_b2.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "fifo",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;overflow=reject_newest"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_30fps_fifo_c5_q10_d0_p3b2_s30_b3",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_fifo_c5_q10_d0_p3b2_s30_b3.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "fifo",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;overflow=reject_newest"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_30fps_guard_c5_q10_d0_p3b2_s30_b1",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_guard_c5_q10_d0_p3b2_s30_b1.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "deadline_guard",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;deadline_ms=100.0;margin_ms=0.0;overflow=evict_oldest;quantile=0.9;window=32"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_30fps_guard_c5_q10_d0_p3b2_s30_b2",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_guard_c5_q10_d0_p3b2_s30_b2.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "deadline_guard",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;deadline_ms=100.0;margin_ms=0.0;overflow=evict_oldest;quantile=0.9;window=32"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_30fps_guard_c5_q10_d0_p3b2_s30_b3",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_guard_c5_q10_d0_p3b2_s30_b3.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "deadline_guard",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;deadline_ms=100.0;margin_ms=0.0;overflow=evict_oldest;quantile=0.9;window=32"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_30fps_latest_q10_d0_p3b2_s30_b1",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_latest_q10_d0_p3b2_s30_b1.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "latest_frame",
+      "queue_capacity": "1",
+      "scheduler_params": "capacity=1"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_30fps_latest_q10_d0_p3b2_s30_b2",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_latest_q10_d0_p3b2_s30_b2.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "latest_frame",
+      "queue_capacity": "1",
+      "scheduler_params": "capacity=1"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_s_normal_30fps_latest_q10_d0_p3b2_s30_b3",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_latest_q10_d0_p3b2_s30_b3.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "latest_frame",
+      "queue_capacity": "1",
+      "scheduler_params": "capacity=1"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_xxs_normal_30fps_legacy_q1_d25_p3b2_xxs30d25_b1",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_legacy_q1_d25_p3b2_xxs30d25_b1.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "legacy_qos",
+      "queue_capacity": "",
+      "scheduler_params": ""
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_xxs_normal_30fps_legacy_q1_d25_p3b2_xxs30d25_b2",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_legacy_q1_d25_p3b2_xxs30d25_b2.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "legacy_qos",
+      "queue_capacity": "",
+      "scheduler_params": ""
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_xxs_normal_30fps_legacy_q1_d25_p3b2_xxs30d25_b3",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_legacy_q1_d25_p3b2_xxs30d25_b3.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "legacy_qos",
+      "queue_capacity": "",
+      "scheduler_params": ""
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_xxs_normal_30fps_legacy_q5_d25_p3b2_xxs30d25_b1",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_legacy_q5_d25_p3b2_xxs30d25_b1.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "legacy_qos",
+      "queue_capacity": "",
+      "scheduler_params": ""
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_xxs_normal_30fps_legacy_q5_d25_p3b2_xxs30d25_b2",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_legacy_q5_d25_p3b2_xxs30d25_b2.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "legacy_qos",
+      "queue_capacity": "",
+      "scheduler_params": ""
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_xxs_normal_30fps_legacy_q5_d25_p3b2_xxs30d25_b3",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_legacy_q5_d25_p3b2_xxs30d25_b3.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "legacy_qos",
+      "queue_capacity": "",
+      "scheduler_params": ""
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_xxs_normal_30fps_adaptive_c5_q10_d25_p3b2_xxs30d25_b1",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_adaptive_c5_q10_d25_p3b2_xxs30d25_b1.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "adaptive",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;deadline_ms=100.0;margin_ms=0.0;overflow=evict_oldest;overload_threshold=1.0;quantile=0.9;window=32"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_xxs_normal_30fps_adaptive_c5_q10_d25_p3b2_xxs30d25_b2",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_adaptive_c5_q10_d25_p3b2_xxs30d25_b2.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "adaptive",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;deadline_ms=100.0;margin_ms=0.0;overflow=evict_oldest;overload_threshold=1.0;quantile=0.9;window=32"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_xxs_normal_30fps_adaptive_c5_q10_d25_p3b2_xxs30d25_b3",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_adaptive_c5_q10_d25_p3b2_xxs30d25_b3.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "adaptive",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;deadline_ms=100.0;margin_ms=0.0;overflow=evict_oldest;overload_threshold=1.0;quantile=0.9;window=32"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_xxs_normal_30fps_fifo_c5_q10_d25_p3b2_xxs30d25_b1",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_fifo_c5_q10_d25_p3b2_xxs30d25_b1.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "fifo",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;overflow=reject_newest"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_xxs_normal_30fps_fifo_c5_q10_d25_p3b2_xxs30d25_b2",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_fifo_c5_q10_d25_p3b2_xxs30d25_b2.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "fifo",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;overflow=reject_newest"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_xxs_normal_30fps_fifo_c5_q10_d25_p3b2_xxs30d25_b3",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_fifo_c5_q10_d25_p3b2_xxs30d25_b3.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "fifo",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;overflow=reject_newest"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_xxs_normal_30fps_guard_c5_q10_d25_p3b2_xxs30d25_b1",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_guard_c5_q10_d25_p3b2_xxs30d25_b1.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "deadline_guard",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;deadline_ms=100.0;margin_ms=0.0;overflow=evict_oldest;quantile=0.9;window=32"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_xxs_normal_30fps_guard_c5_q10_d25_p3b2_xxs30d25_b2",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_guard_c5_q10_d25_p3b2_xxs30d25_b2.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "deadline_guard",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;deadline_ms=100.0;margin_ms=0.0;overflow=evict_oldest;quantile=0.9;window=32"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_xxs_normal_30fps_guard_c5_q10_d25_p3b2_xxs30d25_b3",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_guard_c5_q10_d25_p3b2_xxs30d25_b3.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "deadline_guard",
+      "queue_capacity": "5",
+      "scheduler_params": "capacity=5;deadline_ms=100.0;margin_ms=0.0;overflow=evict_oldest;quantile=0.9;window=32"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_xxs_normal_30fps_latest_q10_d25_p3b2_xxs30d25_b1",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_latest_q10_d25_p3b2_xxs30d25_b1.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "latest_frame",
+      "queue_capacity": "1",
+      "scheduler_params": "capacity=1"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_xxs_normal_30fps_latest_q10_d25_p3b2_xxs30d25_b2",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_latest_q10_d25_p3b2_xxs30d25_b2.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "latest_frame",
+      "queue_capacity": "1",
+      "scheduler_params": "capacity=1"
+    },
+    {
+      "run_id": "sched_sweep_mobilevit_xxs_normal_30fps_latest_q10_d25_p3b2_xxs30d25_b3",
+      "run_metadata": "../raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_latest_q10_d25_p3b2_xxs30d25_b3.meta.json",
+      "measurement_class": "constrained",
+      "scheduler_policy": "latest_frame",
+      "queue_capacity": "1",
+      "scheduler_params": "capacity=1"
+    }
+  ]
+}

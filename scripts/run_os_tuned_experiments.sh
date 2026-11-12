@@ -34,7 +34,12 @@ export RESOURCE_PROFILE="tuned"
 UNCONSTRAINED_PROFILE="tuned_unconstrained"
 CPU_SET="${CPU_SET:-0,1}"
 MEMORY_MAX="${MEMORY_MAX:-2G}"
-MODELS="mobilevit_xxs mobilevit_s"
+# MODELS / SWEEPS 可縮小範圍（例如 smoke test：MODELS=mobilevit_xxs SWEEPS=fps FPS_VALUES=5 RUN_SECONDS=20）。
+MODELS="${MODELS:-mobilevit_xxs mobilevit_s}"
+SWEEPS="${SWEEPS:-fps qos overload}"
+# 主機有 swap 時，只設 MemoryMax 會讓超出限制的頁面被換出而不是 OOM；預設同時禁止 swap（0）。
+# 設為空字串可回到只設 MemoryMax。實際值記錄在 meta.json effective.memory_swap_max_bytes。
+MEMORY_SWAP_MAX="${MEMORY_SWAP_MAX-0}"
 # 同一批次共用 RUN_TAG，每個 sweep 點仍有唯一 run_id 與獨立 CSV。
 export RUN_TAG="${RUN_TAG:-$(date +%Y%m%dT%H%M%S)_$$}"
 
@@ -45,7 +50,8 @@ run_sweep() {
     # Linux path: 子進程會繼承 CPU / memory restrictions。REQUESTED_* 只是「要求」；
     # 每個 run 的 <run_id>.meta.json 會在 scope 內讀回實際生效的限制，未生效則該 run 失敗。
     REQUESTED_CPUS="$CPU_SET" REQUESTED_MEMORY_MAX="$MEMORY_MAX" \
-      taskset -c "$CPU_SET" systemd-run --user --scope -p MemoryMax="$MEMORY_MAX" bash "$script_path"
+      taskset -c "$CPU_SET" systemd-run --user --scope -p MemoryMax="$MEMORY_MAX" \
+        ${MEMORY_SWAP_MAX:+-p MemorySwapMax="$MEMORY_SWAP_MAX"} bash "$script_path"
   else
     # 沒有套用任何限制：label 改成 *_unconstrained，不可與受限 run 混為一談。
     echo "警告：找不到 taskset/systemd-run，以「無資源限制」執行 $script_path（resource_profile=${UNCONSTRAINED_PROFILE}）"
@@ -59,14 +65,14 @@ for model in $MODELS; do
   echo "=========================================================="
   export MODEL_NAME="$model"
   
-  echo ">> 啟動 FPS 壓力測試..."
-  run_sweep experiments/ros2/run_fps_sweep.sh
-
-  echo ">> 啟動 QoS 深度測試..."
-  run_sweep experiments/ros2/run_qos_sweep.sh
-
-  echo ">> 啟動 CPU 過載延遲測試..."
-  run_sweep experiments/ros2/run_overload_sweep.sh
+  for sweep in $SWEEPS; do
+    case "$sweep" in
+      fps) echo ">> 啟動 FPS 壓力測試..."; run_sweep experiments/ros2/run_fps_sweep.sh ;;
+      qos) echo ">> 啟動 QoS 深度測試..."; run_sweep experiments/ros2/run_qos_sweep.sh ;;
+      overload) echo ">> 啟動 CPU 過載延遲測試..."; run_sweep experiments/ros2/run_overload_sweep.sh ;;
+      *) echo "錯誤：未知的 SWEEPS 項目 '$sweep'（允許 fps qos overload）。" >&2; exit 2 ;;
+    esac
+  done
 done
 
-echo "OS 微調所有測試完成！數據已儲存於 results/raw/ros2/"
+echo "OS 微調所有測試完成！數據已儲存於 ${RESULTS_DIR:-results/raw/ros2}/"

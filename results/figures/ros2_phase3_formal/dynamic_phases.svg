@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="820" height="330" viewBox="0 0 820 330" role="img" aria-label="Dynamic load S 10-20-10 FPS: effective miss (%) per phase (bar = mean, line = min–max)">
+<style>
+.s{fill:#fcfcfb}.t1{fill:#0b0b0b}.t2{fill:#52514e}.mu{fill:#898781}.g{stroke:#e1e0d9}.ax{stroke:#c3c2b7}
+.a0{fill:#2a78d6;stroke:#2a78d6}.a1{fill:#eb6834;stroke:#eb6834}.a2{fill:#1baf7a;stroke:#1baf7a}.a3{fill:#eda100;stroke:#eda100}.a4{fill:#e87ba4;stroke:#e87ba4}.a5{fill:#008300;stroke:#008300}
+.dot{stroke:#fcfcfb;stroke-width:1.5}.rd{fill:#fcfcfb;stroke:#0b0b0b}
+@media (prefers-color-scheme: dark){.s{fill:#1a1a19}.t1{fill:#f0efec}.t2{fill:#c3c2b7}.g{stroke:#2c2c2a}
+.ax{stroke:#383835}.a0{fill:#3987e5;stroke:#3987e5}.a1{fill:#d95926;stroke:#d95926}.a2{fill:#199e70;stroke:#199e70}.a3{fill:#c98500;stroke:#c98500}.a4{fill:#d55181;stroke:#d55181}.a5{fill:#008300;stroke:#008300}.dot{stroke:#1a1a19}.rd{fill:#1a1a19;stroke:#f0efec}}
+text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-variant-numeric:tabular-nums}
+</style>
+<rect class="s" width="820" height="330"/>
+<text class="t1" x="20" y="28" font-size="16" font-weight="600">Dynamic load S 10-20-10 FPS: effective miss (%) per phase (bar = mean, line = min–max)</text>
+<rect class="a0" x="20" y="45" width="10" height="10" rx="2"/><text class="t2" x="34" y="54" font-size="12">Legacy d1</text><rect class="a1" x="108.8" y="45" width="10" height="10" rx="2"/><text class="t2" x="122.8" y="54" font-size="12">Legacy d5</text><rect class="a2" x="197.6" y="45" width="10" height="10" rx="2"/><text class="t2" x="211.6" y="54" font-size="12">FIFO</text><rect class="a3" x="250.39999999999998" y="45" width="10" height="10" rx="2"/><text class="t2" x="264.4" y="54" font-size="12">Latest</text><rect class="a4" x="317.59999999999997" y="45" width="10" height="10" rx="2"/><text class="t2" x="331.59999999999997" y="54" font-size="12">Deadline-Guard</text><rect class="a5" x="442.4" y="45" width="10" height="10" rx="2"/><text class="t2" x="456.4" y="54" font-size="12">Adaptive</text>
+<line class="g" x1="60" x2="800" y1="280.0" y2="280.0" stroke-width="1"/><text class="mu" x="54" y="284.0" font-size="10" text-anchor="end">0%</text>
+<line class="g" x1="60" x2="800" y1="230.0" y2="230.0" stroke-width="1"/><text class="mu" x="54" y="234.0" font-size="10" text-anchor="end">25%</text>
+<line class="g" x1="60" x2="800" y1="180.0" y2="180.0" stroke-width="1"/><text class="mu" x="54" y="184.0" font-size="10" text-anchor="end">50%</text>
+<line class="g" x1="60" x2="800" y1="130.0" y2="130.0" stroke-width="1"/><text class="mu" x="54" y="134.0" font-size="10" text-anchor="end">75%</text>
+<line class="g" x1="60" x2="800" y1="80.0" y2="80.0" stroke-width="1"/><text class="mu" x="54" y="84.0" font-size="10" text-anchor="end">100%</text>
+<text class="t2" x="183.3" y="298" font-size="12" text-anchor="middle">phase 1: 10 FPS</text>
+<rect class="a0" x="76.0" y="280.0" width="34.1" height="0.0" rx="2" stroke-width="0"><title>phase 1 · Legacy d1: mean 0.00% (min 0.00, max 0.00, n=3)</title></rect>
+<line class="t2" style="stroke:currentColor" x1="93.1" x2="93.1" y1="280.0" y2="280.0" stroke="#898781" stroke-width="1.5"/>
+<rect class="a1" x="112.1" y="280.0" width="34.1" height="0.0" rx="2" stroke-width="0"><title>phase 1 · Legacy d5: mean 0.00% (min 0.00, max 0.00, n=3)</title></rect>
+<line class="t2" style="stroke:currentColor" x1="129.2" x2="129.2" y1="280.0" y2="280.0" stroke="#898781" stroke-width="1.5"/>
+<rect class="a2" x="148.2" y="280.0" width="34.1" height="0.0" rx="2" stroke-width="0"><title>phase 1 · FIFO: mean 0.00% (min 0.00, max 0.00, n=3)</title></rect>
+<line class="t2" style="stroke:currentColor" x1="165.3" x2="165.3" y1="280.0" y2="280.0" stroke="#898781" stroke-width="1.5"/>
+<rect class="a3" x="184.3" y="280.0" width="34.1" height="0.0" rx="2" stroke-width="0"><title>phase 1 · Latest: mean 0.00% (min 0.00, max 0.00, n=3)</title></rect>
+<line class="t2" style="stroke:currentColor" x1="201.4" x2="201.4" y1="280.0" y2="280.0" stroke="#898781" stroke-width="1.5"/>
+<rect class="a4" x="220.4" y="280.0" width="34.1" height="0.0" rx="2" stroke-width="0"><title>phase 1 · Deadline-Guard: mean 0.00% (min 0.00, max 0.00, n=3)</title></rect>
+<line class="t2" style="stroke:currentColor" x1="237.5" x2="237.5" y1="280.0" y2="280.0" stroke="#898781" stroke-width="1.5"/>
+<rect class="a5" x="256.6" y="280.0" width="34.1" height="0.0" rx="2" stroke-width="0"><title>phase 1 · Adaptive: mean 0.00% (min 0.00, max 0.00, n=3)</title></rect>
+<line class="t2" style="stroke:currentColor" x1="273.6" x2="273.6" y1="280.0" y2="280.0" stroke="#898781" stroke-width="1.5"/>
+<text class="t2" x="430.0" y="298" font-size="12" text-anchor="middle">phase 2: 20 FPS</text>
+<rect class="a0" x="322.7" y="217.6" width="34.1" height="62.4" rx="2" stroke-width="0"><title>phase 2 · Legacy d1: mean 31.18% (min 21.80, max 37.75, n=3)</title></rect>
+<line class="t2" style="stroke:currentColor" x1="339.7" x2="339.7" y1="236.4" y2="204.5" stroke="#898781" stroke-width="1.5"/>
+<rect class="a1" x="358.8" y="82.7" width="34.1" height="197.3" rx="2" stroke-width="0"><title>phase 2 · Legacy d5: mean 98.66% (min 98.25, max 99.00, n=3)</title></rect>
+<line class="t2" style="stroke:currentColor" x1="375.8" x2="375.8" y1="83.5" y2="82.0" stroke="#898781" stroke-width="1.5"/>
+<rect class="a2" x="394.9" y="83.2" width="34.1" height="196.8" rx="2" stroke-width="0"><title>phase 2 · FIFO: mean 98.41% (min 98.25, max 98.50, n=3)</title></rect>
+<line class="t2" style="stroke:currentColor" x1="411.9" x2="411.9" y1="83.5" y2="83.0" stroke="#898781" stroke-width="1.5"/>
+<rect class="a3" x="431.0" y="231.2" width="34.1" height="48.8" rx="2" stroke-width="0"><title>phase 2 · Latest: mean 24.39% (min 23.31, max 26.07, n=3)</title></rect>
+<line class="t2" style="stroke:currentColor" x1="448.1" x2="448.1" y1="233.4" y2="227.9" stroke="#898781" stroke-width="1.5"/>
+<rect class="a4" x="467.1" y="249.3" width="34.1" height="30.7" rx="2" stroke-width="0"><title>phase 2 · Deadline-Guard: mean 15.37% (min 15.04, max 16.04, n=3)</title></rect>
+<line class="t2" style="stroke:currentColor" x1="484.2" x2="484.2" y1="249.9" y2="247.9" stroke="#898781" stroke-width="1.5"/>
+<rect class="a5" x="503.2" y="248.1" width="34.1" height="31.9" rx="2" stroke-width="0"><title>phase 2 · Adaptive: mean 15.96% (min 15.79, max 16.04, n=3)</title></rect>
+<line class="t2" style="stroke:currentColor" x1="520.3" x2="520.3" y1="248.4" y2="247.9" stroke="#898781" stroke-width="1.5"/>
+<text class="t2" x="676.7" y="298" font-size="12" text-anchor="middle">phase 3: 10 FPS</text>
+<rect class="a0" x="569.3" y="279.7" width="34.1" height="0.3" rx="2" stroke-width="0"><title>phase 3 · Legacy d1: mean 0.14% (min 0.00, max 0.43, n=3)</title></rect>
+<line class="t2" style="stroke:currentColor" x1="586.4" x2="586.4" y1="280.0" y2="279.1" stroke="#898781" stroke-width="1.5"/>
+<rect class="a1" x="605.4" y="276.3" width="34.1" height="3.7" rx="2" stroke-width="0"><title>phase 3 · Legacy d5: mean 1.84% (min 1.70, max 2.13, n=3)</title></rect>
+<line class="t2" style="stroke:currentColor" x1="622.5" x2="622.5" y1="276.6" y2="275.7" stroke="#898781" stroke-width="1.5"/>
+<rect class="a2" x="641.6" y="275.4" width="34.1" height="4.6" rx="2" stroke-width="0"><title>phase 3 · FIFO: mean 2.28% (min 2.13, max 2.56, n=3)</title></rect>
+<line class="t2" style="stroke:currentColor" x1="658.6" x2="658.6" y1="275.7" y2="274.9" stroke="#898781" stroke-width="1.5"/>
+<rect class="a3" x="677.7" y="280.0" width="34.1" height="0.0" rx="2" stroke-width="0"><title>phase 3 · Latest: mean 0.00% (min 0.00, max 0.00, n=3)</title></rect>
+<line class="t2" style="stroke:currentColor" x1="694.7" x2="694.7" y1="280.0" y2="280.0" stroke="#898781" stroke-width="1.5"/>
+<rect class="a4" x="713.8" y="279.7" width="34.1" height="0.3" rx="2" stroke-width="0"><title>phase 3 · Deadline-Guard: mean 0.14% (min 0.00, max 0.43, n=3)</title></rect>
+<line class="t2" style="stroke:currentColor" x1="730.8" x2="730.8" y1="280.0" y2="279.1" stroke="#898781" stroke-width="1.5"/>
+<rect class="a5" x="749.9" y="280.0" width="34.1" height="0.0" rx="2" stroke-width="0"><title>phase 3 · Adaptive: mean 0.00% (min 0.00, max 0.00, n=3)</title></rect>
+<line class="t2" style="stroke:currentColor" x1="766.9" x2="766.9" y1="280.0" y2="280.0" stroke="#898781" stroke-width="1.5"/>
+<line class="ax" x1="60" x2="800" y1="280" y2="280" stroke-width="1"/>
+</svg>

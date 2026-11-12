@@ -8,11 +8,13 @@ This repository is for an Operating Systems final project inspired by:
 
 The project does **not** attempt to fully reproduce the original EDA compiler. Full reproduction would require tensor splitting, graph rewriting, memory planning, code generation, NPU scheduling, and hardware simulation, which is outside this project scope.
 
-Current implemented project:
+Current implemented project (project name: **OS-Aware Edge AI Runtime**; formerly "OS-aware EDA-Lite"):
 
 ```text
-OS-aware EDA-Lite for lightweight MobileViT + ROS2 runtime pressure analysis.
+OS-Aware Edge AI Runtime: measured ROS 2 frame scheduling for lightweight MobileViT on a constrained Linux host, plus the EDA-Lite simulator.
 ```
+
+Naming: use "OS-Aware Edge AI Runtime" for the project as a whole (README, dashboard, reports). "EDA-Lite" names only the offline layer-fusion simulator component, and "OS-aware" EDA-Lite rows / figures (vs `pure`) keep that technical meaning.
 
 Preferred project description:
 
@@ -142,9 +144,13 @@ Main modules:
 
 - `analyze_runtime.py`: analyzes ROS2 runtime CSVs per configuration and `run_id`, rejects mixed runs, infers dropped frames from `frame_id` gaps when explicit dropped rows are absent, and generates runtime summary CSVs/SVG figures.
 - `build_os_profiles.py`: converts ROS2 runtime summary CSVs into EDA-Lite OS profile JSON, including latency, deadline miss, memory pressure, and drop pressure. Latency is normalised per model against that model's idle run (same resource profile); memory against a verifiable limit (CLI, cgroup `memory.max`, or host RAM — never max RSS). Writes `metadata` (baselines, per-profile model/run, source hashes, `provenance_status`).
-- `run_metadata.py`: writes `<run_id>.meta.json` per run (git commit, OS/kernel, CPU, Python/torch, ROS 2/RMW, QoS, `net.core.*`, requested vs effective limits, `measurement_class`, experiment parameters). Never changes system settings.
+- `run_metadata.py`: writes `<run_id>.meta.json` per run (git commit, OS/kernel, CPU, Python/torch, ROS 2/RMW, QoS, `net.core.*`, requested vs effective limits, `measurement_class`, experiment parameters, parsed Fast DDS profile, `process.nice`). Never changes system settings.
+- `runtime_probe.py` (Phase 2 / Batch 2): `<run_id>.probe.json` from the launch scope — UDP sockets and Fast DDS `/dev/shm` segment sizes of both nodes (runtime proof the SHM-only XML was applied), per-node CPU/RSS/affinity/nice, cgroup memory, host load, SMT-sibling busy time. The sweep scripts fail a run whose probe does not confirm an SHM-only profile.
+- `aggregate_baseline.py` (Phase 2 / Batch 2): per-run table + per-condition mean/SD/min/max across runs (run = replicate), capacity / utilization / expected overload drop / `drop_cause`, SVG figures, SHA-256 manifest.
+- `aggregate_scheduling.py` (Phase 3 / Batch 1): scheduling runs → per-run table (arm / block / position from meta.json, probe fields, `on_time_fps`), per-arm across-run stats, within-block paired differences vs a reference arm (default `legacy_q1`), SHA-256 manifest. Batch 2 flags: `--by-scenario` (dynamic runs never pair with fixed-rate ones), repeatable `--reference-arm`, `--paired-stats` (SD, 95 % t-interval, sign counts, exact sign-flip p), `effective_miss_excl_tail_pct`.
+- `analyze_dynamic_phases.py` (Phase 3 / Batch 2): per-phase and step-transient outcomes of `fps_schedule` runs, across-run and paired tables. `plot_scheduling.py`: stdlib SVG figures of the formal benchmark. `host_load_gate.py`: waits until CPU_SET + SMT siblings and loadavg are quiet before a block (exit 4 if not).
 
-Provenance helpers: `src/provenance.py` (SHA-256 records, summary manifest, OS profile status, simulation `.provenance.json` sidecars). `scripts/check_runtime_provenance.py` verifies raw → summary → profiles → simulation: exit 0 VERIFIED, 1 BLOCKED (link missing; currently no raw ROS2 data), 2 BROKEN (hash mismatch / stale).
+Provenance helpers: `src/provenance.py` (SHA-256 records, summary manifest, OS profile status, simulation `.provenance.json` sidecars). `scripts/check_runtime_provenance.py` verifies raw → summary → profiles → simulation: exit 0 VERIFIED (current state, Phase 2 / Batch 2), 1 BLOCKED (link missing), 2 BROKEN (hash mismatch / stale). `scripts/check_phase3_provenance.py` (Phase 3 / Batch 2) is the independent gate for `results/raw/ros2_phase3_formal/`: `git.dirty=false`, one commit with runtime code unchanged to HEAD, 25 identical controls, DDS probe, complete blocks, summary + aggregate manifests (VERIFIED for the 102 formal runs; the Batch 1 pilot is BROKEN by design: dirty tree). Both gates run in `ci_checks.sh provenance`.
 
 Legacy compatibility path:
 
@@ -172,7 +178,7 @@ Paused / optional older script:
 
 - `run_yolo11_comparison.sh`
 
-The scripts launch the checked-in pipeline `src/ros2_uav_pipeline/` by default (or an installed package with `ROS2_LAUNCH_TARGET=""`). They have not yet been run on the Phase 2 Linux / ROS 2 machine.
+The scripts launch the checked-in pipeline `src/ros2_uav_pipeline/` by default (or an installed package with `ROS2_LAUNCH_TARGET=""`). Phase 2 / Batch 1 ran a smoke test (data outside `results/`); Phase 2 / Batch 2 ran the formal constrained baseline (75 runs under `results/raw/ros2/`, provenance `VERIFIED`); see `report/PHASE2_BATCH2_RESULT.md`. Baseline settings: `CPU_SET=12,14 MEMORY_MAX=4G MEMORY_SWAP_MAX=0 NICE_LEVEL=10 ROS_DOMAIN_ID=87 RMW_IMPLEMENTATION=rmw_fastrtps_cpp FASTRTPS_DEFAULT_PROFILES_FILE=experiments/ros2/fastdds_shm_large.xml`, 60 s runs, warm-up 10, deadline 100 ms.
 
 Pipeline semantics (Phase 1 / Batch 4, audit P2-6):
 
@@ -180,11 +186,18 @@ Pipeline semantics (Phase 1 / Batch 4, audit P2-6):
 - There is no `model_path`: the launch file raises if it is passed, and the sweep scripts exit 2 if `MODEL_PATH` is set.
 - QoS: publisher RELIABLE depth 10 (fixed), detector BEST_EFFORT KEEP_LAST `qos_depth`; QoS sweeps vary only the subscriber depth.
 - `jitter_ms` = population std dev of per-frame end-to-end latency (not inter-arrival jitter); P95/P99 are nearest-rank.
+- Start-up (Phase 2 / Batch 1): the detector subscribes after the model and CSV are ready; the publisher starts frame 0 (and its log) only once a subscriber is matched. Float parameters (`input_fps`, `deadline_ms`) use `dynamic_typing` so `input_fps:=5` works.
+- DDS transport: on the Phase 2 server the RMW default transports lose 50–85% of the ~1 MB best-effort frames (rmem_max 212992). `experiments/ros2/fastdds_shm_large.xml` (Fast DDS SHM-only, 16 MB segment) delivers all frames (verified lossless up to 50 FPS in Batch 2); set `FASTRTPS_DEFAULT_PROFILES_FILE` to it. `<run_id>.meta.json` records it under `dds_profile` (path + SHA-256 + parsed); `<run_id>.probe.json` verifies at run time that it was applied. Do not mix transport settings within one comparison.
+- Overload queue semantics (Batch 2 finding): under overload the single-threaded detector always serves the oldest of the `qos_depth` frames kept by KEEP_LAST, so queue wait ≈ `qos_depth / input_fps` and drop rate ≈ `1 - 1/ρ` (ρ = input_fps × service time) independent of depth.
+- Scheduling (Phase 3 / Batch 1, `src/ros2_uav_pipeline/mobilevit_uav_pipeline/scheduling.py`, stdlib, unit-tested without ROS): detector `scheduler_policy` = `legacy_qos` (default; unchanged Phase 2 path, inference in the subscription callback, DDS KEEP_LAST is the only queue) or `fifo` / `latest_frame` / `adaptive` / `deadline_guard` (Batch 2 ablation: adaptive without the utilisation switch, always the newest feasible frame) (ingestion callback → bounded application queue → exactly one inference worker thread; main thread only spins the executor). Exact semantics in the module docstring. Every frame that reaches the app queue gets exactly one CSV row (processed / `drop_reason` / `shutdown_pending` / `shutdown_inflight`); a worker exception ends the run (exit 1 → `*.failed`). DDS queue ≠ application queue: legacy drops are `dds_unreceived_frames`, app drops are `app_policy_dropped_frames`.
+- `intra_op_threads` (torch + OpenCV, default 0 = library defaults): with the node's imports, OpenMP work on the main thread runs on ~1 core while a worker thread gets 2 (torch ~35 % faster) and a busy-spinning OpenCV helper. Comparisons across arms must use one value (the sched sweep uses 1 for every arm, matching the effective Batch 2 behaviour). Phase 2 runs used the default.
+- Dynamic input (Phase 3 / Batch 2): publisher parameter `fps_schedule` = `"<fps>@<s>,..."` from frame 0 (`@`, not `:` — ROS 2 YAML-parses `10:20` as 620); empty = fixed `input_fps`. `run_sched_sweep.sh` `FPS_SCHEDULE` → `scenario=sched_dynamic`. Formal driver `experiments/ros2/run_sched_formal.sh` (clean tree + load gate before every block). Formal data was measured from a detached worktree at the measurement commit so that editing the checkout cannot make runs dirty.
+- Wrappers: `MODELS` / `SWEEPS` narrow a batch (`SWEEPS=sched` runs `experiments/ros2/run_sched_sweep.sh`; `experiments/ros2/run_sched_pilot.sh` is the interleaved pilot driver); `MEMORY_SWAP_MAX` (default 0) adds `MemorySwapMax` because the host has swap; `memory.swap.max` is recorded (informational). Choose `CPU_SET` from the allowed, idle CPUs (Phase 2 server: i7-13700, P-cores 0–15, E-cores 16–23; smoke test used 12,14), never assume `0,1`.
 
 ### 6. CI, Environment And Repository Hygiene (Phase 1 / Batch 4)
 
 - `.github/workflows/ci.yml`: tests on Python 3.10–3.13 (nothing installed), `bash -n`, `scripts/audit_repro.py --strict`, provenance gate, 5× repeated test runs. Every step is `bash scripts/ci_checks.sh <step>`; `bash scripts/ci_checks.sh all` reproduces CI locally. CI installs no ROS 2; the gate reports `BLOCKED` as a warning and must never turn it into `VERIFIED`.
-- Dependencies: `requirements-sim.txt` (stdlib only, empty), `requirements-ros2.txt` (pinned torch/torchvision/timm/numpy/psutil for the ROS 2 nodes), `environment.yml` (RoboStack Humble, Python 3.10, conda `opencv`), `requirements.txt` → `-r requirements-ros2.txt`. The pins are not yet exercised on the Phase 2 machine.
+- Dependencies: `requirements-sim.txt` (stdlib only, empty), `requirements-ros2.txt` (pinned torch/torchvision/timm/numpy/psutil for the ROS 2 nodes), `environment.yml` (RoboStack Humble, Python 3.10, conda `opencv`), `requirements.txt` → `-r requirements-ros2.txt`. Solved and imported on the Phase 2 server; frozen in `environment.lock.yml` (pip shows `torch 2.5.1+cpu`).
 - Results policy (`results/README.md`, `.gitignore`): raw `results/raw/ros2/*.{csv,publisher.csv,meta.json}` tracked; derived `results/csv/*.csv` tracked with their `.provenance.json` / `.manifest.json`; figures tracked; `*.failed`, caches, `.DS_Store`, `~$*`, `ci-logs/` ignored.
 - `load_model_profile` validates finite numbers, unique layer names and `output_kb[i] == input_kb[i+1]`.
 - Tests that run CLIs use `tests/cli_support.run_cli` (full stdout/stderr on failure).
@@ -393,14 +406,14 @@ Implemented:
 - `results/README.md` tracking policy and provenance status.
 - README.
 - AI interaction log.
+- Phase 4 dashboard (`dashboard/`, static, offline) built by `src/dashboard/build_data.py` from the Phase 2 baseline and Phase 3 formal tables only; `--check` in CI; `scripts/check_table_regeneration.py` rebuilds the tables from raw runs; preview via `bash scripts/serve_dashboard.sh` (127.0.0.1 only). `report/PHASE4_RESULT.md`.
+- Release v1.0.0 preparation (`report/RELEASE_v1.0.0.md`): MIT `LICENSE` ("samhung1205 and contributors"; the contributor's consent was confirmed by the owner); `.github/workflows/pages.yml` publishes only `dashboard/` from `main` after both provenance gates (VERIFIED required), table regeneration and the bundle check pass. Keep dashboard paths relative (a test enforces it). `src/ros2_uav_pipeline/package.xml` / `setup.py` still say `license TODO`: they are inside the Phase 3 gate's runtime paths, so editing them would make the gate BROKEN.
 
 Still not implemented / not present:
 
-- Actual ROS2 runtime measurements (raw CSVs, publisher logs, run metadata, summary): the provenance check is BLOCKED until a real run.
-- Verified `runtime_os_profiles.json` (only the UNVERIFIED legacy file exists).
+- EDA-Lite runtime-aware sweep re-run with the verified `runtime_os_profiles.json` (Batch 2 generated the file; `mobilevit_runtime_aware_sweep.json` still points at the example file).
 - Real model weights (the detector uses random-init timm weights; latency only).
-- Adaptive / runtime scheduling (EDA-Lite schedules offline; OS profiles only re-weight the cost).
-- `environment.lock.yml` (to be exported on the Phase 2 machine).
+- Runtime-aware EDA-Lite scheduling (EDA-Lite schedules offline; OS profiles only re-weight the cost; the ROS 2 frame scheduler is separate and does not feed EDA-Lite).
 - ONNX parser.
 - Real LLM inference or KV-cache simulation.
 - Final presentation slides.
@@ -412,8 +425,8 @@ Still not implemented / not present:
 Prioritize in this order unless the user redirects:
 
 1. Draft report methodology and limitations based on MobileViT simplified simulation and ROS2 runtime-analysis pipeline.
-2. On Linux + ROS 2 Humble (`conda env create -f environment.yml`), pass the Phase 2 preflight checklist in `report/PHASE1_BATCH4_RESULT.md`, run FPS/QoS/overload experiments and commit raw CSVs, publisher logs and `meta.json` under `results/raw/ros2/`.
-3. Convert real ROS2 summaries to `runtime_os_profiles.json` with `--require-verified`; `check_runtime_provenance.py` must report `VERIFIED`.
+2. (Done in Phase 2 / Batch 2) formal FPS/QoS/overload baseline under `results/raw/ros2/`, verified `runtime_os_profiles.json`, provenance `VERIFIED`.
+3. Phase 3: Batch 1 (policies + pilot) and Batch 2 (formal A/B, 102 runs, `report/PHASE3_BATCH2_RESULT.md`) done. Finding: deadline feasibility dropping beats Latest-Frame only when inter-arrival + service > deadline; Deadline-Guard = Adaptive (the utilisation switch adds nothing measurable). Phase 4 dashboard done (`report/PHASE4_RESULT.md`); it reports the guard as the effective mechanism.
 4. Re-run `mobilevit_runtime_aware_sweep.json` with real runtime-derived OS profiles.
 5. Generate final figures and write results discussion.
 
@@ -433,7 +446,8 @@ Avoid these unless explicitly requested:
 - Keep all experiment parameters in JSON config or shell-script environment variables.
 - Save generated tabular outputs as CSV.
 - Generate plots from scripts as SVG.
-- Update `README.md` whenever commands, file paths, or project scope changes.
+- Update `README.md` whenever commands, file paths, or project scope changes. README is the Traditional Chinese user manual (English technical terms kept); research findings / method / limitations go in `docs/RESEARCH_REPORT.md`, the data chain in `docs/DATA_PROVENANCE.md`, phase history in `docs/DEVELOPMENT_HISTORY.md`, the detailed manual in `docs/REFERENCE.md`.
+- After changing any formal table or the dashboard builder, run `python3 -m src.dashboard.build_data` and commit `dashboard/data/` (CI fails on a STALE bundle). Never add pilot / legacy-unverified / example inputs to the builder; it rejects them.
 - Update `report/ai_interaction_log.md` for major AI-assisted decisions or direction changes.
 - Run `python3 -m unittest discover -s tests` (or `bash scripts/ci_checks.sh all`) after code changes.
 - Never commit `__pycache__`, `.pyc`, `.DS_Store` or Office lock files; follow `results/README.md` for what results to commit.

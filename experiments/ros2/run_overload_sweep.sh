@@ -58,6 +58,7 @@ for delay_ms in $DELAY_VALUES_MS; do
     deadline_ms="$DEADLINE_MS" run_seconds="$RUN_SECONDS" warmup_frames="$WARMUP_FRAMES" \
     dataset_path="$DATASET_PATH" launch_target="${launch_target[*]}" || exit $?
   echo "Running Overload sweep: Delay ${delay_ms}ms for ${RUN_SECONDS} seconds..."
+  run_start_probe "$run_id" "$output_csv"
   set +e
   "${timeout_cmd[@]}" ros2 launch "${launch_target[@]}" \
     dataset_path:="$DATASET_PATH" \
@@ -73,5 +74,6 @@ for delay_ms in $DELAY_VALUES_MS; do
     warmup_frames:="$WARMUP_FRAMES"
   status=$?
   set -e
+  run_stop_probe
   run_finish "$status" "$output_csv" "Overload sweep $run_id" || exit 1
 done

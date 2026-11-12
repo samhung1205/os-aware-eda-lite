@@ -1,0 +1,363 @@
+{
+  "schema": "ros2_baseline_aggregate/v1",
+  "run_tag_filter": "",
+  "inputs": [
+    {
+      "path": "results/csv/ros2_runtime_summary.csv",
+      "sha256": "2625243a8834d75e6bc20dd3d433c8610db40383006bdd2e53c9881d420943af"
+    },
+    {
+      "path": "results/csv/ros2_runtime_summary.manifest.json",
+      "sha256": "351315636dc07a0d8c83b2ef5d9e7452855a899fb74e299794fa13a515f3f79c"
+    },
+    {
+      "path": "results/raw/ros2/fps_sweep_mobilevit_s_normal_5fps_qos5_d0_b2r1.probe.json",
+      "sha256": "4bb079e807b92d88f66f9c4bbcce7eb988bb79e0373cb6b0418b345aa2a8351b"
+    },
+    {
+      "path": "results/raw/ros2/fps_sweep_mobilevit_s_normal_5fps_qos5_d0_b2r2.probe.json",
+      "sha256": "b1dd07b700ea8a0d66ae378b38c4811c8ddc695cae525ec513a75f1db7c16e2a"
+    },
+    {
+      "path": "results/raw/ros2/fps_sweep_mobilevit_s_normal_5fps_qos5_d0_b2r3.probe.json",
+      "sha256": "cbbd7bb13cc9ee8ca8c9570a759a58e24a88ee891306d25f05c956dcc10c6904"
+    },
+    {
+      "path": "results/raw/ros2/fps_sweep_mobilevit_s_normal_10fps_qos5_d0_b2r1.probe.json",
+      "sha256": "8a33804b080494790ff089114adafb0f4b26bde5821261aaca1785fd8904430e"
+    },
+    {
+      "path": "results/raw/ros2/fps_sweep_mobilevit_s_normal_10fps_qos5_d0_b2r2.probe.json",
+      "sha256": "f28aaaafeadf5a7a9f451320a1c33a922c0b2efbb8c4ab736651c07a4375a721"
+    },
+    {
+      "path": "results/raw/ros2/fps_sweep_mobilevit_s_normal_10fps_qos5_d0_b2r3.probe.json",
+      "sha256": "a686e334667241c85f49b70f4219ba6f7cc047694f87c13b0881d4491d86739b"
+    },
+    {
+      "path": "results/raw/ros2/fps_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r1.probe.json",
+      "sha256": "0025a11accb8df546392bfec2195f7e4141d2eb2749fa23bc2a2983d69afd087"
+    },
+    {
+      "path": "results/raw/ros2/fps_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r2.probe.json",
+      "sha256": "b52d81d8a6cce06562683a97c40b6369df4b9587a559e7798c4437a929af399a"
+    },
+    {
+      "path": "results/raw/ros2/fps_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r3.probe.json",
+      "sha256": "0eaf40ee76cec028948a6c3fcd65d79e1dfcce7d424124182a5f8d4154975386"
+    },
+    {
+      "path": "results/raw/ros2/fps_sweep_mobilevit_s_normal_30fps_qos5_d0_b2r1.probe.json",
+      "sha256": "25751fe143ea521779a8c82456b580d8ecd5e23b1632a667497480bc098058eb"
+    },
+    {
+      "path": "results/raw/ros2/fps_sweep_mobilevit_s_normal_30fps_qos5_d0_b2r2.probe.json",
+      "sha256": "3b69c956793d9656be00b5c92de45f6586d7c0998c1e510ecbd07bd45ca57e00"
+    },
+    {
+      "path": "results/raw/ros2/fps_sweep_mobilevit_s_normal_30fps_qos5_d0_b2r3.probe.json",
+      "sha256": "42035a6bbcceab359483d8bccfa1b4ded55974464658cdee033f4a4120a885bb"
+    },
+    {
+      "path": "results/raw/ros2/fps_sweep_mobilevit_xxs_normal_5fps_qos5_d0_b2r1.probe.json",
+      "sha256": "a2163391395cafee72b838faff1f0d5e9e950ff7d1d0f93c286baac5560417cc"
+    },
+    {
+      "path": "results/raw/ros2/fps_sweep_mobilevit_xxs_normal_5fps_qos5_d0_b2r2.probe.json",
+      "sha256": "216ddd58ab579cb1f9892d2f3f51184c0ed314eefde254add4875998ea2f8f48"
+    },
+    {
+      "path": "results/raw/ros2/fps_sweep_mobilevit_xxs_normal_5fps_qos5_d0_b2r3.probe.json",
+      "sha256": "cc5cc156c067b669b517446334a0087a4624310977098c99aaee0d05dfa00ddd"
+    },
+    {
+      "path": "results/raw/ros2/fps_sweep_mobilevit_xxs_normal_10fps_qos5_d0_b2r1.probe.json",
+      "sha256": "d206f8eca6e98314bbe34a1c5529b4b136b833d35e66ae5dd53adbacd1e8418e"
+    },
+    {
+      "path": "results/raw/ros2/fps_sweep_mobilevit_xxs_normal_10fps_qos5_d0_b2r2.probe.json",
+      "sha256": "dade67e7e1c80a5c85add08e6d27c943ddb3070709d7df027db3bfa505143569"
+    },
+    {
+      "path": "results/raw/ros2/fps_sweep_mobilevit_xxs_normal_10fps_qos5_d0_b2r3.probe.json",
+      "sha256": "e11e7bda39f920d0a739d45e3a634f7f4a1b16d8440a0b091c46a3e24624de24"
+    },
+    {
+      "path": "results/raw/ros2/fps_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r1.probe.json",
+      "sha256": "2a6e6c5da50233e2abef65163f642839aaf86815422b44f6d572ff4a9d669855"
+    },
+    {
+      "path": "results/raw/ros2/fps_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r2.probe.json",
+      "sha256": "0756a69afd34573470d759706fb13b9125231d79339e25f121a0adc07bfca28c"
+    },
+    {
+      "path": "results/raw/ros2/fps_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r3.probe.json",
+      "sha256": "04872cd6ce9a2ee7c141437cde91b2c7b53c05730e41d5a04363dab1ff3c17b1"
+    },
+    {
+      "path": "results/raw/ros2/fps_sweep_mobilevit_xxs_normal_30fps_qos5_d0_b2r1.probe.json",
+      "sha256": "67e09357f63077a24693a8c2039de00b236672b404d9883de642abbc39f4365f"
+    },
+    {
+      "path": "results/raw/ros2/fps_sweep_mobilevit_xxs_normal_30fps_qos5_d0_b2r2.probe.json",
+      "sha256": "f464ea18fb559675ba6824570a5744268646098cb21d56b3c1cbac77fd986cf0"
+    },
+    {
+      "path": "results/raw/ros2/fps_sweep_mobilevit_xxs_normal_30fps_qos5_d0_b2r3.probe.json",
+      "sha256": "d32b430e55a56fdf291bdeb06186334c35bf42464f2dd54ff1c0cfd750f50cc5"
+    },
+    {
+      "path": "results/raw/ros2/fps_sweep_mobilevit_xxs_normal_40fps_qos5_d0_b2cap_r1.probe.json",
+      "sha256": "857796719794ed2fd6574d2762231464113c5558166a941975f9971ab365fcf1"
+    },
+    {
+      "path": "results/raw/ros2/fps_sweep_mobilevit_xxs_normal_40fps_qos5_d0_b2cap_r2.probe.json",
+      "sha256": "0a11ebb2d51917bf904c866594689639cf245e8312a6b6ab8ea636cc682e9f7c"
+    },
+    {
+      "path": "results/raw/ros2/fps_sweep_mobilevit_xxs_normal_40fps_qos5_d0_b2cap_r3.probe.json",
+      "sha256": "ca0818ee8253638c8326360457fe500812765ef7eedd23a8822d0cfc9008c213"
+    },
+    {
+      "path": "results/raw/ros2/fps_sweep_mobilevit_xxs_normal_50fps_qos5_d0_b2cap_r1.probe.json",
+      "sha256": "a1b95535fbb67d0b61267b74f445a6b023e8521db624a41a0a815d33d3a833be"
+    },
+    {
+      "path": "results/raw/ros2/fps_sweep_mobilevit_xxs_normal_50fps_qos5_d0_b2cap_r2.probe.json",
+      "sha256": "8e6756732f97bf1fcd2e0357afbd2191e84a2014b53f0ba4776588748c487532"
+    },
+    {
+      "path": "results/raw/ros2/fps_sweep_mobilevit_xxs_normal_50fps_qos5_d0_b2cap_r3.probe.json",
+      "sha256": "f6f306c33d0622ec13a6cf3f79a58c46e1a5e7ad327e79ce9a3061760c925827"
+    },
+    {
+      "path": "results/raw/ros2/fps_sweep_mobilevit_xxs_normal_60fps_qos5_d0_b2cap_r1.probe.json",
+      "sha256": "b3059d84f340082c5e8f1f64881fdf73736cdee3baffa8ea9de9910970de05ef"
+    },
+    {
+      "path": "results/raw/ros2/fps_sweep_mobilevit_xxs_normal_60fps_qos5_d0_b2cap_r2.probe.json",
+      "sha256": "899bf5f2d46f600c3fc73321215290e2bbaa630ffb71b0eb9f85188fc47f7c03"
+    },
+    {
+      "path": "results/raw/ros2/fps_sweep_mobilevit_xxs_normal_60fps_qos5_d0_b2cap_r3.probe.json",
+      "sha256": "ff46ebb0e48a056e8db8c3b127f87cbfdc57c8560ab28209c7470e10c115a3a3"
+    },
+    {
+      "path": "results/raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r1.probe.json",
+      "sha256": "aa28076d50f1d6f3be77fba87e6058f7c0157094be6bc12f4aedf2184b8a16a9"
+    },
+    {
+      "path": "results/raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r2.probe.json",
+      "sha256": "f14877167c79ea860f1ec41f068c94e5095776703228ff87c169966f916698ca"
+    },
+    {
+      "path": "results/raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r3.probe.json",
+      "sha256": "8a0bb305b61127b64de02cd8590e83dc669c09f1ce1bf1c1949a72189bb9cb7b"
+    },
+    {
+      "path": "results/raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d30_b2r1.probe.json",
+      "sha256": "8c47ad576f0f567b843dc7be9d7d046131ecc6405e78243ad5004ab9fbb5e2ba"
+    },
+    {
+      "path": "results/raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d30_b2r2.probe.json",
+      "sha256": "d45cc4c3671a1d134f9ba85f56141d00595b010e4bbd2f236be794208d719d67"
+    },
+    {
+      "path": "results/raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d30_b2r3.probe.json",
+      "sha256": "53883124f559caab307a7a44724fa197a918a33c14f141884ea21cab9ff6ba8e"
+    },
+    {
+      "path": "results/raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d80_b2r1.probe.json",
+      "sha256": "3430e4b2c9ec9cd6804b4dd09b409ada06fd99c7bfc6cf93d0cdca280682ff06"
+    },
+    {
+      "path": "results/raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d80_b2r2.probe.json",
+      "sha256": "19a90e5359af51c940166f9b23d5a041018e5703cf2521ff05cb83baf164baa1"
+    },
+    {
+      "path": "results/raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d80_b2r3.probe.json",
+      "sha256": "fd6ae855ca56f28775b0ba42ce2629162930ddf4ad918e91956514177141ecae"
+    },
+    {
+      "path": "results/raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d150_b2r1.probe.json",
+      "sha256": "2c5dd36b8fa581a8a30e6e606747a48ce0cc2be6b847eb8427c1e691dd008abd"
+    },
+    {
+      "path": "results/raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d150_b2r2.probe.json",
+      "sha256": "31b72e30902e840c7129a007d794c3255840b878b0e6d0b86f796d24a1b5f34b"
+    },
+    {
+      "path": "results/raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d150_b2r3.probe.json",
+      "sha256": "194f826596e6c0ad0d1e649c13fa08ecf80dc846891e6f22b4a3c1e3457af10d"
+    },
+    {
+      "path": "results/raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r1.probe.json",
+      "sha256": "889593a18efdae02e1c4e25e9f15b169b7a55f9c919dd239a8ffcdbf73ed51f5"
+    },
+    {
+      "path": "results/raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r2.probe.json",
+      "sha256": "d866795f118a9d52e6978f78e806b6fba1bc2a19f04ce3e7e78b1afea7ff866a"
+    },
+    {
+      "path": "results/raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r3.probe.json",
+      "sha256": "163178c0a17aaf7b4903113a9b6849e0565194f47ec2d7fadf5408087ebc2a06"
+    },
+    {
+      "path": "results/raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d30_b2r1.probe.json",
+      "sha256": "fece8f1f5934574a6b6818a4e09ca5d2a777602a0fa43aea8a6ed356355e81e3"
+    },
+    {
+      "path": "results/raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d30_b2r2.probe.json",
+      "sha256": "d925c2915e2bf815619e6fd620605d93ca161cc35ac6e92de85c11d981cf9f84"
+    },
+    {
+      "path": "results/raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d30_b2r3.probe.json",
+      "sha256": "ea1ffa9bacb5507dc15a70a5a4d223927b750249833e13256b1ac93fa8942bf5"
+    },
+    {
+      "path": "results/raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d80_b2r1.probe.json",
+      "sha256": "f2077bf962b1865b1720ce92bb2eb3dd8504c8660ca5d3b1f6c61e4d216f2c41"
+    },
+    {
+      "path": "results/raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d80_b2r2.probe.json",
+      "sha256": "ac7f181b7857a795151bd8fb078a06996535d85d5de6618847e77caec30c68dd"
+    },
+    {
+      "path": "results/raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d80_b2r3.probe.json",
+      "sha256": "5827e8843513258063cb801a843891251f7e4ce83e66fca2a8eb60ddcaf162ec"
+    },
+    {
+      "path": "results/raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d150_b2r1.probe.json",
+      "sha256": "05c3898606d2e24afc96201da4c7b6ef505642bfe51a197c16ade1becc12f6d9"
+    },
+    {
+      "path": "results/raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d150_b2r2.probe.json",
+      "sha256": "ed7b094315073c4cc5be3ed88dde7d4c76101c54a54e8ff52193740f3ba05307"
+    },
+    {
+      "path": "results/raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d150_b2r3.probe.json",
+      "sha256": "ef7b2f462424b68372fff5ef7dfdb8e6d6655574c4142f534a512f5cae2b5f09"
+    },
+    {
+      "path": "results/raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos1_d0_b2r1.probe.json",
+      "sha256": "304caf01d68308ebc7bd8ff92ed599e5e9f967fc379af85593991a7564c85442"
+    },
+    {
+      "path": "results/raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos1_d0_b2r2.probe.json",
+      "sha256": "aed2feb78d055ad4e33c0f4d128e970d4c280965bf5d27dee4e4aa815aaaf693"
+    },
+    {
+      "path": "results/raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos1_d0_b2r3.probe.json",
+      "sha256": "91490dedd0a80a970c749a71bf7d1a51b385221f5635169bb91a34e6c27730ce"
+    },
+    {
+      "path": "results/raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r1.probe.json",
+      "sha256": "23eacb6891f4471756538e14a5037e92e14c6c32188affa96ab91a37c688d132"
+    },
+    {
+      "path": "results/raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r2.probe.json",
+      "sha256": "e106e7ab9cb2d0ad76bfc18d33850598b7adfe05b564eebd39fc4645f4791650"
+    },
+    {
+      "path": "results/raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r3.probe.json",
+      "sha256": "ac97adc740f2d80b21bfd63916209d8a9530306d94188da7ebf68dc9afa287a6"
+    },
+    {
+      "path": "results/raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos10_d0_b2r1.probe.json",
+      "sha256": "e7ea8f203e8f1d839b5c7b98206745c5da229e938f155ce83fad14479ecf404c"
+    },
+    {
+      "path": "results/raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos10_d0_b2r2.probe.json",
+      "sha256": "94b377be27422e42d45de2d08cb4aa19f463cbfe7db0d7edc8c9a6651539703a"
+    },
+    {
+      "path": "results/raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos10_d0_b2r3.probe.json",
+      "sha256": "3f83873a50ced1c9f0cf7a6ecef6558a3bd314eb7096a26eaa934c467d681503"
+    },
+    {
+      "path": "results/raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos1_d0_b2r1.probe.json",
+      "sha256": "84ee0b9daabcc7fcaf6ea8eeaf28d663c639a9004afd8421d6bcfff82df888fe"
+    },
+    {
+      "path": "results/raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos1_d0_b2r2.probe.json",
+      "sha256": "4225773718c7cae95b88ef93cf2bc5159a0c6fa492db7394df78b44100a5d7ec"
+    },
+    {
+      "path": "results/raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos1_d0_b2r3.probe.json",
+      "sha256": "dd6ac219f141ff65e4146270991f593b4fd3076c7ce13f0500b14f1c34ed8c80"
+    },
+    {
+      "path": "results/raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r1.probe.json",
+      "sha256": "5c77b6e131f204518ec53e684c4fe3bef2f8869f60508d2635e71404622d8e40"
+    },
+    {
+      "path": "results/raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r2.probe.json",
+      "sha256": "aa898c8e21371ebc98e184ae608ba886c3289a0bc445880d0b09422eb36c6b94"
+    },
+    {
+      "path": "results/raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r3.probe.json",
+      "sha256": "b9d4bbcce3910966302e54ca5c44f951a09d9cbd616842c818962676c7dbe88d"
+    },
+    {
+      "path": "results/raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos10_d0_b2r1.probe.json",
+      "sha256": "a85fc8ba13a542e5379b574ca4b20c0795c06577be065f5c119eae4577f482e4"
+    },
+    {
+      "path": "results/raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos10_d0_b2r2.probe.json",
+      "sha256": "c9131a33d370812f5c1d3038729081bf8a9b1e59154a9c1deee040ed0820598a"
+    },
+    {
+      "path": "results/raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos10_d0_b2r3.probe.json",
+      "sha256": "97be493d82dc5f190ac87713b1c7ea32299b3b1e788b20052560a078099a42a2"
+    }
+  ],
+  "outputs": [
+    {
+      "path": "results/csv/ros2_baseline_runs.csv",
+      "sha256": "5c364cb6ef9e53cbbc26a0dc18fccd9b8aee57a06568db489458c1258d454f88"
+    },
+    {
+      "path": "results/csv/ros2_baseline_conditions.csv",
+      "sha256": "ae0ed66d14db5a3bf913ddeb4deddb1353e878f4e0aa78d554c2a1ba97309f3a"
+    },
+    {
+      "path": "results/figures/ros2_baseline/fps_throughput.svg",
+      "sha256": "74d22ea7a469b0feba95ec54700b12cedbe3d7f15c3f2290b3fcb5006bd7535f"
+    },
+    {
+      "path": "results/figures/ros2_baseline/fps_drop_rate.svg",
+      "sha256": "8f450140625db9c64c97b4b3d63cb2827c9c4b7fc57afcbec15891bc6b8ffe0e"
+    },
+    {
+      "path": "results/figures/ros2_baseline/fps_latency.svg",
+      "sha256": "593a9e18c0acc16c8f0f29bb1648ab7417c8c38c9a6de5483b7d7f508f34e5ac"
+    },
+    {
+      "path": "results/figures/ros2_baseline/qos_latency_p50.svg",
+      "sha256": "f9dd89367ac77e87c8c4b9371943e3c6ce87c6b402640734a847512f4db32244"
+    },
+    {
+      "path": "results/figures/ros2_baseline/qos_drop_rate.svg",
+      "sha256": "4c1b7d40eca35127837f3b19916b16c525f494798b59aed21c7ca4476b242bb1"
+    },
+    {
+      "path": "results/figures/ros2_baseline/overload_p50_latency.svg",
+      "sha256": "7ce5dd503f94708837503281e398b9df97638641a0adf79af4f839dbb3e489aa"
+    },
+    {
+      "path": "results/figures/ros2_baseline/overload_effective_miss.svg",
+      "sha256": "f65b48f2e7444b5a0aa3c87554258d03514ec330091e106dd0b03f57640a5fc7"
+    },
+    {
+      "path": "results/figures/ros2_baseline/overload_drop_rate.svg",
+      "sha256": "81a530043cf09348b879777d793939f10d882639a4a2317f8a8080376884ba77"
+    },
+    {
+      "path": "results/figures/ros2_baseline/latency_breakdown.svg",
+      "sha256": "f7deb04d422516e71bfdd9bb6c8030833841bd0a8872e5f8d1861f11098f78bb"
+    }
+  ],
+  "runs": 75,
+  "conditions": 25,
+  "runs_without_probe": []
+}

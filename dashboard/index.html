@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>OS-Aware Edge AI Runtime</title>
+  <meta name="description" content="Measured ROS 2 runtime baseline and frame-scheduling A/B benchmark for MobileViT on a constrained Linux host (Phase 2 / Phase 3, provenance-verified).">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <h1>OS-Aware Edge AI Runtime</h1>
+        <span class="sub">ROS 2 frame scheduling for MobileViT on a constrained Linux host</span>
+        <span class="spacer"></span>
+        <span class="tag measured" title="Every number on this page comes from Phase 2 / Phase 3 formal runs whose hash chain verified at build time">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Measured · verified runs
+        </span>
+        <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-nav">Sections<span class="sr-only">, current: <span class="nav-current">Overview</span></span><span class="chev" aria-hidden="true"></span></button>
+      </div>
+      <nav class="nav" id="site-nav" aria-label="Sections">
+        <a href="#overview" data-view="overview">Overview</a>
+        <a href="#baseline" data-view="baseline">Baseline</a>
+        <a href="#scheduling" data-view="scheduling">Scheduling</a>
+        <a href="#mechanism" data-view="mechanism">Mechanism</a>
+        <a href="#evidence" data-view="evidence">Evidence</a>
+        <span class="sep" aria-hidden="true"></span>
+        <a href="simulation.html" class="sim">EDA-Lite simulation <span class="tag estimate">Estimates</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <noscript><div class="empty-state"><h2>JavaScript is required</h2><p>The charts are drawn in the browser from <code>data/dashboard_data.json</code>.</p></div></noscript>
+    <section class="view" id="view-overview" data-view="overview" hidden></section>
+    <section class="view" id="view-baseline" data-view="baseline" hidden></section>
+    <section class="view" id="view-scheduling" data-view="scheduling" hidden></section>
+    <section class="view" id="view-mechanism" data-view="mechanism" hidden></section>
+    <section class="view" id="view-evidence" data-view="evidence" hidden></section>
+  </main>
+
+  <footer class="foot">
+    <span>Data bundle: <code>dashboard/data/dashboard_data.json</code> · regenerate with <code>python3 -m src.dashboard.build_data</code></span>
+    <span>Latency-only benchmark (random-init weights) on one host. Not an energy or accuracy measurement.</span>
+  </footer>
+
+  <script>
+    window.addEventListener("error", function (e) {
+      var m = document.getElementById("main"), d = document.createElement("div");
+      d.className = "callout"; d.setAttribute("role", "alert");
+      d.textContent = "Part of this page failed to render: " + e.message + " (" + (e.filename || "").split("/").pop() + ":" + e.lineno + ")";
+      if (m) m.prepend(d);
+    });
+  </script>
+  <script src="data/dashboard_data.js"></script>
+  <script src="assets/charts.js"></script>
+  <script src="assets/app.js"></script>
+  <script src="assets/nav.js"></script>
+</body>
+</html>

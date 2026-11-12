@@ -43,11 +43,15 @@ jobs:
           if-no-files-found: ignore
 
   checks:
-    name: shell syntax, audit regressions, provenance gate
+    name: shell syntax, audit regressions, provenance gate, dashboard data
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Full history: the Phase 3 gate checks that the measurement commit (7f0f160) is an
+          # ancestor of HEAD and that runtime code is unchanged since; a shallow clone reports BROKEN.
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -57,6 +61,8 @@ jobs:
         run: bash scripts/ci_checks.sh audit
       - name: Runtime provenance gate (BLOCKED is reported, never upgraded to VERIFIED)
         run: bash scripts/ci_checks.sh provenance
+      - name: Tables rebuild from raw runs; dashboard data bundle is current
+        run: bash scripts/ci_checks.sh dashboard
 
   repeat:
     # Repeats the whole suite to surface intermittent failures (one unexplained error was

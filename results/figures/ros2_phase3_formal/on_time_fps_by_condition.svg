@@ -1,0 +1,180 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="940" height="580" viewBox="0 0 940 580" role="img" aria-label="On-time FPS per arm — mean across runs, dots = runs">
+<style>
+.s{fill:#fcfcfb}.t1{fill:#0b0b0b}.t2{fill:#52514e}.mu{fill:#898781}.g{stroke:#e1e0d9}.ax{stroke:#c3c2b7}
+.a0{fill:#2a78d6;stroke:#2a78d6}.a1{fill:#eb6834;stroke:#eb6834}.a2{fill:#1baf7a;stroke:#1baf7a}.a3{fill:#eda100;stroke:#eda100}.a4{fill:#e87ba4;stroke:#e87ba4}.a5{fill:#008300;stroke:#008300}
+.dot{stroke:#fcfcfb;stroke-width:1.5}.rd{fill:#fcfcfb;stroke:#0b0b0b}
+@media (prefers-color-scheme: dark){.s{fill:#1a1a19}.t1{fill:#f0efec}.t2{fill:#c3c2b7}.g{stroke:#2c2c2a}
+.ax{stroke:#383835}.a0{fill:#3987e5;stroke:#3987e5}.a1{fill:#d95926;stroke:#d95926}.a2{fill:#199e70;stroke:#199e70}.a3{fill:#c98500;stroke:#c98500}.a4{fill:#d55181;stroke:#d55181}.a5{fill:#008300;stroke:#008300}.dot{stroke:#1a1a19}.rd{fill:#1a1a19;stroke:#f0efec}}
+text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-variant-numeric:tabular-nums}
+</style>
+<rect class="s" width="940" height="580"/>
+<text class="t1" x="20" y="28" font-size="16" font-weight="600">On-time FPS per arm — mean across runs, dots = runs</text>
+<rect class="a0" x="20" y="45" width="10" height="10" rx="2"/><text class="t2" x="34" y="54" font-size="12">Legacy d1</text><rect class="a1" x="108.8" y="45" width="10" height="10" rx="2"/><text class="t2" x="122.8" y="54" font-size="12">Legacy d5</text><rect class="a2" x="197.6" y="45" width="10" height="10" rx="2"/><text class="t2" x="211.6" y="54" font-size="12">FIFO</text><rect class="a3" x="250.39999999999998" y="45" width="10" height="10" rx="2"/><text class="t2" x="264.4" y="54" font-size="12">Latest</text><rect class="a4" x="317.59999999999997" y="45" width="10" height="10" rx="2"/><text class="t2" x="331.59999999999997" y="54" font-size="12">Deadline-Guard</text><rect class="a5" x="442.4" y="45" width="10" height="10" rx="2"/><text class="t2" x="456.4" y="54" font-size="12">Adaptive</text>
+<text class="t1" x="20" y="92" font-size="13" font-weight="600">S 10 FPS</text>
+<line class="g" x1="60" x2="300" y1="264.0" y2="264.0" stroke-width="1"/><text class="mu" x="54" y="268.0" font-size="10" text-anchor="end">0</text>
+<line class="g" x1="60" x2="300" y1="224.0" y2="224.0" stroke-width="1"/><text class="mu" x="54" y="228.0" font-size="10" text-anchor="end">2.5</text>
+<line class="g" x1="60" x2="300" y1="184.0" y2="184.0" stroke-width="1"/><text class="mu" x="54" y="188.0" font-size="10" text-anchor="end">5</text>
+<line class="g" x1="60" x2="300" y1="144.0" y2="144.0" stroke-width="1"/><text class="mu" x="54" y="148.0" font-size="10" text-anchor="end">7.5</text>
+<line class="g" x1="60" x2="300" y1="104.0" y2="104.0" stroke-width="1"/><text class="mu" x="54" y="108.0" font-size="10" text-anchor="end">10</text>
+<path class="a0" fill-opacity="0.35" stroke-width="0" d="M64.0,264.0 V108.0 q0,-4.0 4.0,-4.0 H92.0 q4.0,0 4.0,4.0 V264.0 Z"><title>S 10 FPS · Legacy d1: mean 10.00 FPS (n=3; runs 10.0, 10.0, 10.0)</title></path>
+<g><title>Legacy d1 run 1: 10.00 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="75.0" cy="104.0" r="3"/></g>
+<g><title>Legacy d1 run 2: 10.00 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="80.0" cy="104.0" r="3"/></g>
+<g><title>Legacy d1 run 3: 10.00 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="85.0" cy="104.0" r="3"/></g>
+<path class="a1" fill-opacity="0.35" stroke-width="0" d="M104.0,264.0 V108.0 q0,-4.0 4.0,-4.0 H132.0 q4.0,0 4.0,4.0 V264.0 Z"><title>S 10 FPS · Legacy d5: mean 10.00 FPS (n=3; runs 10.0, 10.0, 10.0)</title></path>
+<g><title>Legacy d5 run 1: 10.00 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="115.0" cy="104.0" r="3"/></g>
+<g><title>Legacy d5 run 2: 10.00 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="120.0" cy="104.0" r="3"/></g>
+<g><title>Legacy d5 run 3: 10.00 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="125.0" cy="104.0" r="3"/></g>
+<path class="a2" fill-opacity="0.35" stroke-width="0" d="M144.0,264.0 V108.0 q0,-4.0 4.0,-4.0 H172.0 q4.0,0 4.0,4.0 V264.0 Z"><title>S 10 FPS · FIFO: mean 10.00 FPS (n=3; runs 10.0, 10.0, 10.0)</title></path>
+<g><title>FIFO run 1: 10.00 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="155.0" cy="104.0" r="3"/></g>
+<g><title>FIFO run 2: 10.00 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="160.0" cy="104.0" r="3"/></g>
+<g><title>FIFO run 3: 10.00 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="165.0" cy="104.0" r="3"/></g>
+<path class="a3" fill-opacity="0.35" stroke-width="0" d="M184.0,264.0 V108.0 q0,-4.0 4.0,-4.0 H212.0 q4.0,0 4.0,4.0 V264.0 Z"><title>S 10 FPS · Latest: mean 10.00 FPS (n=3; runs 10.0, 10.0, 10.0)</title></path>
+<g><title>Latest run 1: 10.00 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="195.0" cy="104.0" r="3"/></g>
+<g><title>Latest run 2: 10.00 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="200.0" cy="104.0" r="3"/></g>
+<g><title>Latest run 3: 10.00 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="205.0" cy="104.0" r="3"/></g>
+<path class="a4" fill-opacity="0.35" stroke-width="0" d="M224.0,264.0 V108.0 q0,-4.0 4.0,-4.0 H252.0 q4.0,0 4.0,4.0 V264.0 Z"><title>S 10 FPS · Deadline-Guard: mean 10.00 FPS (n=3; runs 10.0, 10.0, 10.0)</title></path>
+<g><title>Deadline-Guard run 1: 10.00 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="235.0" cy="104.0" r="3"/></g>
+<g><title>Deadline-Guard run 2: 10.00 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="240.0" cy="104.0" r="3"/></g>
+<g><title>Deadline-Guard run 3: 10.00 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="245.0" cy="104.0" r="3"/></g>
+<path class="a5" fill-opacity="0.35" stroke-width="0" d="M264.0,264.0 V108.0 q0,-4.0 4.0,-4.0 H292.0 q4.0,0 4.0,4.0 V264.0 Z"><title>S 10 FPS · Adaptive: mean 10.00 FPS (n=3; runs 10.0, 10.0, 10.0)</title></path>
+<g><title>Adaptive run 1: 10.00 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="275.0" cy="104.0" r="3"/></g>
+<g><title>Adaptive run 2: 10.00 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="280.0" cy="104.0" r="3"/></g>
+<g><title>Adaptive run 3: 10.00 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="285.0" cy="104.0" r="3"/></g>
+<line class="ax" x1="60" x2="300" y1="264" y2="264" stroke-width="1"/>
+<text class="t1" x="320" y="92" font-size="13" font-weight="600">S 20 FPS</text>
+<line class="g" x1="360" x2="600" y1="264.0" y2="264.0" stroke-width="1"/><text class="mu" x="354" y="268.0" font-size="10" text-anchor="end">0</text>
+<line class="g" x1="360" x2="600" y1="224.0" y2="224.0" stroke-width="1"/><text class="mu" x="354" y="228.0" font-size="10" text-anchor="end">5</text>
+<line class="g" x1="360" x2="600" y1="184.0" y2="184.0" stroke-width="1"/><text class="mu" x="354" y="188.0" font-size="10" text-anchor="end">10</text>
+<line class="g" x1="360" x2="600" y1="144.0" y2="144.0" stroke-width="1"/><text class="mu" x="354" y="148.0" font-size="10" text-anchor="end">15</text>
+<line class="g" x1="360" x2="600" y1="104.0" y2="104.0" stroke-width="1"/><text class="mu" x="354" y="108.0" font-size="10" text-anchor="end">20</text>
+<path class="a0" fill-opacity="0.35" stroke-width="0" d="M364.0,264.0 V154.8 q0,-4.0 4.0,-4.0 H392.0 q4.0,0 4.0,4.0 V264.0 Z"><title>S 20 FPS · Legacy d1: mean 14.15 FPS (n=5; runs 12.4, 12.9, 13.7, 12.8, 18.9)</title></path>
+<g><title>Legacy d1 run 1: 12.37 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="370.0" cy="165.0" r="3"/></g>
+<g><title>Legacy d1 run 2: 12.91 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="375.0" cy="160.7" r="3"/></g>
+<g><title>Legacy d1 run 3: 13.71 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="380.0" cy="154.3" r="3"/></g>
+<g><title>Legacy d1 run 4: 12.79 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="385.0" cy="161.7" r="3"/></g>
+<g><title>Legacy d1 run 5: 18.95 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="390.0" cy="112.4" r="3"/></g>
+<path class="a1" fill-opacity="0.35" stroke-width="0" d="M404.0,264.0 V264.0 q0,-0.0 0.0,-0.0 H436.0 q0.0,0 0.0,0.0 V264.0 Z"><title>S 20 FPS · Legacy d5: mean 0.00 FPS (n=5; runs 0.0, 0.0, 0.0, 0.0, 0.0)</title></path>
+<g><title>Legacy d5 run 1: 0.00 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="410.0" cy="264.0" r="3"/></g>
+<g><title>Legacy d5 run 2: 0.00 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="415.0" cy="264.0" r="3"/></g>
+<g><title>Legacy d5 run 3: 0.00 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="420.0" cy="264.0" r="3"/></g>
+<g><title>Legacy d5 run 4: 0.00 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="425.0" cy="264.0" r="3"/></g>
+<g><title>Legacy d5 run 5: 0.00 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="430.0" cy="264.0" r="3"/></g>
+<path class="a2" fill-opacity="0.35" stroke-width="0" d="M444.0,264.0 V264.0 q0,-0.0 0.0,-0.0 H476.0 q0.0,0 0.0,0.0 V264.0 Z"><title>S 20 FPS · FIFO: mean 0.00 FPS (n=5; runs 0.0, 0.0, 0.0, 0.0, 0.0)</title></path>
+<g><title>FIFO run 1: 0.00 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="450.0" cy="264.0" r="3"/></g>
+<g><title>FIFO run 2: 0.00 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="455.0" cy="264.0" r="3"/></g>
+<g><title>FIFO run 3: 0.00 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="460.0" cy="264.0" r="3"/></g>
+<g><title>FIFO run 4: 0.00 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="465.0" cy="264.0" r="3"/></g>
+<g><title>FIFO run 5: 0.00 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="470.0" cy="264.0" r="3"/></g>
+<path class="a3" fill-opacity="0.35" stroke-width="0" d="M484.0,264.0 V150.4 q0,-4.0 4.0,-4.0 H512.0 q4.0,0 4.0,4.0 V264.0 Z"><title>S 20 FPS · Latest: mean 14.70 FPS (n=5; runs 14.5, 14.4, 14.9, 15.2, 14.5)</title></path>
+<g><title>Latest run 1: 14.46 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="490.0" cy="148.3" r="3"/></g>
+<g><title>Latest run 2: 14.40 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="495.0" cy="148.8" r="3"/></g>
+<g><title>Latest run 3: 14.91 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="500.0" cy="144.7" r="3"/></g>
+<g><title>Latest run 4: 15.22 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="505.0" cy="142.2" r="3"/></g>
+<g><title>Latest run 5: 14.50 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="510.0" cy="148.0" r="3"/></g>
+<path class="a4" fill-opacity="0.35" stroke-width="0" d="M524.0,264.0 V133.4 q0,-4.0 4.0,-4.0 H552.0 q4.0,0 4.0,4.0 V264.0 Z"><title>S 20 FPS · Deadline-Guard: mean 16.83 FPS (n=5; runs 16.8, 16.7, 17.1, 16.9, 16.6)</title></path>
+<g><title>Deadline-Guard run 1: 16.78 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="530.0" cy="129.8" r="3"/></g>
+<g><title>Deadline-Guard run 2: 16.67 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="535.0" cy="130.6" r="3"/></g>
+<g><title>Deadline-Guard run 3: 17.15 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="540.0" cy="126.8" r="3"/></g>
+<g><title>Deadline-Guard run 4: 16.89 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="545.0" cy="128.9" r="3"/></g>
+<g><title>Deadline-Guard run 5: 16.65 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="550.0" cy="130.8" r="3"/></g>
+<path class="a5" fill-opacity="0.35" stroke-width="0" d="M564.0,264.0 V133.5 q0,-4.0 4.0,-4.0 H592.0 q4.0,0 4.0,4.0 V264.0 Z"><title>S 20 FPS · Adaptive: mean 16.81 FPS (n=5; runs 16.8, 16.8, 16.9, 16.8, 16.8)</title></path>
+<g><title>Adaptive run 1: 16.81 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="570.0" cy="129.5" r="3"/></g>
+<g><title>Adaptive run 2: 16.78 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="575.0" cy="129.8" r="3"/></g>
+<g><title>Adaptive run 3: 16.92 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="580.0" cy="128.6" r="3"/></g>
+<g><title>Adaptive run 4: 16.75 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="585.0" cy="130.0" r="3"/></g>
+<g><title>Adaptive run 5: 16.81 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="590.0" cy="129.5" r="3"/></g>
+<line class="ax" x1="360" x2="600" y1="264" y2="264" stroke-width="1"/>
+<text class="t1" x="620" y="92" font-size="13" font-weight="600">S 30 FPS</text>
+<line class="g" x1="660" x2="900" y1="264.0" y2="264.0" stroke-width="1"/><text class="mu" x="654" y="268.0" font-size="10" text-anchor="end">0</text>
+<line class="g" x1="660" x2="900" y1="224.0" y2="224.0" stroke-width="1"/><text class="mu" x="654" y="228.0" font-size="10" text-anchor="end">5</text>
+<line class="g" x1="660" x2="900" y1="184.0" y2="184.0" stroke-width="1"/><text class="mu" x="654" y="188.0" font-size="10" text-anchor="end">10</text>
+<line class="g" x1="660" x2="900" y1="144.0" y2="144.0" stroke-width="1"/><text class="mu" x="654" y="148.0" font-size="10" text-anchor="end">15</text>
+<line class="g" x1="660" x2="900" y1="104.0" y2="104.0" stroke-width="1"/><text class="mu" x="654" y="108.0" font-size="10" text-anchor="end">20</text>
+<path class="a0" fill-opacity="0.35" stroke-width="0" d="M664.0,264.0 V134.4 q0,-4.0 4.0,-4.0 H692.0 q4.0,0 4.0,4.0 V264.0 Z"><title>S 30 FPS · Legacy d1: mean 16.70 FPS (n=3; runs 16.8, 16.7, 16.6)</title></path>
+<g><title>Legacy d1 run 1: 16.82 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="675.0" cy="129.4" r="3"/></g>
+<g><title>Legacy d1 run 2: 16.73 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="680.0" cy="130.2" r="3"/></g>
+<g><title>Legacy d1 run 3: 16.55 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="685.0" cy="131.6" r="3"/></g>
+<path class="a1" fill-opacity="0.35" stroke-width="0" d="M704.0,264.0 V264.0 q0,-0.0 0.0,-0.0 H736.0 q0.0,0 0.0,0.0 V264.0 Z"><title>S 30 FPS · Legacy d5: mean 0.00 FPS (n=3; runs 0.0, 0.0, 0.0)</title></path>
+<g><title>Legacy d5 run 1: 0.00 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="715.0" cy="264.0" r="3"/></g>
+<g><title>Legacy d5 run 2: 0.00 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="720.0" cy="264.0" r="3"/></g>
+<g><title>Legacy d5 run 3: 0.00 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="725.0" cy="264.0" r="3"/></g>
+<path class="a2" fill-opacity="0.35" stroke-width="0" d="M744.0,264.0 V264.0 q0,-0.0 0.0,-0.0 H776.0 q0.0,0 0.0,0.0 V264.0 Z"><title>S 30 FPS · FIFO: mean 0.00 FPS (n=3; runs 0.0, 0.0, 0.0)</title></path>
+<g><title>FIFO run 1: 0.00 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="755.0" cy="264.0" r="3"/></g>
+<g><title>FIFO run 2: 0.00 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="760.0" cy="264.0" r="3"/></g>
+<g><title>FIFO run 3: 0.00 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="765.0" cy="264.0" r="3"/></g>
+<path class="a3" fill-opacity="0.35" stroke-width="0" d="M784.0,264.0 V129.4 q0,-4.0 4.0,-4.0 H812.0 q4.0,0 4.0,4.0 V264.0 Z"><title>S 30 FPS · Latest: mean 17.33 FPS (n=3; runs 17.3, 17.4, 17.3)</title></path>
+<g><title>Latest run 1: 17.29 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="795.0" cy="125.7" r="3"/></g>
+<g><title>Latest run 2: 17.40 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="800.0" cy="124.8" r="3"/></g>
+<g><title>Latest run 3: 17.29 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="805.0" cy="125.7" r="3"/></g>
+<path class="a4" fill-opacity="0.35" stroke-width="0" d="M824.0,264.0 V128.8 q0,-4.0 4.0,-4.0 H852.0 q4.0,0 4.0,4.0 V264.0 Z"><title>S 30 FPS · Deadline-Guard: mean 17.40 FPS (n=3; runs 17.3, 17.5, 17.4)</title></path>
+<g><title>Deadline-Guard run 1: 17.26 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="835.0" cy="125.9" r="3"/></g>
+<g><title>Deadline-Guard run 2: 17.51 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="840.0" cy="123.9" r="3"/></g>
+<g><title>Deadline-Guard run 3: 17.43 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="845.0" cy="124.6" r="3"/></g>
+<path class="a5" fill-opacity="0.35" stroke-width="0" d="M864.0,264.0 V129.5 q0,-4.0 4.0,-4.0 H892.0 q4.0,0 4.0,4.0 V264.0 Z"><title>S 30 FPS · Adaptive: mean 17.31 FPS (n=3; runs 17.3, 17.4, 17.2)</title></path>
+<g><title>Adaptive run 1: 17.33 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="875.0" cy="125.4" r="3"/></g>
+<g><title>Adaptive run 2: 17.42 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="880.0" cy="124.6" r="3"/></g>
+<g><title>Adaptive run 3: 17.17 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="885.0" cy="126.6" r="3"/></g>
+<line class="ax" x1="660" x2="900" y1="264" y2="264" stroke-width="1"/>
+<text class="t1" x="20" y="342" font-size="13" font-weight="600">XXS 30 FPS +25 ms</text>
+<line class="g" x1="60" x2="300" y1="514.0" y2="514.0" stroke-width="1"/><text class="mu" x="54" y="518.0" font-size="10" text-anchor="end">0</text>
+<line class="g" x1="60" x2="300" y1="474.0" y2="474.0" stroke-width="1"/><text class="mu" x="54" y="478.0" font-size="10" text-anchor="end">6.25</text>
+<line class="g" x1="60" x2="300" y1="434.0" y2="434.0" stroke-width="1"/><text class="mu" x="54" y="438.0" font-size="10" text-anchor="end">12.5</text>
+<line class="g" x1="60" x2="300" y1="394.0" y2="394.0" stroke-width="1"/><text class="mu" x="54" y="398.0" font-size="10" text-anchor="end">18.75</text>
+<line class="g" x1="60" x2="300" y1="354.0" y2="354.0" stroke-width="1"/><text class="mu" x="54" y="358.0" font-size="10" text-anchor="end">25</text>
+<path class="a0" fill-opacity="0.35" stroke-width="0" d="M64.0,514.0 V364.8 q0,-4.0 4.0,-4.0 H92.0 q4.0,0 4.0,4.0 V514.0 Z"><title>XXS 30 FPS +25 ms · Legacy d1: mean 23.94 FPS (n=3; runs 23.8, 24.1, 23.9)</title></path>
+<g><title>Legacy d1 run 1: 23.81 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="75.0" cy="361.6" r="3"/></g>
+<g><title>Legacy d1 run 2: 24.07 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="80.0" cy="360.0" r="3"/></g>
+<g><title>Legacy d1 run 3: 23.94 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="85.0" cy="360.8" r="3"/></g>
+<path class="a1" fill-opacity="0.35" stroke-width="0" d="M104.0,514.0 V514.0 q0,-0.0 0.0,-0.0 H136.0 q0.0,0 0.0,0.0 V514.0 Z"><title>XXS 30 FPS +25 ms · Legacy d5: mean 0.00 FPS (n=3; runs 0.0, 0.0, 0.0)</title></path>
+<g><title>Legacy d5 run 1: 0.00 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="115.0" cy="514.0" r="3"/></g>
+<g><title>Legacy d5 run 2: 0.00 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="120.0" cy="514.0" r="3"/></g>
+<g><title>Legacy d5 run 3: 0.00 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="125.0" cy="514.0" r="3"/></g>
+<path class="a2" fill-opacity="0.35" stroke-width="0" d="M144.0,514.0 V514.0 q0,-0.0 0.0,-0.0 H176.0 q0.0,0 0.0,0.0 V514.0 Z"><title>XXS 30 FPS +25 ms · FIFO: mean 0.00 FPS (n=3; runs 0.0, 0.0, 0.0)</title></path>
+<g><title>FIFO run 1: 0.00 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="155.0" cy="514.0" r="3"/></g>
+<g><title>FIFO run 2: 0.00 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="160.0" cy="514.0" r="3"/></g>
+<g><title>FIFO run 3: 0.00 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="165.0" cy="514.0" r="3"/></g>
+<path class="a3" fill-opacity="0.35" stroke-width="0" d="M184.0,514.0 V368.0 q0,-4.0 4.0,-4.0 H212.0 q4.0,0 4.0,4.0 V514.0 Z"><title>XXS 30 FPS +25 ms · Latest: mean 23.43 FPS (n=3; runs 23.5, 23.4, 23.4)</title></path>
+<g><title>Latest run 1: 23.46 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="195.0" cy="363.9" r="3"/></g>
+<g><title>Latest run 2: 23.44 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="200.0" cy="364.0" r="3"/></g>
+<g><title>Latest run 3: 23.39 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="205.0" cy="364.3" r="3"/></g>
+<path class="a4" fill-opacity="0.35" stroke-width="0" d="M224.0,514.0 V368.2 q0,-4.0 4.0,-4.0 H252.0 q4.0,0 4.0,4.0 V514.0 Z"><title>XXS 30 FPS +25 ms · Deadline-Guard: mean 23.40 FPS (n=3; runs 23.4, 23.4, 23.4)</title></path>
+<g><title>Deadline-Guard run 1: 23.40 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="235.0" cy="364.2" r="3"/></g>
+<g><title>Deadline-Guard run 2: 23.39 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="240.0" cy="364.3" r="3"/></g>
+<g><title>Deadline-Guard run 3: 23.42 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="245.0" cy="364.1" r="3"/></g>
+<path class="a5" fill-opacity="0.35" stroke-width="0" d="M264.0,514.0 V368.2 q0,-4.0 4.0,-4.0 H292.0 q4.0,0 4.0,4.0 V514.0 Z"><title>XXS 30 FPS +25 ms · Adaptive: mean 23.41 FPS (n=3; runs 23.4, 23.4, 23.4)</title></path>
+<g><title>Adaptive run 1: 23.42 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="275.0" cy="364.1" r="3"/></g>
+<g><title>Adaptive run 2: 23.43 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="280.0" cy="364.0" r="3"/></g>
+<g><title>Adaptive run 3: 23.39 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="285.0" cy="364.3" r="3"/></g>
+<line class="ax" x1="60" x2="300" y1="514" y2="514" stroke-width="1"/>
+<text class="t1" x="320" y="342" font-size="13" font-weight="600">S dynamic 10-20-10 FPS</text>
+<line class="g" x1="360" x2="600" y1="514.0" y2="514.0" stroke-width="1"/><text class="mu" x="354" y="518.0" font-size="10" text-anchor="end">0</text>
+<line class="g" x1="360" x2="600" y1="474.0" y2="474.0" stroke-width="1"/><text class="mu" x="354" y="478.0" font-size="10" text-anchor="end">3.75</text>
+<line class="g" x1="360" x2="600" y1="434.0" y2="434.0" stroke-width="1"/><text class="mu" x="354" y="438.0" font-size="10" text-anchor="end">7.5</text>
+<line class="g" x1="360" x2="600" y1="394.0" y2="394.0" stroke-width="1"/><text class="mu" x="354" y="398.0" font-size="10" text-anchor="end">11.25</text>
+<line class="g" x1="360" x2="600" y1="354.0" y2="354.0" stroke-width="1"/><text class="mu" x="354" y="358.0" font-size="10" text-anchor="end">15</text>
+<path class="a0" fill-opacity="0.35" stroke-width="0" d="M364.0,514.0 V398.6 q0,-4.0 4.0,-4.0 H392.0 q4.0,0 4.0,4.0 V514.0 Z"><title>S dynamic 10-20-10 FPS · Legacy d1: mean 11.20 FPS (n=3; runs 11.8, 10.8, 11.0)</title></path>
+<g><title>Legacy d1 run 1: 11.81 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="375.0" cy="388.0" r="3"/></g>
+<g><title>Legacy d1 run 2: 10.76 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="380.0" cy="399.2" r="3"/></g>
+<g><title>Legacy d1 run 3: 11.02 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="385.0" cy="396.5" r="3"/></g>
+<path class="a1" fill-opacity="0.35" stroke-width="0" d="M404.0,514.0 V445.2 q0,-4.0 4.0,-4.0 H432.0 q4.0,0 4.0,4.0 V514.0 Z"><title>S dynamic 10-20-10 FPS · Legacy d5: mean 6.83 FPS (n=3; runs 6.9, 6.8, 6.8)</title></path>
+<g><title>Legacy d5 run 1: 6.86 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="415.0" cy="440.8" r="3"/></g>
+<g><title>Legacy d5 run 2: 6.83 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="420.0" cy="441.2" r="3"/></g>
+<g><title>Legacy d5 run 3: 6.80 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="425.0" cy="441.5" r="3"/></g>
+<path class="a2" fill-opacity="0.35" stroke-width="0" d="M444.0,514.0 V445.2 q0,-4.0 4.0,-4.0 H472.0 q4.0,0 4.0,4.0 V514.0 Z"><title>S dynamic 10-20-10 FPS · FIFO: mean 6.83 FPS (n=3; runs 6.8, 6.8, 6.8)</title></path>
+<g><title>FIFO run 1: 6.82 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="455.0" cy="441.2" r="3"/></g>
+<g><title>FIFO run 2: 6.83 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="460.0" cy="441.2" r="3"/></g>
+<g><title>FIFO run 3: 6.82 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="465.0" cy="441.2" r="3"/></g>
+<path class="a3" fill-opacity="0.35" stroke-width="0" d="M484.0,514.0 V393.8 q0,-4.0 4.0,-4.0 H512.0 q4.0,0 4.0,4.0 V514.0 Z"><title>S dynamic 10-20-10 FPS · Latest: mean 11.64 FPS (n=3; runs 11.7, 11.5, 11.7)</title></path>
+<g><title>Latest run 1: 11.71 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="495.0" cy="389.1" r="3"/></g>
+<g><title>Latest run 2: 11.53 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="500.0" cy="391.0" r="3"/></g>
+<g><title>Latest run 3: 11.68 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="505.0" cy="389.4" r="3"/></g>
+<path class="a4" fill-opacity="0.35" stroke-width="0" d="M524.0,514.0 V387.8 q0,-4.0 4.0,-4.0 H552.0 q4.0,0 4.0,4.0 V514.0 Z"><title>S dynamic 10-20-10 FPS · Deadline-Guard: mean 12.21 FPS (n=3; runs 12.2, 12.2, 12.2)</title></path>
+<g><title>Deadline-Guard run 1: 12.22 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="535.0" cy="383.7" r="3"/></g>
+<g><title>Deadline-Guard run 2: 12.17 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="540.0" cy="384.2" r="3"/></g>
+<g><title>Deadline-Guard run 3: 12.24 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="545.0" cy="383.4" r="3"/></g>
+<path class="a5" fill-opacity="0.35" stroke-width="0" d="M564.0,514.0 V388.1 q0,-4.0 4.0,-4.0 H592.0 q4.0,0 4.0,4.0 V514.0 Z"><title>S dynamic 10-20-10 FPS · Adaptive: mean 12.18 FPS (n=3; runs 12.2, 12.2, 12.2)</title></path>
+<g><title>Adaptive run 1: 12.19 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="575.0" cy="384.0" r="3"/></g>
+<g><title>Adaptive run 2: 12.17 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="580.0" cy="384.2" r="3"/></g>
+<g><title>Adaptive run 3: 12.17 FPS</title><circle class="rd" fill="#fcfcfb" stroke="#0b0b0b" stroke-width="1.2" cx="585.0" cy="384.2" r="3"/></g>
+<line class="ax" x1="360" x2="600" y1="514" y2="514" stroke-width="1"/>
+</svg>

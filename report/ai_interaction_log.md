@@ -255,3 +255,172 @@ Implementation decision:
 Important limitation:
 
 - Pinned ROS 2 versions and `environment.yml` were not solved or run (no Linux / ROS 2 here). GitHub Actions has not run yet (nothing pushed); the workflow was validated by YAML parsing and by running `scripts/ci_checks.sh all` locally on macOS / Python 3.11 and the test suite on a bare Python 3.13 venv. Real measurements remain BLOCKED.
+
+## 2026-11-10 Phase 2 / Batch 1: Linux ROS 2 Environment & Smoke Validation
+
+Prompt summary:
+
+- On the shared lab Linux server: build the RoboStack / PyTorch environment in an isolated conda env, verify CPU / memory constraints without sudo, run a short real ROS 2 + MobileViT-XXS smoke test (unconstrained, then constrained), keep smoke data out of `results/`, no full sweep, no push / merge.
+
+Implementation decision:
+
+- `environment.yml` solved unchanged; froze it in `environment.lock.yml` (prefix removed, channel order and the PyTorch CPU index restored so it is recreatable).
+- Constraints: taskset (CPUs 12,14 = two idle P-cores; the CPU is hybrid) + `systemd-run --user --scope` MemoryMax (memory controller delegated; `cpu`/`cpuset` are not). Added `MemorySwapMax` (default 0) because the host has swap, and record `memory.swap.max`.
+- The real run exposed a startup crash (`input_fps:=5` is INTEGER, declared DOUBLE) → `dynamic_typing` on float parameters.
+- Diagnosed a 50–85% frame loss as DDS transport (RMW defaults with 212992-byte socket buffers and ~1 MB best-effort images; CycloneDDS/UDP showed kernel RcvbufErrors) by A/B runs instead of changing sysctls; added an opt-in Fast DDS SHM profile (recorded with SHA-256 in run metadata) rather than silently changing the default transport — the choice for formal baselines is left to the user.
+- Publisher now starts after a subscriber is matched and the detector subscribes after loading the model (clean publisher log; analyzer already excluded pre-warm-up frames).
+
+Important limitation:
+
+- Smoke data only (5 FPS, 20 s, XXS); not measured evidence, not committed under `results/`. Provenance stays BLOCKED. MobileViT-S and higher FPS untested.
+
+
+## 2026-11-10 Phase 2 / Batch 2: Real ROS 2 Baseline Benchmark
+
+Prompt summary:
+
+- Build a credible, reproducible constrained ROS 2 baseline for MobileViT-XXS / S (FPS 5/10/20/30, QoS depth 1/5/10, overload delay 0/30/80/150 ms, ≥3 independent runs), fixed RMW / SHM profile / domain / CPU 12,14 / MemoryMax 4G / swap 0; verify the DDS XML is actually loaded; separate transport loss, overload and queue drops; no scheduler, no dashboard, no sudo, no push / merge.
+
+Implementation decision:
+
+- Runtime DDS verification instead of trusting the env var: a read-only probe in the launch scope checks UDP sockets and Fast DDS `/dev/shm` segment sizes of both nodes; validated with negative controls (no XML → 7 UDP sockets + 512 KB segment; malformed XML → Fast DDS XMLPARSER error, fallback detected, run failed).
+- Kept the existing sweep scripts / analyzer; only appended summary columns (P50, offered / processed FPS, service time) and added an aggregation step that treats runs, not frames, as replicates.
+- Low priority (`nice 10`) on two idle P-cores, swap disabled; formal set required a clean git tree.
+- XXS was not overloaded at 30 FPS (ρ ≈ 0.57), so after the capacity analysis (service ≈ 19 ms → ~52 FPS) a small 40/50/60 FPS extension was run instead of tuning parameters for larger drop numbers.
+- A probe artefact (previous run's detector still exiting at the next probe's first sample, ~0.2 s overlap with start-up only) was diagnosed with a 0.1 s PID trace; fixed by waiting for node exit between runs and per-pid CPU accounting; the affected probe CPU column is blanked, the measurement windows were shown to be unaffected.
+
+Important limitation:
+
+- Shared host with `powersave` governor and no cpuset isolation: MobileViT-S inference varies 52.6–64.6 ms across runs, which makes drop rates near capacity vary (S at 20 FPS: 8.5–20.7 %). Weights are random-init (latency only). Tuned (rmem) experiments not run.
+
+
+## 2026-11-11 Phase 3 / Batch 1: Runtime Scheduling & Queue Management
+
+Prompt summary:
+
+- Implement and compare FIFO, Latest-Frame and Deadline-Aware Adaptive frame scheduling in the same ROS 2 + MobileViT pipeline: separate ingestion from inference (bounded application queue, one inference worker), keep QoS depth 1/5 as the legacy baseline, extend logging / analyzer (queue wait, frame age, drop reasons, DDS vs policy vs shutdown drops), same Batch 2 controls, regression tests, short interleaved Linux pilot; no push / merge, no EDA-Lite or dashboard changes, Phase 2 artifacts untouched.
+
+Implementation decision:
+
+- Policies live in a stdlib module (`scheduling.py`) with pure `admit` / `select` functions and a lock + condition-variable `FrameScheduler`, so semantics, the queue bound, the accounting invariant and shutdown are tested without ROS. `legacy_qos` stays the default and is the untouched Phase 2 code path.
+- Adaptive uses only past information (P90 of the last 32 completed non-warm-up service times, arrival rate at ingestion, current queue); parameters were fixed before any pilot data (quantile 0.9, window 32, margin 0, overload threshold 1.0) and not tuned afterwards.
+- The first real smoke run showed the worker-thread arms computing ~35 % faster than the legacy arm. Isolated outside ROS: with the node's import order, OpenMP work on the main thread runs on ~1 core even with 2 threads, while a worker thread uses 2; OpenCV's OpenMP helper additionally busy-spins (~20 % CPU) in a worker thread. Rather than accept a confounded comparison, added an explicit `intra_op_threads` control (torch + OpenCV) set to 1 for every arm (equal to the effective Batch 2 behaviour) and recorded it per row.
+- Pilot data goes to `results/raw/ros2_phase3_pilot/` so the verified Phase 2 chain (`results/raw/ros2` → runtime summary → OS profiles) is not touched.
+
+Important limitation:
+
+- Pilot only (3 repeats × 40 s, 4 conditions); the host is shared, governor `powersave`, and service time drifts between sessions (XXS ~16 ms today vs 18.4 ms in Batch 2), so XXS 60 FPS is near ρ ≈ 1 rather than clearly overloaded. Not a formal benchmark.
+
+
+## 2026-11-11 Phase 3 / Batch 2: Formal A/B Benchmark & Adaptive Validation
+
+Prompt summary:
+
+- Formal, reproducible interleaved A/B benchmark of the scheduling arms (S 20 FPS × ≥ 5 paired 60 s blocks; S 10 / 30, XXS controlled overload, a dynamic S 10 → 20 → 10 FPS condition × ≥ 3 blocks); a minimal `deadline_guard` ablation (same estimator / feasibility check as Adaptive, no utilisation switch); clean git state for every run; an independent Phase 3 provenance check; pre-declared metrics; paired statistics; no tuning of Adaptive; no push / merge.
+
+Implementation decision:
+
+- `deadline_guard` is one branch inside the existing adaptive selector (`overloaded = True`), so the two arms share every line of code except the switch. Adaptive's parameters and params text are unchanged from Batch 1.
+- Dynamic load = publisher `fps_schedule` (`10@20,20@20,10@20`, measured from frame 0, timer period changed in place); `@` instead of `:` because ROS 2 parameters are YAML-parsed (`10:20` → 620). Fixed-rate mode and the publisher log format are unchanged; the phase of each frame is derived from its publish time.
+- Measurements ran from a separate detached git worktree at the measurement commit, so editing analysis code in the main checkout could not make `git.dirty` true (the Batch 1 defect). A host load gate (CPU_SET + SMT siblings, loadavg) ran before every block; results were byte-compared after copying into the repository.
+- Primary metrics (effective miss, on-time FPS) and comparisons were fixed before analysis; the unit is the run, paired within blocks; 95 % t-intervals and exact sign-flip p-values are reported, with the caveat that n = 3–5 blocks.
+
+Important limitation:
+
+- Adaptive's utilisation switch never changed a decision that mattered: Deadline-Guard matched it in every condition. The improvement over Latest-Frame comes from the feasibility check (drop-and-wait), and only exists when one inter-arrival time + service time exceeds the deadline (S 20 FPS, dynamic phase 2), not at S 30 FPS or XXS + 25 ms. Single host, random-init weights, one deadline (100 ms), one parameter set.
+
+
+## 2026-11-12 Phase 4: Dashboard & Portfolio Finalization
+
+Prompt summary:
+
+- Turn the project into a portfolio piece: a lightweight static dashboard (Overview, Baseline, Scheduling, Mechanism, Evidence + a separate EDA-Lite simulation entry) generated reproducibly from the verified Phase 2 / Phase 3 tables only; tests for the data pipeline; README rewrite with architecture diagram and screenshots; local preview via VS Code Remote SSH without exposing ports; no change to policies, cost model or measurement data; no push / merge.
+
+Implementation decision:
+
+- One stdlib builder (`src/dashboard/build_data.py`) computes every KPI and finding sentence from the CSVs and re-verifies all SHA-256 manifests; the front end (vanilla JS, inline SVG, no CDN) only formats. Output is deterministic so CI can byte-compare it (`--check`, exit 3 STALE). Missing input → BLOCKED, tampering / pilot / non-constrained / non-builtin simulation rows → BROKEN, and nothing is written.
+- Data is shipped as `dashboard_data.js` (`window.DASHBOARD_DATA`) besides the JSON, so the page also works from `file://`.
+- Headline capacity uses saturated throughput (processed FPS of overloaded runs, S 16.7 FPS) instead of 1000 / service time (16.8), because the former is what the detector actually delivered; both are shown.
+- Comparisons involving the legacy path are tagged `cross_architecture` and drawn in a separate panel; Adaptive − Guard is shown in every view where Guard appears, with "no measurable benefit (not an equivalence test)".
+- Added `scripts/check_table_regeneration.py` (raw → tables, compared to committed files) to the CI dashboard step. Phase 3 tables regenerate byte-identically; the two Phase 2 per-run tables match on all committed columns (the analyzer later gained 20 columns), so they were not rewritten.
+- The detailed README manual moved unchanged to `docs/REFERENCE.md`.
+
+Important limitation:
+
+- The dashboard shows one host and small block counts; it states this, reports intervals and sign counts, and makes no significance, cross-hardware or energy claim. EDA-Lite numbers are labelled estimates on a separate page and do not feed any KPI.
+
+
+## 2026-11-12 Final QA & Release Preparation
+
+Prompt summary:
+
+- Final QA before a public release: browser review of every dashboard view (desktop / phone, light / dark, filters, tooltips, tables), public-release safety (secrets, identifiers, third-party data), engineering re-verification, PR / release preparation, `report/FINAL_QA.md`; only minimal fixes for evidenced problems; no push / merge / deploy.
+
+Implementation decision:
+
+- Drove real Firefox through geckodriver with a stdlib WebDriver client and an in-page layout audit (132 states, 447 SVGs; true 390 px via an iframe because Firefox windows cannot be that narrow). Every reported defect was reproduced before fixing; detector artefacts (line-box overlap, hover right after scroll, Tab past the document) were triaged and documented instead of "fixed".
+- Fixed 8 UI defects with small changes in `charts.js` / `style.css` (keyboard tooltip lost on scroll, decorative marks swallowing hover, labels leaving the panel on narrow screens, dark-mode CI strip ticks, clipped minus sign).
+- Found that GitHub's default shallow checkout makes the Phase 3 gate BROKEN (measurement commit missing) although local CI passes; reproduced with `git clone --depth 1`, fixed with `fetch-depth: 0` on the gate job plus a regression test, and documented that the PR must be merged with a merge commit (squash / rebase would orphan `7f0f160`).
+- Independently re-derived all 525 paired estimates shown by the dashboard from the per-run table (0 differences).
+- Release safety: no secrets / keys / private IPs. Lab hostname, personal email and home paths in reports and the username / uid inside hashed raw metadata are listed with recommendations; raw metadata is deliberately not edited (it would break provenance). No LICENSE exists — left to the owner (teammate commits on `main`); README gained a third-party notice (COCO images are not redistributed).
+
+Important limitation:
+
+- Browser QA covered Firefox only; Chromium / Safari were not available on the server.
+
+
+## 2026-11-12 Dashboard Visual Design Refinement
+
+Prompt summary:
+
+- Final visual refinement of the dashboard on `phase4/ui-refinement`: critique first, one design direction, edit the existing front end, verify in a real browser; no data / KPI / provenance / runtime / cost-model changes; Guard and Adaptive side by side; `report/UI_REFINEMENT_RESULT.md`.
+
+Implementation decision:
+
+- Restrained instrument-like direction: cool neutral tokens, a 1.2 type scale and a 4–72 px spacing scale in `style.css`; no eyebrows, all-caps labels or colored border-left callouts; the arm colors stay bound to their arms.
+- The Overview now leads with a positioning question, a one-sentence system description, a data-driven answer, and a chart in which Latest / Guard / Adaptive share one zero-based axis with their paired CIs. Guard and Adaptive are never framed as winner and runner-up.
+- Scheduling: the main chart shows only the three same-architecture arms (auto zero-based axis), so the main result is no longer compressed by FIFO / legacy at 100%. The full six-arm 0–100% chart is kept and shades the range the main chart covers. Per-block paired differences are drawn as open circles only when their mean reproduces the reported paired mean (15/15 condition × metric combinations matched), so the display cannot contradict the KPI table.
+
+Important limitation:
+
+- Follow-up (owner decision): the project name is unified as "OS-Aware Edge AI Runtime" (dashboard, README, AGENTS.md, architecture title, package docstring, setup script, draft final report). "EDA-Lite" now names only the simulator, and "OS-aware" EDA-Lite rows keep their technical meaning; historical log entries were not rewritten.
+- Cross-browser check with Playwright Chromium 158 (Blink, as in Chrome) and WebKit 27.2 (Safari's engine), installed in a scratch directory only: 90 layout states per engine with 0 problems, 0 JS errors, all filters / deep links / hover / keyboard / touch checks pass (the only miss is a sub-pixel bar segment that also misses in Firefox).
+- System fonts (no bundled typeface); WebKit on Linux stands in for Safari, so a check on real macOS / iOS Safari is still recommended.
+
+## 2026-11-12
+
+Prompt summary:
+
+- Rewrite the top-level README as a Traditional Chinese user manual (English technical terms kept) and move the development / research record out of it into `docs/` as reports.
+
+Implementation decision:
+
+- `README.md` now covers what the project is, requirements, quickstart, dashboard usage (views, URL parameters, serve script, rebuild exit codes), EDA-Lite usage, ROS 2 experiments, provenance checks, tests / CI, layout, FAQ, limitations and notices.
+- Former README content moved, translated, to `docs/RESEARCH_REPORT.md` (findings, mechanism, methodology, limitations, future work), `docs/DATA_PROVENANCE.md` (data chain, gates, regeneration, CI) and `docs/DEVELOPMENT_HISTORY.md` (phase history + categorized index of `report/`); `docs/README.md` indexes them. No numbers changed; `report/` files are unchanged.
+- Follow-up after the Final Visual Polish: README dashboard section updated for the Overview hero result, enlargeable architecture diagram, mobile **Sections** menu and the *Measured* / *Concept illustration* labels; `docs/DEVELOPMENT_HISTORY.md` and `docs/README.md` list the `polish_*` screenshots.
+
+## 2026-11-12 Dashboard Final Visual Polish
+
+Prompt summary:
+
+- Final polish within the existing design: stronger Overview main result, enlargeable architecture diagram, accessible mobile navigation, a labelled Deadline-Guard concept illustration, and evidence-matched technical wording.
+
+Implementation decision:
+
+- Hero result values come from `D.kpis` / `armRow()`; Adaptive is shown beside Deadline-Guard, not as the winner. Limitations note added under the hero.
+- Mobile nav: collapsible button + vertical list (`assets/nav.js`), all six destinations on both pages.
+- Concept illustration uses fixed example values and is labelled as such; only the deadline is read from the bundle. The measured chart is tagged Measured.
+- Wording: "pre-registered" → pre-specified (internal plan, no external registration); no "identical host state"; "predicted to miss" instead of "certain to be late". Builder strings changed and the bundle rebuilt: 8 string fields changed, 0 numeric fields.
+- Verified in Firefox, Chromium 158 and WebKit 27.2; CI exit 0. Not committed.
+
+## 2026-11-12 Release v1.0.0 Preparation
+
+Prompt summary:
+
+- Final release preparation on a release branch: confirm history (7f0f160 still an ancestor), add an MIT LICENSE if no conflict, add a verified GitHub Pages workflow for `dashboard/`, check public information and subpath readiness, re-run all checks, commit. No push, merge, main change or visibility change.
+
+Implementation decision:
+
+- License: a second contributor's code is still in HEAD and the git author name is not a legal name, so the owner was asked first. Owner decision: the contributor consented; copyright holder "samhung1205 and contributors". `src/ros2_uav_pipeline/package.xml` / `setup.py` keep `license TODO` because editing the Phase 3 gate's runtime paths would make it BROKEN.
+- Pages: the existing untracked draft workflow was kept (same structure and verified action versions) and documented; checks call the gate scripts directly so BLOCKED also stops a deployment. New tests pin the check order, `fetch-depth: 0`, the `dashboard`-only artifact, relative dashboard paths and the license.
+- Identifying strings in older `report/` files were reported, not edited (owner decision, as in FINAL_QA §3.2). Details: `report/RELEASE_v1.0.0.md`.

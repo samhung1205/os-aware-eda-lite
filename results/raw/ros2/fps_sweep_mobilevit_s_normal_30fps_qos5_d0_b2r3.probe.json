@@ -1,0 +1,108 @@
+{
+  "cgroup": "/sys/fs/cgroup/user.slice/user-1007.slice/user@1007.service/app.slice/run-r94d4ffe376bd4e49b1b8f366fd29c076.scope",
+  "cgroup_usage": {
+    "cpu_usage_usec_at_end": 189993118,
+    "max_memory_current_mb": 406.6,
+    "max_swap_current_bytes": 0,
+    "memory_peak_mb": 414.7
+  },
+  "dds": {
+    "expect_shm_only": true,
+    "expected_segment_bytes": 16777216,
+    "max_udp_sockets": {
+      "detector": 0,
+      "publisher": 0
+    },
+    "reasons": [],
+    "shm_segment_sizes": [
+      52400,
+      16802336
+    ],
+    "verified": true
+  },
+  "ended_at": 1794299011.3812752,
+  "host": {
+    "loadavg_1m_max": 2.7,
+    "loadavg_1m_min": 2.45,
+    "udp_snmp_delta": {
+      "InDatagrams": 1023,
+      "InErrors": 0,
+      "RcvbufErrors": 0
+    },
+    "watched_cpus_busy_pct": {
+      "12": 22.71,
+      "13": 2.69,
+      "14": 87.7,
+      "15": 0.35
+    }
+  },
+  "interval_s": 1.0,
+  "nodes": {
+    "detector": {
+      "avg_cpu_percent_sampled": -0.92,
+      "cpus_allowed": [
+        "12,14"
+      ],
+      "max_rss_mb": 465.3,
+      "max_threads": 10,
+      "max_udp_sockets": 0,
+      "nice": [
+        10
+      ],
+      "pid": 957934,
+      "pid_changes": [
+        957934
+      ],
+      "samples": 60,
+      "shm_segment_sizes": [
+        52400,
+        16802336
+      ],
+      "shm_segments": [
+        "/dev/shm/fastrtps_40c13cacad8f236d",
+        "/dev/shm/fastrtps_64080b9e31a0d390",
+        "/dev/shm/fastrtps_965ef6b2ce2932b7",
+        "/dev/shm/fastrtps_e63d6b2617615759",
+        "/dev/shm/fastrtps_port29150",
+        "/dev/shm/fastrtps_port29162",
+        "/dev/shm/fastrtps_port29163",
+        "/dev/shm/fastrtps_port29164",
+        "/dev/shm/fastrtps_port29165"
+      ]
+    },
+    "publisher": {
+      "avg_cpu_percent_sampled": 7.88,
+      "cpus_allowed": [
+        "12,14"
+      ],
+      "max_rss_mb": 121.7,
+      "max_threads": 10,
+      "max_udp_sockets": 0,
+      "nice": [
+        10
+      ],
+      "pid": 957932,
+      "samples": 59,
+      "shm_segment_sizes": [
+        52400,
+        16802336
+      ],
+      "shm_segments": [
+        "/dev/shm/fastrtps_64080b9e31a0d390",
+        "/dev/shm/fastrtps_965ef6b2ce2932b7",
+        "/dev/shm/fastrtps_port29150",
+        "/dev/shm/fastrtps_port29162",
+        "/dev/shm/fastrtps_port29163",
+        "/dev/shm/fastrtps_port29164",
+        "/dev/shm/fastrtps_port29165"
+      ]
+    }
+  },
+  "probe_cpus_allowed": [
+    12,
+    14
+  ],
+  "run_id": "fps_sweep_mobilevit_s_normal_30fps_qos5_d0_b2r3",
+  "schema": "ros2_runtime_probe/v1",
+  "started_at": 1794298951.3817332
+}

@@ -1,6 +1,6 @@
 # ROS2 Experiment Scripts
 
-These scripts drive the ROS2 MobileViT/UAV pipeline checked in under `src/ros2_uav_pipeline/` (default `ROS2_LAUNCH_TARGET`), or an installed equivalent package (`ROS2_LAUNCH_TARGET=""` + `ROS2_PACKAGE` / `ROS2_LAUNCH_FILE`). They are parameterized through environment variables and have not yet been run on the Phase 2 Linux machine. Environment: `conda env create -f environment.yml` (ROS 2 Humble, Python 3.10, pinned `requirements-ros2.txt`).
+These scripts drive the ROS2 MobileViT/UAV pipeline checked in under `src/ros2_uav_pipeline/` (default `ROS2_LAUNCH_TARGET`), or an installed equivalent package (`ROS2_LAUNCH_TARGET=""` + `ROS2_PACKAGE` / `ROS2_LAUNCH_FILE`). They are parameterized through environment variables. Phase 2 / Batch 1 ran a 5 FPS / 20 s MobileViT-XXS smoke test with them on the Linux server (`report/PHASE2_BATCH1_RESULT.md`); Phase 2 / Batch 2 ran the formal constrained baseline through `scripts/run_baseline_experiments.sh` (`report/PHASE2_BATCH2_RESULT.md`). Environment: `conda env create -f environment.yml` (ROS 2 Humble, Python 3.10, pinned `requirements-ros2.txt`).
 
 The main ROS2 experiment path is FPS, QoS depth, and artificial overload sweeps. YOLO-specific execution is legacy/paused.
 
@@ -44,3 +44,29 @@ A sweep point succeeds only if it was still running when `timeout` stopped it (e
 Before each launch the scripts write `$RESULTS_DIR/<run_id>.meta.json` (`python3 -m src.ros2_runtime.run_metadata`, run from the repository root): git commit, OS/kernel, CPU, Python/torch versions, `ROS_DISTRO` / `RMW_IMPLEMENTATION` / DDS transport variables, node QoS, `net.core.*` buffers as read, the experiment parameters, and requested (`REQUESTED_CPUS`, `REQUESTED_MEMORY_MAX`) vs effective limits with a `measurement_class`. A run whose requested limits cannot be verified fails before launch unless `ALLOW_UNVERIFIED_LIMITS=1`.
 
 The scripts never run `sudo` or change sysctls, cgroups or conda/RoboStack setup. Do not report generated CSVs as measured runtime data unless they came from a real ROS2 run and `python3 scripts/check_runtime_provenance.py` reports `VERIFIED`.
+
+## Same-host DDS transport
+
+With the RMW default transports and `net.core.rmem_max = 212992`, BEST_EFFORT delivery of the ~0.4–1.2 MB COCO128 frames lost 50–85% of frames at 5 FPS (CycloneDDS/UDP ~99%). `fastdds_shm_large.xml` switches Fast DDS to a shared-memory-only transport with a 16 MB segment (no sudo, process-local):
+
+```bash
+export FASTRTPS_DEFAULT_PROFILES_FILE="$PWD/experiments/ros2/fastdds_shm_large.xml"
+export ROS_DOMAIN_ID=87   # unused domain on a shared host
+```
+
+The profile path, SHA-256 and parsed transports are recorded in each `<run_id>.meta.json` (`dds_profile`). Keep one transport setting per comparison.
+
+Runtime verification (Phase 2 / Batch 2): every launch is accompanied by `python3 -m src.ros2_runtime.runtime_probe` in the same scope, which writes `<run_id>.probe.json` (UDP sockets and `/dev/shm/fastrtps_*` segment sizes of publisher and detector, per-node CPU / RSS / affinity / nice, cgroup memory, host load, busy time of the allowed CPUs and their SMT siblings). With an SHM-only profile, a run whose nodes opened a UDP socket or mapped no segment of the configured size is failed and renamed to `*.failed` (a malformed XML that Fast DDS rejects falls back to UDP + 512 KB SHM and is caught this way). `RUNTIME_PROBE=0` disables the probe; `REQUIRE_DDS_VERIFIED=0` keeps the probe but not the gate. After each launch the scripts wait up to `NODE_EXIT_TIMEOUT` (15 s) for its nodes to exit before the next run.
+
+## Scheduling sweep (Phase 3 / Batch 1)
+
+`run_sched_sweep.sh` runs one launch per arm of `SCHED_ARMS` (`legacy_qos:<depth>`, `fifo`, `latest_frame`, `adaptive`) at one `MODEL_NAME` / `INPUT_FPS` / `FAKE_DELAY_MS`, in the given order; `scripts/run_baseline_experiments.sh` runs it with `SWEEPS=sched` inside the same taskset / systemd-run / nice scope as the baseline. Application arms use DDS KEEP_LAST `SCHED_DDS_DEPTH` (default 10; the ingestion callback drains it continuously) and an application queue of `QUEUE_CAPACITY` (default 5). Policy parameters: `FIFO_OVERFLOW`, `ADAPTIVE_WINDOW`, `ADAPTIVE_QUANTILE`, `ADAPTIVE_MARGIN_MS`, `ADAPTIVE_OVERLOAD_THRESHOLD`; `INTRA_OP_THREADS` (default 1, all arms). Every value goes to `<run_id>.meta.json` (`experiment.*`, plus `scheduler_arm`, `arm_position`, `run_tag`) and the applied configuration to every CSV row. Default `RESULTS_DIR` is `results/raw/ros2_phase3_pilot` — never the Phase 2 `results/raw/ros2`.
+
+`run_sched_pilot.sh` is the interleaved short A/B driver: `REPEATS` × `PILOT_CONDITIONS` (`model:fps`), condition order reversed on even repeats, arm order rotated per (repeat, condition); it refuses a dirty git tree and `DRY_RUN=1` prints the plan only.
+
+## Formal scheduling A/B benchmark (Phase 3 / Batch 2)
+
+- New arm `deadline_guard` (label `guard_c<C>_q<D>`): `adaptive` without the utilisation switch (ablation).
+- `FPS_SCHEDULE="<fps>@<s>,..."` (optional) makes the publisher change its rate from frame 0; the run gets `scenario=sched_dynamic` and a `dyn...` rate label in the run_id, and `fps_schedule` is recorded in meta.json. Empty = unchanged fixed-rate mode.
+- `run_sched_formal.sh`: `FORMAL_CONDITIONS` = `name|model|fps|delay|schedule|blocks` items (default S 20 FPS × 5 blocks; S 10, S 30, XXS 30 FPS + 25 ms delay, S 10→20→10 × 3 blocks), `SCHED_ARMS` (default all six arms), `RUN_SECONDS` (default 65), `RESULTS_DIR` (default `results/raw/ros2_phase3_formal`). Before every block: clean git tree (exit 3) and `host_load_gate` (`LOAD_MAX_BUSY_PCT` 15, `LOAD_MAX_LOADAVG` 6, `LOAD_MAX_WAIT_S` 1800; exit 4 when the host stays busy). Gate decisions go to `$RESULTS_DIR/load_gate.jsonl`.
+

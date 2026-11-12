@@ -12,6 +12,7 @@ import importlib.util
 import json
 import math
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -200,7 +201,7 @@ class DependencySplitTest(unittest.TestCase):
 
     def test_simulator_and_analysis_modules_import_only_the_standard_library(self):
         stdlib = set(sys.stdlib_module_names)
-        roots = [REPO / "src/eda_lite", REPO / "src/ros2_runtime", REPO / "src/provenance.py",
+        roots = [REPO / "src/eda_lite", REPO / "src/ros2_runtime", REPO / "src/dashboard", REPO / "src/provenance.py",
                  *sorted((REPO / "scripts").glob("*.py"))]
         files = [p for r in roots for p in (r.rglob("*.py") if r.is_dir() else [r])]
         for path in files:
@@ -276,6 +277,68 @@ class ContinuousIntegrationTest(unittest.TestCase):
             self.assertNotIn("conda", command)
             self.assertNotIn("apt", command)
         self.assertNotIn("continue-on-error", text)
+        # The Phase 3 gate needs the measurement commit in history: the job that runs it must not
+        # use the default shallow checkout (it would report BROKEN on GitHub but pass locally).
+        jobs = re.split(r"\n  (?=[a-z][\w-]*:\n)", text.split("\njobs:\n", 1)[1])
+        gate_jobs = [j for j in jobs if "ci_checks.sh provenance" in j]
+        self.assertEqual(len(gate_jobs), 1)
+        self.assertIn("fetch-depth: 0", gate_jobs[0])
+
+    def test_pages_workflow_verifies_before_publishing_dashboard_only(self):
+        """Release v1.0.0: Pages deploys dashboard/ from main only after every evidence check."""
+
+        text = (REPO / ".github/workflows/pages.yml").read_text(encoding="utf-8")
+        self.assertIn("branches: [main]", text)
+        self.assertIn("workflow_dispatch:", text)
+        self.assertIn("if: github.ref == 'refs/heads/main'", text)
+        self.assertIn("fetch-depth: 0", text)  # Phase 3 gate needs the measurement commit
+        self.assertNotIn("continue-on-error", text)
+        commands = [ln.split("run:", 1)[1].strip() for ln in text.splitlines() if ln.strip().startswith("run:")]
+        for command in commands:  # nothing installed: stdlib only, no ROS 2
+            for tool in ("pip", "conda", "apt", "npm"):
+                self.assertNotIn(tool, command)
+        checks = ["python3 scripts/check_runtime_provenance.py",
+                  "python3 scripts/check_phase3_provenance.py --expect-runs 102",
+                  "python3 scripts/check_table_regeneration.py",
+                  "python3 -m src.dashboard.build_data --check"]
+        self.assertEqual(commands, checks)
+        upload = text.index("actions/upload-pages-artifact@")
+        for check in checks:  # every check runs before the artifact is uploaded
+            self.assertLess(text.index(check), upload)
+        self.assertRegex(text[upload:], r"with:\n\s+path: dashboard\n")
+        self.assertEqual(len(re.findall(r"^\s+path:", text, re.M)), 1)
+        self.assertIn("actions/deploy-pages@", text)
+        self.assertIn("needs: build", text)
+        # ci.yml is kept alongside it
+        self.assertTrue((REPO / ".github/workflows/ci.yml").is_file())
+
+    def test_dashboard_uses_only_relative_paths_inside_dashboard(self):
+        """The site must work under a repository subpath (https://<user>.github.io/<repo>/)."""
+
+        site = REPO / "dashboard"
+        refs = re.compile(r"""(?:src|href)\s*=\s*["']([^"']+)["']|url\(\s*["']?([^"')]+)""")
+        files = [*site.glob("*.html"), *site.glob("assets/*.js"), *site.glob("assets/*.css")]
+        self.assertTrue(files)
+        for path in files:
+            text = path.read_text(encoding="utf-8")
+            for match in refs.finditer(text):
+                ref = match.group(1) or match.group(2)
+                if ref.startswith(("#", "data:")) or "${" in ref:
+                    continue
+                with self.subTest(file=path.name, ref=ref):
+                    self.assertFalse(ref.startswith(("/", "http:", "https:", "//")), "absolute or external")
+                    self.assertNotIn("..", ref, "points outside dashboard/")
+                    # CSS url() resolves against the stylesheet; HTML and links built in JS
+                    # resolve against the page, which is always in dashboard/.
+                    base = path.parent if path.suffix == ".css" else site
+                    target = (base / ref.split("#", 1)[0].split("?", 1)[0]).resolve()
+                    self.assertTrue(target.is_file(), f"missing {target}")
+                    self.assertTrue(target.is_relative_to(site.resolve()))
+
+    def test_license_is_mit(self):
+        text = (REPO / "LICENSE").read_text(encoding="utf-8")
+        self.assertTrue(text.startswith("MIT License\n"))
+        self.assertRegex(text, r"Copyright \(c\) \d{4} \S")
 
     @unittest.skipIf(shutil.which("bash") is None, "bash required")
     def test_ci_script_syntax_and_usage(self):
