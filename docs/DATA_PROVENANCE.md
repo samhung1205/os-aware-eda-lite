@@ -95,6 +95,8 @@ python3 scripts/check_table_regeneration.py
 
 CI 不安裝 ROS 2；gate 回報 `BLOCKED` 時只當作警告，永遠不會被轉為 `VERIFIED`。
 
+**GitHub Pages**（`.github/workflows/pages.yml`）比 CI 更嚴格：兩個 gate 必須回報 `VERIFIED`（`BLOCKED` 也會中止），表格必須可從 raw 重建、bundle 必須為最新，之後才只發布 `dashboard/`。發布內容只有 HTML / CSS / JS 與 bundle，不含 raw metadata。
+
 ---
 
 ## 7. Run metadata 與隱私

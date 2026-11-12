@@ -1,0 +1,83 @@
+# Publish the static dashboard (dashboard/ only) to GitHub Pages.
+#
+# The site is deployed only after the same evidence checks as CI pass on the exact commit:
+# both provenance gates must report VERIFIED (exit 0; BLOCKED or BROKEN stops the deploy),
+# every Phase 2 / Phase 3 table must rebuild from the raw runs, and the committed dashboard
+# bundle must match a fresh build. No ROS 2, no pip install, no external CDN, no backend:
+# the page is plain HTML/CSS/JS with relative paths, so it works under /<repository>/.
+# The CI workflow (ci.yml) is unchanged and still runs on every push.
+name: Deploy Dashboard to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# One deployment at a time; never cancel a deployment that is already running.
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: verify evidence chain, package dashboard/
+    # workflow_dispatch can be started from any branch; only main is ever published.
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository (full history)
+        uses: actions/checkout@v6
+        with:
+          # The Phase 3 gate checks that the measurement commit (7f0f160) is an ancestor of HEAD
+          # and that runtime code is unchanged since; a shallow clone reports BROKEN.
+          fetch-depth: 0
+
+      - name: Set up Python (standard library only)
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.10"
+
+      - name: Verify Phase 2 provenance (must be VERIFIED)
+        run: python3 scripts/check_runtime_provenance.py
+
+      - name: Verify Phase 3 provenance (must be VERIFIED, 102 formal runs)
+        run: python3 scripts/check_phase3_provenance.py --expect-runs 102
+
+      - name: Verify tables rebuild from raw runs
+        run: python3 scripts/check_table_regeneration.py
+
+      - name: Verify dashboard bundle is current
+        run: python3 -m src.dashboard.build_data --check
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload dashboard/ as the Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: dashboard
+
+  deploy:
+    name: deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

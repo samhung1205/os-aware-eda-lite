@@ -412,3 +412,15 @@ Implementation decision:
 - Concept illustration uses fixed example values and is labelled as such; only the deadline is read from the bundle. The measured chart is tagged Measured.
 - Wording: "pre-registered" → pre-specified (internal plan, no external registration); no "identical host state"; "predicted to miss" instead of "certain to be late". Builder strings changed and the bundle rebuilt: 8 string fields changed, 0 numeric fields.
 - Verified in Firefox, Chromium 158 and WebKit 27.2; CI exit 0. Not committed.
+
+## 2026-11-12 Release v1.0.0 Preparation
+
+Prompt summary:
+
+- Final release preparation on a release branch: confirm history (7f0f160 still an ancestor), add an MIT LICENSE if no conflict, add a verified GitHub Pages workflow for `dashboard/`, check public information and subpath readiness, re-run all checks, commit. No push, merge, main change or visibility change.
+
+Implementation decision:
+
+- License: a second contributor's code is still in HEAD and the git author name is not a legal name, so the owner was asked first. Owner decision: the contributor consented; copyright holder "samhung1205 and contributors". `src/ros2_uav_pipeline/package.xml` / `setup.py` keep `license TODO` because editing the Phase 3 gate's runtime paths would make it BROKEN.
+- Pages: the existing untracked draft workflow was kept (same structure and verified action versions) and documented; checks call the gate scripts directly so BLOCKED also stops a deployment. New tests pin the check order, `fetch-depth: 0`, the `dashboard`-only artifact, relative dashboard paths and the license.
+- Identifying strings in older `report/` files were reported, not edited (owner decision, as in FINAL_QA §3.2). Details: `report/RELEASE_v1.0.0.md`.

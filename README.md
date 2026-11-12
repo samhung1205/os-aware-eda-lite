@@ -22,7 +22,7 @@
 10. [常見問題（FAQ）](#10-常見問題faq)
 11. [使用限制與注意事項](#11-使用限制與注意事項)
 12. [延伸文件](#12-延伸文件)
-13. [資料與第三方授權](#13-資料與第三方授權)
+13. [授權與第三方資料](#13-授權與第三方資料)
 
 ---
 
@@ -71,7 +71,7 @@
 git clone <repo-url> os-aware-eda-lite     # 請用完整 clone，不要 --depth 1（原因見 FAQ）
 cd os-aware-eda-lite
 
-python3 -m unittest discover -s tests                      # 1. 跑測試：266 tests（ROS 2 部分以 mock 進行）
+python3 -m unittest discover -s tests                      # 1. 跑測試：269 tests（ROS 2 部分以 mock 進行）
 python3 scripts/check_runtime_provenance.py                # 2. Phase 2 baseline 資料驗證 → VERIFIED
 python3 scripts/check_phase3_provenance.py --expect-runs 102   # 3. Phase 3 A/B 資料驗證 → VERIFIED
 bash scripts/serve_dashboard.sh                            # 4. 開啟 Dashboard（127.0.0.1:8765）
@@ -89,6 +89,7 @@ Dashboard 是放在 [`dashboard/`](dashboard/) 的純靜態網站（HTML / CSS /
 
 | 情境 | 做法 |
 |---|---|
+| 線上版（GitHub Pages，啟用後） | `https://samhung1205.github.io/os-aware-eda-lite/`；只有通過所有驗證的 `main` 才會發布（見 [8.1](#81-github-pages-自動發布)） |
 | 本機 | `bash scripts/serve_dashboard.sh`，打開 `http://127.0.0.1:8765/` |
 | 遠端伺服器 + VS Code Remote SSH | 執行同一個指令；VS Code 會自動轉發 port（Ports 面板 → Open in Browser） |
 | 遠端伺服器 + 一般 SSH | 本機執行 `ssh -L 8765:127.0.0.1:8765 <server>`，再打開 `http://127.0.0.1:8765/` |
@@ -328,7 +329,7 @@ python3 scripts/check_table_regeneration.py
 ## 8. 測試與 CI
 
 ```bash
-python3 -m unittest discover -s tests     # 266 tests，stdlib only
+python3 -m unittest discover -s tests     # 269 tests，stdlib only
 bash scripts/ci_checks.sh all             # 與 GitHub Actions 完全相同的檢查
 ```
 
@@ -344,6 +345,16 @@ bash scripts/ci_checks.sh all             # 與 GitHub Actions 完全相同的�
 | `repeat [N]` | 連續跑 N 次測試（預設 5） |
 
 CI（`.github/workflows/ci.yml`）在 Python 3.10–3.13 上執行上述檢查，不安裝 ROS 2。
+
+### 8.1 GitHub Pages 自動發布
+
+`.github/workflows/pages.yml` 在 push 到 `main` 或手動執行（`workflow_dispatch`）時：
+
+1. 以完整 Git 歷史 checkout（`fetch-depth: 0`，Phase 3 gate 需要量測 commit `7f0f160`）。
+2. 依序檢查：Phase 2 provenance、Phase 3 provenance（102 runs）、表格可從 raw 重建、Dashboard bundle 為最新。任一步失敗就不發布；`BLOCKED` 也算失敗。
+3. 全部通過後，用 GitHub 官方 actions（`configure-pages`、`upload-pages-artifact`、`deploy-pages`）**只發布 `dashboard/`**。
+
+不需要 ROS 2、外部 CDN 或後端；Dashboard 只用相對路徑，可在 `/<repository>/` 子路徑下運作（有測試檢查）。首次使用需在 GitHub repo 的 **Settings → Pages → Build and deployment → Source** 選 **GitHub Actions**。
 
 ---
 
@@ -363,6 +374,8 @@ data/model_profiles/     簡化的 MobileViT block profile
 results/                 raw/（原始 run）、csv/（表格 + manifest）、figures/（腳本產生的 SVG）
 scripts/                 CI 步驟、provenance gate、表格重建檢查、Dashboard 伺服器
 tests/                   unittest，stdlib only
+.github/workflows/       ci.yml（每次 push 的 CI）、pages.yml（驗證後發布 Dashboard 到 GitHub Pages）
+LICENSE                  MIT
 docs/                    使用參考手冊、研究報告、資料來源報告、開發歷程、截圖
 report/                  各階段的詳細結果報告、final report 草稿、AI interaction log
 ```
@@ -419,8 +432,9 @@ A：不行。example 是範例，legacy-unverified 沒有原始資料可驗證�
 
 ---
 
-## 13. 資料與第三方授權
+## 13. 授權與第三方資料
 
+- **本專案程式碼與文件**：[MIT License](LICENSE)，Copyright (c) 2026 samhung1205 and contributors。下列第三方資料、模型與軟體仍依其各自的授權。
 - **影像不隨 repo 散佈**：benchmark 使用 COCO 2017 的 COCO128 子集（Ultralytics 版本），由 `experiments/ros2/prepare_coco128.sh` 下載到 git-ignored 的 `data/raw/images/`。COCO annotations 為 CC BY 4.0，影像保留原 Flickr 授權（[COCO terms of use](https://cocodataset.org/#termsofuse)）。`results/raw/` 只記錄 frame id 與時間，不含影像內容。
 - **模型**：MobileViT（Mehta & Rastegari, ICLR 2022），透過 `timm`（Apache-2.0）建立隨機權重，不包含也不下載預訓練權重。`data/model_profiles/*` 是依公開架構整理的簡化 block 摘要。
 - **Runtime**：ROS 2 Humble、eProsima Fast DDS（Apache-2.0）、PyTorch（BSD-3-Clause），需另行安裝，未隨 repo 提供。

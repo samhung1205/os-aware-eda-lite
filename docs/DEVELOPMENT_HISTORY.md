@@ -11,7 +11,7 @@
 | **Phase 1** | EDA-Lite 模擬器、correctness / reproducibility audit 修正、CI、provenance 工具 | `report/PHASE1_*`、`report/audit_p0_p1_p2.md` |
 | **Phase 2** | Linux + ROS 2 環境建置；75 個 constrained baseline run，provenance `VERIFIED` | `report/PHASE2_BATCH1_RESULT.md`、`report/PHASE2_BATCH2_RESULT.md` |
 | **Phase 3** | 排程策略實作 + pilot；102 個 run 的正式 A/B benchmark 與 Deadline-Guard ablation | `report/PHASE3_BATCH1_RESULT.md`、`report/PHASE3_BATCH2_RESULT.md` |
-| **Phase 4** | Dashboard、資料管線、文件；最終 QA、視覺設計精修與最終微調；README 改寫為繁中使用說明書，研究與開發紀錄移至 `docs/` | `report/PHASE4_RESULT.md`、`report/FINAL_QA.md`、`report/UI_REFINEMENT_RESULT.md` |
+| **Phase 4** | Dashboard、資料管線、文件；最終 QA、視覺設計精修與最終微調；README 改寫為繁中使用說明書，研究與開發紀錄移至 `docs/`；v1.0.0 發布準備（MIT LICENSE、GitHub Pages workflow） | `report/PHASE4_RESULT.md`、`report/FINAL_QA.md`、`report/UI_REFINEMENT_RESULT.md` |
 
 ### 方向演變
 
@@ -60,6 +60,7 @@
 |---|---|
 | [`report/PHASE4_RESULT.md`](../report/PHASE4_RESULT.md) | Dashboard、已驗證資料管線、作品集文件 |
 | [`report/FINAL_QA.md`](../report/FINAL_QA.md) | 發佈前 QA 與待擁有者決定事項 |
+| [`report/RELEASE_v1.0.0.md`](../report/RELEASE_v1.0.0.md) | v1.0.0 發布準備：LICENSE、GitHub Pages workflow、公開資訊檢查、驗證結果、PR 與 Pages 設定指引 |
 | [`report/UI_REFINEMENT_RESULT.md`](../report/UI_REFINEMENT_RESULT.md) | Dashboard 視覺設計精修（§1–9）與 Final Visual Polish（§10：Overview 主結果、可放大架構圖、手機收合選單、Deadline-Guard 概念圖、用語修正）；截圖在 [`images/ui_refinement/`](images/ui_refinement/)（`before_*` / `after_*` 為精修前後，`polish_*` 為最終微調） |
 
 ### 2.6 整合、Provenance 與總報告
