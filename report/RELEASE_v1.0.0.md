@@ -163,3 +163,20 @@ commit 7f0f160 in the history of main.
 5. **手動重新部署**：Actions → *Deploy Dashboard to GitHub Pages* → **Run workflow**（branch 選 `main`）。
 6. **合併後驗證**：在 `main` 執行 `python3 scripts/check_phase3_provenance.py --expect-runs 102`，應為 `VERIFIED`。之後可建立 tag：`git tag -a v1.0.0 -m "OS-Aware Edge AI Runtime v1.0.0"` 並 push，再在 GitHub 建立 Release。
 7. **Repo 設定（建議）**：description、topics 與 social preview（`docs/images/dashboard_overview.png`）見 `FINAL_QA.md` §5.2；可將網站網址填入 repo 的 *Website* 欄位。
+
+---
+
+## 8. 發布後修正：GitHub Pages 權限（`fix/pages-permissions`）
+
+PR #2 以 merge commit（`c58881c`）合併後，首次部署在 `actions/configure-pages@v5` 失敗：
+
+```text
+Get Pages site failed. HttpError: Resource not accessible by integration
+```
+
+- **根因**：§3 的 workflow 只在 workflow 層級宣告 `contents: read`。build job 沒有自己的 `permissions`，因此繼承這一組，token 沒有任何 `pages` 權限；`configure-pages` 需要讀取 Pages 站台設定（`GET /repos/{owner}/{repo}/pages`），因此回傳 403。Deploy job 有自己的 `permissions` 區塊，job 層級會**整組取代**（不是合併）workflow 層級，所以 deploy job 原本就有 `pages: write` 與 `id-token: write`，不受影響。
+- **修正**：build job 加上 job 層級 `contents: read` + `pages: read`；workflow 層級維持只有 `contents: read`（之後新增的 job 預設最小權限）。Deploy job 不變。不使用 PAT、不新增 secrets、不開啟 `enablement`。
+- **Node.js deprecation warning**（與本次失敗無關）：`configure-pages@v5` 執行於 Node 20；官方 `v6.0.0`（2026-03-25）唯一的功能變更是改用 Node 24，inputs / outputs 與 v5 完全相同，因此更新為 `@v6`。`deploy-pages@v4`（Node 20）與 `upload-pages-artifact@v4`（內含 `upload-artifact` v4）也會出現相同 warning，官方已有 `deploy-pages@v5` 與 `upload-pages-artifact@v5`（改用 `upload-artifact` v7）；不在本次範圍，留待之後確認。
+- **測試**：新增 `test_pages_workflow_permissions_are_minimal_per_job`，逐 job 檢查確切權限並禁止 secrets / PAT / `enablement`；以修正前的 workflow 執行此測試會失敗。
+- **驗證**：`bash scripts/ci_checks.sh all` exit 0（270 tests），Phase 2 / Phase 3 `VERIFIED`，tables `REPRODUCED`，bundle `CURRENT`。fetch-depth、四項檢查與只部署 `dashboard/` 皆未變。
+
