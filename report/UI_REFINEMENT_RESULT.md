@@ -192,3 +192,39 @@ WebKit 的 1 次 hover 失敗，與 Firefox 是同一個寬度不到 1 px 的「
 - **字型**：沒有自帶字型檔，使用 system sans。不同作業系統的字形會不同；版面已在 Firefox、Chromium、WebKit 上驗證。
 - **Safari**：只測了 WebKit 引擎（§5.1），沒有在實機 macOS / iOS Safari 上測試。
 - **手機上的架構圖**：在容器內水平捲動（最小寬度 760 px），沒有另外畫一張手機版架構圖。
+
+## 10. Final Visual Polish（2026-11-12）
+
+範圍：保留既有設計方向、色彩、資訊架構與原生 HTML/CSS/JS/SVG；只做以下必要微調。
+
+### 10.1 修改
+
+| 項目 | 修改 |
+|---|---|
+| Overview 主結果 | Hero 圖表面板頂部新增結果區：`Latest-Frame 26.5% → Deadline-Guard 15.9%`，Adaptive 15.9% 並列（不包裝為勝出），下一行 **−10.65 pp** paired difference、95% CI [−12.30, −9.01]、5/5 blocks 較低；標註條件（S · 20 FPS、ρ ≈ 1.15、100 ms deadline）。所有數字由 `D.kpis.guard_vs_latest_primary` 與 `armRow()` 讀取。面板底部加限制說明（單一主機、n = 5、latency-only、Adaptive − Guard 包含 0 不是等價檢定）並連到 Evidence。 |
+| 架構圖 | 圖片可點擊以新分頁開啟原尺寸 SVG，下方加「Open the full-size diagram」連結；手機上仍可水平捲動。未另畫 runtime flow，避免重複。 |
+| 手機導覽 | ≤640 px 時改為可收合選單：`button.nav-toggle`（`aria-expanded` / `aria-controls`，螢幕閱讀器朗讀目前頁面），展開後六個目的地垂直排列，點擊區 ≥ 44 px；點連結、Escape（焦點回到按鈕）或點外部會收合。`simulation.html` 的導覽列出全部五個量測頁 + 模擬頁。桌面版不變。新增 `dashboard/assets/nav.js`。 |
+| Mechanism 概念圖 | 在量測圖之前新增「How Deadline-Guard decides」，標示 **Concept illustration**：predicted latency = frame age + estimated service time（近期量測 service time 的 quantile），Frame A 30 + 55 = 85 ms ≤ 100 → Serve；Frame B 60 + 55 = 115 ms > 100 → Drop。範例值註明為示意非實測；只有 deadline 由 data bundle 讀取。原量測圖加上 **Measured** 標籤。 |
+| 用語 | Baseline 標題 → “Baseline Performance: Capacity, Queueing, and Overload”；Mechanism 標題 → “When and Why Deadline-Aware Scheduling Helps”；Scheduling 的 “same host state” → 同一 experimental block 降低 host-state 差異（不宣稱相同）；“pre-registered” → pre-specified / 內部預先設定的分析計畫（非外部 preregistration）；“transport is effectively lossless” → 以 ρ < 1 的 runs 最差 drop 描述；“certain to be late / already too old” → predicted to miss / first-order bound。 |
+| Builder 文字 | `src/dashboard/build_data.py` 的 findings 標題與 regime 說明字串同樣改寫，重建 bundle。新舊 JSON 逐欄比對：8 個字串欄位改變，**0 個非字串（數值）欄位改變**。 |
+| Tooltip 修正 | WebKit 鍵盤走訪時，若頁面捲動到靜止滑鼠下的其他元素會關閉 focus tooltip（偶發 50/51）。`charts.js` 改為焦點中的 mark 保留 tooltip；滑鼠 hover / 離開行為不變。 |
+
+### 10.2 驗證
+
+| 檢查 | 結果 |
+|---|---|
+| Firefox layout audit（1440/820 × light/dark + 390 iframe + 12 個 deep link） | CLEAN |
+| Firefox 互動 | filters 15/15、deep link OK、hover 30/30 · 60/60 · 50/51（既有 sub-pixel 段）、keyboard 46/46 |
+| Chromium 158 / WebKit 27.2 | 各 90 layout states，0 問題，0 JS error；filters 15/15；deep link、touch、details OK |
+| 手機導覽（兩引擎，index + simulation） | 預設收合、六個目的地全部可點 6/6、點擊後收合、按鈕標籤同步、Escape 收合並還原焦點、無水平捲動 |
+| 桌面導覽 | 六個連結全部可見，toggle 隱藏 |
+| Keyboard tooltip（修正後，兩引擎） | 51/51 |
+| `bash scripts/ci_checks.sh all` | exit 0：266 tests OK（1 skipped），Phase 2 / Phase 3 VERIFIED，tables REPRODUCED，bundle CURRENT（191 inputs） |
+| Impeccable detect | 只有 advisory「repeating-gradient stripes」：用於概念圖的 estimated service 斜線填充，用來區分「估計」與「實測」，刻意保留 |
+
+### 10.3 截圖
+
+- `docs/images/ui_refinement/polish_overview_hero.png`
+- `docs/images/ui_refinement/polish_mechanism_concept.png`、`polish_mechanism_concept_dark.png`
+- `docs/images/ui_refinement/polish_phone_nav.png`（手機 Overview、選單展開 light / dark）
+- README 截圖 `docs/images/dashboard_*.png` 已重拍。

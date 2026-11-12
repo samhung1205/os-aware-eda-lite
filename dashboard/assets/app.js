@@ -93,7 +93,7 @@
     const t = `<div class="table-wrap"><table><thead><tr>${th}</tr></thead><tbody>${tr}</tbody></table></div>`;
     return opts.toggle ? `<details class="table-toggle"${opts.open ? " open" : ""}><summary>${esc(opts.toggle)}</summary>${t}</details>` : t;
   }
-  const condOptions = () => S.conditions.map((c) => ({ value: c.id, label: c.label, html: esc(c.label) + (c.primary ? '<span class="star" title="pre-registered primary condition">primary</span>' : "") }));
+  const condOptions = () => S.conditions.map((c) => ({ value: c.id, label: c.label, html: esc(c.label) + (c.primary ? '<span class="star" title="primary condition, fixed in the analysis plan before the formal runs">primary</span>' : "") }));
 
   /* =============================== OVERVIEW =============================== */
   // Per-block differences for display only. They are drawn only when their mean reproduces the
@@ -120,23 +120,36 @@
     const cap = K.capacity;
     const F = {}; D.findings.forEach((f) => { F[f.id] = f; });
     const chain = (D.baseline.chain_records_verified || 0) + (S.chain_records_verified || 0);
+    const lat = armRow(pc.id, "latest_q10"), grd = armRow(pc.id, "guard_c5_q10"), ada = armRow(pc.id, "adaptive_c5_q10");
     sec.innerHTML = `
       <div class="hero">
         <div>
           <h2>Which frames should an overloaded edge detector skip?</h2>
           <p class="lede">A measured ROS 2 benchmark of frame-scheduling policies for a MobileViT detector on a constrained Linux host: two pinned CPU cores, a 4 GiB memory limit and a Fast DDS shared-memory transport verified on every run.</p>
-          <p class="answer">Skipping frames that can no longer finish inside the ${fmt(pc.deadline_ms, 0)} ms deadline (<b>Deadline-Guard</b>) lowers the effective miss rate by <b>${fmt(-g.mean, 1)} pp</b> against Latest-Frame at ${esc(pc.label)}. <b>Adaptive</b>, which adds a utilisation switch on top, lands in the same place: no measurable difference from Deadline-Guard.</p>
+          <p class="answer">Skipping frames that are predicted to miss the ${fmt(pc.deadline_ms, 0)} ms deadline (<b>Deadline-Guard</b>) lowers the effective miss rate by <b>${fmt(-g.mean, 1)} pp</b> against Latest-Frame at ${esc(pc.label)}. <b>Adaptive</b>, which adds a utilisation switch on top, lands in the same place: no measurable difference from Deadline-Guard.</p>
           <div class="links"><a href="#scheduling">Compare all six policies</a><a href="#mechanism">Why it works</a><a href="#evidence">How the data is verified</a></div>
         </div>
         <div class="panel hero-chart">
-          <div class="fig-head"><div class="titles"><h3>Effective miss at ${esc(pc.label)}</h3>
-            <p class="fig-sub">Dropped + late frames, % of published · same application architecture · ${pc.n_blocks} runs per policy · lower is better</p></div></div>
+          <div class="result" aria-label="Main result">
+            <p class="result-cap">Effective miss at ${esc(pc.label)} · ρ ≈ ${fmt(lat.utilization.mean, 2)} (overloaded) · ${fmt(pc.deadline_ms, 0)} ms deadline · lower is better</p>
+            <div class="result-row">
+              <div class="r-item"><span class="r-label">${sw(ARM.latest_q10.color)}Latest-Frame</span><span class="r-v">${fmt(lat.effective_miss_rate_pct.mean, 1)}%</span></div>
+              <svg class="r-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 8h33M29 3l6 5-6 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <div class="r-item"><span class="r-label">${sw(ARM.guard_c5_q10.color)}Deadline-Guard</span><span class="r-v">${fmt(grd.effective_miss_rate_pct.mean, 1)}%</span></div>
+              <div class="r-item r-peer"><span class="r-label">${sw(ARM.adaptive_c5_q10.color)}Adaptive</span><span class="r-v">${fmt(ada.effective_miss_rate_pct.mean, 1)}%</span></div>
+            </div>
+            <p class="r-diff"><b>${fmt(g.mean, 2)} pp</b> paired difference (Deadline-Guard − Latest-Frame) · 95% CI ${ci(g, 2)} · lower in ${g.n_neg} of ${g.n_blocks} blocks</p>
+          </div>
+          <hr class="fig-divider">
+          <div class="fig-head"><div class="titles"><h3>Every run</h3>
+            <p class="fig-sub">Dropped + late frames, % of published · same application architecture · ${pc.n_blocks} runs per policy</p></div></div>
           <div class="legend"><span class="k"><span class="sw dot" style="background:var(--ink-3)"></span>one run</span><span class="k"><span class="sw tick"></span>mean</span></div>
           <div class="chart" id="hero-dots"></div>
           <hr class="fig-divider">
           <div class="fig-head"><div class="titles"><h3>Paired difference within blocks</h3>
             <p class="fig-sub">Mean and 95% interval over ${g.n_blocks} blocks · open circles are single blocks</p></div></div>
           <div class="chart" id="hero-forest"></div>
+          <p class="fig-note">One host, n = ${g.n_blocks} blocks for this condition, latency only (random-initialised weights). Adaptive − Deadline-Guard includes 0, which is not an equivalence test. <a href="#evidence">Limitations</a></p>
         </div>
       </div>
 
@@ -151,13 +164,13 @@
         <div class="section-head"><div><h3>The system</h3>
           <p>One detector, one worker, a bounded queue in front of it, and a policy that decides which frame runs next.</p></div></div>
         <div class="prose-cols">
-          <div><h4>Problem</h4><p>MobileViT-S saturates at about ${fmt(cap.mobilevit_s.mean, 0)} FPS on two cores. When frames arrive faster, some must be skipped. Always running the newest frame still wastes work on frames that are already too old to finish within ${fmt(pc.deadline_ms, 0)} ms.</p></div>
-          <div><h4>Approach</h4><p>FIFO, Latest-Frame, Deadline-Guard and Adaptive share one application queue and one inference worker, so differences between them are policy effects. Deadline-Guard checks before inference whether a frame can still meet its deadline; Adaptive adds a utilisation switch.</p></div>
+          <div><h4>Problem</h4><p>MobileViT-S saturates at about ${fmt(cap.mobilevit_s.mean, 0)} FPS on two cores. When frames arrive faster, some must be skipped. Always running the newest frame can still spend inference time on frames that then finish after the ${fmt(pc.deadline_ms, 0)} ms deadline.</p></div>
+          <div><h4>Approach</h4><p>FIFO, Latest-Frame, Deadline-Guard and Adaptive share one application queue and one inference worker, so differences between them are policy effects. Deadline-Guard predicts, before inference, whether a frame can still meet its deadline; Adaptive adds a utilisation switch.</p></div>
           <div><h4>Evidence</h4><p>Policies run interleaved in blocks under identical controls and are compared within each block. Every table on this site is rebuilt from raw per-frame logs and checked against SHA-256 manifests before the page is generated.</p></div>
         </div>
-        <div class="panel arch-panel"><div class="arch-scroll">
+        <div class="panel arch-panel"><div class="arch-scroll"><a href="assets/architecture.svg" target="_blank" rel="noopener" class="arch-link" title="Open the full-size diagram">
           <img class="arch" src="assets/architecture.svg" alt="Architecture: image_stream_node publishes frames over Fast DDS shared memory to the MobileViT detector node. The legacy path runs inference in the DDS callback; the application path puts frames in a bounded queue served by one worker using FIFO, Latest-Frame, Deadline-Guard or Adaptive. Each run writes detector and publisher CSVs, metadata and a runtime probe; analysis tools build summaries and aggregates with SHA-256 manifests; provenance gates and the dashboard builder verify the chain. Separately, the EDA-Lite simulator turns simplified model profiles into cost-model estimates.">
-        </div><p class="arch-hint">Scroll sideways to see the whole diagram.</p></div>
+        </a></div><p class="arch-open"><a href="assets/architecture.svg" target="_blank" rel="noopener">Open the full-size diagram</a><span class="arch-hint"> · or scroll sideways</span></p></div>
       </section>
 
       <section class="section">
@@ -212,13 +225,13 @@
     const B = D.baseline;
     const cap = B.capacity, dm = B.drop_model;
     sec.innerHTML = `
-      <div class="view-head"><h2>How MobileViT-S and -XXS behave before any scheduling</h2>
+      <div class="view-head"><h2>Baseline Performance: Capacity, Queueing, and Overload</h2>
       <p>${B.n_runs} constrained runs over ${B.n_conditions} conditions (3 runs each): input rate, subscriber queue depth and injected service delay. Every run uses the legacy path (inference in the DDS callback).</p></div>
       <div class="controls" id="b-controls"></div>
       <div class="stat-row">
         <div class="stat"><div class="label">MobileViT-S saturated throughput</div><div class="v">${fmt(cap.mobilevit_s.mean, 1)}<span class="unit">FPS</span></div><div class="d">${fmt(cap.mobilevit_s.min, 1)}–${fmt(cap.mobilevit_s.max, 1)}, n=${cap.mobilevit_s.n_runs} runs · service ${fmt(cap.mobilevit_s.service_ms_mean, 1)} ms</div></div>
         <div class="stat"><div class="label">MobileViT-XXS saturated throughput</div><div class="v">${fmt(cap.mobilevit_xxs.mean, 1)}<span class="unit">FPS</span></div><div class="d">${fmt(cap.mobilevit_xxs.min, 1)}–${fmt(cap.mobilevit_xxs.max, 1)}, n=${cap.mobilevit_xxs.n_runs} runs · service ${fmt(cap.mobilevit_xxs.service_ms_mean, 1)} ms</div></div>
-        <div class="stat"><div class="label">Worst drop rate below capacity (ρ &lt; 1)</div><div class="v">${fmt(dm.below_capacity_max_drop_pct, 2)}<span class="unit">%</span></div><div class="d">across ${dm.below_capacity_runs} runs: transport is effectively lossless</div></div>
+        <div class="stat"><div class="label">Worst drop rate below capacity (ρ &lt; 1)</div><div class="v">${fmt(dm.below_capacity_max_drop_pct, 2)}<span class="unit">%</span></div><div class="d">worst of ${dm.below_capacity_runs} runs with ρ &lt; 1: almost every frame was delivered and processed</div></div>
         <div class="stat"><div class="label">Overload drops vs 1 − 1/ρ</div><div class="v">${fmt(dm.overloaded_mean_abs_gap_pp, 2)}<span class="unit">pp mean gap</span></div><div class="d">max ${fmt(dm.overloaded_max_abs_gap_pp, 2)} pp over ${dm.overloaded_runs} overloaded runs</div></div>
       </div>
       <div class="grid section-gap">
@@ -294,7 +307,7 @@
           <div class="chart" id="s1"></div>
           <p class="fig-note">Latest-Frame, Deadline-Guard and Adaptive share the same queue, worker and controls, so this axis fits their range. FIFO and the legacy arms are on the full-scale chart below.</p></div>
         <div class="span-5 panel"><div class="fig-head"><div class="titles"><h3>Block by block</h3><p class="fig-sub" id="s2-sub"></p></div></div><div class="chart" id="s2"></div>
-          <p class="fig-note">Each grey line is one block: the same host state for all three arms.</p></div>
+          <p class="fig-note">Each grey line is one experimental block. Running the arms back to back within a block reduces host-state variation between them; it does not make the host state identical.</p></div>
       </div>
       <div class="grid section-gap">
         <div class="span-7 panel"><div class="fig-head"><div class="titles"><h3>Paired differences: policy effect</h3><p class="fig-sub" id="s3-sub"></p></div></div>
@@ -392,13 +405,39 @@
   }
 
   /* =============================== MECHANISM =============================== */
+  // Concept illustration of the Deadline-Guard decision. The example ages and service estimate are
+  // illustrative constants, not measurements; only the deadline comes from the data bundle.
+  function conceptPanel(deadline) {
+    const svc = 55, scale = 130;
+    const ex = [
+      { name: "Frame A", age: 30, verdict: "serve", note: "predicted to finish in time: run inference" },
+      { name: "Frame B", age: 60, verdict: "drop", note: "predicted to miss: drop it and wait for the next frame" },
+    ];
+    const pct = (v) => `${(100 * v / scale).toFixed(2)}%`;
+    const rows = ex.map((f) => { const tot = f.age + svc, ok = tot <= deadline;
+      return `<div class="cg-row">
+        <div class="cg-name"><b>${f.name}</b><span>age ${f.age} ms</span></div>
+        <div class="cg-track" role="img" aria-label="${f.name}: age ${f.age} ms plus estimated service ${svc} ms equals ${tot} ms, ${ok ? "within" : "over"} the ${fmt(deadline, 0)} ms deadline">
+          <span class="cg-age" style="width:${pct(f.age)}"></span><span class="cg-svc" style="width:${pct(svc)}"></span>
+          <span class="cg-dl" style="left:${pct(deadline)}"></span>
+        </div>
+        <div class="cg-out"><span class="cg-sum">${tot} ms ${ok ? "≤" : ">"} ${fmt(deadline, 0)} ms</span><span class="cg-verdict ${ok ? "ok" : "no"}">${ok ? "Serve" : "Drop"}</span><span class="cg-note">${f.note}</span></div>
+      </div>`; }).join("");
+    return `<div class="panel concept"><div class="fig-head"><div class="titles"><h3>How Deadline-Guard decides</h3>
+        <p class="fig-sub">When the worker is free, each queued frame's latency is predicted as <b>frame age</b> (now − publish time) + <b>estimated service time</b> (a quantile of recently measured service times). The guard serves the newest frame whose prediction fits the deadline.</p></div>
+        <span class="tag">Concept illustration</span></div>
+      <div class="legend"><span class="k"><span class="sw cg-sw-age"></span>frame age</span><span class="k"><span class="sw cg-sw-svc"></span>estimated service time</span><span class="k"><span class="sw dash"></span>deadline ${fmt(deadline, 0)} ms</span></div>
+      ${rows}
+      <p class="fig-note">Example values (age 30 / 60 ms, estimated service ${svc} ms) are illustrative, not measured. The measured inter-arrival and service times follow below.</p></div>`;
+  }
   function renderMechanism(sec) {
     const Mx = D.mechanism, dyn = S.dynamic;
     const fixed = S.conditions.filter((c) => !c.dynamic);
     sec.innerHTML = `
-      <div class="view-head"><h2>Why a deadline check helps in one regime and nowhere else</h2>
-      <p>Under overload, the newest frame waiting when the worker frees up is between 0 and one inter-arrival interval old. If that age plus the service time can exceed the deadline, Latest-Frame processes frames that are already certain to be late. Deadline-Guard drops them and waits for the next one.</p></div>
-      <div class="panel"><div class="fig-head"><div class="titles"><h3>Worst-case age of the newest frame vs the deadline</h3><p class="fig-sub">inter-arrival interval + measured Latest-Frame service time, per fixed-rate condition</p></div></div>
+      <div class="view-head"><h2>When and Why Deadline-Aware Scheduling Helps</h2>
+      <p>Under overload, the newest frame waiting when the worker frees up is between 0 and one inter-arrival interval old. If that age plus the service time can exceed the deadline, Latest-Frame can spend inference time on frames that then finish late. Deadline-Guard predicts this before inference, drops frames predicted to miss, and waits for the next one.</p></div>
+      ${conceptPanel(COND[D.primary_condition].deadline_ms)}
+      <div class="panel section-gap"><div class="fig-head"><div class="titles"><h3>Worst-case age of the newest frame vs the deadline</h3><p class="fig-sub">inter-arrival interval (1000 / FPS) + measured Latest-Frame service time, per fixed-rate condition</p></div><span class="tag measured">Measured</span></div>
         <div class="legend"><span class="k"><span class="sw" style="background:var(--axis)"></span>inter-arrival (1000 / FPS)</span><span class="k"><span class="sw" style="background:var(--ink-2)"></span>service time (Latest-Frame, measured)</span><span class="k"><span class="sw dash"></span>deadline</span></div>
         <div class="chart" id="m1"></div><div id="m1-table" style="margin-top:14px"></div>
         <p class="fig-note">${esc(Mx.model_note)}</p></div>
@@ -541,7 +580,7 @@
             <li><b>95% Student-t interval</b> on the block differences, plus the number of blocks with a negative / positive difference and the exact two-sided sign-flip p.</li>
             <li><b>No significance claims.</b> With 5 blocks the smallest sign-flip p is 0.0625 (3 blocks: 0.25). Results are reported as effect size, interval and consistency.</li>
             <li><b>Causal comparisons only inside one architecture</b> (Guard / Adaptive / Latest / FIFO). Differences to the legacy path also contain an architecture effect.</li>
-            <li><b>Analysis plan fixed before the formal data</b>: primary condition, metrics and comparisons; Adaptive parameters were not tuned on the pilot.</li>
+            <li><b>Pre-specified analysis plan.</b> The primary condition, metrics and comparisons were fixed in the project before the formal runs (an internal plan, not an external preregistration); Adaptive parameters were not tuned on the pilot.</li>
           </ul></div>
         <div class="span-6 panel"><h3>Known limitations</h3>
           <ul class="limits small" style="margin-top:8px">

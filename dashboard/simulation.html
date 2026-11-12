@@ -20,11 +20,16 @@
           <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 4.8v3.6M8 10.6v.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
           Simulation estimates
         </span>
+        <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-nav">Sections<span class="sr-only">, current: <span class="nav-current">EDA-Lite simulation</span></span><span class="chev" aria-hidden="true"></span></button>
       </div>
-      <nav class="nav" aria-label="Sections">
-        <a href="index.html#overview">Measured results</a>
+      <nav class="nav" id="site-nav" aria-label="Sections">
+        <a href="index.html#overview">Overview</a>
+        <a href="index.html#baseline">Baseline</a>
+        <a href="index.html#scheduling">Scheduling</a>
+        <a href="index.html#mechanism">Mechanism</a>
+        <a href="index.html#evidence">Evidence</a>
         <span class="sep" aria-hidden="true"></span>
-        <a href="simulation.html" aria-current="page">EDA-Lite simulation</a>
+        <a href="simulation.html" class="sim" aria-current="page">EDA-Lite simulation <span class="tag estimate">Estimates</span></a>
       </nav>
     </div>
   </header>
@@ -47,5 +52,6 @@
   <script src="data/dashboard_data.js"></script>
   <script src="assets/charts.js"></script>
   <script src="assets/simulation.js"></script>
+  <script src="assets/nav.js"></script>
 </body>
 </html>

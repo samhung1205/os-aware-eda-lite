@@ -67,6 +67,7 @@
 
   /* ---------- tooltip ---------- */
   let tipEl = null;
+  let focusTip = null; // the [data-tip] mark that currently has keyboard focus
   function ensureTip() {
     if (!tipEl) {
       tipEl = document.createElement("div");
@@ -94,13 +95,16 @@
   function hide() { if (tipEl) tipEl.classList.remove("on"); }
   document.addEventListener("pointerover", (e) => {
     const t = e.target.closest && e.target.closest("[data-tip]");
-    if (t) show(t, e.clientX, e.clientY); else hide();
+    if (t) show(t, e.clientX, e.clientY);
+    // A focused mark keeps its tooltip when the (possibly resting) pointer lands on something else,
+    // e.g. after keyboard focus scrolls the page under a stationary mouse.
+    else if (focusTip && focusTip.isConnected) { const r = focusTip.getBoundingClientRect(); show(focusTip, r.right, r.top); }
+    else hide();
   });
   document.addEventListener("pointermove", (e) => {
     if (tipEl && tipEl.classList.contains("on")) place(e.clientX, e.clientY);
   });
   // Keyboard focus scrolls the mark into view; keep its tooltip attached instead of hiding it.
-  let focusTip = null;
   document.addEventListener("focusin", (e) => {
     const t = e.target.closest && e.target.closest("[data-tip]");
     focusTip = t || null;

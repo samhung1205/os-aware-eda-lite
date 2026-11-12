@@ -4566,13 +4566,13 @@
    "id": "capacity",
    "kind": "measured",
    "text": "With the Fast DDS SHM profile verified at run time, saturated MobileViT-S processes 16.7 FPS (15.9–18.7, n=18 runs) and MobileViT-XXS 53.0 FPS (51.4–54.2, n=3 runs). Below capacity the worst run drops 0.03% of frames (39 runs); above it the measured drop rate stays within 0.8 pp on average of the 1 − 1/ρ prediction (36 runs).",
-   "title": "Capacity is set by service time, not transport"
+   "title": "Throughput saturates at the service-time limit; below capacity, drops stay near zero"
   },
   {
    "id": "guard",
    "kind": "measured",
    "text": "At S · 20 FPS (primary condition, n=5 paired blocks) Deadline-Guard lowers effective miss vs Latest-Frame by 10.7 pp (95% CI −12.3 to −9.0 pp; 5/5 blocks lower) and Adaptive by 10.6 pp (−12.8 to −8.3; 5/5).",
-   "title": "Deadline feasibility dropping is the effective mechanism"
+   "title": "Dropping frames predicted to miss the deadline lowers effective miss"
   },
   {
    "id": "adaptive",
@@ -4584,7 +4584,7 @@
    "id": "regime",
    "kind": "measured",
    "text": "It appears when the system is overloaded and inter-arrival + service exceeds the deadline (S · 20 FPS: 50.0 + 57.2 ms > 100 ms). Guard − Latest CI includes 0 at: S · 10 FPS, S · 30 FPS, XXS · 30 FPS + 25 ms.",
-   "title": "The benefit exists only in one load regime"
+   "title": "Among the tested conditions, the benefit appears in one load regime"
   },
   {
    "id": "dynamic",
@@ -4827,7 +4827,7 @@
    "observed_latest_deadline_miss_pct": 15.59,
    "overloaded": true,
    "predicted_latest_late_pct": 14.46,
-   "regime": "overloaded and inter-arrival + service > deadline: the newest frame can already be too old",
+   "regime": "overloaded and inter-arrival + service > deadline: by the first-order bound, the newest frame can be too old to finish in time",
    "service_ms": 57.23,
    "utilization": 1.145
   },
@@ -5113,7 +5113,7 @@
     "observed_latest_deadline_miss_pct": 0.0,
     "overloaded": false,
     "predicted_latest_late_pct": 0.0,
-    "regime": "not overloaded: the worker is idle when a frame arrives",
+    "regime": "not overloaded: the worker is usually idle when a frame arrives",
     "service_ms": 57.51,
     "utilization": 0.575
    },
@@ -5138,7 +5138,7 @@
     "observed_latest_deadline_miss_pct": 15.59,
     "overloaded": true,
     "predicted_latest_late_pct": 14.46,
-    "regime": "overloaded and inter-arrival + service > deadline: the newest frame can already be too old",
+    "regime": "overloaded and inter-arrival + service > deadline: by the first-order bound, the newest frame can be too old to finish in time",
     "service_ms": 57.23,
     "utilization": 1.145
    },
@@ -5163,7 +5163,7 @@
     "observed_latest_deadline_miss_pct": 0.061,
     "overloaded": true,
     "predicted_latest_late_pct": 0.0,
-    "regime": "overloaded but inter-arrival + service ≤ deadline: the newest frame is always still feasible",
+    "regime": "overloaded but inter-arrival + service ≤ deadline: by the first-order bound, the newest frame can still finish in time",
     "service_ms": 57.48,
     "utilization": 1.724
    },
@@ -5188,7 +5188,7 @@
     "observed_latest_deadline_miss_pct": 0.0,
     "overloaded": true,
     "predicted_latest_late_pct": 0.0,
-    "regime": "overloaded but inter-arrival + service ≤ deadline: the newest frame is always still feasible",
+    "regime": "overloaded but inter-arrival + service ≤ deadline: by the first-order bound, the newest frame can still finish in time",
     "service_ms": 42.47,
     "utilization": 1.274
    }

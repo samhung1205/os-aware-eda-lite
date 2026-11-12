@@ -769,11 +769,11 @@
  "outputs": [
   {
    "path": "dashboard/data/dashboard_data.js",
-   "sha256": "470202a27b5a0e0124fe42f66c93e8b3992e8f43f2be8d0899ef5137e6e3ed04"
+   "sha256": "b0f0d24272ba1b0c09e65237f33a228605d3f061586f4a5e5d99b572a760795b"
   },
   {
    "path": "dashboard/data/dashboard_data.json",
-   "sha256": "8397575a988a21e96987e791d214968906a2e7b83d86a838df06bbe61612947b"
+   "sha256": "d83bf12205dd1a0ae3d2dcc5621dd5c166515dce43868e660e41c652c13bed2b"
   }
  ],
  "schema": "dashboard_data_manifest/v1"

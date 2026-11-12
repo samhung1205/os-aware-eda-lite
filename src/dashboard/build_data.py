@@ -83,7 +83,7 @@ FORBIDDEN_PATH_TOKENS = ("pilot", "legacy_unverified", "example", "runtime_aware
 P2_RUN_ID = re.compile(r"_b2(r|cap_r)[123]$")
 P3_RUN_ID = re.compile(r"_p3b2_[a-z0-9]+_b[1-9]$")
 
-# Design facts of the benchmark (not results): arm catalogue and the pre-registered primary.
+# Design facts of the benchmark (not results): arm catalogue and the pre-specified primary condition.
 ARMS = OrderedDict([
     ("legacy_q1", {"label": "Legacy · depth 1", "short": "Legacy d1", "family": "legacy", "slot": 5,
                    "summary": "Inference inside the DDS callback; KEEP_LAST depth 1 is the only queue."}),
@@ -609,10 +609,10 @@ def build_mechanism(sched: dict[str, Any]) -> dict[str, Any]:
             "observed_latest_deadline_miss_pct": latest["deadline_miss_rate_pct"]["mean"],
             "observed_guard_deadline_miss_pct": guard["deadline_miss_rate_pct"]["mean"],
             "guard_minus_latest_eff_pp": d,
-            "regime": ("not overloaded: the worker is idle when a frame arrives" if not overloaded else
-                       "overloaded and inter-arrival + service > deadline: the newest frame can already be too old"
+            "regime": ("not overloaded: the worker is usually idle when a frame arrives" if not overloaded else
+                       "overloaded and inter-arrival + service > deadline: by the first-order bound, the newest frame can be too old to finish in time"
                        if late_window > 0 else
-                       "overloaded but inter-arrival + service ≤ deadline: the newest frame is always still feasible"),
+                       "overloaded but inter-arrival + service ≤ deadline: by the first-order bound, the newest frame can still finish in time"),
         })
 
     decisions = []
@@ -682,7 +682,7 @@ def build_kpis(base: dict[str, Any], sched: dict[str, Any], mech: dict[str, Any]
     dm = base["drop_model"]
     findings = [
         {"id": "capacity", "kind": "measured",
-         "title": "Capacity is set by service time, not transport",
+         "title": "Throughput saturates at the service-time limit; below capacity, drops stay near zero",
          "text": (f"With the Fast DDS SHM profile verified at run time, saturated MobileViT-S processes "
                   f"{_fmt(s_cap['mean'])} FPS ({_fmt(s_cap['min'])}–{_fmt(s_cap['max'])}, n={s_cap['n_runs']} runs) and "
                   f"MobileViT-XXS {_fmt(x_cap['mean'])} FPS ({_fmt(x_cap['min'])}–{_fmt(x_cap['max'])}, n={x_cap['n_runs']} runs). "
@@ -691,7 +691,7 @@ def build_kpis(base: dict[str, Any], sched: dict[str, Any], mech: dict[str, Any]
                   f"{_fmt(dm['overloaded_mean_abs_gap_pp'])} pp on average of the 1 − 1/ρ prediction "
                   f"({dm['overloaded_runs']} runs).") if s_cap and x_cap else ""},
         {"id": "guard", "kind": "measured",
-         "title": "Deadline feasibility dropping is the effective mechanism",
+         "title": "Dropping frames predicted to miss the deadline lowers effective miss",
          "text": (f"At {label[PRIMARY_CONDITION]} (primary condition, n={g['n_blocks']} paired blocks) Deadline-Guard lowers "
                   f"effective miss vs Latest-Frame by {_fmt(-g['mean'])} pp (95% CI {_fmt(g['lo'])} to {_fmt(g['hi'])} pp; "
                   f"{g['n_neg']}/{g['n_blocks']} blocks lower) and Adaptive by {_fmt(-a['mean'])} pp "
@@ -704,7 +704,7 @@ def build_kpis(base: dict[str, Any], sched: dict[str, Any], mech: dict[str, Any]
                   f"{_fmt(kpis['adaptive_vs_guard_all']['max_abs_mean'], 2)} pp and every CI includes 0. "
                   "Not an equivalence test.")},
         {"id": "regime", "kind": "measured",
-         "title": "The benefit exists only in one load regime",
+         "title": "Among the tested conditions, the benefit appears in one load regime",
          "text": (f"It appears when the system is overloaded and inter-arrival + service exceeds the deadline "
                   f"({label[PRIMARY_CONDITION]}: {_fmt(pf['inter_arrival_ms'])} + {_fmt(pf['service_ms'])} ms > "
                   f"{_fmt(pf['deadline_ms'], 0)} ms). Guard − Latest CI includes 0 at: "
