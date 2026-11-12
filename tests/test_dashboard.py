@@ -201,6 +201,30 @@ class KpiConsistencyTest(unittest.TestCase):
             for banned in ("significant", "all hardware", "energy saving", "energy improvement", "proves"):
                 self.assertNotIn(banned, low)
 
+    def test_chinese_text_quotes_the_same_numbers(self):
+        """Language switch: every *_zh sibling exists and carries exactly the numbers of its English field."""
+        num = re.compile(r"[−+]?\d+(?:\.\d+)?")
+        pairs = [(f, "title") for f in self.bundle["findings"]] + [(f, "text") for f in self.bundle["findings"]]
+        pairs += [(a, "summary") for a in self.bundle["arms"]] + [(e, "reason") for e in self.bundle["excluded"]]
+        pairs += [(f, "regime") for f in self.bundle["mechanism"]["feasibility"]]
+        pairs += [(self.bundle["mechanism"], "model_note"), (self.bundle["simulation"], "note")]
+        pairs += [(s, "role") for s in self.bundle["sources"]]
+        for obj, key in pairs:
+            with self.subTest(key=key, en=obj[key][:60]):
+                zh = obj.get(key + "_zh")
+                self.assertTrue(zh, "missing Chinese text")
+                if key != "role":
+                    self.assertNotEqual(zh, obj[key])
+                self.assertEqual(sorted(num.findall(zh)), sorted(num.findall(obj[key])))
+        self.assertEqual({s["role"] for s in self.bundle["sources"]} - set(bd.ROLE_ZH), set())
+        k, f = self.bundle["kpis"], {x["id"]: x["text_zh"] for x in self.bundle["findings"]}
+        g = k["guard_vs_latest_primary"]
+        self.assertIn(f"{-g['mean']:.1f} pp", f["guard"])
+        self.assertIn("不是 equivalence test", f["adaptive"])
+        for text in f.values():  # same claim limits as the English findings
+            for banned in ("顯著", "所有硬體", "節能", "證明"):
+                self.assertNotIn(banned, text)
+
     def test_cross_architecture_comparisons_are_flagged(self):
         for p in self.bundle["scheduling"]["paired"]:
             legacy = {p["arm"], p["reference"]} & {"legacy_q1", "legacy_q5"}

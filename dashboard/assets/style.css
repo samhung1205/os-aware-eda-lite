@@ -105,6 +105,14 @@ code { background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
 .nav .sep { flex: none; width: 1px; background: var(--border-strong); margin: 10px 8px 14px; }
 .nav a.sim { display: inline-flex; gap: 6px; align-items: center; }
 .nav-toggle { display: none; }
+.lang-toggle {
+  flex: none; display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 28px; padding: 0 10px;
+  font: inherit; font-size: var(--fs-sm); font-weight: 600; color: var(--ink-2); cursor: pointer;
+  background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--r-1);
+  transition: color .15s, border-color .15s;
+}
+.lang-toggle:hover { color: var(--ink); border-color: var(--border-strong); }
+.lang-toggle:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 
 .tag {
   display: inline-flex; align-items: center; gap: 5px; font-size: var(--fs-xs); font-weight: 600;
@@ -405,6 +413,7 @@ footer.foot {
   .brand .sub, .brand .tag { display: none; }
   .brand { flex-wrap: nowrap; padding-bottom: 8px; }
   .brand h1 { min-width: 0; font-size: var(--fs-md); }
+  .lang-toggle { min-height: 40px; border-radius: var(--r-2); }
   .nav-toggle {
     display: inline-flex; align-items: center; gap: 8px; flex: none; min-height: 40px; padding: 0 10px;
     font: inherit; font-size: var(--fs-md); font-weight: 600; color: var(--ink); cursor: pointer;

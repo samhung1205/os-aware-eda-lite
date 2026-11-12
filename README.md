@@ -108,10 +108,10 @@ Dashboard 是放在 [`dashboard/`](dashboard/) 的純靜態網站（HTML / CSS /
 | 頁面 | 網址 | 回答的問題 |
 |---|---|---|
 | **Overview** 總覽 | `index.html#overview` | 研究問題；主要結果（S 20 FPS：Latest-Frame 26.5 % → Deadline-Guard 15.9 %，Adaptive 15.9 % 並列；−10.65 pp、95 % CI）與限制說明；系統架構圖（點擊可開啟原尺寸 SVG） |
-| **Baseline** 基準量測 | `index.html#baseline` | Throughput 飽和、drop model `1 − 1/ρ`、queue depth 與 latency、注入延遲（Phase 2） |
+| **Baseline** 基準測試 | `index.html#baseline` | Throughput 飽和、drop model `1 − 1/ρ`、queue depth 與 latency、注入延遲（Phase 2） |
 | **Scheduling** 排程比較 | `index.html#scheduling` | 每個條件下六種 policy：每個 run 的點、block 間連線、paired difference 與 95 % CI；legacy 比較獨立成一個面板 |
-| **Mechanism** 機制解釋 | `index.html#mechanism` | Deadline-Guard 如何決定 serve / drop 的概念示意（標示 *Concept illustration*，範例數值非實測）；之後是標示 *Measured* 的量測圖：Frame-age bound vs deadline、drop / late 分解、queueing age、Adaptive − Guard ablation、動態負載 |
-| **Evidence** 證據 | `index.html#evidence` | Hash-chain 檢查、run 清單、每個 `meta.json` 的控制變因、方法、限制、排除資料、各來源的 SHA-256 |
+| **Mechanism** 運作機制 | `index.html#mechanism` | Deadline-Guard 如何決定 serve / drop 的概念示意（標示 *Concept illustration*，範例數值非實測）；之後是標示 *Measured* 的量測圖：Frame-age bound vs deadline、drop / late 分解、queueing age、Adaptive − Guard ablation、動態負載 |
+| **Evidence** 驗證證據 | `index.html#evidence` | Hash-chain 檢查、run 清單、每個 `meta.json` 的控制變因、方法、限制、排除資料、各來源的 SHA-256 |
 | **EDA-Lite simulation**（獨立頁） | `simulation.html` | 不同 SRAM budget、scheduler、OS profile 下的 layer-fusion 估計值，全頁標示 *Estimates* |
 
 | Scheduling | Mechanism | 手機版 |
@@ -156,6 +156,18 @@ python3 -m src.dashboard.build_data --check  # 只檢查是否為最新
 | 1 | `BLOCKED` | 缺少輸入檔 |
 | 2 | `BROKEN` | Hash 或不變量檢查失敗，或混入 pilot / legacy-unverified / example 資料 |
 | 3 | `STALE` | （`--check`）已提交的 bundle 與重新建置的結果不同 |
+
+### 4.5 語言切換（English / 繁體中文）
+
+預設顯示英文。右上角的 **中文 / EN** 按鈕可以切換語言，切換後瀏覽器會記住你的選擇。
+
+- 直接開啟中文版：在網址加上 `?lang=zh-TW`，例如 `index.html?lang=zh-TW#scheduling`。改成 `?lang=en` 則回到英文。
+- 中文版的翻譯原則跟本 README 相同：policy 名稱（FIFO、Latest-Frame、Deadline-Guard、Adaptive）、指標（effective miss、on-time FPS、P99）與統計用語（pp、95 % CI、SD、block、run）保留英文。
+- 兩種語言顯示的是同一份 `dashboard_data.json` 數值，只有文字不同。
+- 翻譯寫在程式碼裡，與英文原文並排：`dashboard/assets/app.js`、`simulation.js` 使用 `L("English", "中文")`，HTML 使用 `data-zh` 屬性，切換邏輯在 `dashboard/assets/i18n.js`。
+- 帶數字的句子（Findings 結論句、regime 說明、arm 說明、排除原因、來源檔用途）由 `src/dashboard/build_data.py` 同時產生英文欄位與 `<欄位>_zh` 中文欄位，兩者使用同一批數值；`tests/test_dashboard.py` 會檢查每個中文欄位都存在，而且引用的數字與英文版完全相同。修改這些句子後要重新執行 `python3 -m src.dashboard.build_data`。
+- 架構圖有中文版 `dashboard/assets/architecture_zh.svg`，中文模式會自動使用；修改 `architecture.svg` 時請一併更新。
+- 刻意保留英文的部分：condition 名稱（如 `S · 20 FPS`）、控制變因名稱（取自 `meta.json` 的設定名）與 `drop_cause` 代碼。
 
 ---
 

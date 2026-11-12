@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
-  <title>EDA-Lite Simulation Explorer</title>
-  <meta name="description" content="EDA-Lite layer-fusion simulation estimates for simplified MobileViT profiles. Cost-model units, not hardware measurements.">
+  <title data-zh="EDA-Lite 模擬瀏覽器">EDA-Lite Simulation Explorer</title>
+  <meta name="description" content="EDA-Lite layer-fusion simulation estimates for simplified MobileViT profiles. Cost-model units, not hardware measurements." data-zh-content="簡化 MobileViT profile 的 EDA-Lite layer-fusion 模擬估計值。單位是 cost-model units，不是硬體量測。">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="assets/style.css">
 </head>
@@ -14,22 +14,22 @@
     <div class="topbar-inner">
       <div class="brand">
         <h1>OS-Aware Edge AI Runtime</h1>
-        <span class="sub">EDA-Lite offline layer-fusion cost model</span>
+        <span class="sub" data-zh="EDA-Lite 離線 layer-fusion cost model">EDA-Lite offline layer-fusion cost model</span>
         <span class="spacer"></span>
-        <span class="tag estimate" title="Simulation outputs in cost-model units; not measured on hardware">
+        <span class="tag estimate" title="Simulation outputs in cost-model units; not measured on hardware" data-zh-title="模擬輸出，單位是 cost-model units；不是硬體實測">
           <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 4.8v3.6M8 10.6v.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-          Simulation estimates
+          <span data-zh="模擬估計值">Simulation estimates</span>
         </span>
-        <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-nav">Sections<span class="sr-only">, current: <span class="nav-current">EDA-Lite simulation</span></span><span class="chev" aria-hidden="true"></span></button>
+        <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-nav"><span data-zh="分頁">Sections</span><span class="sr-only"><span data-zh="，目前：">, current: </span><span class="nav-current">EDA-Lite simulation</span></span><span class="chev" aria-hidden="true"></span></button>
       </div>
-      <nav class="nav" id="site-nav" aria-label="Sections">
-        <a href="index.html#overview">Overview</a>
-        <a href="index.html#baseline">Baseline</a>
-        <a href="index.html#scheduling">Scheduling</a>
-        <a href="index.html#mechanism">Mechanism</a>
-        <a href="index.html#evidence">Evidence</a>
+      <nav class="nav" id="site-nav" aria-label="Sections" data-zh-aria-label="分頁">
+        <a href="index.html#overview" data-zh="總覽">Overview</a>
+        <a href="index.html#baseline" data-zh="基準測試">Baseline</a>
+        <a href="index.html#scheduling" data-zh="排程比較">Scheduling</a>
+        <a href="index.html#mechanism" data-zh="運作機制">Mechanism</a>
+        <a href="index.html#evidence" data-zh="驗證證據">Evidence</a>
         <span class="sep" aria-hidden="true"></span>
-        <a href="simulation.html" class="sim" aria-current="page">EDA-Lite simulation <span class="tag estimate">Estimates</span></a>
+        <a href="simulation.html" class="sim" aria-current="page"><span data-zh="EDA-Lite 模擬">EDA-Lite simulation</span> <span class="tag estimate" data-zh="估計值">Estimates</span></a>
       </nav>
     </div>
   </header>
@@ -38,17 +38,19 @@
     <section class="view" id="sim"></section>
   </main>
   <footer class="foot">
-    <span>Source: <code>results/csv/eda_lite_mobilevit_profile_sweep.csv</code> (+ <code>.provenance.json</code>), via <code>python3 -m src.dashboard.build_data</code></span>
-    <span>Estimates only. Nothing on this page is a runtime or energy measurement.</span>
+    <span><span data-zh="來源：">Source: </span><code>results/csv/eda_lite_mobilevit_profile_sweep.csv</code> (+ <code>.provenance.json</code>)<span data-zh="，由 ">, via </span><code>python3 -m src.dashboard.build_data</code><span data-zh=" 產生"></span></span>
+    <span data-zh="僅為估計值。本頁沒有任何數字是 runtime 或 energy 實測。">Estimates only. Nothing on this page is a runtime or energy measurement.</span>
   </footer>
   <script>
     window.addEventListener("error", function (e) {
       var m = document.getElementById("main"), d = document.createElement("div");
+      var zh = document.documentElement.lang === "zh-TW";
       d.className = "callout"; d.setAttribute("role", "alert");
-      d.textContent = "Part of this page failed to render: " + e.message + " (" + (e.filename || "").split("/").pop() + ":" + e.lineno + ")";
+      d.textContent = (zh ? "頁面有部分內容無法顯示：" : "Part of this page failed to render: ") + e.message + " (" + (e.filename || "").split("/").pop() + ":" + e.lineno + ")";
       if (m) m.prepend(d);
     });
   </script>
+  <script src="assets/i18n.js"></script>
   <script src="data/dashboard_data.js"></script>
   <script src="assets/charts.js"></script>
   <script src="assets/simulation.js"></script>
