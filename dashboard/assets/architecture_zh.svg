@@ -1,0 +1,139 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 570" width="1160" height="570" role="img" aria-labelledby="t d">
+  <title id="t">OS-Aware Edge AI Runtime 系統架構</title>
+  <desc id="d">實測區：image_stream_node 透過 Fast DDS shared memory 把 frame 送到 MobileViT detector node，detector 走 legacy callback 路徑，或走 application queue 並使用四種 scheduling policy 之一。每個 run 寫出 log、metadata 與 probe；分析工具產生帶 hash manifest 的表格，gate 負責驗證，dashboard builder 產生資料 bundle。模擬區：簡化的 model profile 送進 EDA-Lite cost model 與 scheduler，產生估計值 CSV，顯示在獨立頁面。</desc>
+  <style>
+    .lane-m { fill: #f3f8f3; stroke: #bfdcc1; }
+    .lane-s { fill: #fcf6ea; stroke: #e9d3a6; }
+    .box { fill: #ffffff; stroke: #cdd2d9; }
+    .inner { fill: #eef0f3; stroke: #dde1e6; }
+    .chip { fill: #ffffff; stroke: #b8bec7; }
+    .chip-k { fill: #fff3ec; stroke: #eb6834; }
+    .chip-a { fill: #eaf8f2; stroke: #1baf7a; }
+    .t { font: 600 13px system-ui, -apple-system, "Segoe UI", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif; fill: #15181c; }
+    .s { font: 11.5px system-ui, -apple-system, "Segoe UI", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif; fill: #464c55; }
+    .c { font: 500 11px system-ui, -apple-system, "Segoe UI", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif; fill: #15181c; }
+    .lab { font: 700 11px system-ui, -apple-system, "Segoe UI", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif; letter-spacing: .08em; fill: #2f6b33; }
+    .lab-s { font: 700 11px system-ui, -apple-system, "Segoe UI", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif; letter-spacing: .08em; fill: #8a5a00; }
+    .sub { font: 11.5px system-ui, -apple-system, "Segoe UI", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif; fill: #464c55; }
+    .arr { stroke: #464c55; stroke-width: 1.5; fill: none; marker-end: url(#a); }
+    .dot { stroke: #8a5a00; stroke-width: 1.5; fill: none; stroke-dasharray: 2 4; stroke-linecap: round; marker-end: url(#a2); }
+    .ah { fill: #464c55; } .ah2 { fill: #8a5a00; }
+    @media (prefers-color-scheme: dark) {
+      .lane-m { fill: #15201a; stroke: #2c5234; }
+      .lane-s { fill: #231d12; stroke: #5c4719; }
+      .box { fill: #171a1f; stroke: #444b55; }
+      .inner { fill: #20242a; stroke: #363c45; }
+      .chip { fill: #171a1f; stroke: #58606b; }
+      .chip-k { fill: #2b1a12; stroke: #d95926; }
+      .chip-a { fill: #11261e; stroke: #199e70; }
+      .t, .c { fill: #eceef1; }
+      .s, .sub { fill: #bfc5cd; }
+      .lab { fill: #7fc487; } .lab-s { fill: #e8b75a; }
+      .arr { stroke: #bfc5cd; } .ah { fill: #bfc5cd; }
+      .dot { stroke: #e8b75a; } .ah2 { fill: #e8b75a; }
+    }
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" class="ah"/></marker>
+    <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" class="ah2"/></marker>
+  </defs>
+
+  <!-- measured lane -->
+  <rect class="lane-m" x="10" y="10" width="1140" height="335" rx="14"/>
+  <text class="lab" x="30" y="36">實測 · Linux 上的 ROS 2 HUMBLE</text>
+  <text class="sub" x="300" y="36">taskset CPUs 12,14 · MemoryMax 4 GiB · swap 0 · nice 10 · Fast DDS SHM · 100 ms deadline</text>
+
+  <rect class="box" x="30" y="56" width="170" height="150" rx="9"/>
+  <text class="t" x="44" y="82">image_stream_node</text>
+  <text class="s" x="44" y="104">COCO128 影像（約 1 MB）</text>
+  <text class="s" x="44" y="122">固定 FPS 或 10→20→10</text>
+  <text class="s" x="44" y="140">RELIABLE, depth 10</text>
+  <text class="s" x="44" y="158">逐 frame 記錄 publisher log</text>
+
+  <path class="arr" d="M200,131H232"/>
+  <rect class="box" x="236" y="56" width="176" height="150" rx="9"/>
+  <text class="t" x="250" y="82">Fast DDS transport</text>
+  <text class="s" x="250" y="104">SHM-only profile, 16 MiB</text>
+  <text class="s" x="250" y="122">不使用 UDP socket</text>
+  <text class="s" x="250" y="140">BEST_EFFORT KEEP_LAST</text>
+  <text class="s" x="250" y="158">由 runtime probe 驗證</text>
+
+  <path class="arr" d="M412,131H444"/>
+  <rect class="box" x="448" y="56" width="430" height="150" rx="9"/>
+  <text class="t" x="462" y="82">mobilevit_detector_node</text>
+  <text class="s" x="864" y="82" text-anchor="end">MobileViT-S / XXS · timm, random init</text>
+  <rect class="inner" x="462" y="94" width="402" height="32" rx="6"/>
+  <text class="c" x="474" y="114">Legacy path</text>
+  <text class="s" x="552" y="114">在 DDS callback 內執行 inference · depth 1 或 5</text>
+  <rect class="inner" x="462" y="134" width="402" height="62" rx="6"/>
+  <text class="c" x="474" y="153">Application path</text>
+  <text class="s" x="580" y="153">ingest → bounded queue（cap 5）→ 1 個 worker</text>
+  <rect class="chip" x="474" y="164" width="52" height="22" rx="11"/><text class="c" x="500" y="179" text-anchor="middle">FIFO</text>
+  <rect class="chip" x="532" y="164" width="96" height="22" rx="11"/><text class="c" x="580" y="179" text-anchor="middle">Latest-Frame</text>
+  <rect class="chip-k" x="634" y="164" width="112" height="22" rx="11"/><text class="c" x="690" y="179" text-anchor="middle">Deadline-Guard</text>
+  <rect class="chip-a" x="752" y="164" width="100" height="22" rx="11"/><text class="c" x="802" y="179" text-anchor="middle">Adaptive</text>
+
+  <path class="arr" d="M878,131H910"/>
+  <rect class="box" x="914" y="56" width="216" height="150" rx="9"/>
+  <text class="t" x="928" y="82">每個 run 的證據</text>
+  <text class="s" x="928" y="104">detector CSV，每個 frame 一列</text>
+  <text class="s" x="928" y="122">publisher CSV</text>
+  <text class="s" x="928" y="140">meta.json：資源限制、版本、git</text>
+  <text class="s" x="928" y="158">probe.json: DDS, CPU, RSS</text>
+  <text class="s" x="928" y="176">run 結束後不再修改</text>
+
+  <path class="arr" d="M1022,206V226H130V246"/>
+
+  <rect class="box" x="30" y="250" width="199" height="78" rx="9"/>
+  <text class="t" x="44" y="275">analyze_runtime</text>
+  <text class="s" x="44" y="295">各 run 的 summary</text>
+  <text class="s" x="44" y="313">+ 原始資料的 SHA-256 manifest</text>
+  <path class="arr" d="M229,289H251"/>
+  <rect class="box" x="255" y="250" width="199" height="78" rx="9"/>
+  <text class="t" x="269" y="275">彙整（Aggregation）</text>
+  <text class="s" x="269" y="295">各 arm、paired（95% t-CI）、</text>
+  <text class="s" x="269" y="313">dynamic phases + manifest</text>
+  <path class="arr" d="M454,289H476"/>
+  <rect class="box" x="480" y="250" width="199" height="78" rx="9"/>
+  <text class="t" x="494" y="275">Provenance gates</text>
+  <text class="s" x="494" y="295">Phase 2 · Phase 3（CI 中執行）</text>
+  <text class="s" x="494" y="313">VERIFIED / BLOCKED / BROKEN</text>
+  <path class="arr" d="M679,289H701"/>
+  <rect class="box" x="705" y="250" width="199" height="78" rx="9"/>
+  <text class="t" x="719" y="275">build_data</text>
+  <text class="s" x="719" y="295">重新驗證每個 hash，</text>
+  <text class="s" x="719" y="313">拒收 pilot / unverified 資料</text>
+  <path class="arr" d="M904,289H926"/>
+  <rect class="box" x="930" y="250" width="200" height="78" rx="9"/>
+  <text class="t" x="944" y="275">Dashboard</text>
+  <text class="s" x="944" y="295">靜態 HTML + JSON bundle</text>
+  <text class="s" x="944" y="313">總覽 → 驗證證據</text>
+
+  <!-- simulation lane -->
+  <rect class="lane-s" x="10" y="385" width="1140" height="175" rx="14"/>
+  <text class="lab-s" x="30" y="411">模擬估計值 · 離線</text>
+  <text class="sub" x="462" y="411">cost-model units，不是硬體量測 · 獨立頁面</text>
+
+  <path class="dot" d="M150,328V366H438V440"/>
+  <text class="sub" x="160" y="360">已驗證的 runtime_os_profiles.json 可調整 cost 權重——不用於任何 dashboard KPI</text>
+
+  <rect class="box" x="30" y="444" width="255" height="88" rx="9"/>
+  <text class="t" x="44" y="470">Model profiles (JSON)</text>
+  <text class="s" x="44" y="490">MobileViT-XXS / S 粗略 block</text>
+  <text class="s" x="44" y="508">簡化版，非 ONNX 精確結構</text>
+  <path class="arr" d="M285,488H307"/>
+  <rect class="box" x="311" y="444" width="255" height="88" rx="9"/>
+  <text class="t" x="325" y="470">EDA-Lite cost model</text>
+  <text class="s" x="325" y="490">SRAM · DRAM · energy · latency</text>
+  <text class="s" x="325" y="508">layerwise · greedy · dp · exhaustive</text>
+  <path class="arr" d="M566,488H588"/>
+  <rect class="box" x="592" y="444" width="255" height="88" rx="9"/>
+  <text class="t" x="606" y="470">Sweep CSV + sidecar</text>
+  <text class="s" x="606" y="490">只用內建 OS profile</text>
+  <text class="s" x="606" y="508">.provenance.json 已核對 hash</text>
+  <path class="arr" d="M847,488H869"/>
+  <rect class="box" x="873" y="444" width="257" height="88" rx="9"/>
+  <text class="t" x="887" y="470">模擬頁面</text>
+  <text class="s" x="887" y="490">獨立入口，</text>
+  <text class="s" x="887" y="508">每個畫面都標示「估計值」</text>
+</svg>

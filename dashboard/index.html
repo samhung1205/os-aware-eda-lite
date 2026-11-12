@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
   <title>OS-Aware Edge AI Runtime</title>
-  <meta name="description" content="Measured ROS 2 runtime baseline and frame-scheduling A/B benchmark for MobileViT on a constrained Linux host (Phase 2 / Phase 3, provenance-verified).">
+  <meta name="description" content="Measured ROS 2 runtime baseline and frame-scheduling A/B benchmark for MobileViT on a constrained Linux host (Phase 2 / Phase 3, provenance-verified)." data-zh-content="在受限 Linux 主機上實測 MobileViT 的 ROS 2 runtime baseline 與 frame scheduling A/B benchmark（Phase 2 / Phase 3，provenance 已驗證）。">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="assets/style.css">
 </head>
@@ -14,22 +14,22 @@
     <div class="topbar-inner">
       <div class="brand">
         <h1>OS-Aware Edge AI Runtime</h1>
-        <span class="sub">ROS 2 frame scheduling for MobileViT on a constrained Linux host</span>
+        <span class="sub" data-zh="受限 Linux 主機上 MobileViT 的 ROS 2 frame scheduling">ROS 2 frame scheduling for MobileViT on a constrained Linux host</span>
         <span class="spacer"></span>
-        <span class="tag measured" title="Every number on this page comes from Phase 2 / Phase 3 formal runs whose hash chain verified at build time">
+        <span class="tag measured" title="Every number on this page comes from Phase 2 / Phase 3 formal runs whose hash chain verified at build time" data-zh-title="本頁所有數字都來自 Phase 2 / Phase 3 正式 run，建置時 hash chain 已通過驗證">
           <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Measured · verified runs
+          <span data-zh="實測 · 已驗證 runs">Measured · verified runs</span>
         </span>
-        <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-nav">Sections<span class="sr-only">, current: <span class="nav-current">Overview</span></span><span class="chev" aria-hidden="true"></span></button>
+        <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-nav"><span data-zh="分頁">Sections</span><span class="sr-only"><span data-zh="，目前：">, current: </span><span class="nav-current">Overview</span></span><span class="chev" aria-hidden="true"></span></button>
       </div>
-      <nav class="nav" id="site-nav" aria-label="Sections">
-        <a href="#overview" data-view="overview">Overview</a>
-        <a href="#baseline" data-view="baseline">Baseline</a>
-        <a href="#scheduling" data-view="scheduling">Scheduling</a>
-        <a href="#mechanism" data-view="mechanism">Mechanism</a>
-        <a href="#evidence" data-view="evidence">Evidence</a>
+      <nav class="nav" id="site-nav" aria-label="Sections" data-zh-aria-label="分頁">
+        <a href="#overview" data-view="overview" data-zh="總覽">Overview</a>
+        <a href="#baseline" data-view="baseline" data-zh="基準測試">Baseline</a>
+        <a href="#scheduling" data-view="scheduling" data-zh="排程比較">Scheduling</a>
+        <a href="#mechanism" data-view="mechanism" data-zh="運作機制">Mechanism</a>
+        <a href="#evidence" data-view="evidence" data-zh="驗證證據">Evidence</a>
         <span class="sep" aria-hidden="true"></span>
-        <a href="simulation.html" class="sim">EDA-Lite simulation <span class="tag estimate">Estimates</span></a>
+        <a href="simulation.html" class="sim"><span data-zh="EDA-Lite 模擬">EDA-Lite simulation</span> <span class="tag estimate" data-zh="估計值">Estimates</span></a>
       </nav>
     </div>
   </header>
@@ -44,18 +44,20 @@
   </main>
 
   <footer class="foot">
-    <span>Data bundle: <code>dashboard/data/dashboard_data.json</code> · regenerate with <code>python3 -m src.dashboard.build_data</code></span>
-    <span>Latency-only benchmark (random-init weights) on one host. Not an energy or accuracy measurement.</span>
+    <span><span data-zh="資料 bundle：">Data bundle: </span><code>dashboard/data/dashboard_data.json</code><span data-zh=" · 重新產生："> · regenerate with </span><code>python3 -m src.dashboard.build_data</code></span>
+    <span data-zh="單一主機上的 latency-only benchmark（random-init weights），不是 energy 或 accuracy 量測。">Latency-only benchmark (random-init weights) on one host. Not an energy or accuracy measurement.</span>
   </footer>
 
   <script>
     window.addEventListener("error", function (e) {
       var m = document.getElementById("main"), d = document.createElement("div");
+      var zh = document.documentElement.lang === "zh-TW";
       d.className = "callout"; d.setAttribute("role", "alert");
-      d.textContent = "Part of this page failed to render: " + e.message + " (" + (e.filename || "").split("/").pop() + ":" + e.lineno + ")";
+      d.textContent = (zh ? "頁面有部分內容無法顯示：" : "Part of this page failed to render: ") + e.message + " (" + (e.filename || "").split("/").pop() + ":" + e.lineno + ")";
       if (m) m.prepend(d);
     });
   </script>
+  <script src="assets/i18n.js"></script>
   <script src="data/dashboard_data.js"></script>
   <script src="assets/charts.js"></script>
   <script src="assets/app.js"></script>

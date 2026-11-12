@@ -84,20 +84,45 @@ P2_RUN_ID = re.compile(r"_b2(r|cap_r)[123]$")
 P3_RUN_ID = re.compile(r"_p3b2_[a-z0-9]+_b[1-9]$")
 
 # Design facts of the benchmark (not results): arm catalogue and the pre-specified primary condition.
+#
+# Text fields carry a Traditional Chinese sibling ("<field>_zh") for the dashboard's language switch.
+# The English field stays the reference text; both are formatted from the same values.
 ARMS = OrderedDict([
     ("legacy_q1", {"label": "Legacy · depth 1", "short": "Legacy d1", "family": "legacy", "slot": 5,
-                   "summary": "Inference inside the DDS callback; KEEP_LAST depth 1 is the only queue."}),
+                   "summary": "Inference inside the DDS callback; KEEP_LAST depth 1 is the only queue.",
+                   "summary_zh": "在 DDS callback 內執行 inference；KEEP_LAST depth 1 是唯一的 queue。"}),
     ("legacy_q5", {"label": "Legacy · depth 5", "short": "Legacy d5", "family": "legacy", "slot": 6,
-                   "summary": "Inference inside the DDS callback; KEEP_LAST depth 5 is the only queue."}),
+                   "summary": "Inference inside the DDS callback; KEEP_LAST depth 5 is the only queue.",
+                   "summary_zh": "在 DDS callback 內執行 inference；KEEP_LAST depth 5 是唯一的 queue。"}),
     ("fifo_c5_q10", {"label": "FIFO", "short": "FIFO", "family": "application", "slot": 4,
-                     "summary": "Application queue (capacity 5), oldest frame first, reject newest when full."}),
+                     "summary": "Application queue (capacity 5), oldest frame first, reject newest when full.",
+                     "summary_zh": "Application queue（capacity 5），先處理最舊的 frame，queue 滿時拒收最新的 frame。"}),
     ("latest_q10", {"label": "Latest-Frame", "short": "Latest", "family": "application", "slot": 1,
-                    "summary": "Always serve the newest frame; older queued frames are superseded."}),
+                    "summary": "Always serve the newest frame; older queued frames are superseded.",
+                    "summary_zh": "永遠處理最新的 frame；queue 中較舊的 frame 會被取代。"}),
     ("guard_c5_q10", {"label": "Deadline-Guard", "short": "Guard", "family": "application", "slot": 2,
-                      "summary": "Newest frame that can still meet its deadline; drop frames predicted to miss."}),
+                      "summary": "Newest frame that can still meet its deadline; drop frames predicted to miss.",
+                      "summary_zh": "處理仍趕得上 deadline 的最新 frame；丟棄預測會錯過的 frame。"}),
     ("adaptive_c5_q10", {"label": "Adaptive", "short": "Adaptive", "family": "application", "slot": 3,
-                         "summary": "Deadline-Guard plus a utilisation switch: EDF when ρ̂ < 1, newest feasible when ρ̂ ≥ 1."}),
+                         "summary": "Deadline-Guard plus a utilisation switch: EDF when ρ̂ < 1, newest feasible when ρ̂ ≥ 1.",
+                         "summary_zh": "Deadline-Guard 加上 utilisation switch：ρ̂ < 1 時用 EDF，ρ̂ ≥ 1 時選最新的 feasible frame。"}),
 ])
+
+# Roles passed to Sources.path / csv / json, translated for the evidence table.
+ROLE_ZH = {
+    "EDA-Lite simulation estimates": "EDA-Lite 模擬估計值",
+    "Phase 2 per-condition baseline table": "Phase 2 各 condition baseline 表",
+    "Phase 2 per-run baseline table": "Phase 2 各 run baseline 表",
+    "Phase 3 dynamic per-phase paired differences": "Phase 3 dynamic 各 phase paired differences",
+    "Phase 3 dynamic per-phase table": "Phase 3 dynamic 各 phase 表",
+    "Phase 3 formal paired differences": "Phase 3 正式 paired differences",
+    "Phase 3 formal per-arm table": "Phase 3 正式各 arm 表",
+    "Phase 3 formal per-run table": "Phase 3 正式各 run 表",
+    "aggregate manifest": "aggregate manifest",
+    "run metadata": "run metadata",
+    "runtime summary manifest": "runtime summary manifest",
+    "simulation provenance sidecar": "模擬 provenance sidecar",
+}
 PRIMARY_CONDITION = "s20"
 METRICS_PAIRED = ("effective_miss_rate_pct", "on_time_fps", "p99_latency_ms", "drop_rate_pct",
                   "deadline_miss_rate_pct", "avg_service_ms", "p50_frame_age_at_start_ms")
@@ -613,6 +638,10 @@ def build_mechanism(sched: dict[str, Any]) -> dict[str, Any]:
                        "overloaded and inter-arrival + service > deadline: by the first-order bound, the newest frame can be too old to finish in time"
                        if late_window > 0 else
                        "overloaded but inter-arrival + service ≤ deadline: by the first-order bound, the newest frame can still finish in time"),
+            "regime_zh": ("未過載：frame 抵達時 worker 通常是閒置的" if not overloaded else
+                          "過載且 inter-arrival + service > deadline：依一階上界，最新的 frame 可能已經太舊而來不及完成"
+                          if late_window > 0 else
+                          "過載但 inter-arrival + service ≤ deadline：依一階上界，最新的 frame 仍能準時完成"),
         })
 
     decisions = []
@@ -633,6 +662,9 @@ def build_mechanism(sched: dict[str, Any]) -> dict[str, Any]:
         "model_note": ("First-order model, not fitted: under overload the worker frees at a random phase "
                        "relative to arrivals, so the newest frame's age is ~uniform on [0, inter-arrival). "
                        "Latest-Frame misses when age > deadline − service."),
+        "model_note_zh": ("一階模型，未經擬合：過載時 worker 空出來的時間點相對於 frame 抵達是隨機的，"
+                          "所以最新 frame 的 age 約在 [0, inter-arrival) 上均勻分布。"
+                          "當 age > deadline − service 時，Latest-Frame 就會錯過 deadline。"),
     }
 
 
@@ -689,26 +721,49 @@ def build_kpis(base: dict[str, Any], sched: dict[str, Any], mech: dict[str, Any]
                   f"Below capacity the worst run drops {_fmt(dm['below_capacity_max_drop_pct'], 2)}% of frames "
                   f"({dm['below_capacity_runs']} runs); above it the measured drop rate stays within "
                   f"{_fmt(dm['overloaded_mean_abs_gap_pp'])} pp on average of the 1 − 1/ρ prediction "
-                  f"({dm['overloaded_runs']} runs).") if s_cap and x_cap else ""},
+                  f"({dm['overloaded_runs']} runs).") if s_cap and x_cap else "",
+         "title_zh": "Throughput 停在 service time 上限；未達 capacity 時 drop 幾乎為零",
+         "text_zh": (f"在執行期已驗證 Fast DDS SHM profile 的條件下，飽和時 MobileViT-S 處理 "
+                     f"{_fmt(s_cap['mean'])} FPS（{_fmt(s_cap['min'])}–{_fmt(s_cap['max'])}，n={s_cap['n_runs']} runs），"
+                     f"MobileViT-XXS 處理 {_fmt(x_cap['mean'])} FPS（{_fmt(x_cap['min'])}–{_fmt(x_cap['max'])}，n={x_cap['n_runs']} runs）。"
+                     f"未達 capacity 時，最差的 run 只 drop {_fmt(dm['below_capacity_max_drop_pct'], 2)}% 的 frame"
+                     f"（{dm['below_capacity_runs']} runs）；超過 capacity 後，實測 drop rate 與 1 − 1/ρ 預測值"
+                     f"平均只差 {_fmt(dm['overloaded_mean_abs_gap_pp'])} pp（{dm['overloaded_runs']} runs）。") if s_cap and x_cap else ""},
         {"id": "guard", "kind": "measured",
          "title": "Dropping frames predicted to miss the deadline lowers effective miss",
          "text": (f"At {label[PRIMARY_CONDITION]} (primary condition, n={g['n_blocks']} paired blocks) Deadline-Guard lowers "
                   f"effective miss vs Latest-Frame by {_fmt(-g['mean'])} pp (95% CI {_fmt(g['lo'])} to {_fmt(g['hi'])} pp; "
                   f"{g['n_neg']}/{g['n_blocks']} blocks lower) and Adaptive by {_fmt(-a['mean'])} pp "
-                  f"({_fmt(a['lo'])} to {_fmt(a['hi'])}; {a['n_neg']}/{a['n_blocks']}).")},
+                  f"({_fmt(a['lo'])} to {_fmt(a['hi'])}; {a['n_neg']}/{a['n_blocks']})."),
+         "title_zh": "丟棄預測會錯過 deadline 的 frame，可以降低 effective miss",
+         "text_zh": (f"在 {label[PRIMARY_CONDITION]}（primary condition，n={g['n_blocks']} 個 paired blocks），"
+                     f"Deadline-Guard 比 Latest-Frame 降低 effective miss {_fmt(-g['mean'])} pp"
+                     f"（95% CI {_fmt(g['lo'])} 到 {_fmt(g['hi'])} pp；{g['n_neg']}/{g['n_blocks']} blocks 較低），"
+                     f"Adaptive 降低 {_fmt(-a['mean'])} pp（{_fmt(a['lo'])} 到 {_fmt(a['hi'])}；{a['n_neg']}/{a['n_blocks']}）。")},
         {"id": "adaptive", "kind": "measured",
          "title": "Adaptive's utilisation switch adds no measurable benefit",
          "text": (f"Adaptive − Deadline-Guard at {label[PRIMARY_CONDITION]}: {_fmt(ag1['mean'], 2, True)} pp "
                   f"(95% CI {_fmt(ag1['lo'], 2)} to {_fmt(ag1['hi'], 2)}; {ag1['n_neg']} lower / {ag1['n_pos']} higher). "
                   f"Across all {kpis['adaptive_vs_guard_all']['conditions']} conditions |Δ| ≤ "
                   f"{_fmt(kpis['adaptive_vs_guard_all']['max_abs_mean'], 2)} pp and every CI includes 0. "
-                  "Not an equivalence test.")},
+                  "Not an equivalence test."),
+         "title_zh": "Adaptive 的 utilisation switch 沒有可量測的額外效益",
+         "text_zh": (f"{label[PRIMARY_CONDITION]} 的 Adaptive − Deadline-Guard：{_fmt(ag1['mean'], 2, True)} pp"
+                     f"（95% CI {_fmt(ag1['lo'], 2)} 到 {_fmt(ag1['hi'], 2)}；{ag1['n_neg']} 個較低 / {ag1['n_pos']} 個較高）。"
+                     f"全部 {kpis['adaptive_vs_guard_all']['conditions']} 個 conditions 的 |Δ| ≤ "
+                     f"{_fmt(kpis['adaptive_vs_guard_all']['max_abs_mean'], 2)} pp，且每個 CI 都包含 0。"
+                     "這不是 equivalence test。")},
         {"id": "regime", "kind": "measured",
          "title": "Among the tested conditions, the benefit appears in one load regime",
          "text": (f"It appears when the system is overloaded and inter-arrival + service exceeds the deadline "
                   f"({label[PRIMARY_CONDITION]}: {_fmt(pf['inter_arrival_ms'])} + {_fmt(pf['service_ms'])} ms > "
                   f"{_fmt(pf['deadline_ms'], 0)} ms). Guard − Latest CI includes 0 at: "
-                  + ", ".join(label[c] for c in null_conds) + ".")},
+                  + ", ".join(label[c] for c in null_conds) + "."),
+         "title_zh": "在測試過的條件中，效益只出現在一種負載區間",
+         "text_zh": (f"效益出現在系統過載且 inter-arrival + service 超過 deadline 時"
+                     f"（{label[PRIMARY_CONDITION]}：{_fmt(pf['inter_arrival_ms'])} + {_fmt(pf['service_ms'])} ms > "
+                     f"{_fmt(pf['deadline_ms'], 0)} ms）。Guard − Latest 的 CI 包含 0 的條件："
+                     + "、".join(label[c] for c in null_conds) + "。")},
     ]
     if dyn_cid:
         gd = kpis["guard_vs_latest_dynamic"]
@@ -716,7 +771,11 @@ def build_kpis(base: dict[str, Any], sched: dict[str, Any], mech: dict[str, Any]
             "id": "dynamic", "kind": "measured", "title": "Same ordering under a load step",
             "text": (f"{label[dyn_cid]} (n={gd['n_blocks']} blocks): Guard − Latest {_fmt(gd['mean'], 1, True)} pp "
                      f"({_fmt(gd['lo'])} to {_fmt(gd['hi'])}; {gd['n_neg']}/{gd['n_blocks']} blocks lower); "
-                     f"Adaptive − Guard {_fmt(kpis['adaptive_vs_guard_dynamic']['mean'], 2, True)} pp.")})
+                     f"Adaptive − Guard {_fmt(kpis['adaptive_vs_guard_dynamic']['mean'], 2, True)} pp."),
+            "title_zh": "負載階躍下排序相同",
+            "text_zh": (f"{label[dyn_cid]}（n={gd['n_blocks']} blocks）：Guard − Latest {_fmt(gd['mean'], 1, True)} pp"
+                        f"（{_fmt(gd['lo'])} 到 {_fmt(gd['hi'])}；{gd['n_neg']}/{gd['n_blocks']} blocks 較低）；"
+                        f"Adaptive − Guard {_fmt(kpis['adaptive_vs_guard_dynamic']['mean'], 2, True)} pp。")})
     return kpis, findings
 
 
@@ -746,6 +805,8 @@ def build_simulation(src: Sources) -> dict[str, Any]:
         "kind": "simulation_estimate",
         "note": ("EDA-Lite outputs are cost-model estimates (simplified MobileViT block profiles, built-in OS profiles). "
                  "They are not hardware measurements and are not linked to the ROS 2 measurements."),
+        "note_zh": ("EDA-Lite 的輸出是 cost-model 估計值（簡化的 MobileViT block profile、內建 OS profile），"
+                    "不是硬體量測，也與 ROS 2 實測結果無關。"),
         "config": (sidecar.get("config") or {}).get("path"),
         "rows": data,
     }
@@ -753,13 +814,17 @@ def build_simulation(src: Sources) -> dict[str, Any]:
 
 EXCLUDED = [
     {"path": "results/raw/ros2_phase3_pilot/, results/csv/ros2_phase3_pilot_*",
-     "reason": "Phase 3 / Batch 1 pilot (40 s runs, dirty tree): Phase 3 gate reports BROKEN by design; preliminary only."},
+     "reason": "Phase 3 / Batch 1 pilot (40 s runs, dirty tree): Phase 3 gate reports BROKEN by design; preliminary only.",
+     "reason_zh": "Phase 3 / Batch 1 pilot（40 秒 runs、dirty tree）：Phase 3 gate 依設計回報 BROKEN；僅供初步參考。"},
     {"path": "experiments/eda_lite/runtime_os_profiles.legacy_unverified.json, results/figures/ros2/*.svg",
-     "reason": "Teammate-provided legacy values without raw data: UNVERIFIED."},
+     "reason": "Teammate-provided legacy values without raw data: UNVERIFIED.",
+     "reason_zh": "隊友提供的舊數值，沒有原始資料：UNVERIFIED。"},
     {"path": "experiments/eda_lite/runtime_os_profiles.example.json",
-     "reason": "Illustrative example profiles, not measured."},
+     "reason": "Illustrative example profiles, not measured.",
+     "reason_zh": "示意用的範例 profile，不是實測。"},
     {"path": "results/csv/eda_lite_*runtime_aware*",
-     "reason": "Simulation driven by example / unverified OS profiles."},
+     "reason": "Simulation driven by example / unverified OS profiles.",
+     "reason_zh": "使用範例 / 未驗證 OS profile 的模擬。"},
 ]
 
 
@@ -777,7 +842,8 @@ def build_bundle(root: Path) -> tuple[dict[str, Any], list[dict[str, str]]]:
         "arms": arms, "kpis": kpis, "findings": findings,
         "baseline": base, "scheduling": sched, "mechanism": mech, "simulation": sim,
         "excluded": EXCLUDED,
-        "sources": sorted(src.records.values(), key=lambda r: r["path"]),
+        "sources": [{**r, "role_zh": ROLE_ZH.get(r["role"], r["role"])}
+                    for r in sorted(src.records.values(), key=lambda r: r["path"])],
     }
     return bundle, sorted(src.records.values(), key=lambda r: r["path"])
 

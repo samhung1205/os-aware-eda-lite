@@ -6,7 +6,8 @@
    "label": "Legacy · depth 1",
    "short": "Legacy d1",
    "slot": 5,
-   "summary": "Inference inside the DDS callback; KEEP_LAST depth 1 is the only queue."
+   "summary": "Inference inside the DDS callback; KEEP_LAST depth 1 is the only queue.",
+   "summary_zh": "在 DDS callback 內執行 inference；KEEP_LAST depth 1 是唯一的 queue。"
   },
   {
    "family": "legacy",
@@ -14,7 +15,8 @@
    "label": "Legacy · depth 5",
    "short": "Legacy d5",
    "slot": 6,
-   "summary": "Inference inside the DDS callback; KEEP_LAST depth 5 is the only queue."
+   "summary": "Inference inside the DDS callback; KEEP_LAST depth 5 is the only queue.",
+   "summary_zh": "在 DDS callback 內執行 inference；KEEP_LAST depth 5 是唯一的 queue。"
   },
   {
    "family": "application",
@@ -22,7 +24,8 @@
    "label": "FIFO",
    "short": "FIFO",
    "slot": 4,
-   "summary": "Application queue (capacity 5), oldest frame first, reject newest when full."
+   "summary": "Application queue (capacity 5), oldest frame first, reject newest when full.",
+   "summary_zh": "Application queue（capacity 5），先處理最舊的 frame，queue 滿時拒收最新的 frame。"
   },
   {
    "family": "application",
@@ -30,7 +33,8 @@
    "label": "Latest-Frame",
    "short": "Latest",
    "slot": 1,
-   "summary": "Always serve the newest frame; older queued frames are superseded."
+   "summary": "Always serve the newest frame; older queued frames are superseded.",
+   "summary_zh": "永遠處理最新的 frame；queue 中較舊的 frame 會被取代。"
   },
   {
    "family": "application",
@@ -38,7 +42,8 @@
    "label": "Deadline-Guard",
    "short": "Guard",
    "slot": 2,
-   "summary": "Newest frame that can still meet its deadline; drop frames predicted to miss."
+   "summary": "Newest frame that can still meet its deadline; drop frames predicted to miss.",
+   "summary_zh": "處理仍趕得上 deadline 的最新 frame；丟棄預測會錯過的 frame。"
   },
   {
    "family": "application",
@@ -46,7 +51,8 @@
    "label": "Adaptive",
    "short": "Adaptive",
    "slot": 3,
-   "summary": "Deadline-Guard plus a utilisation switch: EDF when ρ̂ < 1, newest feasible when ρ̂ ≥ 1."
+   "summary": "Deadline-Guard plus a utilisation switch: EDF when ρ̂ < 1, newest feasible when ρ̂ ≥ 1.",
+   "summary_zh": "Deadline-Guard 加上 utilisation switch：ρ̂ < 1 時用 EDF，ρ̂ ≥ 1 時選最新的 feasible frame。"
   }
  ],
  "baseline": {
@@ -4546,19 +4552,23 @@
  "excluded": [
   {
    "path": "results/raw/ros2_phase3_pilot/, results/csv/ros2_phase3_pilot_*",
-   "reason": "Phase 3 / Batch 1 pilot (40 s runs, dirty tree): Phase 3 gate reports BROKEN by design; preliminary only."
+   "reason": "Phase 3 / Batch 1 pilot (40 s runs, dirty tree): Phase 3 gate reports BROKEN by design; preliminary only.",
+   "reason_zh": "Phase 3 / Batch 1 pilot（40 秒 runs、dirty tree）：Phase 3 gate 依設計回報 BROKEN；僅供初步參考。"
   },
   {
    "path": "experiments/eda_lite/runtime_os_profiles.legacy_unverified.json, results/figures/ros2/*.svg",
-   "reason": "Teammate-provided legacy values without raw data: UNVERIFIED."
+   "reason": "Teammate-provided legacy values without raw data: UNVERIFIED.",
+   "reason_zh": "隊友提供的舊數值，沒有原始資料：UNVERIFIED。"
   },
   {
    "path": "experiments/eda_lite/runtime_os_profiles.example.json",
-   "reason": "Illustrative example profiles, not measured."
+   "reason": "Illustrative example profiles, not measured.",
+   "reason_zh": "示意用的範例 profile，不是實測。"
   },
   {
    "path": "results/csv/eda_lite_*runtime_aware*",
-   "reason": "Simulation driven by example / unverified OS profiles."
+   "reason": "Simulation driven by example / unverified OS profiles.",
+   "reason_zh": "使用範例 / 未驗證 OS profile 的模擬。"
   }
  ],
  "findings": [
@@ -4566,31 +4576,41 @@
    "id": "capacity",
    "kind": "measured",
    "text": "With the Fast DDS SHM profile verified at run time, saturated MobileViT-S processes 16.7 FPS (15.9–18.7, n=18 runs) and MobileViT-XXS 53.0 FPS (51.4–54.2, n=3 runs). Below capacity the worst run drops 0.03% of frames (39 runs); above it the measured drop rate stays within 0.8 pp on average of the 1 − 1/ρ prediction (36 runs).",
-   "title": "Throughput saturates at the service-time limit; below capacity, drops stay near zero"
+   "text_zh": "在執行期已驗證 Fast DDS SHM profile 的條件下，飽和時 MobileViT-S 處理 16.7 FPS（15.9–18.7，n=18 runs），MobileViT-XXS 處理 53.0 FPS（51.4–54.2，n=3 runs）。未達 capacity 時，最差的 run 只 drop 0.03% 的 frame（39 runs）；超過 capacity 後，實測 drop rate 與 1 − 1/ρ 預測值平均只差 0.8 pp（36 runs）。",
+   "title": "Throughput saturates at the service-time limit; below capacity, drops stay near zero",
+   "title_zh": "Throughput 停在 service time 上限；未達 capacity 時 drop 幾乎為零"
   },
   {
    "id": "guard",
    "kind": "measured",
    "text": "At S · 20 FPS (primary condition, n=5 paired blocks) Deadline-Guard lowers effective miss vs Latest-Frame by 10.7 pp (95% CI −12.3 to −9.0 pp; 5/5 blocks lower) and Adaptive by 10.6 pp (−12.8 to −8.3; 5/5).",
-   "title": "Dropping frames predicted to miss the deadline lowers effective miss"
+   "text_zh": "在 S · 20 FPS（primary condition，n=5 個 paired blocks），Deadline-Guard 比 Latest-Frame 降低 effective miss 10.7 pp（95% CI −12.3 到 −9.0 pp；5/5 blocks 較低），Adaptive 降低 10.6 pp（−12.8 到 −8.3；5/5）。",
+   "title": "Dropping frames predicted to miss the deadline lowers effective miss",
+   "title_zh": "丟棄預測會錯過 deadline 的 frame，可以降低 effective miss"
   },
   {
    "id": "adaptive",
    "kind": "measured",
    "text": "Adaptive − Deadline-Guard at S · 20 FPS: +0.07 pp (95% CI −0.95 to 1.09; 3 lower / 2 higher). Across all 5 conditions |Δ| ≤ 0.32 pp and every CI includes 0. Not an equivalence test.",
-   "title": "Adaptive's utilisation switch adds no measurable benefit"
+   "text_zh": "S · 20 FPS 的 Adaptive − Deadline-Guard：+0.07 pp（95% CI −0.95 到 1.09；3 個較低 / 2 個較高）。全部 5 個 conditions 的 |Δ| ≤ 0.32 pp，且每個 CI 都包含 0。這不是 equivalence test。",
+   "title": "Adaptive's utilisation switch adds no measurable benefit",
+   "title_zh": "Adaptive 的 utilisation switch 沒有可量測的額外效益"
   },
   {
    "id": "regime",
    "kind": "measured",
    "text": "It appears when the system is overloaded and inter-arrival + service exceeds the deadline (S · 20 FPS: 50.0 + 57.2 ms > 100 ms). Guard − Latest CI includes 0 at: S · 10 FPS, S · 30 FPS, XXS · 30 FPS + 25 ms.",
-   "title": "Among the tested conditions, the benefit appears in one load regime"
+   "text_zh": "效益出現在系統過載且 inter-arrival + service 超過 deadline 時（S · 20 FPS：50.0 + 57.2 ms > 100 ms）。Guard − Latest 的 CI 包含 0 的條件：S · 10 FPS、S · 30 FPS、XXS · 30 FPS + 25 ms。",
+   "title": "Among the tested conditions, the benefit appears in one load regime",
+   "title_zh": "在測試過的條件中，效益只出現在一種負載區間"
   },
   {
    "id": "dynamic",
    "kind": "measured",
    "text": "S · 10→20→10 FPS (n=3 blocks): Guard − Latest −4.3 pp (−5.5 to −3.1; 3/3 blocks lower); Adaptive − Guard +0.24 pp.",
-   "title": "Same ordering under a load step"
+   "text_zh": "S · 10→20→10 FPS（n=3 blocks）：Guard − Latest −4.3 pp（−5.5 到 −3.1；3/3 blocks 較低）；Adaptive − Guard +0.24 pp。",
+   "title": "Same ordering under a load step",
+   "title_zh": "負載階躍下排序相同"
   }
  ],
  "generator": "src.dashboard.build_data",
@@ -4828,6 +4848,7 @@
    "overloaded": true,
    "predicted_latest_late_pct": 14.46,
    "regime": "overloaded and inter-arrival + service > deadline: by the first-order bound, the newest frame can be too old to finish in time",
+   "regime_zh": "過載且 inter-arrival + service > deadline：依一階上界，最新的 frame 可能已經太舊而來不及完成",
    "service_ms": 57.23,
    "utilization": 1.145
   },
@@ -5114,6 +5135,7 @@
     "overloaded": false,
     "predicted_latest_late_pct": 0.0,
     "regime": "not overloaded: the worker is usually idle when a frame arrives",
+    "regime_zh": "未過載：frame 抵達時 worker 通常是閒置的",
     "service_ms": 57.51,
     "utilization": 0.575
    },
@@ -5139,6 +5161,7 @@
     "overloaded": true,
     "predicted_latest_late_pct": 14.46,
     "regime": "overloaded and inter-arrival + service > deadline: by the first-order bound, the newest frame can be too old to finish in time",
+    "regime_zh": "過載且 inter-arrival + service > deadline：依一階上界，最新的 frame 可能已經太舊而來不及完成",
     "service_ms": 57.23,
     "utilization": 1.145
    },
@@ -5164,6 +5187,7 @@
     "overloaded": true,
     "predicted_latest_late_pct": 0.0,
     "regime": "overloaded but inter-arrival + service ≤ deadline: by the first-order bound, the newest frame can still finish in time",
+    "regime_zh": "過載但 inter-arrival + service ≤ deadline：依一階上界，最新的 frame 仍能準時完成",
     "service_ms": 57.48,
     "utilization": 1.724
    },
@@ -5189,11 +5213,13 @@
     "overloaded": true,
     "predicted_latest_late_pct": 0.0,
     "regime": "overloaded but inter-arrival + service ≤ deadline: by the first-order bound, the newest frame can still finish in time",
+    "regime_zh": "過載但 inter-arrival + service ≤ deadline：依一階上界，最新的 frame 仍能準時完成",
     "service_ms": 42.47,
     "utilization": 1.274
    }
   ],
-  "model_note": "First-order model, not fitted: under overload the worker frees at a random phase relative to arrivals, so the newest frame's age is ~uniform on [0, inter-arrival). Latest-Frame misses when age > deadline − service."
+  "model_note": "First-order model, not fitted: under overload the worker frees at a random phase relative to arrivals, so the newest frame's age is ~uniform on [0, inter-arrival). Latest-Frame misses when age > deadline − service.",
+  "model_note_zh": "一階模型，未經擬合：過載時 worker 空出來的時間點相對於 frame 抵達是隨機的，所以最新 frame 的 age 約在 [0, inter-arrival) 上均勻分布。當 age > deadline − service 時，Latest-Frame 就會錯過 deadline。"
  },
  "primary_condition": "s20",
  "scheduling": {
@@ -21410,6 +21436,7 @@
   "config": "../../experiments/eda_lite/mobilevit_profile_sweep.json",
   "kind": "simulation_estimate",
   "note": "EDA-Lite outputs are cost-model estimates (simplified MobileViT block profiles, built-in OS profiles). They are not hardware measurements and are not linked to the ROS 2 measurements.",
+  "note_zh": "EDA-Lite 的輸出是 cost-model 估計值（簡化的 MobileViT block profile、內建 OS profile），不是硬體量測，也與 ROS 2 實測結果無關。",
   "rows": [
    {
     "dram_traffic_kb": 2592.0,
@@ -22857,956 +22884,1147 @@
   {
    "path": "results/csv/eda_lite_mobilevit_profile_sweep.csv",
    "role": "EDA-Lite simulation estimates",
+   "role_zh": "EDA-Lite 模擬估計值",
    "sha256": "cbf0c4853f730e90e822e00a5763a79a3a323358f71cb98f892b3c011a26b683"
   },
   {
    "path": "results/csv/eda_lite_mobilevit_profile_sweep.provenance.json",
    "role": "simulation provenance sidecar",
+   "role_zh": "模擬 provenance sidecar",
    "sha256": "b838d14a170603c1adaa7ed330a2bbdbce9d4ea5601142325f53a5d2e2c7d833"
   },
   {
    "path": "results/csv/ros2_baseline_conditions.csv",
    "role": "Phase 2 per-condition baseline table",
+   "role_zh": "Phase 2 各 condition baseline 表",
    "sha256": "ae0ed66d14db5a3bf913ddeb4deddb1353e878f4e0aa78d554c2a1ba97309f3a"
   },
   {
    "path": "results/csv/ros2_baseline_conditions.manifest.json",
    "role": "aggregate manifest",
+   "role_zh": "aggregate manifest",
    "sha256": "4bb4160db57f49af9a7aa5bf3e78c66226df4b0e060c2f0bc1d3fcd229981a1b"
   },
   {
    "path": "results/csv/ros2_baseline_runs.csv",
    "role": "Phase 2 per-run baseline table",
+   "role_zh": "Phase 2 各 run baseline 表",
    "sha256": "5c364cb6ef9e53cbbc26a0dc18fccd9b8aee57a06568db489458c1258d454f88"
   },
   {
    "path": "results/csv/ros2_phase3_formal_arms.csv",
    "role": "Phase 3 formal per-arm table",
+   "role_zh": "Phase 3 正式各 arm 表",
    "sha256": "0e38d8f62eb2c97b16fc0e7041c7489988a751bdd6c9ed5ebe8cbd5a5170a6eb"
   },
   {
    "path": "results/csv/ros2_phase3_formal_arms.manifest.json",
    "role": "aggregate manifest",
+   "role_zh": "aggregate manifest",
    "sha256": "72e57fa734e4f118760aa88bdb4b1f1094a8d9799eff841117405c932d808cb4"
   },
   {
    "path": "results/csv/ros2_phase3_formal_dynamic_arms.csv",
    "role": "Phase 3 dynamic per-phase table",
+   "role_zh": "Phase 3 dynamic 各 phase 表",
    "sha256": "efaee0499ad60a34d8e6fdfcaad9f478ccee00c71b5a398fe061d2a07a7f437a"
   },
   {
    "path": "results/csv/ros2_phase3_formal_dynamic_paired.csv",
    "role": "Phase 3 dynamic per-phase paired differences",
+   "role_zh": "Phase 3 dynamic 各 phase paired differences",
    "sha256": "a9dfb7948def613d88e84fcf25f718c73a7777b9b3f2e60a40de021d6b84c7f1"
   },
   {
    "path": "results/csv/ros2_phase3_formal_dynamic_phases.manifest.json",
    "role": "aggregate manifest",
+   "role_zh": "aggregate manifest",
    "sha256": "8db829b73f68a9c08dba382bd8edc37c9dfac3eddd7819eaa9fe803d49f1f261"
   },
   {
    "path": "results/csv/ros2_phase3_formal_paired.csv",
    "role": "Phase 3 formal paired differences",
+   "role_zh": "Phase 3 正式 paired differences",
    "sha256": "1162356ac10e3e4db78e18a7471fe999825386ef2af4d155ccf18dc63906e750"
   },
   {
    "path": "results/csv/ros2_phase3_formal_runs.csv",
    "role": "Phase 3 formal per-run table",
+   "role_zh": "Phase 3 正式各 run 表",
    "sha256": "68b9f6ce9bf58d24a6d742ebfce1ff1db470ed940d856d83a29187ae87f9f5d8"
   },
   {
    "path": "results/csv/ros2_phase3_formal_summary.manifest.json",
    "role": "runtime summary manifest",
+   "role_zh": "runtime summary manifest",
    "sha256": "d33613ecfd14b334f1f06f7d381736a30b8ae40559ca5166587dcca7755d452b"
   },
   {
    "path": "results/csv/ros2_runtime_summary.manifest.json",
    "role": "runtime summary manifest",
+   "role_zh": "runtime summary manifest",
    "sha256": "351315636dc07a0d8c83b2ef5d9e7452855a899fb74e299794fa13a515f3f79c"
   },
   {
    "path": "results/raw/ros2/fps_sweep_mobilevit_s_normal_10fps_qos5_d0_b2r1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "0a35a21693502cbb1b32a854ef7ac6d751445aca5ade61337f1de46e6514eb31"
   },
   {
    "path": "results/raw/ros2/fps_sweep_mobilevit_s_normal_10fps_qos5_d0_b2r2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "e5c099d3e14254874ba23b5ec6712a3df6ca5318821915f56470d54f0dc2db62"
   },
   {
    "path": "results/raw/ros2/fps_sweep_mobilevit_s_normal_10fps_qos5_d0_b2r3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "db299fcdf214c11b556a5fcbd774b64f8af00e0d1a5f7908f92aadb4290912a2"
   },
   {
    "path": "results/raw/ros2/fps_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "b80f954220609c4d69951527cb1d0f7f807c748651da99b9f1ff82bc149ffcfa"
   },
   {
    "path": "results/raw/ros2/fps_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "ededb7a0c1f4f1f2abc42845214e910cf2e280ed93e4476a1b77dce01080c91a"
   },
   {
    "path": "results/raw/ros2/fps_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "3cdb76e02a2e0a5b5703330298fb82d13da42204d397fb637250c5cd2eb46220"
   },
   {
    "path": "results/raw/ros2/fps_sweep_mobilevit_s_normal_30fps_qos5_d0_b2r1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "d82b4db195a0dffdaaa2eb9cc99a01cd68e594c152718744a8a6213d1e677402"
   },
   {
    "path": "results/raw/ros2/fps_sweep_mobilevit_s_normal_30fps_qos5_d0_b2r2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "3847325fb6c6ea1f878bccf83a399e93c4cc92893031be4aa3654aedc04edb19"
   },
   {
    "path": "results/raw/ros2/fps_sweep_mobilevit_s_normal_30fps_qos5_d0_b2r3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "8d110de2475cf4b0df8c03ff3afdfacbfb2da374071a31636cb9082532573d68"
   },
   {
    "path": "results/raw/ros2/fps_sweep_mobilevit_s_normal_5fps_qos5_d0_b2r1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "bf4748ea0b9932617e79f4aa01b13240a3bea6211db36d290f787451fdf17568"
   },
   {
    "path": "results/raw/ros2/fps_sweep_mobilevit_s_normal_5fps_qos5_d0_b2r2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "5dd39614badd554a95553da7105c17a25ad1644fd71f885a0fe63594de2cc14d"
   },
   {
    "path": "results/raw/ros2/fps_sweep_mobilevit_s_normal_5fps_qos5_d0_b2r3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "f52a97f28bf2712ded941250d1d1a7d0258df2c4fea4e6506ccba2811ecb1ac6"
   },
   {
    "path": "results/raw/ros2/fps_sweep_mobilevit_xxs_normal_10fps_qos5_d0_b2r1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "724ea925e6266280e0161d44c1095f589dbdb72c2b58ef9ec2699f8d442a84fb"
   },
   {
    "path": "results/raw/ros2/fps_sweep_mobilevit_xxs_normal_10fps_qos5_d0_b2r2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "933c2780f251b06b736ee141b8f3a464b6003581b402ab254a231972d47a360f"
   },
   {
    "path": "results/raw/ros2/fps_sweep_mobilevit_xxs_normal_10fps_qos5_d0_b2r3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "f9bc0c07505f351cf7fb8f330ce14edf9a5eb25bb22c4e1d9878dd6425ec8e89"
   },
   {
    "path": "results/raw/ros2/fps_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "99e74252054fa4a6a1e0f103a6232b771f26af57d95baca28121f4e5fd852502"
   },
   {
    "path": "results/raw/ros2/fps_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "83af16718ceaeceab8c8b2ed04297806721b433d2928da40a016d332f0f23edc"
   },
   {
    "path": "results/raw/ros2/fps_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "f1b148d355fa032bc203599cb51d1f5b60b00c9cc95e58f3906da08179bef3e8"
   },
   {
    "path": "results/raw/ros2/fps_sweep_mobilevit_xxs_normal_30fps_qos5_d0_b2r1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "5f0528123ebb8e1f45a325ce8de18a30d1fd35fed5612688cc41cc7b378d322a"
   },
   {
    "path": "results/raw/ros2/fps_sweep_mobilevit_xxs_normal_30fps_qos5_d0_b2r2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "d5f7af7813104d05619197c1fe55b25535fcb42d86ce00b110aa1b6e71cfed03"
   },
   {
    "path": "results/raw/ros2/fps_sweep_mobilevit_xxs_normal_30fps_qos5_d0_b2r3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "4ef2e8324763e7cbc74df324f2006ffc7265f6a7b4c8633b770fa34b91f4624e"
   },
   {
    "path": "results/raw/ros2/fps_sweep_mobilevit_xxs_normal_40fps_qos5_d0_b2cap_r1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "d595beef0e68f8d063bf979f8f2c98c185c6d9d46c16dab37f30946f9e172785"
   },
   {
    "path": "results/raw/ros2/fps_sweep_mobilevit_xxs_normal_40fps_qos5_d0_b2cap_r2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "6a72be491840bee45d6901216fe2e4f58c8dc60c511646e02aa51b38978c4d23"
   },
   {
    "path": "results/raw/ros2/fps_sweep_mobilevit_xxs_normal_40fps_qos5_d0_b2cap_r3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "be13c44f019e033f09e21d6fd66b24ba33d37ff84c738cea8d4422c61b9e071d"
   },
   {
    "path": "results/raw/ros2/fps_sweep_mobilevit_xxs_normal_50fps_qos5_d0_b2cap_r1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "e29ba6c55020436555cee63341e4259eb7e9938fb740dfed21748b34999b6add"
   },
   {
    "path": "results/raw/ros2/fps_sweep_mobilevit_xxs_normal_50fps_qos5_d0_b2cap_r2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "ee773f50f69d39a8f4eba2c716ed331e8a93be7c9dda3fb3a2cb77caac676c27"
   },
   {
    "path": "results/raw/ros2/fps_sweep_mobilevit_xxs_normal_50fps_qos5_d0_b2cap_r3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "5271f269fccc303d0524ceee5ba2fb62e9dd9d9b6c478d06c4d7cf8380c74141"
   },
   {
    "path": "results/raw/ros2/fps_sweep_mobilevit_xxs_normal_5fps_qos5_d0_b2r1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "f01ad660a0f1bfea57fd91ecbcdf45b4ddea0aae7c6ad3e07390e9c9fa5637d4"
   },
   {
    "path": "results/raw/ros2/fps_sweep_mobilevit_xxs_normal_5fps_qos5_d0_b2r2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "8db80e65e584ce59e88400de30c026f687f0e6bf5f6f0176609b53957969dd28"
   },
   {
    "path": "results/raw/ros2/fps_sweep_mobilevit_xxs_normal_5fps_qos5_d0_b2r3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "189c40c72bf19cb22b888d00d18ebdca2cca3d06643907a199e8ed3422d06ef1"
   },
   {
    "path": "results/raw/ros2/fps_sweep_mobilevit_xxs_normal_60fps_qos5_d0_b2cap_r1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "0ba367f09894535bc297db54b5f6a23207085e82aa714c16758d069f7a71e589"
   },
   {
    "path": "results/raw/ros2/fps_sweep_mobilevit_xxs_normal_60fps_qos5_d0_b2cap_r2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "829a00e0bf23825003ca8ff790dfc5aab71ac40b7de52de4dcc1434aa088aba8"
   },
   {
    "path": "results/raw/ros2/fps_sweep_mobilevit_xxs_normal_60fps_qos5_d0_b2cap_r3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "835702c41af2b49db434129071054dd6c41a7778ad24d0699b76e87ed085d538"
   },
   {
    "path": "results/raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "29704d7f243dc85bae73784bde427feec33be3e7dee6c9ce17387c0e40bdbb25"
   },
   {
    "path": "results/raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "a8e9250d1f333602ce4ea3e631c90539c2583fb00bc6dcd17786f5ab6d4d9648"
   },
   {
    "path": "results/raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "7098f51809ad83d20884e5e5a6f0dcc25256ccdbd45367533329862a41634a1a"
   },
   {
    "path": "results/raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d150_b2r1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "eb1c7e90fec09afbc02e1b06b3ddaf273919da47740fe2113d2ebdc73fff6e1b"
   },
   {
    "path": "results/raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d150_b2r2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "806893370707c681e4124be18547954ccac685ff07c270d4e75b19ad9137b4a0"
   },
   {
    "path": "results/raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d150_b2r3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "45df200196ca2354abf5777759d0249ef1ae46c645ad53d2ba03ad230d9297c0"
   },
   {
    "path": "results/raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d30_b2r1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "4b2a77d959b802ef5e38384145366ded6f68d9c4ed2ebeacd1e209711f0cdc40"
   },
   {
    "path": "results/raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d30_b2r2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "6fca600adb5bd3b6861a9b368d04720ed7199025a7a6dc5b2d007c11e61ae926"
   },
   {
    "path": "results/raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d30_b2r3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "85d0c608123c722d256cacd7ee83146eb212b78026dd34c3e76f2f02c02ac165"
   },
   {
    "path": "results/raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d80_b2r1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "11b37afc0a75b961f3ff18ca75278272830ee9b3207893872d6e3d6e4b86b57c"
   },
   {
    "path": "results/raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d80_b2r2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "556f955da20591faa0bd2b238becc387826c10f8f94da37a39501b9bcab8cc86"
   },
   {
    "path": "results/raw/ros2/overload_sweep_mobilevit_s_normal_20fps_qos5_d80_b2r3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "906f21f10c5cd25312e2fecadda6756f4cacf2421d95c869126cb8a95b298a0c"
   },
   {
    "path": "results/raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "41b9c9757f0cf9560727bb602c4f3dd728ec9ecf7270153b1363d12a91842131"
   },
   {
    "path": "results/raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "6dec75a03631e75d1864f177eaeea4de6f015dd70c58efb081df2a714f6f139b"
   },
   {
    "path": "results/raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "c94a5dbc31a3673869942cf26804492ddbc80a472931f1d7e909173c257f8ab8"
   },
   {
    "path": "results/raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d150_b2r1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "d9cac87fe188a5bb0e5de1f23d8b1654cfd65a100cf02182dec395c93d6c2d50"
   },
   {
    "path": "results/raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d150_b2r2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "54e76e35e2ebcfbfe4ab71177e79d0725ce6891e0cf97c7cdf75454dcad698fb"
   },
   {
    "path": "results/raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d150_b2r3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "707d9655c24bfc60018a300346244ce53312bb8c02d36e2b6b04d3f5d1ed6972"
   },
   {
    "path": "results/raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d30_b2r1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "39a6c2f486099e1015730dd54e52892d11cf01145acd2b74ea16da2a57bc8dd0"
   },
   {
    "path": "results/raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d30_b2r2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "256e7fe53b8910391d5d30a81cc3e2b202838a45680ac2e81be993ea0175aad4"
   },
   {
    "path": "results/raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d30_b2r3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "c5d587b8ec195d164f9b07ec4bb319406ddeb295a1404f6c0e68e2947285e4f5"
   },
   {
    "path": "results/raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d80_b2r1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "379c30d07d0e4143f4bface79b2a34096c46f37a504d540a0919bb373156d49f"
   },
   {
    "path": "results/raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d80_b2r2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "6b9a33aecf83b2f640d98bd7cdea98ba495627731d3dd71eb716ee8665bdb530"
   },
   {
    "path": "results/raw/ros2/overload_sweep_mobilevit_xxs_normal_20fps_qos5_d80_b2r3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "a379d59d7bb20955777e90f8fb55488af17e0ef90058811d5fed0eb12139c26f"
   },
   {
    "path": "results/raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos10_d0_b2r1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "865cda04bc1f4d73719c69425a764b4e9941eebb303b1bbb3f2e6d55c6ceb31c"
   },
   {
    "path": "results/raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos10_d0_b2r2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "7c56dde81d493e0402bd6d90e45be8c1e567d370017c9b57c9f8aeaaadd5719a"
   },
   {
    "path": "results/raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos10_d0_b2r3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "3081a421f06064e833ba2a4210a3e1119fd228e35f2945df2c6afe5f8e51706a"
   },
   {
    "path": "results/raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos1_d0_b2r1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "ef03f4301e14544f28c723b8a5ca08594a3b77be8a4cf8e1c64ab30e5c93b184"
   },
   {
    "path": "results/raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos1_d0_b2r2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "7c1cdcd37daeb0cc2385a54aa2123f125ea4aa63c701f37a6476d3b83879a8c8"
   },
   {
    "path": "results/raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos1_d0_b2r3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "0e8fb023b84a1d97204c212f610bfa289e37bdf2fbf80c7f746b0ef0b389764f"
   },
   {
    "path": "results/raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "1830f4062780b376736a3ff9d34c53a448aa6bc51a76b31c8560a2e5435be9a2"
   },
   {
    "path": "results/raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "6a938b016a4f8299941bf9fd7d8a59a45c98a265284793449645bb37e29f863c"
   },
   {
    "path": "results/raw/ros2/qos_sweep_mobilevit_s_normal_20fps_qos5_d0_b2r3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "8d8b75f6d8e3f8a4434466233ad6f4efb6627ee6fad97091b480639ec6735d42"
   },
   {
    "path": "results/raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos10_d0_b2r1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "8cf561160e903d42ac44ae91c034736d4b2166c2f0e4d07f7d74551d9c1f3533"
   },
   {
    "path": "results/raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos10_d0_b2r2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "9d3d4f563947b92e890b0f2be5103ad552e8bb6892926adcfa2d253c3105c88c"
   },
   {
    "path": "results/raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos10_d0_b2r3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "e43959a7853876b12bfc7c5808132a7db038a54f27e419a9e0b0b118d5b40ff8"
   },
   {
    "path": "results/raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos1_d0_b2r1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "7f0f8bb0e999f02559400802351fa9558d3ace1d5a0c66dcf659f62fbcf2e6a7"
   },
   {
    "path": "results/raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos1_d0_b2r2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "cf018975fff4e3b47fc3fc137d0e4c5d45c63a9dedfb03be4c35b58e49c7a8ac"
   },
   {
    "path": "results/raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos1_d0_b2r3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "e4981832337e46cb8178367828650baafad378a7341f39f17ae2fa8f085505a8"
   },
   {
    "path": "results/raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "0cb7f14997b6452ba354e025b4f1e5cb0641151b9a243bf1759b6aff41a77146"
   },
   {
    "path": "results/raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "a8ebeb3ee6437b432e503aeab59c67215fb4beeadf5ef3a37f501c285c7eb461"
   },
   {
    "path": "results/raw/ros2/qos_sweep_mobilevit_xxs_normal_20fps_qos5_d0_b2r3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "86b96739c7c5b3344ebd8879591ad22dc8e4e76f7d646dd3b8dd89064c235f5a"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_adaptive_c5_q10_d0_p3b2_sdyn_b1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "7ccd6dc5482f1e7ee12d2310b820cd1c74b0f2535e200ed8b0f72e868a01898c"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_adaptive_c5_q10_d0_p3b2_sdyn_b2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "acf34a718c69f44ea87f338305bce5b11ecb53af661f20378924c47c271c2764"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_adaptive_c5_q10_d0_p3b2_sdyn_b3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "28749ef763c75ca3f83e4c73404c4b6573e54442895179271bfe5626adda8d89"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_fifo_c5_q10_d0_p3b2_sdyn_b1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "fda6ea0a8ecf8884775b4958410b0a8bfe06679da63823e737d78e2ea8b6214b"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_fifo_c5_q10_d0_p3b2_sdyn_b2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "1f3a8cfbad421de398ffdd3984f193d3477170c316e140ddb71711d569e64f2a"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_fifo_c5_q10_d0_p3b2_sdyn_b3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "ab40a0fba3e19947a99b7414832516b246e84b5b5755a44b0761ec13f26a52ae"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_guard_c5_q10_d0_p3b2_sdyn_b1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "c98e9574307682d7a66af8c628021e1772a720cc68b97ec9a311b2a915e90c59"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_guard_c5_q10_d0_p3b2_sdyn_b2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "58aba36ca0bac2ad82c9bf8ee60d14dd67457971ccde7461687b31124bae7ed2"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_guard_c5_q10_d0_p3b2_sdyn_b3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "d72b3466bbe426e253e3deaf3b0ae09e491e751eef226cef998cf87626d760ec"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_latest_q10_d0_p3b2_sdyn_b1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "3a56af36536f20a53ea89a1ecaa69fa8a476fd4e6bbb22d6a6462f26fadc1108"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_latest_q10_d0_p3b2_sdyn_b2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "278480cd7657599f3b91269b91af20907d67d5475da7f5c3c0750ebb00b06d88"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_latest_q10_d0_p3b2_sdyn_b3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "1e26318278f4eb674abc95b037d4b624daa391f8247841fee7fa5cb07e64e870"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q1_d0_p3b2_sdyn_b1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "4ffb59b1ebe6b9be819f7f16839550d8012816f40b05057ae99316915385bc14"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q1_d0_p3b2_sdyn_b2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "1eaeee0bd7520373c6a154342db0a84674b9114a84e5f6379c56d0948b658beb"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q1_d0_p3b2_sdyn_b3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "432a581793f0233e14f03f609c099c17565664c58e1977fb00cd33467e898006"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q5_d0_p3b2_sdyn_b1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "cd2075fd34472f43334555735f6c769bcb7bb979daaeb783b8fddca79dba137b"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q5_d0_p3b2_sdyn_b2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "528b8e659cf160ca4b5ba38fc487306df62a80ed099cdc66846d61e9afb5f6ff"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_dynamic_mobilevit_s_normal_dyn10x20-20x20-10x20_legacy_q5_d0_p3b2_sdyn_b3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "51abcc5a8b90f51588bba1aae8961caebf73a0ad8adc879359694766d0d19b9d"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_adaptive_c5_q10_d0_p3b2_s10_b1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "1b780280910dbe88d1940bb412600ac614dbcd8d05c79b9ca93070fbea98cfda"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_adaptive_c5_q10_d0_p3b2_s10_b2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "f9291ac5b9205d0f368b868ecdc1b49eb394a5234ab91c6d3bc5c4d280795788"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_adaptive_c5_q10_d0_p3b2_s10_b3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "51b1282a7ef102c50bcadf0c6a5247e7d3539fa2619b4b3ef9e43e00442d3359"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_fifo_c5_q10_d0_p3b2_s10_b1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "cd66889a9e5b37b3d448c0cec019598974a371f1f34ef97c1bcd5b7a027af7d8"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_fifo_c5_q10_d0_p3b2_s10_b2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "b23b8f0961c110bc20086496060dfe981ed5736841dc21c420fb32fec6e2cb46"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_fifo_c5_q10_d0_p3b2_s10_b3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "9f13902796d85e099c2da851dd09102a82faefad55fd49024abc50b25c8f8ffe"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_guard_c5_q10_d0_p3b2_s10_b1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "394a7cd20ddb0e2c1f498abbffc79a7ce1c750e775fbacc682b7672402d4dfaf"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_guard_c5_q10_d0_p3b2_s10_b2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "fed25274e126932eb4de46aff34f8cbe5c9ae505e52b593cc2a233f768ecd1be"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_guard_c5_q10_d0_p3b2_s10_b3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "6c1a93d6d6d86cbbaba842762a70fbd603832db2daa04f431131c9a52f51b881"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_latest_q10_d0_p3b2_s10_b1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "1eba77a22b9700b37b05f6ce2dc9a669cd22c0ea00e27240e3118b59dac4ea28"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_latest_q10_d0_p3b2_s10_b2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "483af49f88c4ef805df2c9a53a798b6fb45e1ec16028224fc148ead050671934"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_latest_q10_d0_p3b2_s10_b3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "d99f7d2048c62e7cf60412d7fa90c632b900e26e589d32ee0d4d30e92dc13ced"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_legacy_q1_d0_p3b2_s10_b1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "f7b37e8b0b0f073bb063a04075f39b225e23705c674ba0e64201c3ea19e1d0ad"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_legacy_q1_d0_p3b2_s10_b2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "4be000c98ee0e00ff997bf3515a574717db3ef5692b7ba033afc068659b675a3"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_legacy_q1_d0_p3b2_s10_b3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "43e5f219177ae1d817985b0c7edd22794b697c5a5342c0f4fd58aabeff3bfd87"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_legacy_q5_d0_p3b2_s10_b1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "76fc7624dc2d9774e50ec0c2c5b5b2e2b10635c4f9463ad2b43de24423bb8944"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_legacy_q5_d0_p3b2_s10_b2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "1e41cc1e0d11af098cc83f304802db0243498380545b03132e4cc1d285374dde"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_10fps_legacy_q5_d0_p3b2_s10_b3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "0f9c9b37cce62a8a8a6fc05a14ccfca95733cdda9f3b1498753772c1ae77a90e"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_adaptive_c5_q10_d0_p3b2_s20_b1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "31bba08346b0c5ccfaa4f6b95c3219e5a84267ce79d7073d005db10bdfe12135"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_adaptive_c5_q10_d0_p3b2_s20_b2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "bbf4f948a88068d1f9ac2dc03be9e9fb38a7694a588115447b65d5f9070376b0"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_adaptive_c5_q10_d0_p3b2_s20_b3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "dc690a3a0704b2d8c7ee191182976394dac427ca1efc133d222da838b0fbc7f4"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_adaptive_c5_q10_d0_p3b2_s20_b4.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "56b9819c67c52fd4a7c976aa26b9f02e6124c2ff2bc24159a38356af98a70dba"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_adaptive_c5_q10_d0_p3b2_s20_b5.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "a6ecf6b3bc61c87c9b49929c1b5e7bfa0f24c187a15b4a665f2641454837956c"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_fifo_c5_q10_d0_p3b2_s20_b1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "a17f81323b20e15b3911f787929ab006eef0a00c530fb84445a370079d121e02"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_fifo_c5_q10_d0_p3b2_s20_b2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "6b84b64a55ba962fe97e87418c10a148acbd031f9ac0a2d8841dc902beef147c"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_fifo_c5_q10_d0_p3b2_s20_b3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "3866c0ce04dd454ff45d49eb7832044e23803e6104d6e9f70a61a04bb8f1c04b"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_fifo_c5_q10_d0_p3b2_s20_b4.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "fc67eb84afd7a2b4367b610a4073fd07ca4293a4f179a2aa359636718763bb60"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_fifo_c5_q10_d0_p3b2_s20_b5.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "05d1e94762567328db70ee50192806b3b9d2bc0425e3d812d2e2da084ad027f4"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_guard_c5_q10_d0_p3b2_s20_b1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "087adab797dbc660c5233eefd3e23c8ee4d377163f22bc0459c023b857449867"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_guard_c5_q10_d0_p3b2_s20_b2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "53233b3276e420e1505cff2cc856593e935cfb0f9c818e7687fbeeb83644a1e1"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_guard_c5_q10_d0_p3b2_s20_b3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "736ff96d3b5da4190d86fd3dac77169903ed723e9d18a4f375456e4816b96ffe"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_guard_c5_q10_d0_p3b2_s20_b4.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "4572f8c08ef212fedf4beaa7dc7336eac2de709e540151d4bde476f4178fa7a6"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_guard_c5_q10_d0_p3b2_s20_b5.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "48d0e89b9ff749d9e9e4c73b61e613979c5739daa137631735cb05ea6eeb5139"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_latest_q10_d0_p3b2_s20_b1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "1a9b0ebbd00258847767d98e49be5f322590bcd54e0daaeeb161250b51025cad"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_latest_q10_d0_p3b2_s20_b2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "0a890bffbb7a6c1314edf13e80a6f36725d44990bb3beb7eeac65977dc6f5afd"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_latest_q10_d0_p3b2_s20_b3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "35e52c83035357a175b48a212aaa2c86d52f282fc2de419b072cd8d824785404"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_latest_q10_d0_p3b2_s20_b4.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "e5c3a5ba9a717b2348c349d42adb0695c6eb511697e1ea823915916e77e203f9"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_latest_q10_d0_p3b2_s20_b5.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "9a3e558a5ac86960b4b9c22e131e5a4b56b7c04dfc24691d82b57083e7b63c7c"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q1_d0_p3b2_s20_b1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "3606f97554a928bc7e1c4d1f320cafa7a0e513a45a2cd89c1e3c6d722218627f"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q1_d0_p3b2_s20_b2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "d3896c772d85d71316f3208ccf44ca11c641123cf22a4a924266f21da9b285d8"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q1_d0_p3b2_s20_b3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "3ae2023d560e67e238242bc95809706f5a65ef1e61373479506b0e4a850f4aca"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q1_d0_p3b2_s20_b4.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "a8d3c5c8fe3383e49c071ec965210882e20be30db453518a7fbac490f10d2f14"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q1_d0_p3b2_s20_b5.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "3b0d55dc353b6664b78367c5c7df7e9c6493f4b371a1b971bea76ba5ee4ee39d"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q5_d0_p3b2_s20_b1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "3a358229d70b326caf35bd89ee8bf81fa575a286a9e4fab3515175d5f37b9990"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q5_d0_p3b2_s20_b2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "789254cc42e42cb39863edeb83409471f588834a02364ce2f6b3d1059abb68ec"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q5_d0_p3b2_s20_b3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "107970ac62b2fcfb375afbb679dc88ed8a6f05a3cbcd62a2ffc6182609c1d288"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q5_d0_p3b2_s20_b4.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "582db2a3c91d23af037d49de92d92595e8df90360900bc2fdbb3b9a01a41c8ef"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_20fps_legacy_q5_d0_p3b2_s20_b5.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "f58552e8cb27c2945924a6fa4d5acfc37d930ce8919d5ec67927dee2205b1173"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_adaptive_c5_q10_d0_p3b2_s30_b1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "5456742507d36a6871b00f39862689a310bed6c36f9d9c3b2b5fcd694d95c13d"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_adaptive_c5_q10_d0_p3b2_s30_b2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "9d9592c7691844330cf3d124b6ad782089ceb3ad5a3b4da5f8f184050ce05fa3"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_adaptive_c5_q10_d0_p3b2_s30_b3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "b88bd6b4c6b2846e9c5d3e7cad7c1d968cc45e5d9227df0a4cb5f9b6b892e69c"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_fifo_c5_q10_d0_p3b2_s30_b1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "22f77ade7b6c13ea26f5b272d40a830b0397f7657f88baa227a3dd18ae8da1be"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_fifo_c5_q10_d0_p3b2_s30_b2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "8439248b8436efa3b2e356037b128768d0ab488f0935b19ca1a91639159e6a77"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_fifo_c5_q10_d0_p3b2_s30_b3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "505c1bb4e6bce57fbd26234378d21d20054b6512556c230b23eaf0e967d953e6"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_guard_c5_q10_d0_p3b2_s30_b1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "ece20831974c02a4d8f3a1406092b79dba28071bbf4b23d916ebe04e94d3fbc2"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_guard_c5_q10_d0_p3b2_s30_b2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "3f39233e52a1eb4ffe992e2e73f56eb0ee7ef34592625b0dea1d9a7b327c2b9c"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_guard_c5_q10_d0_p3b2_s30_b3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "a6fc806ab11d4463403bc3c733f137368393a6143c67ded0574ac1197b1c19aa"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_latest_q10_d0_p3b2_s30_b1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "ae1e2b59ccf5a3260242d88184a70c0688b88a46739c3aeb7bfb122408fbcd1c"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_latest_q10_d0_p3b2_s30_b2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "310ae552b7c23e9c972f5cc76bb80ced9ee90b41d86583511b8d3c33959e0294"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_latest_q10_d0_p3b2_s30_b3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "2d7db5a69b48af81b1a7a991a4fa8bfe7af35b42295a6917fb902108249f1ae2"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_legacy_q1_d0_p3b2_s30_b1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "2c4935bad0da31ac6d1a50771c2aea6f8727c754177d032f617752ff616af97b"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_legacy_q1_d0_p3b2_s30_b2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "7bf30825f25678db5b40e434a4245304142de28a88c1a33b75edf43f3b13c673"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_legacy_q1_d0_p3b2_s30_b3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "3e1c0ea10da94a60c418a15bb5f28cd91bfbfbc8c32621cd2c28f734f21106e7"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_legacy_q5_d0_p3b2_s30_b1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "f14357008048ff9a0f47f264d2cf59866a4c321a169772e9bc16c9d6b65de449"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_legacy_q5_d0_p3b2_s30_b2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "17962344d81777324805aeadc50e7d1b7f0df502794402d97f0d5ea257b7caee"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_s_normal_30fps_legacy_q5_d0_p3b2_s30_b3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "270f016091323339bd668ec3acdec45aa376a0c495900e8bb630733d35b68182"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_adaptive_c5_q10_d25_p3b2_xxs30d25_b1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "01f02229aeeec42bb08b14e5a1e77797b99e0e3d86771ccda538929d8103f410"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_adaptive_c5_q10_d25_p3b2_xxs30d25_b2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "00b6b1d8782c7bfa303dfc412ec0c5a0df4423c9be3cb2c8bce2ad0f9431ce65"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_adaptive_c5_q10_d25_p3b2_xxs30d25_b3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "904cc28de80b67d46ce8c0409bbc325c522ca171393524eafff67334b05035fc"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_fifo_c5_q10_d25_p3b2_xxs30d25_b1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "5fbdda43f23c0377674427b811d55305631242940d32603a7c6ec1c5db974396"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_fifo_c5_q10_d25_p3b2_xxs30d25_b2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "28df36c7db92c5c06eaa5418a107677e0e1a1c6b2f8561ba3cabfc87a9c28d5b"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_fifo_c5_q10_d25_p3b2_xxs30d25_b3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "93ac0147bc48bb295996c2fef4cceb40648472866fe0368052419af16c569540"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_guard_c5_q10_d25_p3b2_xxs30d25_b1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "952775847f4e8450377d96e13a2cb08ce9cd2c81edfad212ef46e5eba9382cc1"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_guard_c5_q10_d25_p3b2_xxs30d25_b2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "3f1665206b65070f19cc3a3df2c82d952a82428588b723b74513acf471095464"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_guard_c5_q10_d25_p3b2_xxs30d25_b3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "fcda30b89a66d2aeb45a19d3070981f19bb093a4868564a0b1a4783c3d28f294"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_latest_q10_d25_p3b2_xxs30d25_b1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "2135b21410db879e6606ca2fea961abed8323b437e8f60b22fc062dfaaeda84e"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_latest_q10_d25_p3b2_xxs30d25_b2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "1fa9ce1a197afa32f2b1b21a2db8f7c43312bfea4e00b4788562cccdeb167144"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_latest_q10_d25_p3b2_xxs30d25_b3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "6286259a9aeb3d1b1b16a3b1dcfc360baacd9c0edd4ecb66b89de9e6513326a4"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_legacy_q1_d25_p3b2_xxs30d25_b1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "f4ae80f3c1a78951ca5478b3235784bfe92fbff76752caabaffb82ce6ab2164d"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_legacy_q1_d25_p3b2_xxs30d25_b2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "076db13fbb6437068f303cedd353dffbb7f7ce5cb5b905112a5c83e4a000ecca"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_legacy_q1_d25_p3b2_xxs30d25_b3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "0278f258b21586fa50815fdd008fb8a2487860102660035a4dd5b63d57ab4170"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_legacy_q5_d25_p3b2_xxs30d25_b1.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "d2dab83a46d41f22ce8d2fa357ed741a5e6b36f61023bcab858ae55470085333"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_legacy_q5_d25_p3b2_xxs30d25_b2.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "3ab8c2cfa76f09649e06cdb2dbd173e32256256ee87f86674c847a32ac0cdd44"
   },
   {
    "path": "results/raw/ros2_phase3_formal/sched_sweep_mobilevit_xxs_normal_30fps_legacy_q5_d25_p3b2_xxs30d25_b3.meta.json",
    "role": "run metadata",
+   "role_zh": "run metadata",
    "sha256": "50d2f677cc85df30e8500074730bde9437bcc42e17a029c3f3769c8754d948df"
   }
  ]
