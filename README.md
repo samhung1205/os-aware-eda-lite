@@ -1,6 +1,6 @@
-# OS-Aware EDA-Lite · ROS 2 Runtime Scheduling
+# OS-Aware Edge AI Runtime
 
-A measured study of **frame scheduling for a MobileViT detector in ROS 2** on a resource-constrained Linux host, plus an offline **EDA-inspired layer-fusion simulator**. Every runtime number is traced by SHA-256 from raw per-frame logs to the dashboard, and simulation estimates are kept visibly separate from measurements.
+**OS-Aware Edge AI Runtime** is a measured study of **frame scheduling for a MobileViT detector in ROS 2** on a resource-constrained Linux host, plus an offline **EDA-inspired layer-fusion simulator**. Every runtime number is traced by SHA-256 from raw per-frame logs to the dashboard, and simulation estimates are kept visibly separate from measurements.
 
 ![Dashboard overview](docs/images/dashboard_overview.png)
 

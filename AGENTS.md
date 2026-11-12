@@ -8,11 +8,13 @@ This repository is for an Operating Systems final project inspired by:
 
 The project does **not** attempt to fully reproduce the original EDA compiler. Full reproduction would require tensor splitting, graph rewriting, memory planning, code generation, NPU scheduling, and hardware simulation, which is outside this project scope.
 
-Current implemented project:
+Current implemented project (project name: **OS-Aware Edge AI Runtime**; formerly "OS-aware EDA-Lite"):
 
 ```text
-OS-aware EDA-Lite for lightweight MobileViT + ROS2 runtime pressure analysis.
+OS-Aware Edge AI Runtime: measured ROS 2 frame scheduling for lightweight MobileViT on a constrained Linux host, plus the EDA-Lite simulator.
 ```
+
+Naming: use "OS-Aware Edge AI Runtime" for the project as a whole (README, dashboard, reports). "EDA-Lite" names only the offline layer-fusion simulator component, and "OS-aware" EDA-Lite rows / figures (vs `pure`) keep that technical meaning.
 
 Preferred project description:
 

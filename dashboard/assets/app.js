@@ -62,7 +62,7 @@
     document.querySelectorAll("section.view").forEach((sec) => { sec.hidden = sec.dataset.view !== view; });
     const sec = document.getElementById("view-" + view);
     if (!rendered[view]) { RENDER[view](sec); rendered[view] = true; } else C.refreshVisible();
-    document.title = { overview: "ROS 2 Scheduling Benchmark", baseline: "Baseline · ROS 2 Benchmark", scheduling: "Scheduling · ROS 2 Benchmark", mechanism: "Mechanism · ROS 2 Benchmark", evidence: "Evidence · ROS 2 Benchmark" }[view];
+    document.title = { overview: "OS-Aware Edge AI Runtime", baseline: "Baseline · OS-Aware Edge AI Runtime", scheduling: "Scheduling · OS-Aware Edge AI Runtime", mechanism: "Mechanism · OS-Aware Edge AI Runtime", evidence: "Evidence · OS-Aware Edge AI Runtime" }[view];
   }
   window.addEventListener("hashchange", () => { Object.keys(rendered).forEach((k) => { if (k !== "overview" && k !== "evidence") rendered[k] = false; }); route(); });
 
@@ -82,8 +82,8 @@
   }
   function control(container, label, segEl) {
     const span = document.createElement("div");
+    span.className = "control";
     span.innerHTML = `<span class="control-label">${esc(label)}</span>`;
-    span.style.display = "flex"; span.style.alignItems = "center"; span.style.flexWrap = "wrap"; span.style.gap = "6px";
     span.appendChild(segEl); container.appendChild(span);
   }
   function table(headers, rows, opts) {
@@ -96,6 +96,22 @@
   const condOptions = () => S.conditions.map((c) => ({ value: c.id, label: c.label, html: esc(c.label) + (c.primary ? '<span class="star" title="pre-registered primary condition">primary</span>' : "") }));
 
   /* =============================== OVERVIEW =============================== */
+  // Per-block differences for display only. They are drawn only when their mean reproduces the
+  // reported paired estimate (built from the same runs), so the dots can never disagree with the KPI.
+  function blockDiffs(cid, arm, ref, metric, est, nBlocks, nd, unit) {
+    const a = runsOf(cid, arm), b = runsOf(cid, ref);
+    const pts = [];
+    a.forEach((ra) => {
+      const rb = b.find((x) => x.block === ra.block);
+      if (rb && isFinite(ra[metric]) && isFinite(rb[metric])) pts.push({ block: ra.block, v: ra[metric] - rb[metric] });
+    });
+    if (!est || pts.length !== nBlocks) return [];
+    const mean = pts.reduce((s, p) => s + p.v, 0) / pts.length;
+    if (Math.abs(mean - est.mean) > 0.0051 + Math.abs(est.mean) * 1e-3) return [];
+    return pts.map((p) => ({ v: p.v, label: `block ${blockNo(p.block)}`,
+      tip: tipRows(`${ARM[arm].label} − ${ARM[ref].label} · block ${blockNo(p.block)}`, [["Δ", fmt(p.v, nd, true) + unit]]) }));
+  }
+
   function renderOverview(sec) {
     const K = D.kpis;
     const g = K.guard_vs_latest_primary, ag = K.adaptive_vs_guard_primary, al = K.adaptive_vs_latest_primary;
@@ -103,69 +119,92 @@
     const pc = COND[D.primary_condition];
     const cap = K.capacity;
     const F = {}; D.findings.forEach((f) => { F[f.id] = f; });
+    const chain = (D.baseline.chain_records_verified || 0) + (S.chain_records_verified || 0);
     sec.innerHTML = `
       <div class="hero">
         <div>
-          <p class="eyebrow">Phase 4 · Results at a glance</p>
-          <h2>Dropping frames that can no longer meet the deadline is what helps — the adaptive switch adds nothing measurable.</h2>
-          <p class="lede">A MobileViT detector in ROS 2 Humble runs pinned to two CPU cores with a 4 GiB memory limit and a Fast DDS shared-memory transport verified at run time.
-          ${K.runs.total} constrained runs — a ${K.runs.phase2}-run baseline and a ${K.runs.phase3}-run interleaved A/B benchmark in ${K.runs.phase3_blocks} blocks — compare six frame-scheduling policies against a ${fmt(pc.deadline_ms, 0)} ms end-to-end deadline.</p>
+          <h2>Which frames should an overloaded edge detector skip?</h2>
+          <p class="lede">A measured ROS 2 benchmark of frame-scheduling policies for a MobileViT detector on a constrained Linux host: two pinned CPU cores, a 4 GiB memory limit and a Fast DDS shared-memory transport verified on every run.</p>
+          <p class="answer">Skipping frames that can no longer finish inside the ${fmt(pc.deadline_ms, 0)} ms deadline (<b>Deadline-Guard</b>) lowers the effective miss rate by <b>${fmt(-g.mean, 1)} pp</b> against Latest-Frame at ${esc(pc.label)}. <b>Adaptive</b>, which adds a utilisation switch on top, lands in the same place: no measurable difference from Deadline-Guard.</p>
+          <div class="links"><a href="#scheduling">Compare all six policies</a><a href="#mechanism">Why it works</a><a href="#evidence">How the data is verified</a></div>
         </div>
-        <div class="hero-figure">
-          <p class="eyebrow">Deadline-Guard − Latest-Frame · ${esc(pc.label)}</p>
-          <div class="value">${fmt(g.mean, 1)}<span class="unit">pp</span></div>
-          <div class="what">Effective miss (dropped + late frames), mean of ${g.n_blocks} within-block differences; lower in ${g.n_neg}/${g.n_blocks} blocks. Line: 95% t-interval ${ci(g, 2)}.</div>
-          <div class="ci" id="hero-ci"></div>
+        <div class="panel hero-chart">
+          <div class="fig-head"><div class="titles"><h3>Effective miss at ${esc(pc.label)}</h3>
+            <p class="fig-sub">Dropped + late frames, % of published · same application architecture · ${pc.n_blocks} runs per policy · lower is better</p></div></div>
+          <div class="legend"><span class="k"><span class="sw dot" style="background:var(--ink-3)"></span>one run</span><span class="k"><span class="sw tick"></span>mean</span></div>
+          <div class="chart" id="hero-dots"></div>
+          <hr class="fig-divider">
+          <div class="fig-head"><div class="titles"><h3>Paired difference within blocks</h3>
+            <p class="fig-sub">Mean and 95% interval over ${g.n_blocks} blocks · open circles are single blocks</p></div></div>
+          <div class="chart" id="hero-forest"></div>
         </div>
       </div>
-      <div class="stat-row" style="margin-top:0">
-        <div class="stat"><div class="label">Adaptive − Deadline-Guard · ${esc(pc.label)}</div><div class="v">${fmt(ag.mean, 2, true)}<span class="unit">pp</span></div><div class="d">95% CI ${ci(ag, 2)} · ${ag.n_neg} lower / ${ag.n_pos} higher</div></div>
+
+      <div class="stat-row">
         <div class="stat"><div class="label">Adaptive − Latest-Frame · ${esc(pc.label)}</div><div class="v">${fmt(al.mean, 1)}<span class="unit">pp</span></div><div class="d">95% CI ${ci(al, 2)} · ${al.n_neg}/${al.n_blocks} blocks lower</div></div>
-        ${gd ? `<div class="stat"><div class="label">Guard − Latest · ${esc(COND[gd.condition].label)}</div><div class="v">${fmt(gd.mean, 1)}<span class="unit">pp</span></div><div class="d">95% CI ${ci(gd, 2)} · Adaptive − Guard ${fmt(agd.mean, 2, true)} pp</div></div>` : ""}
-        <div class="stat"><div class="label">Saturated throughput</div><div class="v">${fmt(cap.mobilevit_s.mean, 1)}<span class="unit">FPS S</span> · ${fmt(cap.mobilevit_xxs.mean, 1)}<span class="unit">FPS XXS</span></div><div class="d">processed FPS of overloaded delay-0 runs (n=${cap.mobilevit_s.n_runs} / ${cap.mobilevit_xxs.n_runs})</div></div>
+        ${gd ? `<div class="stat"><div class="label">Guard − Latest under a load step · ${esc(COND[gd.condition].label)}</div><div class="v">${fmt(gd.mean, 1)}<span class="unit">pp</span></div><div class="d">95% CI ${ci(gd, 2)} · Adaptive − Guard ${fmt(agd.mean, 2, true)} pp</div></div>` : ""}
+        <div class="stat"><div class="label">Saturated throughput</div><div class="v">${fmt(cap.mobilevit_s.mean, 1)}<span class="unit">FPS (S)</span></div><div class="d">MobileViT-XXS ${fmt(cap.mobilevit_xxs.mean, 1)} FPS · overloaded runs, n=${cap.mobilevit_s.n_runs} / ${cap.mobilevit_xxs.n_runs}</div></div>
+        <div class="stat"><div class="label">Constrained runs</div><div class="v">${K.runs.total}</div><div class="d">${K.runs.phase2} baseline + ${K.runs.phase3} A/B in ${K.runs.phase3_blocks} blocks · ${chain} file hashes verified</div></div>
       </div>
 
-      <div class="grid section-gap">
-        <div class="span-6">
-          <p class="eyebrow">Research questions</p>
-          <ol class="qlist">
-            <li><div class="q">Where does a MobileViT ROS 2 pipeline saturate on a constrained host, and why are frames lost?</div><div class="a">${esc(F.capacity.text)}</div></li>
-            <li><div class="q">Which frame-scheduling policy keeps the most frames inside a ${fmt(pc.deadline_ms, 0)} ms deadline when the detector is overloaded?</div><div class="a">${esc(F.guard.text)}</div></li>
-            <li><div class="q">Does Adaptive's utilisation switch add anything beyond a deadline feasibility check?</div><div class="a">${esc(F.adaptive.text)}</div></li>
-          </ol>
+      <section class="section">
+        <div class="section-head"><div><h3>The system</h3>
+          <p>One detector, one worker, a bounded queue in front of it, and a policy that decides which frame runs next.</p></div></div>
+        <div class="prose-cols">
+          <div><h4>Problem</h4><p>MobileViT-S saturates at about ${fmt(cap.mobilevit_s.mean, 0)} FPS on two cores. When frames arrive faster, some must be skipped. Always running the newest frame still wastes work on frames that are already too old to finish within ${fmt(pc.deadline_ms, 0)} ms.</p></div>
+          <div><h4>Approach</h4><p>FIFO, Latest-Frame, Deadline-Guard and Adaptive share one application queue and one inference worker, so differences between them are policy effects. Deadline-Guard checks before inference whether a frame can still meet its deadline; Adaptive adds a utilisation switch.</p></div>
+          <div><h4>Evidence</h4><p>Policies run interleaved in blocks under identical controls and are compared within each block. Every table on this site is rebuilt from raw per-frame logs and checked against SHA-256 manifests before the page is generated.</p></div>
         </div>
-        <div class="span-6">
-          <p class="eyebrow">Also established</p>
-          <ul class="findings" style="grid-template-columns:1fr">
-            ${["regime", "dynamic"].filter((k) => F[k]).map((k) => `<li><div class="t">${esc(F[k].title)}</div><div class="x">${esc(F[k].text)}</div></li>`).join("")}
-            <li><div class="t">Comparisons with the legacy path are kept separate</div><div class="x">The legacy arms run inference inside the DDS callback; the application arms use an ingestion queue and one worker thread. Differences against legacy mix architecture and policy and are never attributed to a policy. <a href="#scheduling">See paired differences →</a></div></li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="section-gap">
-        <p class="eyebrow">System</p>
-        <div class="panel">
-          <div class="fig-head"><div class="titles"><h3>Two pipelines, one provenance rule</h3>
-          <p class="fig-sub">Measured: ROS 2 publisher → Fast DDS SHM → detector with a scheduling policy → per-frame logs → hash-verified tables → this dashboard. Simulated: the offline EDA-Lite cost model, shown on its own page.</p></div></div>
+        <div class="panel arch-panel"><div class="arch-scroll">
           <img class="arch" src="assets/architecture.svg" alt="Architecture: image_stream_node publishes frames over Fast DDS shared memory to the MobileViT detector node. The legacy path runs inference in the DDS callback; the application path puts frames in a bounded queue served by one worker using FIFO, Latest-Frame, Deadline-Guard or Adaptive. Each run writes detector and publisher CSVs, metadata and a runtime probe; analysis tools build summaries and aggregates with SHA-256 manifests; provenance gates and the dashboard builder verify the chain. Separately, the EDA-Lite simulator turns simplified model profiles into cost-model estimates.">
-        </div>
-      </div>
+        </div><p class="arch-hint">Scroll sideways to see the whole diagram.</p></div>
+      </section>
 
-      <div class="grid section-gap">
-        <div class="span-6 panel">
-          <div class="fig-head"><div class="titles"><h3>Verified runtime measurements</h3></div><span class="tag measured">Measured</span></div>
-          <p class="small muted">Baseline, Scheduling, Mechanism and Evidence use only Phase 2 / Batch 2 baseline runs and Phase 3 / Batch 2 formal A/B runs. The bundle is built only if every table matches its SHA-256 manifest down to the raw CSVs. Pilot, legacy-unverified and example data are excluded.</p>
-          <a href="#evidence" class="small">How the numbers are verified →</a>
+      <section class="section">
+        <div class="section-head"><div><h3>Findings</h3>
+          <p>Each answer is generated from the result tables when the dashboard is built.</p></div></div>
+        <div class="grid">
+          <div class="span-7">
+            <ol class="qlist">
+              <li><div class="q">Where does the pipeline saturate, and why are frames lost?</div><div class="a">${esc(F.capacity.text)}</div></li>
+              <li><div class="q">Which policy keeps the most frames inside a ${fmt(pc.deadline_ms, 0)} ms deadline under overload?</div><div class="a">${esc(F.guard.text)}</div></li>
+              <li><div class="q">Does Adaptive's utilisation switch add anything beyond the deadline check?</div><div class="a">${esc(F.adaptive.text)}</div></li>
+            </ol>
+          </div>
+          <div class="span-5">
+            <ul class="findings" style="grid-template-columns:1fr">
+              ${["regime", "dynamic"].filter((k) => F[k]).map((k) => `<li><div class="t">${esc(F[k].title)}</div><div class="x">${esc(F[k].text)}</div></li>`).join("")}
+              <li><div class="t">Legacy comparisons are kept separate</div><div class="x">The legacy arms run inference inside the DDS callback, so differences against them mix architecture and policy and are never attributed to a policy. <a href="#scheduling">See paired differences</a></div></li>
+            </ul>
+          </div>
         </div>
-        <div class="span-6 panel">
-          <div class="fig-head"><div class="titles"><h3>EDA-Lite simulation estimates</h3></div><span class="tag estimate">Estimates</span></div>
-          <p class="small muted">Layer-fusion schedules for simplified MobileViT block profiles under SRAM limits: DRAM traffic, energy and latency in cost-model units. Not hardware measurements, and not linked to the runtime KPIs.</p>
-          <a href="simulation.html" class="small">Open the simulation explorer →</a>
-        </div>
-      </div>`;
-    C.ciStrip(sec.querySelector("#hero-ci"), g, { label: "95% confidence interval", color: ARM.guard_c5_q10.color,
-      tip: tipRows("Deadline-Guard − Latest-Frame", [["mean", fmt(g.mean, 2) + " pp"], ["95% CI", ci(g, 2)], ["blocks lower", `${g.n_neg}/${g.n_blocks}`], ["sign-flip p", fmt(g.signflip_p, 3)]]) });
+      </section>
+
+      <section class="section">
+        <div class="section-head"><div><h3>What the project contributes</h3></div></div>
+        <ul class="contrib">
+          <li><div class="t">Constrained ROS 2 benchmark harness <span class="tag measured">Measured</span></div><div class="x">CPU pinning, the memory limit and the shared-memory transport are read back from every run's metadata and runtime probe. ${K.runs.phase2} baseline runs map capacity, drops and queueing before any scheduling.</div></div></li>
+          <li><div class="t">Deadline-feasibility scheduling with an ablation <span class="tag measured">Measured</span></div><div class="x">Four policies behind one bounded queue, plus two legacy arms, in ${K.runs.phase3} interleaved runs. Adaptive − Deadline-Guard isolates the utilisation switch.</div></div></li>
+          <li><div class="t">Provenance-gated results</div><div class="x">Raw logs, tables and this dashboard are SHA-256 chained; pilot, unverified or example data stops the build. <a href="#evidence">Evidence</a></div></li>
+          <li><div class="t">EDA-Lite layer-fusion simulator <span class="tag estimate">Estimates</span></div><div class="x">An offline cost model for simplified MobileViT profiles under SRAM budgets, in cost-model units and kept on its own page. Not linked to the runtime results. <a href="simulation.html">Simulation explorer</a></div></div></li>
+        </ul>
+      </section>`;
+
+    const heroArms = ["latest_q10", "guard_c5_q10", "adaptive_c5_q10"];
+    C.dotRows(sec.querySelector("#hero-dots"), { valueW: 56, rowH: 32,
+      rows: heroArms.map((id) => { const r = armRow(pc.id, id), st = r.effective_miss_rate_pct;
+        return { label: ARM[id].label, color: ARM[id].color, mean: st.mean, min: st.min, max: st.max, valueText: fmt(st.mean, 1) + "%",
+          points: runsOf(pc.id, id).map((x) => ({ v: x.effective_miss_rate_pct, label: `${ARM[id].label} block ${blockNo(x.block)}`,
+            tip: tipRows(`${ARM[id].label} · block ${blockNo(x.block)}`, [["effective miss", fmt(x.effective_miss_rate_pct, 1) + "%"], ["drop", fmt(x.drop_rate_pct, 1) + "%"], ["late (of processed)", fmt(x.deadline_miss_rate_pct, 1) + "%"]]) })),
+          tip: tipRows(`${ARM[id].label} · ${pc.label}`, [["mean ± SD", `${fmt(st.mean, 1)} ± ${fmt(st.sd, 1)}%`], ["min – max", `${fmt(st.min, 1)} – ${fmt(st.max, 1)}%`], ["runs", r.n_runs]]) }; }),
+      xTitle: "Effective miss (%)", ariaLabel: "Effective miss for Latest-Frame, Deadline-Guard and Adaptive" });
+    const heroPairs = [["guard_c5_q10", "latest_q10", g], ["adaptive_c5_q10", "guard_c5_q10", ag]];
+    C.forest(sec.querySelector("#hero-forest"), {
+      rows: heroPairs.map(([a, ref, e]) => ({ label: `${ARM[a].label} − ${ARM[ref].label}`, mean: e.mean, lo: e.lo, hi: e.hi, color: ARM[a].color,
+        sub: `${fmt(e.mean, 2, true)} pp ${ci(e, 2)} · ${e.n_neg} of ${e.n_blocks} blocks lower`,
+        points: blockDiffs(pc.id, a, ref, "effective_miss_rate_pct", e, e.n_blocks, 2, " pp"),
+        tip: tipRows(`${ARM[a].label} − ${ARM[ref].label}`, [["mean Δ", fmt(e.mean, 2, true) + " pp"], ["95% t-interval", ci(e, 2)], ["blocks lower / higher", `${e.n_neg} / ${e.n_pos}`], ["sign-flip p", fmt(e.signflip_p, 3)]]) })),
+      xTitle: "Δ effective miss (pp)", ariaLabel: "Paired differences: Guard minus Latest, Adaptive minus Guard" });
   }
 
   /* =============================== BASELINE =============================== */
@@ -173,7 +212,7 @@
     const B = D.baseline;
     const cap = B.capacity, dm = B.drop_model;
     sec.innerHTML = `
-      <div class="view-head"><p class="eyebrow">Phase 2 · Baseline</p><h2>How MobileViT-S and -XXS behave before any scheduling</h2>
+      <div class="view-head"><h2>How MobileViT-S and -XXS behave before any scheduling</h2>
       <p>${B.n_runs} constrained runs over ${B.n_conditions} conditions (3 runs each): input rate, subscriber queue depth and injected service delay. Every run uses the legacy path (inference in the DDS callback).</p></div>
       <div class="controls" id="b-controls"></div>
       <div class="stat-row">
@@ -245,24 +284,31 @@
   /* =============================== SCHEDULING =============================== */
   function renderScheduling(sec) {
     sec.innerHTML = `
-      <div class="view-head"><p class="eyebrow">Phase 3 · Formal A/B</p><h2>Six frame-scheduling policies, interleaved in blocks</h2>
-      <p>Each block runs all six arms once, in rotated order, under identical controls. The run is the statistical unit; comparisons are within-block paired differences. Deadline-Guard and Adaptive are always shown side by side.</p></div>
+      <div class="view-head"><h2>Six frame-scheduling policies, compared within blocks</h2>
+      <p>Each block runs all six arms once, in rotated order, under identical controls. The run is the statistical unit and every comparison is a within-block paired difference. Deadline-Guard and Adaptive are always shown side by side.</p></div>
       <div class="controls" id="s-controls"></div>
-      <div class="callout" id="s-context"></div>
-      <div class="grid section-gap">
-        <div class="span-7 panel"><div class="fig-head"><div class="titles"><h3 id="s1-title"></h3><p class="fig-sub" id="s1-sub"></p></div></div><div class="chart" id="s1"></div>
-          <p class="fig-note">Dots: individual runs · vertical tick: mean · line: min–max across runs. Legacy arms use a different execution path, so their gap to the application arms is not a policy effect.</p></div>
+      <p class="context" id="s-context"></p>
+      <div class="grid">
+        <div class="span-7 panel"><div class="fig-head"><div class="titles"><h3 id="s1-title"></h3><p class="fig-sub" id="s1-sub"></p></div></div>
+          <div class="legend"><span class="k"><span class="sw dot" style="background:var(--ink-3)"></span>one run</span><span class="k"><span class="sw tick"></span>mean</span><span class="k"><span class="sw line" style="background:var(--axis)"></span>min–max</span></div>
+          <div class="chart" id="s1"></div>
+          <p class="fig-note">Latest-Frame, Deadline-Guard and Adaptive share the same queue, worker and controls, so this axis fits their range. FIFO and the legacy arms are on the full-scale chart below.</p></div>
         <div class="span-5 panel"><div class="fig-head"><div class="titles"><h3>Block by block</h3><p class="fig-sub" id="s2-sub"></p></div></div><div class="chart" id="s2"></div>
-          <p class="fig-note">Each grey line is one block (the same host state for all three arms).</p></div>
+          <p class="fig-note">Each grey line is one block: the same host state for all three arms.</p></div>
       </div>
       <div class="grid section-gap">
-        <div class="span-7 panel"><div class="fig-head"><div class="titles"><h3>Paired differences · policy effect</h3><p class="fig-sub" id="s3-sub"></p></div></div><div class="chart" id="s3"></div>
+        <div class="span-7 panel"><div class="fig-head"><div class="titles"><h3>Paired differences: policy effect</h3><p class="fig-sub" id="s3-sub"></p></div></div>
+          <div class="legend"><span class="k"><span class="sw dot" style="background:var(--ink-3)"></span>mean of block differences</span><span class="k"><span class="sw line" style="background:var(--ink)"></span>95% t-interval</span><span class="k"><span class="sw ring"></span>one block</span></div>
+          <div class="chart" id="s3"></div>
           <p class="fig-note" id="s3-note"></p></div>
-        <div class="span-5 panel"><div class="fig-head"><div class="titles"><h3>vs Legacy depth 1</h3><p class="fig-sub">Includes the architecture difference (DDS callback vs queue + worker) — not attributable to a policy</p></div></div><div class="chart" id="s4"></div>
+        <div class="span-5 panel"><div class="fig-head"><div class="titles"><h3>Against legacy depth 1</h3><p class="fig-sub">Includes the architecture difference (DDS callback vs queue + worker), so it is not attributable to a policy</p></div></div><div class="chart" id="s4"></div>
           <p class="fig-note">Legacy depth 1 varies strongly between runs (its service time is less stable), which is why these intervals are wide.</p></div>
       </div>
+      <div class="panel section-gap"><div class="fig-head"><div class="titles"><h3 id="s5-title"></h3><p class="fig-sub" id="s5-sub"></p></div></div>
+        <div class="chart" id="s5"></div>
+        <p class="fig-note">The shaded range is where the three same-architecture arms fall. Legacy arms use a different execution path, so their gap to the application arms is not a policy effect.</p></div>
       <div class="section-gap" id="s-table"></div>
-      <details class="table-toggle section-gap"><summary>Arm definitions</summary>${table([{ label: "Arm", l: true }, { label: "Path", l: true }, { label: "Behaviour", l: true, wrap: true }],
+      <details class="table-toggle"><summary>Arm definitions</summary>${table([{ label: "Arm", l: true }, { label: "Path", l: true }, { label: "Behaviour", l: true, wrap: true }],
         D.arms.map((a) => ({ cells: [sw(ARM[a.id].color) + esc(a.label), a.family === "legacy" ? "Legacy (DDS callback)" : "Application queue + 1 worker", esc(a.summary)] })))}</details>`;
 
     const ctl = sec.querySelector("#s-controls");
@@ -270,58 +316,68 @@
     control(ctl, "Metric", seg("Metric", Object.keys(METRICS).map((k) => ({ value: k, label: METRICS[k].label })), state.m, (v) => { state.m = v; sync(); draw(); }));
     function sync() { setParams("scheduling", { c: state.c, m: state.m }); }
 
+    function armRows(cid, ids, M, c, group) {
+      return ids.map((id) => {
+        const r = armRow(cid, id), st = r[state.m];
+        return { group: group ? group(id) : undefined, label: ARM[id].label, color: ARM[id].color, mean: st.mean, min: st.min, max: st.max, dim: ARM[id].family === "legacy",
+          valueText: `${fmt(st.mean, M.nd)}${M.unit === "%" ? "%" : ""}`,
+          points: runsOf(cid, id).map((x) => ({ v: x[state.m], label: `${ARM[id].label} block ${blockNo(x.block)}`,
+            tip: tipRows(`${ARM[id].label} · block ${blockNo(x.block)}`, [["effective miss", fmt(x.effective_miss_rate_pct, 1) + "%"], ["on-time FPS", fmt(x.on_time_fps, 2)], ["P99", fmt(x.p99_latency_ms, 1) + " ms"], ["drop", fmt(x.drop_rate_pct, 1) + "%"], ["late (of processed)", fmt(x.deadline_miss_rate_pct, 1) + "%"], ["position in block", x.position]]) })),
+          tip: tipRows(`${ARM[id].label} · ${c.label}`, [["mean ± SD", `${fmt(st.mean, M.nd)} ± ${fmt(st.sd, M.nd)}${M.unit}`], ["min – max", `${fmt(st.min, M.nd)} – ${fmt(st.max, M.nd)}`], ["drop", fmt(r.drop_rate_pct.mean, 1) + "%"], ["late (of processed)", fmt(r.deadline_miss_rate_pct.mean, 1) + "%"], ["service", fmt(r.avg_service_ms.mean, 1) + " ms"], ["runs", r.n_runs]]) };
+      });
+    }
+
     function draw() {
       const cid = state.c, c = COND[cid], M = METRICS[state.m];
       const latest = armRow(cid, "latest_q10");
-      sec.querySelector("#s-context").innerHTML = `<p><b>${esc(c.label)}</b>${c.primary ? " · pre-registered primary condition" : ""} · ${c.n_blocks} blocks × 6 arms = ${c.n_runs} runs · ρ ≈ ${fmt(latest.utilization.mean, 2)} for the application arms (${latest.utilization.mean >= 1 ? "overloaded" : "not overloaded"})${c.dynamic ? ` · rate schedule <code>${esc(c.fps_schedule)}</code> (FPS@seconds)` : ""} · deadline ${fmt(c.deadline_ms, 0)} ms.</p>`;
+      const overloaded = latest.utilization.mean >= 1;
+      sec.querySelector("#s-context").innerHTML = `<b>${esc(c.label)}</b>${c.primary ? '<span class="pill">primary condition</span>' : ""} — ${c.n_blocks} blocks × 6 arms = ${c.n_runs} runs. Application arms run at ρ ≈ ${fmt(latest.utilization.mean, 2)} (${overloaded ? "overloaded" : "not overloaded"})${c.dynamic ? `, rate schedule <code>${esc(c.fps_schedule)}</code> (FPS@seconds)` : ""}; deadline ${fmt(c.deadline_ms, 0)} ms.`;
 
-      sec.querySelector("#s1-title").textContent = `${M.label} by arm`;
-      sec.querySelector("#s1-sub").textContent = `${c.label} · n=${c.n_blocks} runs per arm · ${M.better} is better`;
-      const rows = [];
-      [["Application queue · same architecture", APP_ORDER], ["Legacy path · different architecture", LEGACY_ORDER]].forEach(([group, ids]) => {
-        ids.forEach((id) => {
-          const r = armRow(cid, id), st = r[state.m];
-          rows.push({ group, label: ARM[id].label, color: ARM[id].color, mean: st.mean, min: st.min, max: st.max, dim: ARM[id].family === "legacy",
-            valueText: `${fmt(st.mean, M.nd)}${M.unit === "%" ? "%" : ""}`,
-            points: runsOf(cid, id).map((x) => ({ v: x[state.m], label: `${ARM[id].label} block ${blockNo(x.block)}`,
-              tip: tipRows(`${ARM[id].label} · block ${blockNo(x.block)}`, [["effective miss", fmt(x.effective_miss_rate_pct, 1) + "%"], ["on-time FPS", fmt(x.on_time_fps, 2)], ["P99", fmt(x.p99_latency_ms, 1) + " ms"], ["drop", fmt(x.drop_rate_pct, 1) + "%"], ["late (of processed)", fmt(x.deadline_miss_rate_pct, 1) + "%"], ["position in block", x.position]]) })),
-            tip: tipRows(`${ARM[id].label} · ${c.label}`, [["mean ± SD", `${fmt(st.mean, M.nd)} ± ${fmt(st.sd, M.nd)}${M.unit}`], ["min – max", `${fmt(st.min, M.nd)} – ${fmt(st.max, M.nd)}`], ["drop", fmt(r.drop_rate_pct.mean, 1) + "%"], ["late (of processed)", fmt(r.deadline_miss_rate_pct.mean, 1) + "%"], ["service", fmt(r.avg_service_ms.mean, 1) + " ms"], ["runs", r.n_runs]]) });
-        });
-      });
-      C.dotRows(sec.querySelector("#s1"), { rows, xTitle: M.axis, nd: M.nd, refs: state.m === "p99_latency_ms" ? [{ value: c.deadline_ms, label: "deadline" }] : [], ariaLabel: `${M.label} by arm` });
+      const refs = state.m === "p99_latency_ms" ? [{ value: c.deadline_ms, label: "deadline" }] : [];
+      const focus = ["latest_q10", "guard_c5_q10", "adaptive_c5_q10"];
+      sec.querySelector("#s1-title").textContent = `${M.label}: same-architecture arms`;
+      sec.querySelector("#s1-sub").textContent = `${c.label} · ${c.n_blocks} runs per arm · ${M.better} is better`;
+      C.dotRows(sec.querySelector("#s1"), { rows: armRows(cid, focus, M, c), xTitle: M.axis, nd: M.nd, refs, rowH: 40, ariaLabel: `${M.label}, Latest-Frame, Deadline-Guard and Adaptive` });
 
-      const cats = ["latest_q10", "guard_c5_q10", "adaptive_c5_q10"];
+      const focusVals = [];
+      focus.forEach((id) => runsOf(cid, id).forEach((x) => focusVals.push(x[state.m])));
+      sec.querySelector("#s5-title").textContent = `All six arms on one scale`;
+      sec.querySelector("#s5-sub").textContent = `${M.label} · ${c.label} · including FIFO and the legacy path`;
+      const rows = armRows(cid, [...APP_ORDER, ...LEGACY_ORDER], M, c, (id) => ARM[id].family === "legacy" ? "Legacy path · different architecture" : "Application queue · same architecture");
+      C.dotRows(sec.querySelector("#s5"), { rows, xTitle: M.axis, nd: M.nd, refs, rowH: 30,
+        band: { lo: Math.min(...focusVals), hi: Math.max(...focusVals), label: refs.length ? undefined : "same-architecture range" }, ariaLabel: `${M.label} by arm, all arms` });
+
       const blocks = [...new Set(runsOf(cid, "latest_q10").map((r) => r.block))].sort();
       sec.querySelector("#s2-sub").textContent = `${M.label} · Latest → Guard → Adaptive · ${blocks.length} blocks`;
       C.slope(sec.querySelector("#s2"), {
-        categories: cats.map((id) => ({ label: ARM[id].short, color: ARM[id].color })),
+        categories: focus.map((id) => ({ label: ARM[id].short, color: ARM[id].color })),
         lines: blocks.map((b) => {
-          const vals = cats.map((id) => (runsOf(cid, id).find((r) => r.block === b) || {})[state.m]);
+          const vals = focus.map((id) => (runsOf(cid, id).find((r) => r.block === b) || {})[state.m]);
           return { name: `block ${blockNo(b)}`, values: vals,
-            tip: tipRows(`Block ${blockNo(b)}`, cats.map((id, i) => [ARM[id].label, fmt(vals[i], M.nd) + M.unit])),
-            pointTips: cats.map((id, i) => tipRows(`${ARM[id].label} · block ${blockNo(b)}`, [[M.label, fmt(vals[i], M.nd) + M.unit]])) };
+            tip: tipRows(`Block ${blockNo(b)}`, focus.map((id, i) => [ARM[id].label, fmt(vals[i], M.nd) + M.unit])),
+            pointTips: focus.map((id, i) => tipRows(`${ARM[id].label} · block ${blockNo(b)}`, [[M.label, fmt(vals[i], M.nd) + M.unit]])) };
         }),
         yTitle: M.label + (M.unit === "%" ? " (%)" : ` (${M.unit.trim()})`), zero: state.m !== "p99_latency_ms", ariaLabel: "Per-block slope chart",
       });
 
       const comps = [
-        ["Same architecture · policy effect", "guard_c5_q10", "latest_q10"], ["Same architecture · policy effect", "adaptive_c5_q10", "latest_q10"],
-        ["Same architecture · policy effect", "adaptive_c5_q10", "guard_c5_q10"],
-        ["vs Legacy depth 1 · includes architecture difference", "latest_q10", "legacy_q1"], ["vs Legacy depth 1 · includes architecture difference", "guard_c5_q10", "legacy_q1"],
-        ["vs Legacy depth 1 · includes architecture difference", "adaptive_c5_q10", "legacy_q1"],
+        ["guard_c5_q10", "latest_q10"], ["adaptive_c5_q10", "latest_q10"], ["adaptive_c5_q10", "guard_c5_q10"],
+        ["latest_q10", "legacy_q1"], ["guard_c5_q10", "legacy_q1"], ["adaptive_c5_q10", "legacy_q1"],
       ];
-      const frows = comps.map(([group, a, ref]) => {
+      const frows = comps.map(([a, ref]) => {
         const p = pairRow(cid, a, ref); const e = p.metrics[state.m];
-        return { group, label: `${ARM[a].label} − ${ARM[ref].label}`, mean: e.mean, lo: e.lo, hi: e.hi, color: ARM[a].color, dim: p.comparison !== "same_architecture",
+        const same = p.comparison === "same_architecture";
+        return { label: `${ARM[a].label} − ${ARM[ref].label}`, mean: e.mean, lo: e.lo, hi: e.hi, color: ARM[a].color, dim: !same,
           sub: `${fmt(e.mean, M.dnd, true)}${M.d} ${ci(e, M.dnd)} · ${e.n_neg}↓ ${e.n_pos}↑ of ${p.n_blocks}`,
-          tip: tipRows(`${ARM[a].label} − ${ARM[ref].label}`, [["mean Δ", fmt(e.mean, M.dnd, true) + M.d], ["95% t-interval", ci(e, M.dnd)], ["SD of Δ", fmt(e.sd, M.dnd)], ["blocks lower / higher", `${e.n_neg} / ${e.n_pos}`], ["exact sign-flip p", fmt(e.signflip_p, 3)], ["blocks", p.n_blocks], ["comparison", p.comparison === "same_architecture" ? "same architecture" : "includes architecture difference"]]) };
+          points: same ? blockDiffs(cid, a, ref, state.m, e, p.n_blocks, M.dnd, M.d) : [],
+          tip: tipRows(`${ARM[a].label} − ${ARM[ref].label}`, [["mean Δ", fmt(e.mean, M.dnd, true) + M.d], ["95% t-interval", ci(e, M.dnd)], ["SD of Δ", fmt(e.sd, M.dnd)], ["blocks lower / higher", `${e.n_neg} / ${e.n_pos}`], ["exact sign-flip p", fmt(e.signflip_p, 3)], ["blocks", p.n_blocks], ["comparison", same ? "same architecture" : "includes architecture difference"]]) };
       });
-      sec.querySelector("#s3-sub").textContent = `Δ ${M.label} (${M.d.trim()}) · ${c.label} · same application architecture · mean and 95% Student-t interval over ${c.n_blocks} blocks · ${M.better} is better`;
-      C.forest(sec.querySelector("#s3"), { rows: frows.filter((r) => !r.dim).map((r) => Object.assign({}, r, { group: undefined })), xTitle: `Δ ${M.label} (${M.d.trim()})`, ariaLabel: "Paired differences, same architecture" });
-      C.forest(sec.querySelector("#s4"), { rows: frows.filter((r) => r.dim).map((r) => Object.assign({}, r, { group: undefined })), xTitle: `Δ ${M.label} (${M.d.trim()})`, ariaLabel: "Paired differences versus legacy" });
+      sec.querySelector("#s3-sub").textContent = `Δ ${M.label} (${M.d.trim()}) · ${c.label} · ${c.n_blocks} blocks · ${M.better} is better`;
+      C.forest(sec.querySelector("#s3"), { rows: frows.filter((r) => !r.dim), xTitle: `Δ ${M.label} (${M.d.trim()})`, ariaLabel: "Paired differences, same architecture" });
+      C.forest(sec.querySelector("#s4"), { rows: frows.filter((r) => r.dim), xTitle: `Δ ${M.label} (${M.d.trim()})`, ariaLabel: "Paired differences versus legacy" });
       const floor = c.n_blocks >= 5 ? "0.0625" : c.n_blocks === 3 ? "0.25" : "—";
-      sec.querySelector("#s3-note").innerHTML = `With n = ${c.n_blocks} blocks the smallest possible exact sign-flip p is ${floor}, so block counts are reported as a consistency check, not as a significance test.
-        FIFO − Latest-Frame is off this scale: ${(() => { const e = pairRow(cid, "fifo_c5_q10", "latest_q10").metrics[state.m]; return `${fmt(e.mean, M.dnd, true)}${M.d} ${ci(e, M.dnd)}`; })()}.`;
+      const fe = pairRow(cid, "fifo_c5_q10", "latest_q10").metrics[state.m];
+      sec.querySelector("#s3-note").innerHTML = `↓ / ↑ count blocks where the first arm was lower / higher. With n = ${c.n_blocks} blocks the smallest possible exact sign-flip p is ${floor}, so these counts are a consistency check, not a significance test. FIFO − Latest-Frame is off this scale: ${fmt(fe.mean, M.dnd, true)}${M.d} ${ci(fe, M.dnd)}.`;
 
       sec.querySelector("#s-table").innerHTML = table(
         [{ label: "Arm", l: true }, { label: "n" }, { label: "ρ" }, { label: "Processed FPS" }, { label: "On-time FPS" }, { label: "Drop %" }, { label: "Late % of processed" }, { label: "Eff. miss % (min–max)" }, { label: "Excl. tail %" }, { label: "P50 ms" }, { label: "P95 ms" }, { label: "P99 ms" }, { label: "P50 frame age ms" }, { label: "Service ms" }, { label: "CPU %" }, { label: "Max RSS MB" }],
@@ -340,13 +396,13 @@
     const Mx = D.mechanism, dyn = S.dynamic;
     const fixed = S.conditions.filter((c) => !c.dynamic);
     sec.innerHTML = `
-      <div class="view-head"><p class="eyebrow">Phase 3 · Mechanism &amp; ablation</p><h2>Why a deadline check helps in one regime and nowhere else</h2>
+      <div class="view-head"><h2>Why a deadline check helps in one regime and nowhere else</h2>
       <p>Under overload, the newest frame waiting when the worker frees up is between 0 and one inter-arrival interval old. If that age plus the service time can exceed the deadline, Latest-Frame processes frames that are already certain to be late. Deadline-Guard drops them and waits for the next one.</p></div>
       <div class="panel"><div class="fig-head"><div class="titles"><h3>Worst-case age of the newest frame vs the deadline</h3><p class="fig-sub">inter-arrival interval + measured Latest-Frame service time, per fixed-rate condition</p></div></div>
         <div class="legend"><span class="k"><span class="sw" style="background:var(--axis)"></span>inter-arrival (1000 / FPS)</span><span class="k"><span class="sw" style="background:var(--ink-2)"></span>service time (Latest-Frame, measured)</span><span class="k"><span class="sw dash"></span>deadline</span></div>
         <div class="chart" id="m1"></div><div id="m1-table" style="margin-top:14px"></div>
         <p class="fig-note">${esc(Mx.model_note)}</p></div>
-      <div class="controls" id="m-controls" style="margin-top:44px"></div>
+      <div class="controls" id="m-controls" style="margin-top:var(--sp-7)"></div>
       <div class="grid">
         <div class="span-6 panel"><div class="fig-head"><div class="titles"><h3>What the effective miss is made of</h3><p class="fig-sub" id="m2-sub"></p></div></div>
           <div class="legend"><span class="k"><span class="sw" style="background:var(--s7)"></span>dropped (never processed)</span><span class="k"><span class="sw" style="background:var(--s8)"></span>late (processed after the deadline)</span></div><div class="chart" id="m2"></div>
@@ -454,7 +510,7 @@
     const ctrlMap = {}; B.controls.forEach((x) => { ctrlMap[x.label] = { p2: x }; }); S.controls.forEach((x) => { (ctrlMap[x.label] = ctrlMap[x.label] || {}).p3 = x; });
     const showVal = (x) => !x ? "—" : x.values.map((v) => esc(Array.isArray(v) ? v.join(",") : typeof v === "number" && v >= 1 << 30 ? `${v} (${(v / (1 << 30)).toFixed(0)} GiB)` : /^[0-9a-f]{40,}$/.test(String(v)) ? String(v).slice(0, 12) + "…" : v)).join(" / ") + (x.identical ? "" : ` <span class="muted">(differs)</span>`);
     sec.innerHTML = `
-      <div class="view-head"><p class="eyebrow">Evidence</p><h2>Where every number comes from</h2>
+      <div class="view-head"><h2>Where every number comes from</h2>
       <p>The dashboard bundle is generated by <code>python3 -m src.dashboard.build_data</code>. It refuses to write anything unless each table it reads matches its SHA-256 manifest down to the raw per-frame CSVs, every run is constrained and DDS-verified, and every block contains all six arms.</p></div>
       <div class="grid">
         <div class="span-6 panel"><h3>Checks passed when this bundle was built</h3>

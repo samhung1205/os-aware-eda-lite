@@ -2,7 +2,7 @@
 
 ## 摘要
 
-本專題以 Vision Transformer 類模型在邊緣與 ROS2 場景中的部署瓶頸為主題，建立一個可重現、可解釋的 **OS-aware EDA-Lite** 模擬與分析流程。專題不嘗試完整重現 EDA compiler，也不主張量測真實硬體能耗；目前核心貢獻是用簡化 MobileViT block profile 比較 layer fusion scheduling、SRAM 限制、ROS2 runtime pressure 與 dropped-frame communication pressure 對估計成本的影響。
+本專題以 Vision Transformer 類模型在邊緣與 ROS2 場景中的部署瓶頸為主題，建立一個可重現、可解釋的 **OS-Aware Edge AI Runtime** 模擬與分析流程（其中的離線模擬器稱為 EDA-Lite）。專題不嘗試完整重現 EDA compiler，也不主張量測真實硬體能耗；目前核心貢獻是用簡化 MobileViT block profile 比較 layer fusion scheduling、SRAM 限制、ROS2 runtime pressure 與 dropped-frame communication pressure 對估計成本的影響。
 
 目前已完成的主要結果屬於 **EDA-Lite simulation estimates**。ROS2 MobileViT pipeline 已在 repo 中，但尚未從本 repo 執行過真實 ROS 2 benchmark；組員提供的 22 個 `measured_*` OS profiles 沒有 raw ROS2 CSV、run metadata 與 `ros2_runtime_summary.csv`，因此標示為 **UNVERIFIED**（`runtime_os_profiles.legacy_unverified.json`），不可作為 measured dataset。`scripts/check_runtime_provenance.py` 目前回報 `BLOCKED`。本專題也沒有 adaptive / runtime scheduler：OS profiles 只改變離線 EDA-Lite 成本模型的權重。
 

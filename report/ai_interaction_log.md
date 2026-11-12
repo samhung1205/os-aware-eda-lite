@@ -367,3 +367,22 @@ Implementation decision:
 Important limitation:
 
 - Browser QA covered Firefox only; Chromium / Safari were not available on the server.
+
+
+## 2026-11-12 Dashboard Visual Design Refinement
+
+Prompt summary:
+
+- Final visual refinement of the dashboard on `phase4/ui-refinement`: critique first, one design direction, edit the existing front end, verify in a real browser; no data / KPI / provenance / runtime / cost-model changes; Guard and Adaptive side by side; `report/UI_REFINEMENT_RESULT.md`.
+
+Implementation decision:
+
+- Restrained instrument-like direction: cool neutral tokens, a 1.2 type scale and a 4–72 px spacing scale in `style.css`; no eyebrows, all-caps labels or colored border-left callouts; the arm colors stay bound to their arms.
+- The Overview now leads with a positioning question, a one-sentence system description, a data-driven answer, and a chart in which Latest / Guard / Adaptive share one zero-based axis with their paired CIs. Guard and Adaptive are never framed as winner and runner-up.
+- Scheduling: the main chart shows only the three same-architecture arms (auto zero-based axis), so the main result is no longer compressed by FIFO / legacy at 100%. The full six-arm 0–100% chart is kept and shades the range the main chart covers. Per-block paired differences are drawn as open circles only when their mean reproduces the reported paired mean (15/15 condition × metric combinations matched), so the display cannot contradict the KPI table.
+
+Important limitation:
+
+- Follow-up (owner decision): the project name is unified as "OS-Aware Edge AI Runtime" (dashboard, README, AGENTS.md, architecture title, package docstring, setup script, draft final report). "EDA-Lite" now names only the simulator, and "OS-aware" EDA-Lite rows keep their technical meaning; historical log entries were not rewritten.
+- Cross-browser check with Playwright Chromium 158 (Blink, as in Chrome) and WebKit 27.2 (Safari's engine), installed in a scratch directory only: 90 layout states per engine with 0 problems, 0 JS errors, all filters / deep links / hover / keyboard / touch checks pass (the only miss is a sub-pixel bar segment that also misses in Firefox).
+- System fonts (no bundled typeface); WebKit on Linux stands in for Safari, so a check on real macOS / iOS Safari is still recommended.

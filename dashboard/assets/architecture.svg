@@ -1,35 +1,35 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 570" width="1160" height="570" role="img" aria-labelledby="t d">
-  <title id="t">OS-Aware EDA-Lite system architecture</title>
+  <title id="t">OS-Aware Edge AI Runtime system architecture</title>
   <desc id="d">Measured lane: image_stream_node publishes over Fast DDS shared memory to the MobileViT detector node, which runs either the legacy callback path or the application queue with one of four scheduling policies. Each run writes logs, metadata and a probe; analysis tools build hash-manifested tables, gates verify them, and the dashboard builder produces the data bundle. Simulation lane: simplified model profiles feed the EDA-Lite cost model and schedulers, producing estimate CSVs shown on a separate page.</desc>
   <style>
     .lane-m { fill: #f3f8f3; stroke: #bfdcc1; }
     .lane-s { fill: #fcf6ea; stroke: #e9d3a6; }
-    .box { fill: #ffffff; stroke: #c9c8c0; }
-    .inner { fill: #f6f5f1; stroke: #dddcd4; }
-    .chip { fill: #ffffff; stroke: #b9b8af; }
+    .box { fill: #ffffff; stroke: #cdd2d9; }
+    .inner { fill: #eef0f3; stroke: #dde1e6; }
+    .chip { fill: #ffffff; stroke: #b8bec7; }
     .chip-k { fill: #fff3ec; stroke: #eb6834; }
     .chip-a { fill: #eaf8f2; stroke: #1baf7a; }
-    .t { font: 600 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0b0b0b; }
-    .s { font: 11.5px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #52514e; }
-    .c { font: 500 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0b0b0b; }
+    .t { font: 600 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #15181c; }
+    .s { font: 11.5px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #464c55; }
+    .c { font: 500 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #15181c; }
     .lab { font: 700 11px system-ui, -apple-system, "Segoe UI", sans-serif; letter-spacing: .08em; fill: #2f6b33; }
     .lab-s { font: 700 11px system-ui, -apple-system, "Segoe UI", sans-serif; letter-spacing: .08em; fill: #8a5a00; }
-    .sub { font: 11.5px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #52514e; }
-    .arr { stroke: #52514e; stroke-width: 1.5; fill: none; marker-end: url(#a); }
+    .sub { font: 11.5px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #464c55; }
+    .arr { stroke: #464c55; stroke-width: 1.5; fill: none; marker-end: url(#a); }
     .dot { stroke: #8a5a00; stroke-width: 1.5; fill: none; stroke-dasharray: 2 4; stroke-linecap: round; marker-end: url(#a2); }
-    .ah { fill: #52514e; } .ah2 { fill: #8a5a00; }
+    .ah { fill: #464c55; } .ah2 { fill: #8a5a00; }
     @media (prefers-color-scheme: dark) {
       .lane-m { fill: #15201a; stroke: #2c5234; }
       .lane-s { fill: #231d12; stroke: #5c4719; }
-      .box { fill: #1a1a19; stroke: #45453f; }
-      .inner { fill: #232321; stroke: #3a3a36; }
-      .chip { fill: #1a1a19; stroke: #5a5a54; }
+      .box { fill: #171a1f; stroke: #444b55; }
+      .inner { fill: #20242a; stroke: #363c45; }
+      .chip { fill: #171a1f; stroke: #58606b; }
       .chip-k { fill: #2b1a12; stroke: #d95926; }
       .chip-a { fill: #11261e; stroke: #199e70; }
-      .t, .c { fill: #f0efec; }
-      .s, .sub { fill: #c3c2b7; }
+      .t, .c { fill: #eceef1; }
+      .s, .sub { fill: #bfc5cd; }
       .lab { fill: #7fc487; } .lab-s { fill: #e8b75a; }
-      .arr { stroke: #c3c2b7; } .ah { fill: #c3c2b7; }
+      .arr { stroke: #bfc5cd; } .ah { fill: #bfc5cd; }
       .dot { stroke: #e8b75a; } .ah2 { fill: #e8b75a; }
     }
   </style>

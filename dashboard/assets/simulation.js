@@ -34,7 +34,7 @@
   const samePartition = Object.values(parts).every((s) => s.size === 1);
 
   sec.innerHTML = `
-    <div class="view-head"><p class="eyebrow">Simulation · not measured</p><h2>Layer fusion under an SRAM budget</h2>
+    <div class="view-head"><h2>Layer fusion under an SRAM budget</h2>
     <p>EDA-Lite splits a simplified MobileViT block profile into fused subgraphs that fit a given on-chip SRAM, then estimates DRAM traffic, energy and latency with a lightweight cost model. It is inspired by the EDA compiler paper; it does not reproduce it.</p></div>
     <div class="callout est"><p><b>Estimates, not measurements.</b> ${esc(D.simulation.note)} The verified ROS 2 results on the <a href="index.html#overview">measured dashboard</a> do not depend on anything on this page.</p></div>
     <div class="controls" id="c" style="margin-top:28px"></div>
@@ -57,7 +57,7 @@
     const w = document.createElement("div"); w.className = "seg"; w.setAttribute("role", "group"); w.setAttribute("aria-label", name);
     options.forEach((o) => { const b = document.createElement("button"); b.type = "button"; b.textContent = o.label; b.setAttribute("aria-pressed", String(o.value === cur));
       b.onclick = () => { w.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", "false")); b.setAttribute("aria-pressed", "true"); pick(o.value); }; w.appendChild(b); });
-    const box = document.createElement("div"); box.style.cssText = "display:flex;align-items:center;gap:6px;flex-wrap:wrap";
+    const box = document.createElement("div"); box.className = "control";
     box.innerHTML = `<span class="control-label">${esc(name)}</span>`; box.appendChild(w); return box;
   }
   const c = sec.querySelector("#c");

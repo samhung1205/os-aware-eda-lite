@@ -1,8 +1,8 @@
 #!/bin/bash
-# setup_env.sh - Setup Environment for OS-aware EDA-Lite Project
+# setup_env.sh - Setup Environment for the OS-Aware Edge AI Runtime project
 # chmod +x scripts/setup_env.sh
 
-echo "Setting up OS-aware EDA-Lite Environment..."
+echo "Setting up OS-Aware Edge AI Runtime environment..."
 
 # Since you don't have sudo access, we can install stress-ng, htop, sysstat via conda
 # instead of the standard apt-get approach (sudo apt-get update && sudo apt-get install -y stress-ng htop sysstat)

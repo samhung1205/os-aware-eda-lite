@@ -142,7 +142,7 @@
   }
 
   function groupLabel(s, y, str) {
-    svg("rect", { x: 0, y: y - 13, width: measure(str, 11) * 1.12 + 10, height: 18, fill: "var(--surface)" }, s);
+    svg("rect", { x: 0, y: y - 13, width: measure(str, 12) * 0.96 + 4, height: 18, fill: "var(--surface)" }, s);
     text(s, 0, y, str, { class: "grouplabel" });
   }
   function xAxis(g, x, dom, y0, y1, opts) {
@@ -166,7 +166,7 @@
       const rows = cfg.rows;
       const labelW = Math.min(narrow ? 108 : 170, Math.max(...rows.map((r) => measure(r.label, 12.5))) + 14);
       const valueW = cfg.valueW !== undefined ? cfg.valueW : narrow ? 64 : 104;
-      const rowH = cfg.rowH || 34, top = (cfg.refs || []).length ? 24 : 8, groupH = 26;
+      const rowH = cfg.rowH || 34, top = (cfg.refs || []).length || (cfg.band && cfg.band.label) ? 24 : 8, groupH = 26;
       let h = top;
       const layout = [];
       let lastGroup = null;
@@ -183,6 +183,15 @@
       const x0 = labelW, x1 = W - valueW - 8;
       const x = lin(dom.lo, dom.hi, x0, x1);
       const s = svg("svg", { viewBox: `0 0 ${W} ${H}`, width: W, height: H, role: "group", "aria-label": cfg.ariaLabel || "" }, el);
+      if (cfg.band) {
+        // highlighted x-range (e.g. "the zoomed chart above covers this range"); drawn under the axis
+        const b0 = x(Math.max(dom.lo, cfg.band.lo)), b1 = x(Math.min(dom.hi, cfg.band.hi));
+        svg("rect", { x: b0, y: top - 4, width: Math.max(2, b1 - b0), height: plotBottom - top + 4, class: "band", rx: 3 }, s);
+        if (cfg.band.label) {
+          const right = b0 + measure(cfg.band.label, 11) <= W;
+          text(s, right ? b0 : b1, top - 10, cfg.band.label, { class: "bandlabel", "text-anchor": right ? "start" : "end" });
+        }
+      }
       xAxis(s, x, dom, top - 4, plotBottom, { title: cfg.xTitle, zeroStrong: true, width: W });
       for (const ref of cfg.refs || []) {
         const px = x(ref.value);
@@ -192,7 +201,7 @@
       for (const item of layout) {
         if (item.group) { groupLabel(s, item.y + 17, item.group); continue; }
         const r = item.row, y = item.y;
-        text(s, 0, y + 4, r.label, { class: "rowlabel" + (r.dim ? " dim" : "") });
+        text(s, 0, y + 4, r.label, { class: "rowlabel" + (r.dim ? " dim" : "") + (r.strong ? " strong" : "") });
         if (r.min !== null && r.max !== null && r.min !== undefined) {
           svg("line", { x1: x(r.min), x2: x(r.max), y1: y, y2: y, stroke: r.color, "stroke-width": 2, "stroke-linecap": "round", opacity: 0.45 }, s);
         }
@@ -230,7 +239,7 @@
       }
       const plotBottom = h, H = plotBottom + 40;
       const vals = [0];
-      rows.forEach((r) => vals.push(r.lo, r.hi, r.mean));
+      rows.forEach((r) => { vals.push(r.lo, r.hi, r.mean); (r.points || []).forEach((p) => vals.push(p.v)); });
       const finite = vals.filter((v) => v !== null && v !== undefined && isFinite(v));
       const dom = niceDomain(Math.min(...finite), Math.max(...finite), narrow ? 4 : 6, { zero: true });
       const x = lin(dom.lo, dom.hi, labelW + 10, W - 10);
@@ -251,6 +260,11 @@
         if (r.lo !== null && r.hi !== null && isFinite(r.lo) && isFinite(r.hi)) {
           svg("line", { x1: x(r.lo), x2: x(r.hi), y1: yc, y2: yc, stroke: r.dim ? "var(--muted)" : "var(--ink)", "stroke-width": 2, "stroke-linecap": "round" }, s);
           for (const v of [r.lo, r.hi]) svg("line", { x1: x(v), x2: x(v), y1: yc - 5, y2: yc + 5, stroke: r.dim ? "var(--muted)" : "var(--ink)", "stroke-width": 1.5 }, s);
+        }
+        // individual block differences: small open circles on the interval line
+        for (const p of r.points || []) {
+          const c = svg("circle", { cx: x(p.v), cy: yc, r: 3.4, stroke: r.color || "var(--ink)", class: "blockdot" }, s);
+          tipAttrs(c, p.tip, p.label);
         }
         if (r.mean !== null && isFinite(r.mean)) {
           svg("circle", { cx: x(r.mean), cy: yc, r: 5.5, fill: r.color || "var(--ink)", class: "ring" }, s);
