@@ -436,3 +436,17 @@ Implementation decision:
 - Root cause: the build job had no `permissions` block and inherited the workflow-level `contents: read` only, so its token could not read the Pages site. Fix: job-level `contents: read` + `pages: read` on build (an uncommitted workflow-level `pages: read` edit was moved there); deploy unchanged; no PAT, secrets or `enablement`.
 - `configure-pages` v5 → v6 (v6.0.0 only moves to Node 24; same inputs / outputs). The warning was not the cause of the failure. `deploy-pages` / `upload-pages-artifact` v4 → v5 left for later.
 - New test pins the per-job permissions; it fails on the previous workflow. Details: `report/RELEASE_v1.0.0.md` §8.
+
+## 2026-11-12 Dashboard English / Traditional Chinese toggle
+
+Prompt summary:
+
+- The dashboard was English-only; the owner wanted Traditional Chinese for their own reading and presentations while keeping English for a professional public version. A language toggle was agreed, English by default; ask when unsure.
+
+Implementation decision:
+
+- Owner decisions: technical terms (policy names, metrics, statistics) stay in English in the Chinese version; nav is translated; builder-generated sentences also get Chinese versions ("try it, remove if it reads badly"); a Chinese architecture diagram; README page names aligned with the nav.
+- `assets/i18n.js`: `?lang=zh-TW|en` > localStorage `dashboard-lang` > English; switching saves and reloads. UI strings use `L(en, zh)`; static HTML uses `data-zh*` attributes. English output verified identical to before apart from the toggle button (headless Firefox text dump).
+- `build_data.py` adds `*_zh` sibling fields formatted from the same values as the English; a new test checks every `_zh` field exists and quotes the same numbers, with the same wording guards. English fields and numbers unchanged; bundle rebuilt.
+- `assets/architecture_zh.svg` is a text-only copy of the English diagram (same geometry); two lines shortened to fit. Condition names, control-variable names and `drop_cause` codes stay English on purpose (README §4.5).
+- 271 tests OK, `ci_checks.sh all` exit 0. Merged to `main` locally (no `gh` on this machine, so no PR); CI and Pages deploy succeeded.
