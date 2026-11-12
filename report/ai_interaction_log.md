@@ -424,3 +424,15 @@ Implementation decision:
 - License: a second contributor's code is still in HEAD and the git author name is not a legal name, so the owner was asked first. Owner decision: the contributor consented; copyright holder "samhung1205 and contributors". `src/ros2_uav_pipeline/package.xml` / `setup.py` keep `license TODO` because editing the Phase 3 gate's runtime paths would make it BROKEN.
 - Pages: the existing untracked draft workflow was kept (same structure and verified action versions) and documented; checks call the gate scripts directly so BLOCKED also stops a deployment. New tests pin the check order, `fetch-depth: 0`, the `dashboard`-only artifact, relative dashboard paths and the license.
 - Identifying strings in older `report/` files were reported, not edited (owner decision, as in FINAL_QA §3.2). Details: `report/RELEASE_v1.0.0.md`.
+
+## 2026-11-12 GitHub Pages permission fix
+
+Prompt summary:
+
+- First Pages deployment failed in `actions/configure-pages@v5`: "Get Pages site failed. HttpError: Resource not accessible by integration". Minimal fix on `fix/pages-permissions` from the merged `main`; check the Node.js deprecation warning separately.
+
+Implementation decision:
+
+- Root cause: the build job had no `permissions` block and inherited the workflow-level `contents: read` only, so its token could not read the Pages site. Fix: job-level `contents: read` + `pages: read` on build (an uncommitted workflow-level `pages: read` edit was moved there); deploy unchanged; no PAT, secrets or `enablement`.
+- `configure-pages` v5 → v6 (v6.0.0 only moves to Node 24; same inputs / outputs). The warning was not the cause of the failure. `deploy-pages` / `upload-pages-artifact` v4 → v5 left for later.
+- New test pins the per-job permissions; it fails on the previous workflow. Details: `report/RELEASE_v1.0.0.md` §8.

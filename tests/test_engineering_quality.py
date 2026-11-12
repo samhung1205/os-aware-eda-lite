@@ -312,6 +312,31 @@ class ContinuousIntegrationTest(unittest.TestCase):
         # ci.yml is kept alongside it
         self.assertTrue((REPO / ".github/workflows/ci.yml").is_file())
 
+    def test_pages_workflow_permissions_are_minimal_per_job(self):
+        """A job-level permissions block replaces the workflow-level one (no merge). configure-pages
+        failed with "Resource not accessible by integration" when the build job had no pages: read."""
+
+        text = (REPO / ".github/workflows/pages.yml").read_text(encoding="utf-8")
+        head, jobs_text = text.split("\njobs:\n", 1)
+
+        def scopes(block):
+            match = re.search(r"^(\s*)permissions:\n((?:\1  [\w-]+: \w+\n)+)", block, re.M)
+            self.assertIsNotNone(match, "permissions block missing")
+            return dict(ln.strip().split(": ") for ln in match.group(2).splitlines())
+
+        self.assertEqual(scopes(head), {"contents": "read"})
+        jobs = dict(
+            (chunk.split(":", 1)[0], chunk)
+            for chunk in re.split(r"\n  (?=[a-z][\w-]*:\n)", "\n" + jobs_text) if chunk.strip()
+        )
+        self.assertEqual(set(jobs), {"build", "deploy"})
+        self.assertIn("actions/configure-pages@", jobs["build"])
+        self.assertEqual(scopes(jobs["build"]), {"contents": "read", "pages": "read"})
+        self.assertIn("actions/deploy-pages@", jobs["deploy"])
+        self.assertEqual(scopes(jobs["deploy"]),
+                         {"contents": "read", "pages": "write", "id-token": "write"})
+        self.assertNotRegex(text, r"secrets\.|PAT|personal access token|enablement:")
+
     def test_dashboard_uses_only_relative_paths_inside_dashboard(self):
         """The site must work under a repository subpath (https://<user>.github.io/<repo>/)."""
 

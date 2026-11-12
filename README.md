@@ -71,7 +71,7 @@
 git clone <repo-url> os-aware-eda-lite     # 請用完整 clone，不要 --depth 1（原因見 FAQ）
 cd os-aware-eda-lite
 
-python3 -m unittest discover -s tests                      # 1. 跑測試：269 tests（ROS 2 部分以 mock 進行）
+python3 -m unittest discover -s tests                      # 1. 跑測試：270 tests（ROS 2 部分以 mock 進行）
 python3 scripts/check_runtime_provenance.py                # 2. Phase 2 baseline 資料驗證 → VERIFIED
 python3 scripts/check_phase3_provenance.py --expect-runs 102   # 3. Phase 3 A/B 資料驗證 → VERIFIED
 bash scripts/serve_dashboard.sh                            # 4. 開啟 Dashboard（127.0.0.1:8765）
@@ -329,7 +329,7 @@ python3 scripts/check_table_regeneration.py
 ## 8. 測試與 CI
 
 ```bash
-python3 -m unittest discover -s tests     # 269 tests，stdlib only
+python3 -m unittest discover -s tests     # 270 tests，stdlib only
 bash scripts/ci_checks.sh all             # 與 GitHub Actions 完全相同的檢查
 ```
 
@@ -353,6 +353,8 @@ CI（`.github/workflows/ci.yml`）在 Python 3.10–3.13 上執行上述檢查�
 1. 以完整 Git 歷史 checkout（`fetch-depth: 0`，Phase 3 gate 需要量測 commit `7f0f160`）。
 2. 依序檢查：Phase 2 provenance、Phase 3 provenance（102 runs）、表格可從 raw 重建、Dashboard bundle 為最新。任一步失敗就不發布；`BLOCKED` 也算失敗。
 3. 全部通過後，用 GitHub 官方 actions（`configure-pages`、`upload-pages-artifact`、`deploy-pages`）**只發布 `dashboard/`**。
+
+權限採最小化、逐 job 宣告：workflow 預設只有 `contents: read`；build job 為 `contents: read` + `pages: read`（`configure-pages` 需要讀取 Pages 設定）；deploy job 為 `contents: read` + `pages: write` + `id-token: write`。只用內建 `GITHUB_TOKEN`，不需要 PAT 或 secrets。
 
 不需要 ROS 2、外部 CDN 或後端；Dashboard 只用相對路徑，可在 `/<repository>/` 子路徑下運作（有測試檢查）。首次使用需在 GitHub repo 的 **Settings → Pages → Build and deployment → Source** 選 **GitHub Actions**。
 

@@ -407,7 +407,7 @@ Implemented:
 - README.
 - AI interaction log.
 - Phase 4 dashboard (`dashboard/`, static, offline) built by `src/dashboard/build_data.py` from the Phase 2 baseline and Phase 3 formal tables only; `--check` in CI; `scripts/check_table_regeneration.py` rebuilds the tables from raw runs; preview via `bash scripts/serve_dashboard.sh` (127.0.0.1 only). `report/PHASE4_RESULT.md`.
-- Release v1.0.0 preparation (`report/RELEASE_v1.0.0.md`): MIT `LICENSE` ("samhung1205 and contributors"; the contributor's consent was confirmed by the owner); `.github/workflows/pages.yml` publishes only `dashboard/` from `main` after both provenance gates (VERIFIED required), table regeneration and the bundle check pass. Keep dashboard paths relative (a test enforces it). `src/ros2_uav_pipeline/package.xml` / `setup.py` still say `license TODO`: they are inside the Phase 3 gate's runtime paths, so editing them would make the gate BROKEN.
+- Release v1.0.0 preparation (`report/RELEASE_v1.0.0.md`): MIT `LICENSE` ("samhung1205 and contributors"; the contributor's consent was confirmed by the owner); `.github/workflows/pages.yml` publishes only `dashboard/` from `main` after both provenance gates (VERIFIED required), table regeneration and the bundle check pass. Keep dashboard paths relative (a test enforces it). Permissions are declared per job (a job-level block replaces the workflow-level one): build `contents: read` + `pages: read` (configure-pages needs it), deploy `contents: read` + `pages: write` + `id-token: write`; `GITHUB_TOKEN` only, no PAT or secrets. `src/ros2_uav_pipeline/package.xml` / `setup.py` still say `license TODO`: they are inside the Phase 3 gate's runtime paths, so editing them would make the gate BROKEN.
 
 Still not implemented / not present:
 

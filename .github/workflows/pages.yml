@@ -13,6 +13,8 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Default for every job. A job-level `permissions:` block replaces this entirely (it is not
+# merged), so each job below states exactly the scopes it needs.
 permissions:
   contents: read
 
@@ -28,6 +30,12 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 15
+
+    # configure-pages reads the repository's Pages site (GET /repos/{owner}/{repo}/pages);
+    # without pages: read it fails with "Resource not accessible by integration".
+    permissions:
+      contents: read
+      pages: read
 
     steps:
       - name: Checkout repository (full history)
@@ -55,7 +63,7 @@ jobs:
         run: python3 -m src.dashboard.build_data --check
 
       - name: Configure GitHub Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
 
       - name: Upload dashboard/ as the Pages artifact
         uses: actions/upload-pages-artifact@v4
