@@ -57,13 +57,56 @@
   }
   function width(container) { return Math.max(280, Math.floor(container.clientWidth || 640)); }
 
+  const L = (window.I18N && window.I18N.L) || ((en) => en);
+  // Plain-text version of a tooltip ("title: key value; key value") so the accessible name carries the
+  // numbers, not just "Latest-Frame block 1".
+  const scratch = document.createElement("div");
+  function tipText(html) {
+    scratch.innerHTML = html;
+    const title = scratch.querySelector("b");
+    const rows = [...scratch.querySelectorAll(".row")].map((r) => [...r.children].map((c) => c.textContent.trim()).join(" "));
+    if (!rows.length) return scratch.textContent.replace(/\s+/g, " ").trim();
+    return (title ? title.textContent.trim() + ": " : "") + rows.join("; ");
+  }
   function tipAttrs(node, html, label) {
     if (!html) return;
     node.setAttribute("data-tip", html);
     node.setAttribute("tabindex", "0");
     node.setAttribute("role", "img");
-    if (label) node.setAttribute("aria-label", label);
+    const t = tipText(html);
+    const norm = (x) => x.replace(/[\s·:,;]+/g, " ").trim().toLowerCase();
+    node.setAttribute("aria-label", label && !norm(t).includes(norm(label)) ? `${label}: ${t}` : t || label || "");
   }
+
+  /* ---------- keyboard: one tab stop per chart, arrow keys move between its marks ---------- */
+  function rove(container) {
+    const s = container.querySelector("svg");
+    const marks = [...container.querySelectorAll("[data-tip][tabindex]")];
+    marks.forEach((m, i) => m.setAttribute("tabindex", i === 0 ? "0" : "-1"));
+    if (s && marks.length > 1) {
+      const base = (s.getAttribute("aria-label") || "").replace(/[.。\s]+$/, "");
+      const hint = L(`${marks.length} data points; arrow keys move between them`, `${marks.length} 個資料點，可用方向鍵移動`);
+      s.setAttribute("aria-label", base ? base + L(". ", "。") + hint : hint);
+    }
+  }
+  const STEP = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 };
+  document.addEventListener("keydown", (e) => {
+    const t = e.target.closest && e.target.closest("[data-tip][tabindex]");
+    const s = t && t.closest("svg");
+    if (!s || e.altKey || e.ctrlKey || e.metaKey) return;
+    const marks = [...s.querySelectorAll("[data-tip][tabindex]")];
+    const i = marks.indexOf(t);
+    let j;
+    if (e.key in STEP) j = Math.max(0, Math.min(marks.length - 1, i + STEP[e.key]));
+    else if (e.key === "Home") j = 0;
+    else if (e.key === "End") j = marks.length - 1;
+    else return;
+    e.preventDefault();
+    if (j === i) return;
+    marks[i].setAttribute("tabindex", "-1");
+    marks[j].setAttribute("tabindex", "0");
+    marks[j].focus();
+  });
 
   /* ---------- tooltip ---------- */
   let tipEl = null;
@@ -72,7 +115,9 @@
     if (!tipEl) {
       tipEl = document.createElement("div");
       tipEl.className = "tooltip";
-      tipEl.setAttribute("role", "status");
+      // Visual only: each mark's aria-label already carries the same text, so screen readers
+      // would otherwise hear it twice on every focus.
+      tipEl.setAttribute("aria-hidden", "true");
       document.body.appendChild(tipEl);
     }
     return tipEl;
@@ -125,6 +170,7 @@
       entry.w = w;
       container.innerHTML = "";
       render(container, w);
+      rove(container);
     };
     for (const e of mounted) if (e.container === container) mounted.delete(e);
     mounted.add(entry);

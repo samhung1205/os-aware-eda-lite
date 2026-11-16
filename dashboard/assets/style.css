@@ -16,15 +16,16 @@
   --ink: #15181c;
   --ink-2: #464c55;
   --ink-3: #5f6670;
-  --muted: #7b828c;
+  --muted: #666d77;      /* ≥ 4.5:1 on surface, page and surface-2 (tick labels are 11.5 px) */
   --grid: #e5e8ec;
   --axis: #c2c8d0;
   --border: rgba(21, 24, 28, 0.10);
   --border-strong: rgba(21, 24, 28, 0.20);
   --focus: #2563c9;
   --band: rgba(37, 99, 201, 0.07);
-  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100;
-  --s5: #e87ba4; --s6: #008300; --s7: #6250d6; --s8: #e34948;
+  /* series marks keep ≥ 3:1 against the white panel (WCAG 1.4.11) */
+  --s1: #2a78d6; --s2: #eb6834; --s3: #159a6b; --s4: #b87a00;
+  --s5: #d9608f; --s6: #008300; --s7: #6250d6; --s8: #e34948;
   --good: #0ca30c; --good-ink: #0b6b2a; --warn: #fab219; --critical: #d03b3b;
   --est: #855700; --est-bg: #fbf3e2; --est-border: #e9d3a6;
   --meas-bg: #e8f4ec; --meas-border: #bcdcc6;
@@ -78,6 +79,15 @@ code, .mono { font-family: var(--mono); font-size: 0.86em; }
 code { background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
 .tnum { font-variant-numeric: tabular-nums; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.skip-link {
+  position: absolute; left: var(--sp-4); top: -60px; z-index: 30; padding: 8px 14px;
+  background: var(--surface); color: var(--ink); border: 1px solid var(--border-strong); border-radius: var(--r-2);
+  box-shadow: var(--shadow-pop); font-size: var(--fs-md); font-weight: 600; text-decoration: none;
+}
+.skip-link:focus { top: var(--sp-2); }
+/* headings that receive focus after a view change or the skip link */
+main h2[tabindex="-1"], main h3[tabindex="-1"] { outline-offset: 6px; }
+main h2[tabindex="-1"]:focus:not(:focus-visible), main h3[tabindex="-1"]:focus:not(:focus-visible) { outline: none; }
 * { scrollbar-color: var(--axis) transparent; }
 
 /* ---- header ---------------------------------------------------------------------- */
@@ -423,6 +433,7 @@ footer.foot {
   .nav-open .nav-toggle .chev { transform: translateY(2px) rotate(-135deg); }
   .nav { display: none; flex-direction: column; gap: 2px; margin: 0; padding: 4px 0 12px; overflow: visible; }
   .nav-open .nav { display: flex; }
+  .topbar.nav-open { background: var(--page); backdrop-filter: none; -webkit-backdrop-filter: none; }
   .nav a, .nav a:first-child { margin: 0; padding: 10px 12px; border-bottom: 0; border-radius: var(--r-1); font-size: var(--fs-body); min-height: 44px; display: flex; align-items: center; }
   .nav a:hover { background: var(--surface-2); }
   .nav a[aria-current="page"] { background: var(--surface-2); color: var(--ink); font-weight: 650; }

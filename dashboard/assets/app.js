@@ -50,9 +50,13 @@
   const VIEWS = ["overview", "baseline", "scheduling", "mechanism", "evidence"];
   const state = { c: D.primary_condition, m: "effective_miss_rate_pct", model: "both", mc: D.primary_condition };
   const rendered = {};
+  let shownView = null; // the view on screen before this route() call (null on first load)
+  let anchor = null;    // optional panel inside the view: #evidence/limitations → #evidence-limitations
   function parseHash() {
     const raw = (location.hash || "#overview").slice(1);
-    const [view, q] = raw.split("?");
+    const [path, q] = raw.split("?");
+    const [view, sub] = path.split("/");
+    anchor = sub || null;
     const params = new URLSearchParams(q || "");
     if (params.get("c") && COND[params.get("c")]) state.c = params.get("c");
     if (params.get("mc") && COND[params.get("mc")] && !COND[params.get("mc")].dynamic) state.mc = params.get("mc");
@@ -72,7 +76,19 @@
     document.querySelectorAll("section.view").forEach((sec) => { sec.hidden = sec.dataset.view !== view; });
     const sec = document.getElementById("view-" + view);
     if (!rendered[view]) { RENDER[view](sec); rendered[view] = true; } else C.refreshVisible();
-    document.title = { overview: "OS-Aware Edge AI Runtime", baseline: L("Baseline", "基準測試") + " · OS-Aware Edge AI Runtime", scheduling: L("Scheduling", "排程比較") + " · OS-Aware Edge AI Runtime", mechanism: L("Mechanism", "運作機制") + " · OS-Aware Edge AI Runtime", evidence: L("Evidence", "驗證證據") + " · OS-Aware Edge AI Runtime" }[view];
+    // A new view starts at its own heading: without this the page keeps the previous view's scroll
+    // offset and keyboard / screen-reader focus stays on the nav link. Parameter-only changes use
+    // replaceState (no hashchange), so the controls never jump the page.
+    const target = anchor && document.getElementById(`${view}-${anchor}`);
+    if (target) { target.scrollIntoView({ block: "start" }); if (shownView !== null) focusHeading(target.querySelector("h2, h3")); }
+    else if (shownView !== null && shownView !== view) { window.scrollTo(0, 0); focusHeading(sec.querySelector("h2")); }
+    shownView = view;
+    document.title ={ overview: "OS-Aware Edge AI Runtime", baseline: L("Baseline", "基準測試") + " · OS-Aware Edge AI Runtime", scheduling: L("Scheduling", "排程比較") + " · OS-Aware Edge AI Runtime", mechanism: L("Mechanism", "運作機制") + " · OS-Aware Edge AI Runtime", evidence: L("Evidence", "驗證證據") + " · OS-Aware Edge AI Runtime" }[view];
+  }
+  function focusHeading(h) {
+    if (!h) return;
+    h.setAttribute("tabindex", "-1");
+    h.focus({ preventScroll: true });
   }
   window.addEventListener("hashchange", () => { Object.keys(rendered).forEach((k) => { if (k !== "overview" && k !== "evidence") rendered[k] = false; }); route(); });
 
@@ -166,8 +182,8 @@
           <div class="fig-head"><div class="titles"><h3>${L("Paired difference within blocks", "Block 內的 paired difference")}</h3>
             <p class="fig-sub">${L(`Mean and 95% interval over ${g.n_blocks} blocks · open circles are single blocks`, `${g.n_blocks} 個 blocks 的平均與 95% 區間 · 空心圓為單一 block`)}</p></div></div>
           <div class="chart" id="hero-forest"></div>
-          <p class="fig-note">${L(`One host, n = ${g.n_blocks} blocks for this condition, latency only (random-initialised weights). Adaptive − Deadline-Guard includes 0, which is not an equivalence test. <a href="#evidence">Limitations</a>`,
-            `單一主機，此 condition n = ${g.n_blocks} blocks，只量 latency（random-initialised weights）。Adaptive − Deadline-Guard 的區間包含 0，但這不是 equivalence test。<a href="#evidence">使用限制</a>`)}</p>
+          <p class="fig-note">${L(`One host, n = ${g.n_blocks} blocks for this condition, latency only (random-initialised weights). Adaptive − Deadline-Guard includes 0, which is not an equivalence test. <a href="#evidence/limitations">Limitations</a>`,
+            `單一主機，此 condition n = ${g.n_blocks} blocks，只量 latency（random-initialised weights）。Adaptive − Deadline-Guard 的區間包含 0，但這不是 equivalence test。<a href="#evidence/limitations">使用限制</a>`)}</p>
         </div>
       </div>
 
@@ -209,8 +225,8 @@
           <div class="span-5">
             <ul class="findings" style="grid-template-columns:1fr">
               ${["regime", "dynamic"].filter((k) => F[k]).map((k) => `<li><div class="t">${esc(T(F[k], "title"))}</div><div class="x">${esc(T(F[k], "text"))}</div></li>`).join("")}
-              <li><div class="t">${L("Legacy comparisons are kept separate", "Legacy 比較分開呈現")}</div><div class="x">${L(`The legacy arms run inference inside the DDS callback, so differences against them mix architecture and policy and are never attributed to a policy. <a href="#scheduling">See paired differences</a>`,
-                `Legacy arms 在 DDS callback 內執行 inference，所以與它們的差異混合了 architecture 與 policy 的效果，一律不歸因於 policy。<a href="#scheduling">查看 paired differences</a>`)}</div></li>
+              <li><div class="t">${L("Legacy comparisons are kept separate", "Legacy 比較分開呈現")}</div><div class="x">${L(`The legacy arms run inference inside the DDS callback, so differences against them mix architecture and policy and are never attributed to a policy. <a href="#scheduling/paired">See paired differences</a>`,
+                `Legacy arms 在 DDS callback 內執行 inference，所以與它們的差異混合了 architecture 與 policy 的效果，一律不歸因於 policy。<a href="#scheduling/paired">查看 paired differences</a>`)}</div></li>
             </ul>
           </div>
         </div>
@@ -341,7 +357,7 @@
             "每條灰線是一個實驗 block。在同一個 block 內連續執行各 arm，可以減少它們之間的主機狀態差異，但無法讓主機狀態完全相同。")}</p></div>
       </div>
       <div class="grid section-gap">
-        <div class="span-7 panel"><div class="fig-head"><div class="titles"><h3>${L("Paired differences: policy effect", "Paired differences：policy 效果")}</h3><p class="fig-sub" id="s3-sub"></p></div></div>
+        <div class="span-7 panel" id="scheduling-paired"><div class="fig-head"><div class="titles"><h3>${L("Paired differences: policy effect", "Paired differences：policy 效果")}</h3><p class="fig-sub" id="s3-sub"></p></div></div>
           <div class="legend"><span class="k"><span class="sw dot" style="background:var(--ink-3)"></span>${L("mean of block differences", "block 差異的平均")}</span><span class="k"><span class="sw line" style="background:var(--ink)"></span>95% t-interval</span><span class="k"><span class="sw ring"></span>${L("one block", "單一 block")}</span></div>
           <div class="chart" id="s3"></div>
           <p class="fig-note" id="s3-note"></p></div>
@@ -587,7 +603,10 @@
   /* =============================== EVIDENCE =============================== */
   function renderEvidence(sec) {
     const B = D.baseline, K = D.kpis;
-    const ok = '<svg class="ic ok" viewBox="0 0 18 18" aria-label="ok"><circle cx="9" cy="9" r="8" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5.5 9.2l2.3 2.3 4.7-4.9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    // Each check shows what the bundle actually says: a failed check gets a red cross, never the green tick.
+    const mark = (pass) => pass
+      ? `<svg class="ic ok" viewBox="0 0 18 18" role="img" aria-label="${L("passed", "通過")}"><circle cx="9" cy="9" r="8" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5.5 9.2l2.3 2.3 4.7-4.9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+      : `<svg class="ic no" viewBox="0 0 18 18" role="img" aria-label="${L("failed", "未通過")}"><circle cx="9" cy="9" r="8" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6.2 6.2l5.6 5.6M11.8 6.2l-5.6 5.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`;
     const allSame = (ctrls) => ctrls.every((x) => x.identical);
     const p3all = S.runs.length;
     const ctrlMap = {}; B.controls.forEach((x) => { ctrlMap[x.label] = { p2: x }; }); S.controls.forEach((x) => { (ctrlMap[x.label] = ctrlMap[x.label] || {}).p3 = x; });
@@ -601,14 +620,14 @@
       <div class="grid">
         <div class="span-6 panel"><h3>${L("Checks passed when this bundle was built", "建置此 bundle 時通過的檢查")}</h3>
           <ul class="status-list" style="margin-top:8px">
-            <li>${ok}<div><div class="t">${L("Phase 2 baseline chain", "Phase 2 baseline 鏈")}</div><div class="x">${L(`${B.chain_records_verified} file records hash-verified (raw runs → runtime summary → baseline aggregates). ${B.n_runs} runs, all <code>constrained</code>, all DDS SHM-verified.`,
+            <li>${mark(B.chain_records_verified > 0)}<div><div class="t">${L("Phase 2 baseline chain", "Phase 2 baseline 鏈")}</div><div class="x">${L(`${B.chain_records_verified} file records hash-verified (raw runs → runtime summary → baseline aggregates). ${B.n_runs} runs, all <code>constrained</code>, all DDS SHM-verified.`,
               `${B.chain_records_verified} 筆檔案紀錄 hash 已驗證（raw runs → runtime summary → baseline aggregates）。${B.n_runs} 個 runs，全部 <code>constrained</code>，全部 DDS SHM 已驗證。`)}</div></div></li>
-            <li>${ok}<div><div class="t">${L("Phase 3 formal A/B chain", "Phase 3 正式 A/B 鏈")}</div><div class="x">${L(`${S.chain_records_verified} file records hash-verified (raw runs → formal summary → per-arm, paired and dynamic-phase tables). ${p3all} runs in ${S.n_blocks} complete blocks.`,
+            <li>${mark(S.chain_records_verified > 0)}<div><div class="t">${L("Phase 3 formal A/B chain", "Phase 3 正式 A/B 鏈")}</div><div class="x">${L(`${S.chain_records_verified} file records hash-verified (raw runs → formal summary → per-arm, paired and dynamic-phase tables). ${p3all} runs in ${S.n_blocks} complete blocks.`,
               `${S.chain_records_verified} 筆檔案紀錄 hash 已驗證（raw runs → formal summary → per-arm、paired 與 dynamic-phase 表格）。${S.n_blocks} 個完整 blocks 共 ${p3all} 個 runs。`)}</div></div></li>
-            <li>${ok}<div><div class="t">${L("Measured code is the committed code", "量測用的程式碼就是已 commit 的程式碼")}</div><div class="x">Phase 3: ${S.commits.map((c) => `${c.runs} runs at <code>${c.commit}</code>, dirty=${c.dirty}`).join("; ")}. Phase 2: ${B.commits.map((c) => `${c.runs} at <code>${c.commit}</code>, dirty=${c.dirty}`).join("; ")}.</div></div></li>
-            <li>${ok}<div><div class="t">${L("Controls identical across runs", "各 run 的控制條件一致")}</div><div class="x">${L(`${p3Same ? "All" : "Not all"} ${S.controls.length} Phase 3 and ${p2Same ? "all" : "not all"} ${B.controls.length} Phase 2 recorded controls hold a single value (table below).`,
+            <li>${mark([...S.commits, ...B.commits].every((c) => c.dirty === false))}<div><div class="t">${L("Measured code is the committed code", "量測用的程式碼就是已 commit 的程式碼")}</div><div class="x">Phase 3: ${S.commits.map((c) => `${c.runs} runs at <code>${c.commit}</code>, dirty=${c.dirty}`).join("; ")}. Phase 2: ${B.commits.map((c) => `${c.runs} at <code>${c.commit}</code>, dirty=${c.dirty}`).join("; ")}.</div></div></li>
+            <li>${mark(p3Same && p2Same)}<div><div class="t">${L("Controls identical across runs", "各 run 的控制條件一致")}</div><div class="x">${L(`${p3Same ? "All" : "Not all"} ${S.controls.length} Phase 3 and ${p2Same ? "all" : "not all"} ${B.controls.length} Phase 2 recorded controls hold a single value (table below).`,
               `Phase 3 的 ${S.controls.length} 項${p3Same ? "全部" : "並非全部"}、Phase 2 的 ${B.controls.length} 項${p2Same ? "全部" : "並非全部"}記錄控制條件都只有單一數值（見下表）。`)}</div></div></li>
-            <li>${ok}<div><div class="t">${L("Excluded data cannot leak in", "排除的資料不會混入")}</div><div class="x">${L("Paths containing <code>pilot</code>, <code>legacy_unverified</code>, <code>example</code> or <code>runtime_aware</code>, and run ids outside the formal run tags, stop the build (tested).",
+            <li>${mark(true)}<div><div class="t">${L("Excluded data cannot leak in", "排除的資料不會混入")}</div><div class="x">${L("Paths containing <code>pilot</code>, <code>legacy_unverified</code>, <code>example</code> or <code>runtime_aware</code>, and run ids outside the formal run tags, stop the build (tested).",
               "路徑含 <code>pilot</code>、<code>legacy_unverified</code>、<code>example</code> 或 <code>runtime_aware</code>，或 run id 不屬於正式 run tag，都會讓建置中止（已有測試）。")}</div></div></li>
           </ul>
           <p class="fig-note">${L("Independent gates (also in CI):", "獨立的 gate（CI 也會執行）：")} <code>python3 scripts/check_runtime_provenance.py</code> (Phase 2) ${L("and", "與")} <code>python3 scripts/check_phase3_provenance.py</code> (Phase 3) ${L("must both report VERIFIED.", "都必須回報 VERIFIED。")}</p></div>
@@ -634,7 +653,7 @@
             <li>${L("<b>Causal comparisons only inside one architecture</b> (Guard / Adaptive / Latest / FIFO). Differences to the legacy path also contain an architecture effect.", "<b>因果比較只在同一個 architecture 內進行</b>（Guard / Adaptive / Latest / FIFO）。與 legacy 路徑的差異同時包含 architecture 效果。")}</li>
             <li>${L("<b>Pre-specified analysis plan.</b> The primary condition, metrics and comparisons were fixed in the project before the formal runs (an internal plan, not an external preregistration); Adaptive parameters were not tuned on the pilot.", "<b>預先指定的分析計畫。</b>Primary condition、指標與比較方式在正式 run 之前就已在專案中固定（內部計畫，非外部 preregistration）；Adaptive 參數沒有用 pilot 調整。")}</li>
           </ul></div>
-        <div class="span-6 panel"><h3>${L("Known limitations", "已知限制")}</h3>
+        <div class="span-6 panel" id="evidence-limitations"><h3>${L("Known limitations", "已知限制")}</h3>
           <ul class="limits small" style="margin-top:8px">
             <li>${L("<b>One host, one session per phase.</b> i7-13700, two P-cores (12, 14), <code>powersave</code> governor, shared machine (load gate + nice 10). Results do not establish behaviour on other hardware.", "<b>單一主機，每個 phase 一個 session。</b>i7-13700、兩顆 P-core（12、14）、<code>powersave</code> governor、共用機器（load gate + nice 10）。結果不能推論到其他硬體。")}</li>
             <li>${L(`<b>Small samples.</b> ${COND[D.primary_condition].n_blocks} blocks for the primary condition, ${minBlocks} for the others.`, `<b>樣本小。</b>Primary condition ${COND[D.primary_condition].n_blocks} 個 blocks，其他 ${minBlocks} 個。`)}</li>
