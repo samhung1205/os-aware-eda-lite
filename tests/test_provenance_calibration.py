@@ -523,16 +523,20 @@ class RunMetadataTest(unittest.TestCase):
     @unittest.skipUnless(shutil.which("bash"), "bash required")
     def test_capture_helper_fails_run_on_unverified_limits(self):
         with tempfile.TemporaryDirectory() as tmp:
-            out = Path(tmp) / "r1.csv"
-            script = (
-                f'source "{REPO}/experiments/ros2/run_common.sh"; '
-                f'REQUESTED_CPUS=0 REQUESTED_MEMORY_MAX=1K run_capture_metadata r1 "{out}" normal scenario=x'
-            )
-            proc = subprocess.run(["bash", "-c", script], cwd=REPO, capture_output=True, text=True)
+            # Build each command from its own run id: a str.replace("r1", "r2") on the
+            # whole script would also rewrite a temp dir name that happens to contain "r1".
+            def capture(run_id, limits=""):
+                out = Path(tmp) / f"{run_id}.csv"
+                script = (
+                    f'source "{REPO}/experiments/ros2/run_common.sh"; '
+                    f'{limits}run_capture_metadata {run_id} "{out}" normal scenario=x'
+                )
+                return subprocess.run(["bash", "-c", script], cwd=REPO, capture_output=True, text=True)
+
+            proc = capture("r1", "REQUESTED_CPUS=0 REQUESTED_MEMORY_MAX=1K ")
             self.assertEqual(proc.returncode, 3, describe_failure(proc, 3))
             self.assertTrue((Path(tmp) / "r1.meta.json.failed").exists())
-            ok = subprocess.run(["bash", "-c", script.replace("REQUESTED_CPUS=0 REQUESTED_MEMORY_MAX=1K ", "")
-                                 .replace("r1", "r2")], cwd=REPO, capture_output=True, text=True)
+            ok = capture("r2")
             self.assertEqual(ok.returncode, 0, describe_failure(ok, 0))
             meta = read_json(Path(tmp) / "r2.meta.json")
             self.assertEqual(meta["resource_limits"]["measurement_class"], CLASS_UNCONSTRAINED)
