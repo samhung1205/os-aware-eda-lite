@@ -29,7 +29,7 @@
   const S = D.scheduling;
   const COND = {}; S.conditions.forEach((c) => { COND[c.id] = c; });
   const MODEL = { mobilevit_s: "MobileViT-S", mobilevit_xxs: "MobileViT-XXS" };
-  const MODEL_COLOR = { mobilevit_s: "var(--s1)", mobilevit_xxs: "var(--s2)" };
+  const MODEL_COLOR = { mobilevit_s: "var(--model-s)", mobilevit_xxs: "var(--model-xxs)" }; // never arm colours
   const APP_ORDER = ["latest_q10", "guard_c5_q10", "adaptive_c5_q10", "fifo_c5_q10"];
   const LEGACY_ORDER = ["legacy_q1", "legacy_q5"];
   const METRICS = {
@@ -149,42 +149,59 @@
     const lat = armRow(pc.id, "latest_q10"), grd = armRow(pc.id, "guard_c5_q10"), ada = armRow(pc.id, "adaptive_c5_q10");
     const dl = fmt(pc.deadline_ms, 0);
     const archSvg = L("assets/architecture.svg", "assets/architecture_zh.svg");
+    const FE = D.mechanism.feasibility;
+    const fp = FE.find((f) => f.condition === pc.id) || FE[0];
+    const GUARD = ARM.guard_c5_q10.color;
+    const others = S.conditions.filter((c) => c.id !== pc.id).map((c) => c.n_blocks);
+    const nOther = Math.min(...others) === Math.max(...others) ? others[0] : `${Math.min(...others)}–${Math.max(...others)}`;
     sec.innerHTML = `
       <div class="hero">
-        <div>
-          <h2>${L("Which frames should an overloaded edge detector skip?", "過載的邊緣偵測器該跳過哪些 frame？")}</h2>
+        <h2>${L("Which frames should an overloaded edge detector skip?", "過載的邊緣偵測器該跳過哪些 frame？")}</h2>
+        <div class="hero-copy">
           <p class="lede">${L("A measured ROS 2 benchmark of frame-scheduling policies for a MobileViT detector on a constrained Linux host: two pinned CPU cores, a 4 GiB memory limit and a Fast DDS shared-memory transport verified on every run.",
             "在受限 Linux 主機上，針對 MobileViT 偵測器實測各種 frame scheduling policy 的 ROS 2 benchmark：綁定 2 顆 CPU core、4 GiB 記憶體上限，且每個 run 都驗證 Fast DDS shared-memory transport 確實生效。")}</p>
-          <p class="answer">${L(`Skipping frames that are predicted to miss the ${dl} ms deadline (<b>Deadline-Guard</b>) lowers the effective miss rate by <b>${fmt(-g.mean, 1)} pp</b> against Latest-Frame at ${esc(pc.label)}. <b>Adaptive</b>, which adds a utilisation switch on top, lands in the same place: no measurable difference from Deadline-Guard.`,
-            `丟棄預測會錯過 ${dl} ms deadline 的 frame（<b>Deadline-Guard</b>），在 ${esc(pc.label)} 下比 Latest-Frame 降低 effective miss rate <b>${fmt(-g.mean, 1)} pp</b>。在此之上再加 utilisation switch 的 <b>Adaptive</b> 結果相同：與 Deadline-Guard 沒有可量測的差異。`)}</p>
-          <div class="links"><a href="#scheduling">${L("Compare all six policies", "比較全部六種 policy")}</a><a href="#mechanism">${L("Why it works", "為什麼有效")}</a><a href="#evidence">${L("How the data is verified", "資料如何驗證")}</a></div>
+          <p class="answer">${L(`The ones that can no longer make the deadline, and that only happens in one load regime. Of the ${FE.length} fixed-rate conditions tested, only at <b>${esc(pc.label)}</b> can the newest frame be too old to finish within ${dl} ms: one inter-arrival interval plus the service time reaches ${fmt(fp.inter_arrival_ms, 0)} + ${fmt(fp.service_ms, 0)} = ${fmt(fp.age_bound_ms, 0)} ms. There, dropping frames predicted to miss (<b>Deadline-Guard</b>) lowers the effective miss rate by <b>${fmt(-g.mean, 1)} pp</b> against Latest-Frame. Everywhere else its 95% interval includes zero. <b>Adaptive</b>, which adds a utilisation switch, lands where Deadline-Guard does.`,
+            `跳過那些已經趕不上 deadline 的 frame，而這種情況只出現在一種負載區間。在測試的 ${FE.length} 個固定速率 condition 中，只有 <b>${esc(pc.label)}</b> 下最新的 frame 可能已經太舊、無法在 ${dl} ms 內完成：一個 inter-arrival 間隔加上 service time 達到 ${fmt(fp.inter_arrival_ms, 0)} + ${fmt(fp.service_ms, 0)} = ${fmt(fp.age_bound_ms, 0)} ms。在這裡，丟棄預測會錯過的 frame（<b>Deadline-Guard</b>）比 Latest-Frame 降低 effective miss rate <b>${fmt(-g.mean, 1)} pp</b>；其他 condition 的 95% 區間都包含 0。再加上 utilisation switch 的 <b>Adaptive</b>，結果與 Deadline-Guard 相同。`)}</p>
+          <div class="links"><a href="#scheduling">${L("Compare every policy", "比較每種 policy")}</a><a href="#mechanism">${L("Why it works", "為什麼有效")}</a><a href="#evidence">${L("How the data is verified", "資料如何驗證")}</a></div>
+          <details class="table-toggle glossary"><summary>${L("How to read this page", "如何閱讀本頁")}</summary>
+            <dl>
+              <dt>Effective miss</dt><dd>${L(`Share of published frames that were dropped or finished after the ${dl} ms deadline. Lower is better.`, `已發佈的 frame 中，被丟棄或超過 ${dl} ms deadline 才完成的比例，越低越好。`)}</dd>
+              <dt>pp</dt><dd>${L("Percentage points: the gap between two percentages. 20% → 15% is −5 pp.", "百分點：兩個百分比之間的差。20% → 15% 是 −5 pp。")}</dd>
+              <dt>ρ</dt><dd>${L("Utilisation, arrival rate × service time. Above 1 the detector cannot keep up and must skip frames.", "使用率，即抵達速率 × service time。大於 1 表示偵測器跟不上，必須跳過 frame。")}</dd>
+              <dt>Arm</dt><dd>${L("One configuration under test: the four policies that share the application queue (FIFO, Latest-Frame, Deadline-Guard, Adaptive) and two legacy paths that run inference in the DDS callback.", "一個受測配置：共用 application queue 的四種 policy（FIFO、Latest-Frame、Deadline-Guard、Adaptive），以及在 DDS callback 內執行 inference 的兩條 legacy 路徑。")}</dd>
+              <dt>Block</dt><dd>${L("One round in which every arm runs once, back to back, in rotating order. Arms are compared within a block, so slow drift of the host cancels out.", "每個 arm 依輪替順序各跑一次的一輪。比較都在 block 內進行，主機狀態的緩慢漂移因此互相抵銷。")}</dd>
+              <dt>${L("Paired Δ, 95% CI", "Paired Δ、95% CI")}</dt><dd>${L("The mean of the per-block differences and its t-interval. An interval that stays on one side of 0 means the difference kept its sign across blocks.", "各 block 差值的平均與其 t 區間。區間整個落在 0 的同一側，表示各 block 的差異方向一致。")}</dd>
+            </dl></details>
         </div>
-        <div class="panel hero-chart">
-          <div class="result" aria-label="${L("Main result", "主要結果")}">
-            <p class="result-cap">${L(`Effective miss at ${esc(pc.label)} · ρ ≈ ${fmt(lat.utilization.mean, 2)} (overloaded) · ${dl} ms deadline · lower is better`,
-              `${esc(pc.label)} 的 effective miss · ρ ≈ ${fmt(lat.utilization.mean, 2)}（過載）· ${dl} ms deadline · 越低越好`)}</p>
-            <div class="result-row">
-              <div class="r-item"><span class="r-label">${sw(ARM.latest_q10.color)}Latest-Frame</span><span class="r-v">${fmt(lat.effective_miss_rate_pct.mean, 1)}%</span></div>
-              <svg class="r-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 8h33M29 3l6 5-6 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <div class="r-item"><span class="r-label">${sw(ARM.guard_c5_q10.color)}Deadline-Guard</span><span class="r-v">${fmt(grd.effective_miss_rate_pct.mean, 1)}%</span></div>
-              <div class="r-item r-peer"><span class="r-label">${sw(ARM.adaptive_c5_q10.color)}Adaptive</span><span class="r-v">${fmt(ada.effective_miss_rate_pct.mean, 1)}%</span></div>
-            </div>
-            <p class="r-diff">${L(`<b>${fmt(g.mean, 2)} pp</b> paired difference (Deadline-Guard − Latest-Frame) · 95% CI ${ci(g, 2)} · lower in ${g.n_neg} of ${g.n_blocks} blocks`,
-              `paired difference（Deadline-Guard − Latest-Frame）<b>${fmt(g.mean, 2)} pp</b> · 95% CI ${ci(g, 2)} · ${g.n_blocks} 個 blocks 中有 ${g.n_neg} 個較低`)}</p>
+      </div>
+      <div class="panel regime-panel">
+        <div class="fig-head"><div class="titles"><h3>${L("Where dropping late frames pays off", "丟棄趕不上的 frame 何時有用")}</h3>
+          <p class="fig-sub">${L(`One row per fixed-rate condition. Left: the newest frame's worst case, up to one inter-arrival interval of waiting plus the measured service time, against the ${dl} ms deadline. Right: Deadline-Guard − Latest-Frame, effective miss, paired within blocks.`,
+            `每列是一個固定速率 condition。左：最新 frame 的最壞情況，最多一個 inter-arrival 間隔的等待加上實測 service time，對照 ${dl} ms deadline。右：Deadline-Guard − Latest-Frame 的 effective miss，在 block 內配對比較。`)}</p></div>
+          <span class="tag measured">${L("Measured", "實測")}</span></div>
+        <div class="legend">
+          <span class="k"><span class="sw" style="background:var(--axis)"></span>${L("waiting (overloaded only)", "等待（僅過載時）")}</span>
+          <span class="k"><span class="sw" style="background:var(--ink-2)"></span>${L("service time", "service time")}</span>
+          <span class="k"><span class="sw overshoot-sw"></span>${L("past the deadline", "超過 deadline")}</span>
+          <span class="k"><span class="sw ring" style="border-color:${GUARD}"></span>${L("one block", "單一 block")}</span>
+          <span class="k"><span class="sw dot" style="background:${GUARD}"></span>${L("mean Δ with 95% interval", "平均 Δ 與 95% 區間")}</span>
+        </div>
+        <div class="chart" id="hero-regime"></div>
+        <hr class="fig-divider">
+        <div class="result" aria-label="${L("Main result", "主要結果")}">
+          <p class="result-cap">${L(`At ${esc(pc.label)}, the primary condition · ρ ≈ ${fmt(lat.utilization.mean, 2)} · effective miss, lower is better`,
+            `${esc(pc.label)}（primary condition）· ρ ≈ ${fmt(lat.utilization.mean, 2)} · effective miss，越低越好`)}</p>
+          <div class="result-row">
+            <div class="r-item"><span class="r-label">${sw(ARM.latest_q10.color)}Latest-Frame</span><span class="r-v">${fmt(lat.effective_miss_rate_pct.mean, 1)}%</span></div>
+            <svg class="r-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 8h33M29 3l6 5-6 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div class="r-item"><span class="r-label">${sw(ARM.guard_c5_q10.color)}Deadline-Guard</span><span class="r-v">${fmt(grd.effective_miss_rate_pct.mean, 1)}%</span></div>
+            <div class="r-item r-peer"><span class="r-label">${sw(ARM.adaptive_c5_q10.color)}Adaptive</span><span class="r-v">${fmt(ada.effective_miss_rate_pct.mean, 1)}%</span></div>
           </div>
-          <hr class="fig-divider">
-          <div class="fig-head"><div class="titles"><h3>${L("Every run", "每一個 run")}</h3>
-            <p class="fig-sub">${L(`Dropped + late frames, % of published · same application architecture · ${pc.n_blocks} runs per policy`,
-              `Dropped + late frames 占 published 的 % · 相同 application architecture · 每個 policy ${pc.n_blocks} 個 runs`)}</p></div></div>
-          <div class="legend"><span class="k"><span class="sw dot" style="background:var(--ink-3)"></span>${L("one run", "單一 run")}</span><span class="k"><span class="sw tick"></span>${L("mean", "平均")}</span></div>
-          <div class="chart" id="hero-dots"></div>
-          <hr class="fig-divider">
-          <div class="fig-head"><div class="titles"><h3>${L("Paired difference within blocks", "Block 內的 paired difference")}</h3>
-            <p class="fig-sub">${L(`Mean and 95% interval over ${g.n_blocks} blocks · open circles are single blocks`, `${g.n_blocks} 個 blocks 的平均與 95% 區間 · 空心圓為單一 block`)}</p></div></div>
-          <div class="chart" id="hero-forest"></div>
-          <p class="fig-note">${L(`One host, n = ${g.n_blocks} blocks for this condition, latency only (random-initialised weights). Adaptive − Deadline-Guard includes 0, which is not an equivalence test. <a href="#evidence/limitations">Limitations</a>`,
-            `單一主機，此 condition n = ${g.n_blocks} blocks，只量 latency（random-initialised weights）。Adaptive − Deadline-Guard 的區間包含 0，但這不是 equivalence test。<a href="#evidence/limitations">使用限制</a>`)}</p>
+          <p class="r-diff">${L(`<b>${fmt(g.mean, 2)} pp</b> paired difference (Deadline-Guard − Latest-Frame) · 95% CI ${ci(g, 2)} · lower in ${g.n_neg} of ${g.n_blocks} blocks · Adaptive − Deadline-Guard ${fmt(ag.mean, 2, true)} pp ${ci(ag, 2)}`,
+            `paired difference（Deadline-Guard − Latest-Frame）<b>${fmt(g.mean, 2)} pp</b> · 95% CI ${ci(g, 2)} · ${g.n_blocks} 個 blocks 中有 ${g.n_neg} 個較低 · Adaptive − Deadline-Guard ${fmt(ag.mean, 2, true)} pp ${ci(ag, 2)}`)}</p>
         </div>
+        <p class="fig-note">${L(`One host, ${pc.n_blocks} blocks at the primary condition and ${nOther} at the others, latency only (random-initialised weights). An interval that includes 0 is not an equivalence test. <a href="#evidence/limitations">Limitations</a>`,
+          `單一主機，primary condition ${pc.n_blocks} 個 blocks、其他 condition 各 ${nOther} 個，只量 latency（random-initialised weights）。區間包含 0 不代表兩者等價。<a href="#evidence/limitations">使用限制</a>`)}</p>
       </div>
 
       <div class="stat-row">
@@ -246,21 +263,24 @@
         </ul>
       </section>`;
 
-    const heroArms = ["latest_q10", "guard_c5_q10", "adaptive_c5_q10"];
-    C.dotRows(sec.querySelector("#hero-dots"), { valueW: 56, rowH: 32,
-      rows: heroArms.map((id) => { const r = armRow(pc.id, id), st = r.effective_miss_rate_pct;
-        return { label: ARM[id].label, color: ARM[id].color, mean: st.mean, min: st.min, max: st.max, valueText: fmt(st.mean, 1) + "%",
-          points: runsOf(pc.id, id).map((x) => ({ v: x.effective_miss_rate_pct, label: `${ARM[id].label} block ${blockNo(x.block)}`,
-            tip: tipRows(`${ARM[id].label} · block ${blockNo(x.block)}`, [["effective miss", fmt(x.effective_miss_rate_pct, 1) + "%"], ["drop", fmt(x.drop_rate_pct, 1) + "%"], [L("late (of processed)", "late（占 processed）"), fmt(x.deadline_miss_rate_pct, 1) + "%"]]) })),
-          tip: tipRows(`${ARM[id].label} · ${pc.label}`, [["mean ± SD", `${fmt(st.mean, 1)} ± ${fmt(st.sd, 1)}%`], ["min – max", `${fmt(st.min, 1)} – ${fmt(st.max, 1)}%`], ["runs", r.n_runs]]) }; }),
-      xTitle: "Effective miss (%)", ariaLabel: L("Effective miss for Latest-Frame, Deadline-Guard and Adaptive", "Latest-Frame、Deadline-Guard 與 Adaptive 的 effective miss") });
-    const heroPairs = [["guard_c5_q10", "latest_q10", g], ["adaptive_c5_q10", "guard_c5_q10", ag]];
-    C.forest(sec.querySelector("#hero-forest"), {
-      rows: heroPairs.map(([a, ref, e]) => ({ label: `${ARM[a].label} − ${ARM[ref].label}`, mean: e.mean, lo: e.lo, hi: e.hi, color: ARM[a].color,
-        sub: L(`${fmt(e.mean, 2, true)} pp ${ci(e, 2)} · ${e.n_neg} of ${e.n_blocks} blocks lower`, `${fmt(e.mean, 2, true)} pp ${ci(e, 2)} · ${e.n_blocks} 個 blocks 中 ${e.n_neg} 個較低`),
-        points: blockDiffs(pc.id, a, ref, "effective_miss_rate_pct", e, e.n_blocks, 2, " pp"),
-        tip: tipRows(`${ARM[a].label} − ${ARM[ref].label}`, [["mean Δ", fmt(e.mean, 2, true) + " pp"], ["95% t-interval", ci(e, 2)], [L("blocks lower / higher", "blocks 較低 / 較高"), `${e.n_neg} / ${e.n_pos}`], ["sign-flip p", fmt(e.signflip_p, 3)]]) })),
-      xTitle: "Δ effective miss (pp)", ariaLabel: L("Paired differences: Guard minus Latest, Adaptive minus Guard", "Paired differences：Guard − Latest、Adaptive − Guard") });
+    C.regimeMap(sec.querySelector("#hero-regime"), {
+      deadline: pc.deadline_ms, deadlineLabel: `deadline ${dl} ms`, unit: " pp",
+      betterLabel: L("← fewer misses with Guard", "← Guard 較少 miss"),
+      tTitle: L("ms after publish", "發佈後的 ms"), dTitle: "Δ effective miss (pp)",
+      ariaLabel: L("Per condition: the newest frame's worst-case finish time against the deadline, and Deadline-Guard minus Latest-Frame effective miss", "各 condition：最新 frame 的最壞完成時間對照 deadline，以及 Deadline-Guard − Latest-Frame 的 effective miss"),
+      rows: FE.map((f) => {
+        const e = f.guard_minus_latest_eff_pp, c = COND[f.condition];
+        const age = f.overloaded ? f.inter_arrival_ms : 0;
+        return { label: c.label, sub: `ρ ${fmt(f.utilization, 2)} · ${f.overloaded ? L("overloaded", "過載") : L("not overloaded", "未過載")}`,
+          age, service: f.service_ms, mean: e.mean, lo: e.lo, hi: e.hi, color: GUARD, valueText: fmt(e.mean, 1, true),
+          points: blockDiffs(f.condition, "guard_c5_q10", "latest_q10", "effective_miss_rate_pct", e, c.n_blocks, 2, " pp"),
+          tip: tipRows(c.label, [["ρ", fmt(f.utilization, 2)],
+            [L("waiting, worst case", "等待（最壞）"), f.overloaded ? fmt(f.inter_arrival_ms, 1) + " ms" : L("≈ 0 ms, not overloaded", "≈ 0 ms，未過載")],
+            [L("service (Latest-Frame)", "service（Latest-Frame）"), fmt(f.service_ms, 1) + " ms"],
+            [L("worst-case finish", "最壞完成時間"), `${fmt(age + f.service_ms, 1)} ms`],
+            ["Guard − Latest", fmt(e.mean, 2, true) + " pp"], ["95% CI", ci(e, 2)],
+            [L("blocks lower / higher", "blocks 較低 / 較高"), `${e.n_neg} / ${e.n_pos}`]]) };
+      }) });
   }
 
   /* =============================== BASELINE =============================== */
@@ -303,7 +323,7 @@
         ["P50 / P99", `${fmt(c.p50_latency_ms.mean, 0)} / ${fmt(c.p99_latency_ms.mean, 0)} ms`], ["runs", c.n_runs], ...(extra || [])]);
 
       C.lineChart(sec.querySelector("#b1"), {
-        series: models.map((m) => ({ name: MODEL[m].replace("MobileViT-", ""), color: MODEL_COLOR[m],
+        series: models.map((m) => ({ name: MODEL[m], color: MODEL_COLOR[m],
           points: conds.filter((c) => c.family === "fps" && c.model === m).map((c) => ({ x: c.offered_fps.mean, y: c.processed_fps.mean, tip: condTip(c) })) })),
         diag: "processed = offered", xTitle: "Offered FPS", yTitle: "Processed FPS", endLabels: true, ariaLabel: L("Processed versus offered frames per second", "Processed vs offered FPS"),
       });
@@ -323,7 +343,7 @@
         refs: [{ value: 100, label: "deadline 100 ms" }], xTitle: "Latency (ms)", ariaLabel: L("P50 latency by queue depth", "各 queue depth 的 P50 latency"),
       });
       C.lineChart(sec.querySelector("#b4"), {
-        series: models.map((m) => ({ name: MODEL[m].replace("MobileViT-", ""), color: MODEL_COLOR[m],
+        series: models.map((m) => ({ name: MODEL[m], color: MODEL_COLOR[m],
           points: conds.filter((c) => c.family === "overload" && c.model === m).map((c) => ({ x: c.delay_ms, y: c.effective_miss_rate_pct.mean, tip: condTip(c, [["delay", c.delay_ms + " ms"]]) })) })),
         xTitle: L("Artificial delay per frame (ms)", "每個 frame 的 artificial delay (ms)"), yTitle: "Effective miss (%)", endLabels: true, yMax: 100, ariaLabel: L("Effective miss versus artificial delay", "Effective miss vs artificial delay"),
       });
@@ -341,7 +361,7 @@
   /* =============================== SCHEDULING =============================== */
   function renderScheduling(sec) {
     sec.innerHTML = `
-      <div class="view-head"><h2>${L("Six frame-scheduling policies, compared within blocks", "六種 frame scheduling policy，在 block 內比較")}</h2>
+      <div class="view-head"><h2>${L("Four policies and two legacy paths, compared within blocks", "四種 policy 與兩條 legacy 路徑，在 block 內比較")}</h2>
       <p>${L("Each block runs all six arms once, in rotated order, under identical controls. The run is the statistical unit and every comparison is a within-block paired difference. Deadline-Guard and Adaptive are always shown side by side.",
         "每個 block 在相同控制條件下，以輪替順序把六個 arms 各跑一次。統計單位是 run，所有比較都是 block 內的 paired difference。Deadline-Guard 與 Adaptive 一律並排呈現。")}</p></div>
       <div class="controls" id="s-controls"></div>
@@ -421,7 +441,7 @@
             tip: tipRows(`Block ${blockNo(b)}`, focus.map((id, i) => [ARM[id].label, fmt(vals[i], M.nd) + M.unit])),
             pointTips: focus.map((id, i) => tipRows(`${ARM[id].label} · block ${blockNo(b)}`, [[M.label, fmt(vals[i], M.nd) + M.unit]])) };
         }),
-        yTitle: M.label + (M.unit === "%" ? " (%)" : ` (${M.unit.trim()})`), zero: state.m !== "p99_latency_ms", ariaLabel: L("Per-block slope chart", "逐 block slope chart"),
+        yTitle: M.label + (M.unit === "%" ? " (%)" : ` (${M.unit.trim()})`), ariaLabel: L("Per-block slope chart", "逐 block slope chart"),
       });
 
       const comps = [
@@ -442,8 +462,8 @@
       const floor = c.n_blocks >= 5 ? "0.0625" : c.n_blocks === 3 ? "0.25" : "—";
       const fe = pairRow(cid, "fifo_c5_q10", "latest_q10").metrics[state.m];
       sec.querySelector("#s3-note").innerHTML = L(
-        `↓ / ↑ count blocks where the first arm was lower / higher. With n = ${c.n_blocks} blocks the smallest possible exact sign-flip p is ${floor}, so these counts are a consistency check, not a significance test. FIFO − Latest-Frame is off this scale: ${fmt(fe.mean, M.dnd, true)}${M.d} ${ci(fe, M.dnd)}.`,
-        `↓ / ↑ 表示第一個 arm 較低 / 較高的 block 數。n = ${c.n_blocks} blocks 時，exact sign-flip p 最小只能到 ${floor}，所以這些計數只是一致性檢查，不是顯著性檢定。FIFO − Latest-Frame 超出此刻度：${fmt(fe.mean, M.dnd, true)}${M.d} ${ci(fe, M.dnd)}。`);
+        `↓ / ↑ count blocks where the first arm was lower / higher. With n = ${c.n_blocks} blocks the smallest possible exact sign-flip p is ${floor}, so these counts are a consistency check, not a significance test. FIFO − Latest-Frame is not drawn here: ${fmt(fe.mean, M.dnd, true)}${M.d} ${ci(fe, M.dnd)}.`,
+        `↓ / ↑ 表示第一個 arm 較低 / 較高的 block 數。n = ${c.n_blocks} blocks 時，exact sign-flip p 最小只能到 ${floor}，所以這些計數只是一致性檢查，不是顯著性檢定。FIFO − Latest-Frame 未畫在此圖：${fmt(fe.mean, M.dnd, true)}${M.d} ${ci(fe, M.dnd)}。`);
 
       sec.querySelector("#s-table").innerHTML = table(
         [{ label: "Arm", l: true }, { label: "n" }, { label: "ρ" }, { label: "Processed FPS" }, { label: "On-time FPS" }, { label: "Drop %" }, { label: L("Late % of processed", "Late %（占 processed）") }, { label: "Eff. miss % (min–max)" }, { label: "Excl. tail %" }, { label: "P50 ms" }, { label: "P95 ms" }, { label: "P99 ms" }, { label: "P50 frame age ms" }, { label: "Service ms" }, { label: "CPU %" }, { label: "Max RSS MB" }],
@@ -494,7 +514,7 @@
       <p>${L("Under overload, the newest frame waiting when the worker frees up is between 0 and one inter-arrival interval old. If that age plus the service time can exceed the deadline, Latest-Frame can spend inference time on frames that then finish late. Deadline-Guard predicts this before inference, drops frames predicted to miss, and waits for the next one.",
         "過載時，worker 空出來那一刻，等待中最新的 frame 其 age 介於 0 到一個 inter-arrival 間隔之間。如果這個 age 加上 service time 可能超過 deadline，Latest-Frame 就可能把 inference 時間花在最後遲到的 frame 上。Deadline-Guard 會在 inference 前預測這種情況，丟棄預測會錯過的 frame，改等下一個。")}</p></div>
       ${conceptPanel(COND[D.primary_condition].deadline_ms)}
-      <div class="panel section-gap"><div class="fig-head"><div class="titles"><h3>${L("Worst-case age of the newest frame vs the deadline", "最新 frame 的最壞情況 age vs deadline")}</h3><p class="fig-sub">${L("inter-arrival interval (1000 / FPS) + measured Latest-Frame service time, per fixed-rate condition", "各固定速率 condition 的 inter-arrival 間隔（1000 / FPS）+ 實測 Latest-Frame service time")}</p></div><span class="tag measured">${L("Measured", "實測")}</span></div>
+      <div class="panel section-gap"><div class="fig-head"><div class="titles"><h3>${L("Worst-case age of the newest frame vs the deadline", "最新 frame 的最壞情況 age vs deadline")}</h3><p class="fig-sub">${L("Waiting up to one inter-arrival interval (1000 / FPS, only when overloaded) + measured Latest-Frame service time, per fixed-rate condition", "各固定速率 condition：最多一個 inter-arrival 間隔的等待（1000 / FPS，僅過載時）+ 實測 Latest-Frame service time")}</p></div><span class="tag measured">${L("Measured", "實測")}</span></div>
         <div class="legend"><span class="k"><span class="sw" style="background:var(--axis)"></span>inter-arrival (1000 / FPS)</span><span class="k"><span class="sw" style="background:var(--ink-2)"></span>${L("service time (Latest-Frame, measured)", "service time（Latest-Frame，實測）")}</span><span class="k"><span class="sw dash"></span>deadline</span></div>
         <div class="chart" id="m1"></div><div id="m1-table" style="margin-top:14px"></div>
         <p class="fig-note">${esc(T(Mx, "model_note"))}</p></div>
@@ -506,7 +526,7 @@
         <div class="span-6 panel"><div class="fig-head"><div class="titles"><h3>${L("Queueing: frame age when inference starts", "Queueing：inference 開始時的 frame age")}</h3><p class="fig-sub" id="m3-sub"></p></div></div><div class="chart" id="m3"></div>
           <p class="fig-note">${L("Queues that serve the oldest frame (FIFO, legacy depth 5) make every frame wait for the whole backlog under overload.", "處理最舊 frame 的 queue（FIFO、legacy depth 5）在過載時會讓每個 frame 都等完整個 backlog。")}</p></div>
       </div>
-      <div class="panel section-gap"><div class="fig-head"><div class="titles"><h3>${L("Ablation: Adaptive − Deadline-Guard", "Ablation：Adaptive − Deadline-Guard")}</h3><p class="fig-sub">${L("Δ effective miss (pp), within-block, every condition and each phase of the dynamic run · Adaptive = Guard + utilisation switch", "Δ effective miss (pp)，block 內比較，涵蓋每個 condition 及 dynamic run 的每個 phase · Adaptive = Guard + utilisation switch")}</p></div></div>
+      <div class="panel section-gap"><div class="fig-head"><div class="titles"><h3>${L("Ablation: Adaptive − Deadline-Guard", "Ablation：Adaptive − Deadline-Guard")}</h3><p class="fig-sub" id="m4-sub"></p></div></div>
         <div class="chart" id="m4"></div><div id="m4-table" style="margin-top:14px"></div>
         <p class="fig-note">${L("The switch can only change a decision when ≥ 2 feasible frames are queued and estimated ρ &lt; 1. In these conditions the queue rarely holds two feasible frames, so EDF and newest-feasible pick the same frame.",
           "只有在 queue 中有 ≥ 2 個 feasible frames 且估計 ρ &lt; 1 時，switch 才可能改變決定。在這些 conditions 下 queue 很少同時有兩個 feasible frames，所以 EDF 與 newest-feasible 會選到同一個 frame。")}</p></div>
@@ -515,11 +535,13 @@
 
     // M1 feasibility
     C.hbars(sec.querySelector("#m1"), {
+      // Below ρ = 1 the newest frame does not wait for the worker, so only the service time is drawn
+      // (the same first-order model as the overview regime map).
       rows: Mx.feasibility.map((f) => ({ label: COND[f.condition].label, dim: !f.overloaded, segments: [
-        { v: f.inter_arrival_ms, color: "var(--axis)", name: "inter-arrival" }, { v: f.service_ms, color: "var(--ink-2)", name: "service" }],
-        valueText: `${fmt(f.age_bound_ms, 0)} ms`, valueNote: f.overloaded ? "" : L("not overloaded, age ≈ 0", "未過載，age ≈ 0"),
+        { v: f.overloaded ? f.inter_arrival_ms : 0, color: "var(--axis)", name: "inter-arrival" }, { v: f.service_ms, color: "var(--ink-2)", name: "service" }],
+        valueText: `${fmt(f.overloaded ? f.age_bound_ms : f.service_ms, 0)} ms`, valueNote: f.overloaded ? "" : L("not overloaded: no waiting", "未過載：不需等待"),
         tip: tipRows(COND[f.condition].label, [["inter-arrival", fmt(f.inter_arrival_ms, 1) + " ms"], ["service (Latest)", fmt(f.service_ms, 1) + " ms"], [L("sum", "合計"), fmt(f.age_bound_ms, 1) + " ms"], ["ρ", fmt(f.utilization, 2)], [L("overloaded", "過載"), f.overloaded ? L("yes", "是") : L("no", "否")]]) })),
-      refs: [{ value: Mx.feasibility[0].deadline_ms, label: `deadline ${fmt(Mx.feasibility[0].deadline_ms, 0)} ms` }], xTitle: L("Milliseconds", "毫秒"), rowH: 36, ariaLabel: L("Inter-arrival plus service time versus deadline", "Inter-arrival + service time vs deadline"),
+      refs: [{ value: Mx.feasibility[0].deadline_ms, label: `deadline ${fmt(Mx.feasibility[0].deadline_ms, 0)} ms` }], xTitle: L("Milliseconds", "毫秒"), rowH: 44, ariaLabel: L("Inter-arrival plus service time versus deadline", "Inter-arrival + service time vs deadline"),
     });
     sec.querySelector("#m1-table").innerHTML = table(
       [{ label: "Condition", l: true }, { label: "ρ" }, { label: "Regime", l: true, wrap: true }, { label: L("Predicted Latest late %", "預測 Latest late %") }, { label: L("Observed Latest late %", "實測 Latest late %") }, { label: L("Observed Guard late %", "實測 Guard late %") }, { label: L("Guard − Latest Δ pp [95% CI] · blocks lower", "Guard − Latest Δ pp [95% CI] · 較低的 blocks"), wrap: true }],
@@ -559,6 +581,9 @@
     const abl = S.conditions.map((c) => ({ c, p: pairRow(c.id, "adaptive_c5_q10", "guard_c5_q10") }));
     const phaseName = (ph) => ["phase 1 · 10 FPS", "phase 2 · 20 FPS", "phase 3 · 10 FPS"][ph] || `phase ${ph + 1}`;
     const dynRows = (dyn.paired || []).filter((p) => p.arm === "adaptive_c5_q10" && p.reference === "guard_c5_q10" && p.phase > 0);
+    sec.querySelector("#m4-sub").textContent = L(
+      `Δ effective miss (pp), within-block · every fixed-rate condition${dynRows.length ? ` and ${dynRows.map((p) => phaseName(p.phase)).join(", ")} of the dynamic run` : ""} · Adaptive = Guard + utilisation switch`,
+      `Δ effective miss (pp)，block 內比較 · 所有固定速率 condition${dynRows.length ? `，以及 dynamic run 的 ${dynRows.map((p) => phaseName(p.phase)).join("、")}` : ""} · Adaptive = Guard + utilisation switch`);
     const ofBlocks = (e, n) => L(`${e.n_neg}↓ ${e.n_pos}↑ of ${n}`, `${n} 中 ${e.n_neg}↓ ${e.n_pos}↑`);
     const frows = abl.map(({ c, p }) => { const e = p.metrics.effective_miss_rate_pct;
       return { group: L("Whole run", "整個 run"), label: c.label, mean: e.mean, lo: e.lo, hi: e.hi, color: ARM.adaptive_c5_q10.color,
@@ -675,7 +700,7 @@ ${L("# rebuild this dashboard's data from the tables", "# 從表格重建這個 
 python3 -m src.dashboard.build_data
 python3 -m src.dashboard.build_data --check   # 0 = current
 
-${L("# preview on the server (localhost only; VS Code forwards it)", "# 在伺服器上預覽（只限 localhost；VS Code 會自動轉發）")}
+${L("# preview locally (binds 127.0.0.1 only)", "# 在本機預覽（只綁定 127.0.0.1）")}
 bash scripts/serve_dashboard.sh</pre>
           <p class="fig-note">${L("Rebuilding the tables themselves from raw runs: see README → Reproducibility.", "要從 raw runs 重建表格本身，請見 README → Reproducibility。")}</p></div>
       </div>

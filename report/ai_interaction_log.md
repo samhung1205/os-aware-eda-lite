@@ -450,3 +450,16 @@ Implementation decision:
 - `build_data.py` adds `*_zh` sibling fields formatted from the same values as the English; a new test checks every `_zh` field exists and quotes the same numbers, with the same wording guards. English fields and numbers unchanged; bundle rebuilt.
 - `assets/architecture_zh.svg` is a text-only copy of the English diagram (same geometry); two lines shortened to fit. Condition names, control-variable names and `drop_cause` codes stay English on purpose (README §4.5).
 - 271 tests OK, `ci_checks.sh all` exit 0. Merged to `main` locally (no `gh` on this machine, so no PR); CI and Pages deploy succeeded.
+
+## 2026-11-16 Dashboard design critique and fixes
+
+Prompt summary:
+
+- `/impeccable critique` of the dashboard (27/40; two P1, three P2), then fix everything in order: navigation and accessibility, a regime-map hero, copy, colour semantics, narrow widths, polish. Branch `fix/dashboard-nav-a11y` from `main` (with the language toggle).
+
+Implementation decision:
+
+- Overview hero now shows the regime boundary instead of the single winning condition (owner chose "redo as a regime panorama"): per fixed-rate condition, the newest frame's worst-case finish (waiting up to one inter-arrival interval only when overloaded + measured service time) against the deadline, next to Guard − Latest with block dots and 95% CI, all from `mechanism.feasibility` and the runs. The S · 20 FPS headline numbers stay below it; the per-run dot and forest charts remain on Scheduling. The Mechanism feasibility chart uses the same first-order rule (no waiting below ρ = 1).
+- Colours: policy colours only for arms; models use neutral weights (`--model-*`); EDA-Lite schedulers use an amber estimate family (`--e*`, layerwise dashed). Light-mode series and `--muted` raised to WCAG contrast.
+- Charts: one tab stop per chart with arrow-key movement; mark names carry the tooltip values; P99 slope and simulation axes start at 0. No data, builder or bundle change (`build_data --check` CURRENT).
+- Copy: glossary ("How to read this page"), computed Ablation subtitle and block counts, no hard-coded "off this scale", legend matches drawn lines, readable OS profile names in built-in order.
