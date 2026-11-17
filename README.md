@@ -164,10 +164,26 @@ python3 -m src.dashboard.build_data --check  # 只檢查是否為最新
 - 直接開啟中文版：在網址加上 `?lang=zh-TW`，例如 `index.html?lang=zh-TW#scheduling`。改成 `?lang=en` 則回到英文。
 - 中文版的翻譯原則跟本 README 相同：policy 名稱（FIFO、Latest-Frame、Deadline-Guard、Adaptive）、指標（effective miss、on-time FPS、P99）與統計用語（pp、95 % CI、SD、block、run）保留英文。
 - 兩種語言顯示的是同一份 `dashboard_data.json` 數值，只有文字不同。
-- 翻譯寫在程式碼裡，與英文原文並排：`dashboard/assets/app.js`、`simulation.js` 使用 `L("English", "中文")`，HTML 使用 `data-zh` 屬性，切換邏輯在 `dashboard/assets/i18n.js`。
+- 翻譯寫在程式碼裡，與英文原文並排：`dashboard/assets/views/*.js`、`simulation.js` 使用 `L("English", "中文")`，HTML 使用 `data-zh` 屬性，切換邏輯在 `dashboard/assets/i18n.js`。
 - 帶數字的句子（Findings 結論句、regime 說明、arm 說明、排除原因、來源檔用途）由 `src/dashboard/build_data.py` 同時產生英文欄位與 `<欄位>_zh` 中文欄位，兩者使用同一批數值；`tests/test_dashboard.py` 會檢查每個中文欄位都存在，而且引用的數字與英文版完全相同。修改這些句子後要重新執行 `python3 -m src.dashboard.build_data`。
 - 架構圖有中文版 `dashboard/assets/architecture_zh.svg`，中文模式會自動使用；修改 `architecture.svg` 時請一併更新。
 - 刻意保留英文的部分：condition 名稱（如 `S · 20 FPS`）、控制變因名稱（取自 `meta.json` 的設定名）與 `drop_cause` 代碼。
+
+### 4.6 前端結構與視覺語言
+
+視覺語言取自 real-time scheduling 的時序圖（timing diagram）記法：一條毫秒時間軸、frame 的 release 箭頭、空心長條 = 等待、實心 = 實測 service time、紅色 = 超過 deadline、斜線 = 估計值、虛線加向下箭頭 = deadline。顏色只用來區分 policy（Latest 藍、Guard 橘、Adaptive 綠），以及 *Measured* / *Estimates* 標章。設計 token 與規則寫在 `dashboard/assets/style.css` 開頭的註解。
+
+| 檔案 | 內容 |
+|---|---|
+| `dashboard/assets/style.css` | 設計系統（字級、間距、顏色 token、淺色 / 深色、窄螢幕） |
+| `dashboard/assets/fonts/` | 自架的 B612 / B612 Mono 字體（SIL OFL 1.1，授權見 `OFL.txt`）；中文使用系統字體 |
+| `dashboard/assets/charts.js` | SVG 圖表元件（含首頁的 regime 時序圖） |
+| `dashboard/assets/ui.js` | 共用 UI：分段按鈕（支援左右方向鍵）、表格、關鍵數值清單 |
+| `dashboard/assets/app.js` | 資料檢查、查詢函式、hash routing |
+| `dashboard/assets/views/<view>.js` | 五個頁面各一個檔案（overview、baseline、scheduling、mechanism、evidence） |
+| `dashboard/assets/simulation.js` | EDA-Lite 模擬頁 |
+
+新增頁面時：在 `views/` 新增檔案並以 `X.views.<name> = render` 註冊，於 `index.html` 加上 `<section id="view-<name>">`、導覽連結與 `<script>`，再把名稱加入 `app.js` 的 `VIEWS`。
 
 ---
 

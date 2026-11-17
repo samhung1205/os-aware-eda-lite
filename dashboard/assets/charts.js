@@ -1,5 +1,7 @@
 /* Minimal SVG chart primitives for the dashboard. No dependencies.
- * Every mark that carries data has a data-tip (HTML) shown on hover / keyboard focus. */
+ * Every mark that carries data has a data-tip (HTML) shown on hover / keyboard focus.
+ * Notation (see assets/style.css): open bar = waiting, solid = measured service, red = past the
+ * deadline, dashed line with a down arrow = the deadline. Line art is square-ended. */
 (function () {
   "use strict";
   const NS = "http://www.w3.org/2000/svg";
@@ -53,13 +55,28 @@
   // Approximate text width: CJK and full-width characters are about 1 em, Latin about 0.56 em.
   function measure(str, size) {
     let n = 0;
-    for (const ch of String(str)) n += /[\u2e80-\u9fff\uf900-\ufaff\uff00-\uffef]/.test(ch) ? 1 : 0.56;
+    for (const ch of String(str)) n += /[\u2e80-\u9fff\uf900-\ufaff\uff00-\uffef]/.test(ch) ? 1 : 0.6;
     return n * (size || 12.5);
   }
-  function refLabel(s, px, y, label, W) {
-    const right = px + 4 + measure(label, 11.5) <= W;
-    return text(s, right ? px + 4 : px - 4, y, label, { class: "reflabel", "text-anchor": right ? "start" : "end" });
+  // A vertical reference (the deadline wherever it appears): dashed line, down arrow, label beside the arrow.
+  function refMark(s, px, y0, y1, label, limit) {
+    svg("line", { x1: px, x2: px, y1: y0, y2: y1, class: "refline" }, s);
+    svg("path", { d: `M${px - 5},${y0 - 9}H${px + 5}L${px},${y0}Z`, class: "refhead" }, s);
+    if (!label) return;
+    const right = px + 9 + measure(label, 12) <= limit;
+    text(s, right ? px + 9 : px - 9, y0 - 2, label, { class: "reflabel", "text-anchor": right ? "start" : "end" });
   }
+  // 45° hatch fill used for time / frames past the deadline. Returns a url() for a fill attribute.
+  function hatch(s, cls) {
+    let defs = s.querySelector("defs");
+    if (!defs) defs = s.insertBefore(document.createElementNS(NS, "defs"), s.firstChild);
+    const id = `hatch${++uid}`;
+    const p = svg("pattern", { id, patternUnits: "userSpaceOnUse", width: 5, height: 5, patternTransform: "rotate(45)" }, defs);
+    svg("rect", { x: 0, y: 0, width: 2, height: 5, class: cls }, p);
+    return `url(#${id})`;
+  }
+  const reduceMotion = () => !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  let uid = 0;
   function width(container) { return Math.max(280, Math.floor(container.clientWidth || 640)); }
 
   const L = (window.I18N && window.I18N.L) || ((en) => en);
@@ -241,7 +258,7 @@
       if (cfg.band) {
         // highlighted x-range (e.g. "the zoomed chart above covers this range"); drawn under the axis
         const b0 = x(Math.max(dom.lo, cfg.band.lo)), b1 = x(Math.min(dom.hi, cfg.band.hi));
-        svg("rect", { x: b0, y: top - 4, width: Math.max(2, b1 - b0), height: plotBottom - top + 4, class: "band", rx: 3 }, s);
+        svg("rect", { x: b0, y: top - 4, width: Math.max(2, b1 - b0), height: plotBottom - top + 4, class: "band" }, s);
         if (cfg.band.label) {
           const right = b0 + measure(cfg.band.label, 11) <= W;
           text(s, right ? b0 : b1, top - 10, cfg.band.label, { class: "bandlabel", "text-anchor": right ? "start" : "end" });
@@ -249,9 +266,7 @@
       }
       xAxis(s, x, dom, top - 4, plotBottom, { title: cfg.xTitle, zeroStrong: true, width: W });
       for (const ref of cfg.refs || []) {
-        const px = x(ref.value);
-        svg("line", { x1: px, x2: px, y1: top - 8, y2: plotBottom, class: "refline" }, s);
-        refLabel(s, px, top - 10, ref.label, W);
+        refMark(s, x(ref.value), top - 6, plotBottom, ref.label, W);
       }
       for (const item of layout) {
         if (item.group) { groupLabel(s, item.y + 17, item.group); continue; }
@@ -265,7 +280,7 @@
           tipAttrs(c, p.tip, p.label);
         }
         if (r.mean !== null && r.mean !== undefined) {
-          if ((r.points || []).length) svg("line", { x1: x(r.mean), x2: x(r.mean), y1: y - 9, y2: y + 9, stroke: "var(--ink)", "stroke-width": 2, "stroke-linecap": "round" }, s);
+          if ((r.points || []).length) svg("line", { x1: x(r.mean), x2: x(r.mean), y1: y - 9, y2: y + 9, stroke: "var(--ink)", "stroke-width": 2, "stroke-linecap": "butt" }, s);
           else svg("circle", { cx: x(r.mean), cy: y, r: 5, fill: r.color, class: "ring" }, s);
         }
         const hit = svg("rect", { x: 0, y: y - rowH / 2, width: W, height: rowH, class: "hit" }, s);
@@ -313,7 +328,7 @@
         }
         const yc = stacked ? y + 14 : y;
         if (r.lo !== null && r.hi !== null && isFinite(r.lo) && isFinite(r.hi)) {
-          svg("line", { x1: x(r.lo), x2: x(r.hi), y1: yc, y2: yc, stroke: r.dim ? "var(--muted)" : "var(--ink)", "stroke-width": 2, "stroke-linecap": "round" }, s);
+          svg("line", { x1: x(r.lo), x2: x(r.hi), y1: yc, y2: yc, stroke: r.dim ? "var(--muted)" : "var(--ink)", "stroke-width": 2, "stroke-linecap": "butt" }, s);
           for (const v of [r.lo, r.hi]) svg("line", { x1: x(v), x2: x(v), y1: yc - 5, y2: yc + 5, stroke: r.dim ? "var(--muted)" : "var(--ink)", "stroke-width": 1.5 }, s);
         }
         // individual block differences: small open circles on the interval line
@@ -370,8 +385,7 @@
           svg("line", { x1: padL, x2: W - padR, y1: y(r.y), y2: y(r.y), class: "refline" }, s);
           text(s, padL + 6, y(r.y) - 5, r.label, { class: "reflabel" });
         } else {
-          svg("line", { x1: x(r.x), x2: x(r.x), y1: padT, y2: H - padB, class: "refline" }, s);
-          refLabel(s, x(r.x) + 1, padT + 10, r.label, W - padR);
+          refMark(s, x(r.x), padT + 8, H - padB, r.label, W - padR);
         }
       }
       const ends = [];
@@ -403,11 +417,7 @@
   }
 
   /* ---------- horizontal (stacked) bars ---------- */
-  function barPath(x0, x1, y, h, roundEnd) {
-    const r = Math.min(4, Math.max(0, (x1 - x0) / 2), h / 2);
-    if (!roundEnd || r <= 0) return `M${x0},${y}H${x1}V${y + h}H${x0}Z`;
-    return `M${x0},${y}H${x1 - r}Q${x1},${y} ${x1},${y + r}V${y + h - r}Q${x1},${y + h} ${x1 - r},${y + h}H${x0}Z`;
-  }
+  function barPath(x0, x1, y, h) { return `M${x0},${y}H${x1}V${y + h}H${x0}Z`; }
   function hbars(container, cfg) {
     return mount(container, (el, W) => {
       const narrow = W < 560;
@@ -426,7 +436,11 @@
       const dom = niceDomain(0, cfg.max !== undefined ? cfg.max : Math.max(...totals, ...refs), narrow ? 4 : 6, { zero: true });
       const x = lin(0, dom.hi, labelW, W - valueW);
       const s = svg("svg", { viewBox: `0 0 ${W} ${H}`, width: W, height: H, role: "group", "aria-label": cfg.ariaLabel || "" }, el);
+      let lateFill = null;
       xAxis(s, x, dom, top - 4, plotBottom, { title: cfg.xTitle, width: W });
+      for (const ref of cfg.refs || []) {
+        refMark(s, x(ref.value), top - 6, plotBottom, ref.label, W);
+      }
       for (const item of layout) {
         if (item.group) { groupLabel(s, item.y + 17, item.group); continue; }
         const r = item.row, y = item.y;
@@ -435,9 +449,13 @@
         const segs = r.segments.filter((sg) => (sg.v || 0) > 0);
         segs.forEach((sg, i) => {
           const a = x(acc), b = x(acc + sg.v);
-          const gap = i < segs.length - 1 ? 2 : 0;
+          const gap = i < segs.length - 1 && !sg.open ? 2 : 0;
           if (b - a - gap > 0.5) {
-            const p = svg("path", { d: barPath(a, b - gap, y - barH / 2, barH, i === segs.length - 1), fill: sg.color }, s);
+            const p = sg.open
+              ? svg("rect", { x: a + 0.75, y: y - barH / 2 + 0.75, width: Math.max(0, b - a - 1.5), height: barH - 1.5, class: "wait" }, s)
+              : sg.late
+                ? svg("rect", { x: a + 0.75, y: y - barH / 2 + 0.75, width: Math.max(0, b - gap - a - 1.5), height: barH - 1.5, class: "overshoot", fill: lateFill || (lateFill = hatch(s, "hatch-late")) }, s)
+                : svg("path", { d: barPath(a, b - gap, y - barH / 2, barH), fill: sg.color }, s);
             tipAttrs(p, sg.tip || r.tip, r.label + " " + (sg.name || ""));
           }
           acc += sg.v;
@@ -448,16 +466,13 @@
         // can be what keeps the bar from being misread.
         let below = false;
         if (r.valueNote) { if (endX + 7 + measure(vt + " · " + r.valueNote, 12) <= W) vt += " · " + r.valueNote; else below = true; }
-        text(s, endX + 7, y + 4, vt, { class: "vlabel" + (r.dim ? " dim" : "") });
+        let lx = endX + 7;
+        for (const ref of cfg.refs || []) { const px = x(ref.value); if (px > lx - 4 && px < lx + measure(vt, 12.5) + 4) lx = px + 7; }
+        text(s, lx, y + 4, vt, { class: "vlabel" + (r.dim ? " dim" : "") });
         if (below) text(s, labelW, y + barH / 2 + 12, r.valueNote, { class: "vlabel dim", style: "font-size:11.5px" });
         if (r.marker !== undefined && r.marker !== null) {
           svg("line", { x1: x(r.marker), x2: x(r.marker), y1: y - barH / 2 - 4, y2: y + barH / 2 + 4, stroke: "var(--ink)", "stroke-width": 2 }, s);
         }
-      }
-      for (const ref of cfg.refs || []) {
-        const px = x(ref.value);
-        svg("line", { x1: px, x2: px, y1: top - 8, y2: plotBottom, class: "refline" }, s);
-        refLabel(s, px, top - 10, ref.label, W);
       }
     });
   }
@@ -498,68 +513,162 @@
     });
   }
 
-  /* ---------- regime map: per condition, the newest frame's worst-case finish time against the
-   * deadline (left) next to the measured paired difference (right), on shared scales ---------- */
+  /* ---------- regime map, drawn as a timing diagram: one lane per condition (release arrow, open
+   * waiting bar, solid service block, red overrun) against the deadline, next to the measured paired
+   * difference. Tracing a lane (hover / focus) moves the dimension lines to it. ---------- */
   function regimeMap(container, cfg) {
+    let played = false, wired = false;
+    let live = null; // geometry and nodes of the current render, for the trace interaction
+    const setTrace = (i) => {
+      if (!live) return;
+      live.dims.forEach((g, k) => g.classList.toggle("on", k === i));
+      live.bands.forEach((g, k) => g.classList.toggle("on", k === i));
+    };
     return mount(container, (el, W) => {
-      const narrow = W < 640;
-      const rows = cfg.rows;
-      const labelW = narrow ? 0 : Math.min(200, Math.max(...rows.map((r) => Math.max(measure(r.label, 13), measure(r.sub || "", 11.5)))) + 20);
-      const gap = narrow ? 40 : 56, valueW = narrow ? 44 : 66;
-      const plotW = W - labelW - gap - valueW;
-      const tW = Math.round(plotW * 0.56);
-      const tx0 = labelW, tx1 = labelW + tW, dx0 = tx1 + gap, dx1 = W - valueW;
-      const rowH = narrow ? 58 : 50, top = 30, barH = 14;
-      const plotBottom = top + rows.length * rowH, H = plotBottom + 42;
-      const tDom = niceDomain(0, Math.max(cfg.deadline * 1.2, ...rows.map((r) => r.age + r.service)), narrow ? 3 : 4, { zero: true });
+      const narrow = W < 720;
+      const rows = cfg.rows, n = rows.length;
+      const def = Math.max(0, rows.findIndex((r) => r.trace));
+      const barH = 16, endW = 64, valueW = narrow ? 50 : 76;
+      const rowH = narrow ? 92 : 64, barY = narrow ? 32 : 16, top = 46;
+      const labelW = narrow ? 0 : Math.min(200, Math.max(...rows.map((r) => Math.max(measure(r.label, 13.5), measure(r.sub || "", 12)))) + 26);
+      let lx0, lx1, dx0, dx1, dTop, dRowH;
+      const lanesBottom = top + n * rowH;
+      if (narrow) {
+        lx0 = 6; lx1 = W - endW;
+        dTop = lanesBottom + 64; dRowH = 40;
+        dx0 = Math.min(W * 0.38, Math.max(...rows.map((r) => measure(r.label, 13))) + 16); dx1 = W - valueW;
+      } else {
+        const gap = 72, plotW = W - labelW - endW - gap - valueW;
+        lx0 = labelW; lx1 = labelW + Math.round(plotW * 0.6);
+        dx0 = lx1 + endW + gap; dx1 = W - valueW;
+        dTop = top; dRowH = rowH;
+      }
+      const dBottom = dTop + n * dRowH, H = dBottom + 44;
+      const tDom = niceDomain(0, Math.max(cfg.deadline * 1.15, ...rows.map((r) => r.age + r.service)), 6, { zero: true });
       const dv = [0];
       rows.forEach((r) => { dv.push(r.lo, r.hi, r.mean); (r.points || []).forEach((p) => dv.push(p.v)); });
       const dDom = niceDomain(Math.min(...dv.filter(isFinite)), Math.max(...dv.filter(isFinite)), narrow ? 3 : 4, { zero: true });
-      const xt = lin(0, tDom.hi, tx0, tx1), xd = lin(dDom.lo, dDom.hi, dx0, dx1);
+      const xt = lin(0, tDom.hi, lx0, lx1), xd = lin(dDom.lo, dDom.hi, dx0, dx1);
       const s = svg("svg", { viewBox: `0 0 ${W} ${H}`, width: W, height: H, role: "group", "aria-label": cfg.ariaLabel || "" }, el);
-      xAxis(s, xt, tDom, top - 6, plotBottom, { title: cfg.tTitle, width: tx1 });
-      xAxis(s, xd, dDom, top - 6, plotBottom, { title: cfg.dTitle, zeroStrong: true, width: W });
-      const pxd = xt(cfg.deadline);
-      svg("line", { x1: pxd, x2: pxd, y1: top - 10, y2: plotBottom, class: "refline" }, s);
-      refLabel(s, pxd, top - 12, cfg.deadlineLabel, tx1 + gap - 4);
-      if (cfg.betterLabel) {
-        const z = xd(0), m = measure(cfg.betterLabel, 11.5);
-        if (z - 6 - m >= dx0 - gap / 2) text(s, z - 6, top - 12, cfg.betterLabel, { class: "reflabel muted-label", "text-anchor": "end" });
-        else if (z + 6 + m <= W) text(s, z + 6, top - 12, cfg.betterLabel, { class: "reflabel muted-label", "text-anchor": "start" });
-      }
-      rows.forEach((r, i) => {
-        const y0 = top + i * rowH, yc = y0 + (narrow ? 38 : rowH / 2);
-        const sig = isFinite(r.lo) && isFinite(r.hi) && (r.lo > 0 || r.hi < 0);
-        if (i) svg("line", { x1: 0, x2: W, y1: y0 + 0.5, y2: y0 + 0.5, class: "rowrule" }, s);
-        if (narrow) {
-          const t = text(s, 0, y0 + 16, r.label, { class: "rowlabel strong" });
-          if (r.sub) text(s, measure(r.label, 12.5) + 10, y0 + 16, r.sub, { class: "vlabel dim", style: "font-size:11.5px" });
-          t.setAttribute("aria-hidden", "true");
-        } else {
-          text(s, 0, yc - 2, r.label, { class: "rowlabel strong" });
-          if (r.sub) text(s, 0, yc + 14, r.sub, { class: "vlabel dim", style: "font-size:11.5px" });
+      const bandLayer = svg("g", null, s);
+      // the time ruler runs across the top of the lanes; gridlines drop from it
+      const rY = 18;
+      svg("line", { x1: lx0, x2: lx1, y1: rY + 0.5, y2: rY + 0.5, class: "ruler" }, s);
+      const minor = tDom.step / 4;
+      for (let v = 0; v <= tDom.hi + 1e-9; v += minor) {
+        const px = Math.round(xt(v)) + 0.5, major = Math.abs(v / tDom.step - Math.round(v / tDom.step)) < 1e-6;
+        svg("line", { x1: px, x2: px, y1: rY, y2: rY + (major ? 8 : 4), class: "ruler" }, s);
+        if (major) {
+          svg("line", { x1: px, x2: px, y1: top - 6, y2: lanesBottom, class: "gridline" }, s);
+          const last = v + tDom.step > tDom.hi + 1e-9;
+          text(svg("g", { class: "tick" }, s), px, rY - 7, tickFmt(v, tDom.step), { "text-anchor": "middle" });
         }
-        // worst-case finish time of the newest frame: its age (0 to one inter-arrival) + service
-        const a1 = xt(r.age), b1 = xt(r.age + r.service);
-        if (r.age > 0) svg("path", { d: barPath(xt(0), a1 - 1.5, yc - barH / 2, barH, false), fill: "var(--axis)" }, s);
-        svg("path", { d: barPath(a1, b1, yc - barH / 2, barH, true), fill: "var(--ink-2)" }, s);
-        if (r.age + r.service > cfg.deadline) svg("path", { d: barPath(pxd, b1, yc - barH / 2, barH, true), class: "overshoot" }, s);
+      }
+      // unit: the full axis title beside the ruler, or just "ms" at the right edge on narrow screens
+      if (narrow) text(s, W, rY - 7, "ms", { class: "axis-title", "text-anchor": "end" });
+      else if (cfg.tTitle) text(s, lx1 + 10, rY + 4, cfg.tTitle, { class: "axis-title" });
+      xAxis(s, xd, dDom, dTop - 6, dBottom, { title: cfg.dTitle, zeroStrong: true, width: W });
+      const pxd = xt(cfg.deadline);
+      refMark(s, pxd, top - 7, narrow ? top : lanesBottom, cfg.deadlineLabel, narrow ? W : dx0 - 16);
+      // narrow: lane labels run across the deadline, so its line breaks around each label row
+      if (narrow) for (let i = 0; i < n; i++) svg("line", { x1: pxd, x2: pxd, y1: top + i * rowH + 24, y2: top + (i + 1) * rowH, class: "refline" }, s);
+      if (cfg.dHead) text(s, narrow ? 0 : dx0, narrow ? dTop - 30 : rY - 5, cfg.dHead, { class: "rowlabel strong" });
+      const lateFill = hatch(s, "hatch-late");
+      if (cfg.betterLabel) {
+        const z = xd(0), m = measure(cfg.betterLabel, 12);
+        if (z - 6 - m >= (narrow ? 0 : dx0 - 36)) text(s, z - 6, dTop - 12, cfg.betterLabel, { class: "reflabel muted-label", "text-anchor": "end" });
+        else if (z + 6 + m <= W) text(s, z + 6, dTop - 12, cfg.betterLabel, { class: "reflabel muted-label", "text-anchor": "start" });
+      }
+      const marks = svg("g", null, s); // everything the playhead draws
+      const dims = [], bands = [];
+      rows.forEach((r, i) => {
+        const y0 = top + i * rowH, yc = y0 + barY + barH / 2, base = yc + barH / 2;
+        const end = r.age + r.service, late = end > cfg.deadline;
+        const sig = isFinite(r.lo) && isFinite(r.hi) && (r.lo > 0 || r.hi < 0);
+        if (i) svg("line", { x1: 0, x2: narrow ? W : W, y1: y0 + 0.5, y2: y0 + 0.5, class: "rowrule" }, s);
+        bands.push(svg("rect", { x: 0, y: y0 + 1, width: W, height: rowH - 1, class: "trace-band" + (i === def ? " on" : "") }, bandLayer));
+        if (narrow) {
+          text(s, 0, y0 + 17, r.label, { class: "rowlabel strong" });
+          if (r.sub) text(s, measure(r.label, 13.5) + 10, y0 + 17, r.sub, { class: "sublabel" });
+        } else {
+          text(s, 0, yc - 1, r.label, { class: "rowlabel strong" });
+          if (r.sub) text(s, 0, yc + 16, r.sub, { class: "sublabel" });
+        }
+        // the lane: release at 0, wait (open), service (solid), overrun (red), finish time
+        svg("line", { x1: lx0, x2: lx1, y1: base + 0.5, y2: base + 0.5, class: "lane-base" }, s);
+        const a1 = xt(r.age), b1 = xt(end), tip = yc - barH / 2 - (narrow ? 8 : 12);
+        svg("line", { x1: lx0, x2: lx0, y1: base, y2: tip + 6, class: "release" }, marks);
+        svg("path", { d: `M${lx0 - 4.5},${tip + 7}H${lx0 + 4.5}L${lx0},${tip}Z`, class: "release", "stroke-width": 0 }, marks);
+        if (r.age > 0) svg("rect", { x: lx0 + 0.75, y: yc - barH / 2 + 0.75, width: Math.max(0, a1 - lx0 - 1.5), height: barH - 1.5, class: "wait" }, marks);
+        svg("path", { d: barPath(a1, Math.min(b1, pxd), yc - barH / 2, barH), class: "svc" }, marks);
+        if (late) svg("rect", { x: pxd + 0.75, y: yc - barH / 2 + 0.75, width: Math.max(0, b1 - pxd - 1.5), height: barH - 1.5, class: "overshoot", fill: lateFill }, marks);
+        text(marks, b1 + 8, yc + 4.5, `${fmt(end, 0)} ms`, { class: "vlabel strong" + (late ? " late" : "") });
+        // dimension lines under the lane, shown for the traced lane only
+        const dg = svg("g", { class: "dims" + (i === def ? " on" : "") }, marks), dy = base + 10;
+        const dim = (va, vb, word) => {
+          const xa = xt(va), xb = xt(vb), full = `${fmt(vb - va, 0)} ms ${word}`;
+          svg("line", { x1: xa, x2: xb, y1: dy + 0.5, y2: dy + 0.5, class: "dim-line" }, dg);
+          for (const px of [xa, xb]) svg("line", { x1: Math.round(px) + 0.5, x2: Math.round(px) + 0.5, y1: dy - 4, y2: dy + 5, class: "dim-line" }, dg);
+          text(dg, (xa + xb) / 2, dy + 17, xb - xa >= measure(full, 12) + 6 ? full : fmt(vb - va, 0), { class: "dim-text", "text-anchor": "middle" });
+        };
+        if (r.age > 0) dim(0, r.age, cfg.waitWord || "wait");
+        dim(r.age, end, cfg.serviceWord || "service");
+        dims.push(dg);
         // paired difference: 95% interval, single blocks, mean
+        const yd = narrow ? dTop + i * dRowH + dRowH / 2 : yc;
+        if (narrow) {
+          if (i) svg("line", { x1: 0, x2: W, y1: dTop + i * dRowH + 0.5, y2: dTop + i * dRowH + 0.5, class: "rowrule" }, s);
+          text(s, 0, yd + 4, r.label, { class: "rowlabel" });
+        }
         if (isFinite(r.lo) && isFinite(r.hi)) {
           const stroke = sig ? "var(--ink)" : "var(--muted)";
-          svg("line", { x1: xd(r.lo), x2: xd(r.hi), y1: yc, y2: yc, stroke, "stroke-width": 2, "stroke-linecap": "round" }, s);
-          for (const v of [r.lo, r.hi]) svg("line", { x1: xd(v), x2: xd(v), y1: yc - 5, y2: yc + 5, stroke, "stroke-width": 1.5 }, s);
+          svg("line", { x1: xd(r.lo), x2: xd(r.hi), y1: yd, y2: yd, stroke, "stroke-width": 2 }, s);
+          for (const v of [r.lo, r.hi]) svg("line", { x1: xd(v), x2: xd(v), y1: yd - 5, y2: yd + 5, stroke, "stroke-width": 1.5 }, s);
         }
         for (const p of r.points || []) {
-          const c = svg("circle", { cx: xd(p.v), cy: yc, r: 3.4, stroke: r.color, class: "blockdot" }, s);
+          const c = svg("circle", { cx: xd(p.v), cy: yd, r: 3.4, stroke: r.color, class: "blockdot" }, s);
           tipAttrs(c, p.tip, p.label);
         }
-        svg("circle", { cx: xd(r.mean), cy: yc, r: 5.5, fill: sig ? r.color : "var(--surface)", stroke: sig ? "var(--surface)" : r.color, "stroke-width": sig ? 2 : 1.75 }, s);
-        text(s, W, yc + 4, r.valueText + (narrow || !cfg.unit ? "" : cfg.unit), { "text-anchor": "end", class: "vlabel" + (sig ? " strong" : " dim") });
+        svg("circle", { cx: xd(r.mean), cy: yd, r: 5.5, fill: sig ? r.color : "var(--surface)", stroke: sig ? "var(--surface)" : r.color, "stroke-width": sig ? 2 : 1.75 }, s);
+        text(s, W, yd + 4.5, r.valueText + (narrow || !cfg.unit ? "" : cfg.unit), { "text-anchor": "end", class: "vlabel" + (sig ? " strong" : " dim") });
         const hit = svg("rect", { x: 0, y: y0, width: W, height: rowH, class: "hit" }, s);
-        s.insertBefore(hit, s.firstChild);
+        s.insertBefore(hit, bandLayer.nextSibling);
         tipAttrs(hit, r.tip, r.label);
+        hit.addEventListener("focus", () => setTrace(i));
+        hit.addEventListener("blur", () => setTrace(def));
       });
+      live = { dims, bands, def, top, rowH, n, W };
+      if (!wired) {
+        wired = true;
+        el.addEventListener("pointermove", (e) => {
+          const box = el.getBoundingClientRect(), k = live.W / Math.max(1, box.width);
+          const i = Math.floor(((e.clientY - box.top) * k - live.top) / live.rowH);
+          setTrace(i >= 0 && i < live.n ? i : live.def);
+        });
+        el.addEventListener("pointerleave", () => setTrace(live.def));
+      }
+      // First render only: a playhead draws the lanes along the time axis. The finished figure is
+      // the default; a timer guarantees it even when animation frames are paused (background tab).
+      if (cfg.sweep && !played && !reduceMotion()) {
+        played = true;
+        const id = `sweep${++uid}`;
+        const cr = svg("rect", { x: lx0 - 8, y: 0, width: 0, height: H }, svg("clipPath", { id }, svg("defs", null, s)));
+        marks.setAttribute("clip-path", `url(#${id})`);
+        const head = svg("line", { class: "playhead", x1: lx0, x2: lx0, y1: top - 8, y2: lanesBottom }, s);
+        const full = lx1 + endW + 16 - (lx0 - 8), t0 = performance.now(), dur = 1200;
+        let done = false;
+        const finish = () => { if (done) return; done = true; marks.removeAttribute("clip-path"); head.remove(); };
+        const step = (now) => {
+          if (done || !cr.isConnected) return;
+          const p = Math.min(1, Math.max(0, (now - t0) / dur)), e = 1 - Math.pow(1 - p, 4);
+          cr.setAttribute("width", full * e);
+          const hx = lx0 - 8 + full * e;
+          if (hx >= lx1) head.remove(); else { head.setAttribute("x1", hx); head.setAttribute("x2", hx); }
+          if (p < 1) requestAnimationFrame(step); else finish();
+        };
+        requestAnimationFrame(step);
+        setTimeout(finish, dur + 500);
+      }
     });
   }
 
@@ -577,7 +686,7 @@
         const tg = svg("g", { class: "tick" }, s);
         text(tg, px, 40, tickFmt(v, dom.step), { "text-anchor": "middle" });
       }
-      svg("line", { x1: x(est.lo), x2: x(est.hi), y1: 14, y2: 14, stroke: "var(--ink)", "stroke-width": 2, "stroke-linecap": "round" }, s);
+      svg("line", { x1: x(est.lo), x2: x(est.hi), y1: 14, y2: 14, stroke: "var(--ink)", "stroke-width": 2, "stroke-linecap": "butt" }, s);
       for (const v of [est.lo, est.hi]) svg("line", { x1: x(v), x2: x(v), y1: 9, y2: 19, stroke: "var(--ink)", "stroke-width": 1.5 }, s);
       const c = svg("circle", { cx: x(est.mean), cy: 14, r: 5.5, fill: opts.color || "var(--ink)", class: "ring" }, s);
       tipAttrs(c, opts.tip, opts.label);

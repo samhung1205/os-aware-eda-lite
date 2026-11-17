@@ -7,6 +7,8 @@
   <title>OS-Aware Edge AI Runtime</title>
   <meta name="description" content="Measured ROS 2 runtime baseline and frame-scheduling A/B benchmark for MobileViT on a constrained Linux host (Phase 2 / Phase 3, provenance-verified)." data-zh-content="在受限 Linux 主機上實測 MobileViT 的 ROS 2 runtime baseline 與 frame scheduling A/B benchmark（Phase 2 / Phase 3，provenance 已驗證）。">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="assets/fonts/b612-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/b612-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
@@ -14,14 +16,14 @@
   <header class="topbar">
     <div class="topbar-inner">
       <div class="brand">
-        <h1>OS-Aware Edge AI Runtime</h1>
+        <h1><a href="#overview">OS-Aware Edge AI Runtime</a></h1>
         <span class="sub" data-zh="受限 Linux 主機上 MobileViT 的 ROS 2 frame scheduling">ROS 2 frame scheduling for MobileViT on a constrained Linux host</span>
         <span class="spacer"></span>
         <span class="tag measured" title="Every number on this page comes from Phase 2 / Phase 3 formal runs whose hash chain verified at build time" data-zh-title="本頁所有數字都來自 Phase 2 / Phase 3 正式 run，建置時 hash chain 已通過驗證">
           <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           <span data-zh="實測 · 已驗證 runs">Measured · verified runs</span>
         </span>
-        <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-nav"><span data-zh="分頁">Sections</span><span class="sr-only"><span data-zh="，目前：">, current: </span><span class="nav-current">Overview</span></span><span class="chev" aria-hidden="true"></span></button>
+        <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-nav"><span data-zh="分頁">Sections</span><span class="sr-only"><span data-zh="，目前：">, current: </span><span class="nav-current">Overview</span></span><svg class="chev" viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1.5l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
       </div>
       <nav class="nav" id="site-nav" aria-label="Sections" data-zh-aria-label="分頁">
         <a href="#overview" data-view="overview" data-zh="總覽">Overview</a>
@@ -61,7 +63,13 @@
   <script src="assets/i18n.js"></script>
   <script src="data/dashboard_data.js"></script>
   <script src="assets/charts.js"></script>
+  <script src="assets/ui.js"></script>
   <script src="assets/app.js"></script>
+  <script src="assets/views/overview.js"></script>
+  <script src="assets/views/baseline.js"></script>
+  <script src="assets/views/scheduling.js"></script>
+  <script src="assets/views/mechanism.js"></script>
+  <script src="assets/views/evidence.js"></script>
   <script src="assets/nav.js"></script>
 </body>
 </html>

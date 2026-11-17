@@ -1,0 +1,742 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-17T08:31:50+00:00",
+  "title": "Design System: OS-Aware Edge AI Runtime",
+  "extensions": {
+    "colorMeta": {
+      "drafting-white": {
+        "role": "neutral",
+        "displayName": "Drafting White",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "oklch(15% 0.000 89.9)",
+          "oklch(25% 0.000 89.9)",
+          "oklch(38% 0.000 89.9)",
+          "oklch(50% 0.000 89.9)",
+          "oklch(62% 0.000 89.9)",
+          "oklch(74% 0.000 89.9)",
+          "oklch(85% 0.000 89.9)",
+          "oklch(95% 0.000 89.9)"
+        ]
+      },
+      "rule-grey-wash": {
+        "role": "neutral",
+        "displayName": "Rule Grey Wash",
+        "canonical": "#f0f1f3",
+        "tonalRamp": [
+          "oklch(15% 0.003 264.5)",
+          "oklch(25% 0.003 264.5)",
+          "oklch(38% 0.003 264.5)",
+          "oklch(50% 0.003 264.5)",
+          "oklch(62% 0.003 264.5)",
+          "oklch(74% 0.003 264.5)",
+          "oklch(85% 0.003 264.5)",
+          "oklch(95% 0.003 264.5)"
+        ]
+      },
+      "ink": {
+        "role": "primary",
+        "displayName": "Drafting Ink",
+        "canonical": "#0e1013",
+        "tonalRamp": [
+          "oklch(15% 0.007 258.4)",
+          "oklch(25% 0.007 258.4)",
+          "oklch(38% 0.007 258.4)",
+          "oklch(50% 0.007 258.4)",
+          "oklch(62% 0.007 258.4)",
+          "oklch(74% 0.007 258.4)",
+          "oklch(85% 0.007 258.4)",
+          "oklch(95% 0.007 258.4)"
+        ]
+      },
+      "ink-2": {
+        "role": "neutral",
+        "displayName": "Ink 2",
+        "canonical": "#3a3f47",
+        "tonalRamp": [
+          "oklch(15% 0.015 259.8)",
+          "oklch(25% 0.015 259.8)",
+          "oklch(38% 0.015 259.8)",
+          "oklch(50% 0.015 259.8)",
+          "oklch(62% 0.015 259.8)",
+          "oklch(74% 0.015 259.8)",
+          "oklch(85% 0.015 259.8)",
+          "oklch(95% 0.015 259.8)"
+        ]
+      },
+      "ink-3": {
+        "role": "neutral",
+        "displayName": "Ink 3",
+        "canonical": "#575d67",
+        "tonalRamp": [
+          "oklch(15% 0.018 260.7)",
+          "oklch(25% 0.018 260.7)",
+          "oklch(38% 0.018 260.7)",
+          "oklch(50% 0.018 260.7)",
+          "oklch(62% 0.018 260.7)",
+          "oklch(74% 0.018 260.7)",
+          "oklch(85% 0.018 260.7)",
+          "oklch(95% 0.018 260.7)"
+        ]
+      },
+      "tick-grey": {
+        "role": "neutral",
+        "displayName": "Tick Grey",
+        "canonical": "#646a74",
+        "tonalRamp": [
+          "oklch(15% 0.017 260.7)",
+          "oklch(25% 0.017 260.7)",
+          "oklch(38% 0.017 260.7)",
+          "oklch(50% 0.017 260.7)",
+          "oklch(62% 0.017 260.7)",
+          "oklch(74% 0.017 260.7)",
+          "oklch(85% 0.017 260.7)",
+          "oklch(95% 0.017 260.7)"
+        ]
+      },
+      "grid-hairline": {
+        "role": "neutral",
+        "displayName": "Grid Hairline",
+        "canonical": "#e6e8eb",
+        "tonalRamp": [
+          "oklch(15% 0.005 258.3)",
+          "oklch(25% 0.005 258.3)",
+          "oklch(38% 0.005 258.3)",
+          "oklch(50% 0.005 258.3)",
+          "oklch(62% 0.005 258.3)",
+          "oklch(74% 0.005 258.3)",
+          "oklch(85% 0.005 258.3)",
+          "oklch(95% 0.005 258.3)"
+        ]
+      },
+      "axis-grey": {
+        "role": "neutral",
+        "displayName": "Axis Grey",
+        "canonical": "#b4bac2",
+        "tonalRamp": [
+          "oklch(15% 0.013 255.5)",
+          "oklch(25% 0.013 255.5)",
+          "oklch(38% 0.013 255.5)",
+          "oklch(50% 0.013 255.5)",
+          "oklch(62% 0.013 255.5)",
+          "oklch(74% 0.013 255.5)",
+          "oklch(85% 0.013 255.5)",
+          "oklch(95% 0.013 255.5)"
+        ]
+      },
+      "focus-blue": {
+        "role": "neutral",
+        "displayName": "Focus Blue",
+        "canonical": "#1f5fd0",
+        "tonalRamp": [
+          "oklch(15% 0.187 260.9)",
+          "oklch(25% 0.187 260.9)",
+          "oklch(38% 0.187 260.9)",
+          "oklch(50% 0.187 260.9)",
+          "oklch(62% 0.187 260.9)",
+          "oklch(74% 0.187 260.9)",
+          "oklch(85% 0.187 260.9)",
+          "oklch(95% 0.187 260.9)"
+        ]
+      },
+      "latest-blue": {
+        "role": "secondary",
+        "displayName": "Latest Blue",
+        "canonical": "#2a78d6",
+        "tonalRamp": [
+          "oklch(15% 0.163 255.5)",
+          "oklch(25% 0.163 255.5)",
+          "oklch(38% 0.163 255.5)",
+          "oklch(50% 0.163 255.5)",
+          "oklch(62% 0.163 255.5)",
+          "oklch(74% 0.163 255.5)",
+          "oklch(85% 0.163 255.5)",
+          "oklch(95% 0.163 255.5)"
+        ]
+      },
+      "guard-orange": {
+        "role": "secondary",
+        "displayName": "Guard Orange",
+        "canonical": "#e8612b",
+        "tonalRamp": [
+          "oklch(15% 0.180 40.3)",
+          "oklch(25% 0.180 40.3)",
+          "oklch(38% 0.180 40.3)",
+          "oklch(50% 0.180 40.3)",
+          "oklch(62% 0.180 40.3)",
+          "oklch(74% 0.180 40.3)",
+          "oklch(85% 0.180 40.3)",
+          "oklch(95% 0.180 40.3)"
+        ]
+      },
+      "adaptive-teal": {
+        "role": "secondary",
+        "displayName": "Adaptive Teal",
+        "canonical": "#159a6b",
+        "tonalRamp": [
+          "oklch(15% 0.128 162.2)",
+          "oklch(25% 0.128 162.2)",
+          "oklch(38% 0.128 162.2)",
+          "oklch(50% 0.128 162.2)",
+          "oklch(62% 0.128 162.2)",
+          "oklch(74% 0.128 162.2)",
+          "oklch(85% 0.128 162.2)",
+          "oklch(95% 0.128 162.2)"
+        ]
+      },
+      "arm-grey-4": {
+        "role": "neutral",
+        "displayName": "Arm Grey 4 (FIFO)",
+        "canonical": "#3a3f47",
+        "tonalRamp": [
+          "oklch(15% 0.015 259.8)",
+          "oklch(25% 0.015 259.8)",
+          "oklch(38% 0.015 259.8)",
+          "oklch(50% 0.015 259.8)",
+          "oklch(62% 0.015 259.8)",
+          "oklch(74% 0.015 259.8)",
+          "oklch(85% 0.015 259.8)",
+          "oklch(95% 0.015 259.8)"
+        ]
+      },
+      "arm-grey-5": {
+        "role": "neutral",
+        "displayName": "Arm Grey 5 (Legacy depth 1)",
+        "canonical": "#6e747e",
+        "tonalRamp": [
+          "oklch(15% 0.017 260.7)",
+          "oklch(25% 0.017 260.7)",
+          "oklch(38% 0.017 260.7)",
+          "oklch(50% 0.017 260.7)",
+          "oklch(62% 0.017 260.7)",
+          "oklch(74% 0.017 260.7)",
+          "oklch(85% 0.017 260.7)",
+          "oklch(95% 0.017 260.7)"
+        ]
+      },
+      "arm-grey-6": {
+        "role": "neutral",
+        "displayName": "Arm Grey 6 (Legacy depth 5)",
+        "canonical": "#8b919a",
+        "tonalRamp": [
+          "oklch(15% 0.015 258.4)",
+          "oklch(25% 0.015 258.4)",
+          "oklch(38% 0.015 258.4)",
+          "oklch(50% 0.015 258.4)",
+          "oklch(62% 0.015 258.4)",
+          "oklch(74% 0.015 258.4)",
+          "oklch(85% 0.015 258.4)",
+          "oklch(95% 0.015 258.4)"
+        ]
+      },
+      "status-green": {
+        "role": "tertiary",
+        "displayName": "Status Green",
+        "canonical": "#0c8f2e",
+        "tonalRamp": [
+          "oklch(15% 0.170 145.9)",
+          "oklch(25% 0.170 145.9)",
+          "oklch(38% 0.170 145.9)",
+          "oklch(50% 0.170 145.9)",
+          "oklch(62% 0.170 145.9)",
+          "oklch(74% 0.170 145.9)",
+          "oklch(85% 0.170 145.9)",
+          "oklch(95% 0.170 145.9)"
+        ]
+      },
+      "measured-ink": {
+        "role": "tertiary",
+        "displayName": "Measured Ink",
+        "canonical": "#0b6b2a",
+        "tonalRamp": [
+          "oklch(15% 0.129 147.9)",
+          "oklch(25% 0.129 147.9)",
+          "oklch(38% 0.129 147.9)",
+          "oklch(50% 0.129 147.9)",
+          "oklch(62% 0.129 147.9)",
+          "oklch(74% 0.129 147.9)",
+          "oklch(85% 0.129 147.9)",
+          "oklch(95% 0.129 147.9)"
+        ]
+      },
+      "measured-wash": {
+        "role": "tertiary",
+        "displayName": "Measured Wash",
+        "canonical": "#e9f5ec",
+        "tonalRamp": [
+          "oklch(15% 0.017 153.6)",
+          "oklch(25% 0.017 153.6)",
+          "oklch(38% 0.017 153.6)",
+          "oklch(50% 0.017 153.6)",
+          "oklch(62% 0.017 153.6)",
+          "oklch(74% 0.017 153.6)",
+          "oklch(85% 0.017 153.6)",
+          "oklch(95% 0.017 153.6)"
+        ]
+      },
+      "measured-border": {
+        "role": "tertiary",
+        "displayName": "Measured Border",
+        "canonical": "#8cc29b",
+        "tonalRamp": [
+          "oklch(15% 0.079 152.9)",
+          "oklch(25% 0.079 152.9)",
+          "oklch(38% 0.079 152.9)",
+          "oklch(50% 0.079 152.9)",
+          "oklch(62% 0.079 152.9)",
+          "oklch(74% 0.079 152.9)",
+          "oklch(85% 0.079 152.9)",
+          "oklch(95% 0.079 152.9)"
+        ]
+      },
+      "late-red": {
+        "role": "tertiary",
+        "displayName": "Late Red",
+        "canonical": "#d03b3b",
+        "tonalRamp": [
+          "oklch(15% 0.186 25.2)",
+          "oklch(25% 0.186 25.2)",
+          "oklch(38% 0.186 25.2)",
+          "oklch(50% 0.186 25.2)",
+          "oklch(62% 0.186 25.2)",
+          "oklch(74% 0.186 25.2)",
+          "oklch(85% 0.186 25.2)",
+          "oklch(95% 0.186 25.2)"
+        ]
+      },
+      "late-red-ink": {
+        "role": "tertiary",
+        "displayName": "Late Red Ink",
+        "canonical": "#b3261e",
+        "tonalRamp": [
+          "oklch(15% 0.178 28.7)",
+          "oklch(25% 0.178 28.7)",
+          "oklch(38% 0.178 28.7)",
+          "oklch(50% 0.178 28.7)",
+          "oklch(62% 0.178 28.7)",
+          "oklch(74% 0.178 28.7)",
+          "oklch(85% 0.178 28.7)",
+          "oklch(95% 0.178 28.7)"
+        ]
+      },
+      "estimate-ink": {
+        "role": "tertiary",
+        "displayName": "Estimate Ink",
+        "canonical": "#7d5200",
+        "tonalRamp": [
+          "oklch(15% 0.100 74.2)",
+          "oklch(25% 0.100 74.2)",
+          "oklch(38% 0.100 74.2)",
+          "oklch(50% 0.100 74.2)",
+          "oklch(62% 0.100 74.2)",
+          "oklch(74% 0.100 74.2)",
+          "oklch(85% 0.100 74.2)",
+          "oklch(95% 0.100 74.2)"
+        ]
+      },
+      "estimate-wash": {
+        "role": "tertiary",
+        "displayName": "Estimate Wash",
+        "canonical": "#fbf3e2",
+        "tonalRamp": [
+          "oklch(15% 0.024 85.8)",
+          "oklch(25% 0.024 85.8)",
+          "oklch(38% 0.024 85.8)",
+          "oklch(50% 0.024 85.8)",
+          "oklch(62% 0.024 85.8)",
+          "oklch(74% 0.024 85.8)",
+          "oklch(85% 0.024 85.8)",
+          "oklch(95% 0.024 85.8)"
+        ]
+      },
+      "estimate-border": {
+        "role": "tertiary",
+        "displayName": "Estimate Border",
+        "canonical": "#d9b76a",
+        "tonalRamp": [
+          "oklch(15% 0.104 86.2)",
+          "oklch(25% 0.104 86.2)",
+          "oklch(38% 0.104 86.2)",
+          "oklch(50% 0.104 86.2)",
+          "oklch(62% 0.104 86.2)",
+          "oklch(74% 0.104 86.2)",
+          "oklch(85% 0.104 86.2)",
+          "oklch(95% 0.104 86.2)"
+        ]
+      },
+      "estimate-1": {
+        "role": "tertiary",
+        "displayName": "Estimate Series 1",
+        "canonical": "#7a5200",
+        "tonalRamp": [
+          "oklch(15% 0.099 76.3)",
+          "oklch(25% 0.099 76.3)",
+          "oklch(38% 0.099 76.3)",
+          "oklch(50% 0.099 76.3)",
+          "oklch(62% 0.099 76.3)",
+          "oklch(74% 0.099 76.3)",
+          "oklch(85% 0.099 76.3)",
+          "oklch(95% 0.099 76.3)"
+        ]
+      },
+      "estimate-2": {
+        "role": "tertiary",
+        "displayName": "Estimate Series 2",
+        "canonical": "#a87523",
+        "tonalRamp": [
+          "oklch(15% 0.114 74.4)",
+          "oklch(25% 0.114 74.4)",
+          "oklch(38% 0.114 74.4)",
+          "oklch(50% 0.114 74.4)",
+          "oklch(62% 0.114 74.4)",
+          "oklch(74% 0.114 74.4)",
+          "oklch(85% 0.114 74.4)",
+          "oklch(95% 0.114 74.4)"
+        ]
+      },
+      "estimate-3": {
+        "role": "tertiary",
+        "displayName": "Estimate Series 3",
+        "canonical": "#a08a62",
+        "tonalRamp": [
+          "oklch(15% 0.061 82.1)",
+          "oklch(25% 0.061 82.1)",
+          "oklch(38% 0.061 82.1)",
+          "oklch(50% 0.061 82.1)",
+          "oklch(62% 0.061 82.1)",
+          "oklch(74% 0.061 82.1)",
+          "oklch(85% 0.061 82.1)",
+          "oklch(95% 0.061 82.1)"
+        ]
+      },
+      "model-s": {
+        "role": "neutral",
+        "displayName": "MobileViT-S Grey",
+        "canonical": "#3a3f47",
+        "tonalRamp": [
+          "oklch(15% 0.015 259.8)",
+          "oklch(25% 0.015 259.8)",
+          "oklch(38% 0.015 259.8)",
+          "oklch(50% 0.015 259.8)",
+          "oklch(62% 0.015 259.8)",
+          "oklch(74% 0.015 259.8)",
+          "oklch(85% 0.015 259.8)",
+          "oklch(95% 0.015 259.8)"
+        ]
+      },
+      "model-xxs": {
+        "role": "neutral",
+        "displayName": "MobileViT-XXS Grey",
+        "canonical": "#8a919b",
+        "tonalRamp": [
+          "oklch(15% 0.017 257.2)",
+          "oklch(25% 0.017 257.2)",
+          "oklch(38% 0.017 257.2)",
+          "oklch(50% 0.017 257.2)",
+          "oklch(62% 0.017 257.2)",
+          "oklch(74% 0.017 257.2)",
+          "oklch(85% 0.017 257.2)",
+          "oklch(95% 0.017 257.2)"
+        ]
+      },
+      "plate-ink-ground": {
+        "role": "neutral",
+        "displayName": "Plate Ink Ground",
+        "canonical": "#0e1013",
+        "tonalRamp": [
+          "oklch(15% 0.007 258.4)",
+          "oklch(25% 0.007 258.4)",
+          "oklch(38% 0.007 258.4)",
+          "oklch(50% 0.007 258.4)",
+          "oklch(62% 0.007 258.4)",
+          "oklch(74% 0.007 258.4)",
+          "oklch(85% 0.007 258.4)",
+          "oklch(95% 0.007 258.4)"
+        ]
+      },
+      "plate-ink-ground-2": {
+        "role": "neutral",
+        "displayName": "Plate Ink Ground 2",
+        "canonical": "#1b1e23",
+        "tonalRamp": [
+          "oklch(15% 0.011 260.7)",
+          "oklch(25% 0.011 260.7)",
+          "oklch(38% 0.011 260.7)",
+          "oklch(50% 0.011 260.7)",
+          "oklch(62% 0.011 260.7)",
+          "oklch(74% 0.011 260.7)",
+          "oklch(85% 0.011 260.7)",
+          "oklch(95% 0.011 260.7)"
+        ]
+      },
+      "plate-line-white": {
+        "role": "neutral",
+        "displayName": "Plate Line White",
+        "canonical": "#f4f5f7",
+        "tonalRamp": [
+          "oklch(15% 0.003 264.5)",
+          "oklch(25% 0.003 264.5)",
+          "oklch(38% 0.003 264.5)",
+          "oklch(50% 0.003 264.5)",
+          "oklch(62% 0.003 264.5)",
+          "oklch(74% 0.003 264.5)",
+          "oklch(85% 0.003 264.5)",
+          "oklch(95% 0.003 264.5)"
+        ]
+      },
+      "dark-paper": {
+        "role": "neutral",
+        "displayName": "Dark Paper",
+        "canonical": "#0c0e11",
+        "tonalRamp": [
+          "oklch(15% 0.007 258.4)",
+          "oklch(25% 0.007 258.4)",
+          "oklch(38% 0.007 258.4)",
+          "oklch(50% 0.007 258.4)",
+          "oklch(62% 0.007 258.4)",
+          "oklch(74% 0.007 258.4)",
+          "oklch(85% 0.007 258.4)",
+          "oklch(95% 0.007 258.4)"
+        ]
+      },
+      "dark-ink": {
+        "role": "neutral",
+        "displayName": "Dark Ink",
+        "canonical": "#eef0f2",
+        "tonalRamp": [
+          "oklch(15% 0.003 247.9)",
+          "oklch(25% 0.003 247.9)",
+          "oklch(38% 0.003 247.9)",
+          "oklch(50% 0.003 247.9)",
+          "oklch(62% 0.003 247.9)",
+          "oklch(74% 0.003 247.9)",
+          "oklch(85% 0.003 247.9)",
+          "oklch(95% 0.003 247.9)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "The overview question only; 46px at ≤1100px, 34px at ≤720px."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Each view's heading; 34px at ≤1100px, 28px at ≤720px."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Section heads and plate headings; 22px at ≤720px."
+      },
+      "title-sm": {
+        "displayName": "Title Small",
+        "purpose": "Figure titles and the hero answer lead."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Running text at 62–68ch; secondary prose at 15px."
+      },
+      "body-sm": {
+        "displayName": "Body Small",
+        "purpose": "Figure subtitles, controls, nav labels, toggles."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Control labels, legends, language toggle; table body text at 13px regular."
+      },
+      "caption": {
+        "displayName": "Caption",
+        "purpose": "Stamps and table headers (bold), chart ticks and axis titles; tabular numerals."
+      },
+      "mono": {
+        "displayName": "Mono",
+        "purpose": "Commands, code and hashes; 0.86em inline."
+      }
+    },
+    "shadows": [
+      {
+        "name": "pop",
+        "value": "0 10px 28px rgba(14,16,19,0.16), 0 2px 5px rgba(14,16,19,0.08)",
+        "purpose": "Chart tooltip only (light)."
+      },
+      {
+        "name": "pop-dark",
+        "value": "0 12px 32px rgba(0,0,0,0.6), 0 2px 6px rgba(0,0,0,0.5)",
+        "purpose": "Chart tooltip only (dark scheme)."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Nav tick, link arrow nudge, details chevron, tooltip rise."
+      },
+      {
+        "name": "state",
+        "value": "150ms",
+        "purpose": "Colour / background state changes on controls and links."
+      },
+      {
+        "name": "trace",
+        "value": "180ms opacity",
+        "purpose": "Dimension lines and trace band moving to the traced lane."
+      },
+      {
+        "name": "playhead",
+        "value": "once on first load",
+        "purpose": "Draws the lead timing diagram left to right; skipped under prefers-reduced-motion, which also removes all transitions."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "wide-tighten",
+        "value": "1100px"
+      },
+      {
+        "name": "single-column",
+        "value": "960px"
+      },
+      {
+        "name": "phone",
+        "value": "720px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Segmented Control",
+      "kind": "button",
+      "refersTo": "segment-button",
+      "description": "Joined square ink-bordered strip; the selected cell is filled ink. Used for every view parameter (condition, metric, model, OS profile).",
+      "html": "<div class=\"ds-seg\" role=\"group\" aria-label=\"Metric\"><button type=\"button\" aria-pressed=\"true\">Effective miss</button><button type=\"button\" aria-pressed=\"false\">On-time FPS</button><button type=\"button\" aria-pressed=\"false\">P99 latency</button></div>",
+      "css": ".ds-seg { display: inline-flex; flex-wrap: wrap; padding: 0 1px 1px 0; } .ds-seg button { font-family: 'B612', system-ui, sans-serif; font-size: 14px; border: 1px solid var(--ink, #0e1013); border-radius: 0; margin: 0 -1px -1px 0; background: var(--paper, #fff); color: var(--ink, #0e1013); padding: 0 13px; min-height: 36px; cursor: pointer; white-space: nowrap; transition: background-color .15s, color .15s; } .ds-seg button:hover { background: var(--surface-2, #f0f1f3); } .ds-seg button:active { background: var(--axis, #b4bac2); } .ds-seg button[aria-pressed=\"true\"] { background: var(--ink, #0e1013); color: var(--paper, #fff); } .ds-seg button:focus-visible { position: relative; z-index: 1; outline: 2px solid var(--focus, #1f5fd0); outline-offset: 3px; }"
+    },
+    {
+      "name": "Language Toggle",
+      "kind": "button",
+      "refersTo": "language-toggle",
+      "description": "Single square ink-bordered cell that inverts on hover.",
+      "html": "<button type=\"button\" class=\"ds-lang\">中文</button>",
+      "css": ".ds-lang { font-family: 'B612', system-ui, sans-serif; display: inline-flex; align-items: center; justify-content: center; min-width: 48px; min-height: 30px; padding: 0 10px; font-size: 13px; font-weight: 700; color: var(--ink, #0e1013); background: var(--paper, #fff); border: 1px solid var(--ink, #0e1013); border-radius: 0; cursor: pointer; transition: background-color .15s, color .15s; } .ds-lang:hover { background: var(--ink, #0e1013); color: var(--paper, #fff); } .ds-lang:focus-visible { outline: 2px solid var(--focus, #1f5fd0); outline-offset: 3px; }"
+    },
+    {
+      "name": "Measured / Estimate Stamps",
+      "kind": "chip",
+      "refersTo": "stamp-measured",
+      "description": "Says what kind of number a figure or page holds: green for measured, amber for simulator estimates, neutral for illustrations.",
+      "html": "<span class=\"ds-tag ds-tag-meas\"><svg viewBox=\"0 0 14 14\" aria-hidden=\"true\"><path d=\"M2 7.5l3.2 3.2L12 3.6\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"/></svg>Measured</span> <span class=\"ds-tag ds-tag-est\">Estimates</span> <span class=\"ds-tag\">Concept illustration</span>",
+      "css": ".ds-tag { font-family: 'B612', system-ui, sans-serif; display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 2px; line-height: 1.45; white-space: nowrap; border: 1px solid var(--border-strong, rgba(14,16,19,.34)); color: var(--ink-2, #3a3f47); } .ds-tag svg { width: 12px; height: 12px; } .ds-tag-meas { background: var(--meas-bg, #e9f5ec); border-color: var(--meas-border, #8cc29b); color: var(--good-ink, #0b6b2a); } .ds-tag-est { background: var(--est-bg, #fbf3e2); border-color: var(--est-border, #d9b76a); color: var(--est, #7d5200); }"
+    },
+    {
+      "name": "Time-Axis Navigation",
+      "kind": "nav",
+      "refersTo": "nav-tick",
+      "description": "The nav is a 2 px ink axis with one tick per view and a filled down arrowhead on the current view.",
+      "html": "<nav class=\"ds-nav\"><a href=\"#\" aria-current=\"page\">Overview</a><a href=\"#\">Baseline</a><a href=\"#\">Scheduling</a><a href=\"#\">Mechanism</a><a href=\"#\">Evidence</a></nav>",
+      "css": ".ds-nav { font-family: 'B612', system-ui, sans-serif; display: flex; flex-wrap: wrap; border-top: 2px solid var(--ink, #0e1013); } .ds-nav a { position: relative; padding: 13px 22px 11px 10px; text-decoration: none; color: var(--ink-3, #575d67); font-size: 14px; white-space: nowrap; transition: color .15s; } .ds-nav a::before { content: \"\"; position: absolute; left: 0; top: 0; width: 2px; height: 13px; background: var(--ink, #0e1013); transform: scaleY(0.54); transform-origin: top; transition: transform .2s cubic-bezier(0.16,1,0.3,1); } .ds-nav a:hover { color: var(--ink, #0e1013); } .ds-nav a:hover::before { transform: none; } .ds-nav a[aria-current=\"page\"] { color: var(--ink, #0e1013); } .ds-nav a[aria-current=\"page\"]::before { left: -5px; width: 12px; height: 9px; transform: none; clip-path: polygon(0 0, 100% 0, 50% 100%); } .ds-nav a:focus-visible { outline: 2px solid var(--focus, #1f5fd0); outline-offset: 3px; }"
+    },
+    {
+      "name": "Ruled Figure",
+      "kind": "card",
+      "refersTo": "ink-plate",
+      "description": "A figure is ruled off above by a 2 px ink line, never boxed: title, subtitle, stamp at right, chart below.",
+      "html": "<figure class=\"ds-fig\"><div class=\"ds-fig-head\"><div><h3>Effective miss: same-architecture arms</h3><p>S · 20 FPS · 5 runs per arm · lower is better</p></div><span class=\"ds-fig-stamp\">Measured</span></div><div class=\"ds-fig-body\"></div></figure>",
+      "css": ".ds-fig { font-family: 'B612', system-ui, sans-serif; margin: 0; border-top: 2px solid var(--ink, #0e1013); padding-top: 16px; color: var(--ink, #0e1013); } .ds-fig-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; margin-bottom: 16px; } .ds-fig h3 { font-size: 20px; line-height: 1.25; letter-spacing: -0.01em; margin: 0 0 4px; } .ds-fig p { color: var(--ink-3, #575d67); font-size: 14px; margin: 0; } .ds-fig-stamp { font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 2px; background: var(--meas-bg, #e9f5ec); border: 1px solid var(--meas-border, #8cc29b); color: var(--good-ink, #0b6b2a); } .ds-fig-body { height: 80px; background-image: linear-gradient(var(--grid, #e6e8eb) 1px, transparent 1px); background-size: 100% 20px; }"
+    },
+    {
+      "name": "Key-Measurement List",
+      "kind": "custom",
+      "refersTo": "",
+      "description": "Ruled definition list replacing stat tiles: label, tabular value with unit, detail line.",
+      "html": "<dl class=\"ds-spec\"><div><dt>Guard − Latest, S · 20 FPS</dt><dd class=\"v\">−10.7<span>pp</span></dd><dd class=\"d\">95% t-interval −12.3 to −9.0 · 5 blocks</dd></div><div><dt>Runs, all constrained</dt><dd class=\"v\">177</dd><dd class=\"d\">75 baseline + 102 formal A/B</dd></div></dl>",
+      "css": ".ds-spec { font-family: 'B612', system-ui, sans-serif; display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 0 40px; margin: 0; border-top: 1px solid var(--ink, #0e1013); color: var(--ink, #0e1013); } .ds-spec > div { display: grid; grid-template-columns: minmax(0,1fr) auto; grid-template-areas: \"t v\" \"d d\"; column-gap: 16px; align-items: baseline; padding: 9px 0 10px; border-bottom: 1px solid var(--border, rgba(14,16,19,.14)); } .ds-spec dt { grid-area: t; font-size: 14px; font-weight: 700; } .ds-spec dd { margin: 0; } .ds-spec .v { grid-area: v; font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; } .ds-spec .v span { font-size: 13px; font-weight: 400; color: var(--ink-2, #3a3f47); margin-left: 4px; } .ds-spec .d { grid-area: d; font-size: 13px; color: var(--ink-3, #575d67); }"
+    },
+    {
+      "name": "Timing-Diagram Lane",
+      "kind": "custom",
+      "refersTo": "",
+      "description": "Signature notation: release arrow, open wait bar, solid service block, red hatched overrun, dashed deadline with a down arrowhead.",
+      "html": "<div class=\"ds-lane\"><span class=\"ds-rel\"></span><span class=\"ds-wait\" style=\"width:47%\"></span><span class=\"ds-svc\" style=\"width:20%\"></span><span class=\"ds-over\" style=\"width:7%\"></span><span class=\"ds-dl\" style=\"left:67%\"></span></div>",
+      "css": ".ds-lane { position: relative; display: flex; height: 22px; margin: 24px 8px 12px; border-bottom: 1.5px solid var(--axis, #b4bac2); } .ds-rel { position: absolute; left: -1px; bottom: 0; height: 34px; border-left: 1.5px solid var(--ink, #0e1013); } .ds-rel::before { content: \"\"; position: absolute; left: -5.25px; top: -1px; width: 9px; height: 8px; background: var(--ink, #0e1013); clip-path: polygon(50% 0, 100% 100%, 0 100%); } .ds-wait { border: 1.5px solid var(--ink-2, #3a3f47); border-bottom: 0; } .ds-svc { background: var(--ink, #0e1013); } .ds-over { background: repeating-linear-gradient(135deg, var(--critical, #d03b3b) 0 2px, transparent 2px 6px); border: 1.5px solid var(--critical, #d03b3b); border-left: 0; border-bottom: 0; } .ds-dl { position: absolute; top: -14px; bottom: -6px; border-left: 1.5px dashed var(--ref, #0e1013); } .ds-dl::before { content: \"\"; position: absolute; left: -5.25px; top: -8px; width: 9px; height: 8px; background: var(--ref, #0e1013); clip-path: polygon(0 0, 100% 0, 50% 100%); } .ds-lane:hover { background: color-mix(in srgb, var(--ink, #0e1013) 7%, transparent); }"
+    },
+    {
+      "name": "Estimate Callout",
+      "kind": "card",
+      "refersTo": "callout-estimate",
+      "description": "The one boxed element: an amber notice that a page holds simulator estimates, not measurements.",
+      "html": "<div class=\"ds-callout\"><p><b>Estimates, not measurements.</b> EDA-Lite outputs are cost-model estimates and are not linked to the ROS 2 measurements.</p></div>",
+      "css": ".ds-callout { font-family: 'B612', system-ui, sans-serif; padding: 12px 16px; border-radius: 2px; border: 1px solid var(--est-border, #d9b76a); background: var(--est-bg, #fbf3e2); color: var(--ink, #0e1013); font-size: 15px; line-height: 1.6; } .ds-callout p { margin: 0; max-width: 96ch; }"
+    },
+    {
+      "name": "Chart Tooltip",
+      "kind": "custom",
+      "refersTo": "tooltip",
+      "description": "Floating ink-bordered note; the only element in the system with a shadow.",
+      "html": "<div class=\"ds-tip\"><b>Deadline-Guard · S · 20 FPS</b><div class=\"row\"><span>Effective miss</span><span>15.9%</span></div><div class=\"row\"><span>P99 latency</span><span>99.1 ms</span></div></div>",
+      "css": ".ds-tip { font-family: 'B612', system-ui, sans-serif; display: inline-block; max-width: 320px; background: var(--paper, #fff); color: var(--ink, #0e1013); border: 1px solid var(--ink, #0e1013); box-shadow: 0 10px 28px rgba(14,16,19,.16), 0 2px 5px rgba(14,16,19,.08); border-radius: 2px; padding: 9px 11px; font-size: 13px; line-height: 1.5; } .ds-tip b { display: block; margin-bottom: 3px; } .ds-tip .row { display: flex; justify-content: space-between; gap: 16px; font-variant-numeric: tabular-nums; } .ds-tip .row span:first-child { color: var(--ink-3, #575d67); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Timing Diagram",
+    "overview": "The whole site is drawn in real-time-scheduling notation: a millisecond axis, release arrows at t = 0, execution blocks, hatched overruns and a dashed deadline with a down arrowhead. The result the project exists to show, a regime boundary, reads as a figure rather than as a stat. The page is a white drafting ground carrying black ink; figures sit on the page between heavy ink rules instead of inside cards, and the one lead figure is an inverted ink plate (white line art on black) that runs edge to edge.\n\nDensity is that of a technical paper set for the screen: one family (B612, the cockpit-display face) at a short, deliberate ramp, tabular numerals for every number, square corners everywhere except a 2 px hair on small stamps. Colour is owned, not decorative: three hues belong to three scheduling policies, red belongs to time past the deadline, green and amber are the two stamps that say what kind of number you are looking at. Everything else is ink and grey. The world rejects the analytics-dashboard arrangement of grey page, white cards, stat tiles and pill tabs.\n\nNavigation is itself a time axis (ticks per view, a filled arrowhead on the current one) and controls are joined ink-bordered strips with the selected cell filled. Motion is a single event: a playhead draws the lead diagram once on first load; everything else changes state without choreography.",
+    "keyCharacteristics": [
+      "White drafting ground, black ink, square-cornered line art.",
+      "Heavy 2 px ink rules divide figures and sections; no cards, no boxes around charts.",
+      "One inverted ink plate per page at most, for the lead figure, redefining the same tokens locally.",
+      "Colour ownership: policy hues, late red, measured green, estimate amber; nothing else is coloured.",
+      "One type family (B612 + B612 Mono), bold for hierarchy, tabular numerals for data.",
+      "Notation is consistent everywhere: open bar = waiting, solid = measured service, hatch = past deadline or estimated, dashed arrow line = the deadline."
+    ],
+    "rules": [
+      {
+        "name": "The Colour Ownership Rule",
+        "body": "Latest blue, Guard orange and Adaptive teal belong to those three policies only; FIFO and legacy arms are grey. Never use a policy hue for decoration, a heading, a link or a UI state.",
+        "section": "colors"
+      },
+      {
+        "name": "The Late Is Red Rule",
+        "body": "Red means \"past the deadline\" (or a failed check) and nothing else, always as hatch plus outline so it survives without colour vision.",
+        "section": "colors"
+      },
+      {
+        "name": "The Two Voices Rule",
+        "body": "Measured numbers carry the green stamp; simulator estimates carry amber, in stamps, callouts and every estimate series. The two never share a figure or a colour.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Family Rule",
+        "body": "B612 for everything, B612 Mono for code and hashes. No second display face, no system display stack standing in for it.",
+        "section": "typography"
+      },
+      {
+        "name": "The Tabular Numbers Rule",
+        "body": "Every number on a chart, table, spec list or tooltip uses tabular numerals so columns of values align.",
+        "section": "typography"
+      },
+      {
+        "name": "The Ruled Not Boxed Rule",
+        "body": "A figure is ruled off above with a 2 px ink line and never placed inside a card, panel or shadowed box. The only filled boxes are the estimate callout and stamps.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** separate figures and sections with a 2 px ink rule and let them sit on the white ground.",
+      "**Do** draw the deadline as a 1.5 px dashed line (4 3) with a down arrowhead, the same mark in every chart.",
+      "**Do** draw past-the-deadline time as a 45° red hatch with a solid red outline; estimated service in the concept figure as an ink hatch.",
+      "**Do** reserve latest-blue, guard-orange and adaptive-teal for their three policies and grey (arm-grey-4..6) for FIFO and legacy arms.",
+      "**Do** stamp every measured figure green and every simulator figure amber.",
+      "**Do** use tabular numerals and halo chart labels with a 4 px stroke in the ground colour.",
+      "**Do** keep controls as joined, square, ink-bordered segments with the selected cell filled.",
+      "**Do** keep motion to the one-time playhead and short (.15–.2s) state transitions on `cubic-bezier(0.16, 1, 0.3, 1)`; honour reduced motion."
+    ],
+    "donts": [
+      "**Don't** put figures in cards, add a grey page behind white panels, or build stat tiles.",
+      "**Don't** round controls into pills or tabs; corners stay square (stamps and callouts at 2 px).",
+      "**Don't** use a policy hue, red or amber for decoration, emphasis or links.",
+      "**Don't** let a simulation estimate share a figure, stamp or colour with a measured result.",
+      "**Don't** add a second typeface, or substitute system display fonts for B612.",
+      "**Don't** add drop shadows outside the floating tooltip.",
+      "**Don't** use text glyphs as icons or arrowheads; draw them as SVG or clip-path shapes."
+    ]
+  }
+}
