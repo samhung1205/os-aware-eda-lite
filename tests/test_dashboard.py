@@ -343,18 +343,26 @@ class FailureBehaviourTest(unittest.TestCase):
 class FrontendTest(unittest.TestCase):
     """Static checks of the page: self-contained, five views, separate simulation entry."""
 
+    # The one outbound link allowed: a plain <a href> to the project's own repository. It is a
+    # navigation link, not a resource the page loads; src= and every other URL stay forbidden.
+    REPO_LINK = "https://github.com/samhung1205/os-aware-eda-lite"
+
     def test_pages_load_no_external_resources(self):
         for f in [*DASH.glob("*.html"), *(DASH / "assets").rglob("*.js"), *(DASH / "assets").glob("*.css"),
                   *(DASH / "assets").glob("*.svg")]:
             text = f.read_text(encoding="utf-8")
             with self.subTest(file=f.name):
-                for m in re.finditer(r"""(?:src|href)\s*=\s*["']([^"']+)["']""", text):
-                    self.assertFalse(re.match(r"(https?:)?//", m.group(1)), f"{f.name}: external {m.group(1)}")
+                for m in re.finditer(r"""(src|href)\s*=\s*["']([^"']+)["']""", text):
+                    if m.group(1) == "href" and m.group(2) == self.REPO_LINK:
+                        continue
+                    self.assertFalse(re.match(r"(https?:)?//", m.group(2)), f"{f.name}: external {m.group(2)}")
                 self.assertNotIn("@import url(http", text)
 
     def test_referenced_local_files_exist(self):
         for page in DASH.glob("*.html"):
             for m in re.finditer(r"""(?:src|href)\s*=\s*["']([^"'#?]+)""", page.read_text(encoding="utf-8")):
+                if m.group(1) == self.REPO_LINK:
+                    continue
                 with self.subTest(page=page.name, ref=m.group(1)):
                     self.assertTrue((DASH / m.group(1)).is_file())
 

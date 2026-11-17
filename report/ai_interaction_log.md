@@ -480,3 +480,47 @@ Implementation decision:
 - Product and design context recorded in `PRODUCT.md`; the Impeccable working files live in `.impeccable/`.
 - Independent finish review (two rounds): the first viewport now shows all four lanes at 1440 × 780; past-deadline time is a red 45° hatch everywhere; a millisecond ruler runs across the top of the lanes; FIFO / legacy arms moved to greys so colour belongs to the three compared policies; the architecture diagram is a ruled figure; wide tables fade their hidden edge on phones. The owner chose to condense the Overview plate's measurement table to the two values not shown elsewhere on that view (Guard − Latest under the load step, constrained run count); Adaptive − Latest and saturated throughput stay on the Scheduling and Baseline views.
 - `DESIGN.md` (repo root) records the shipped design system; README screenshots in `docs/images/` regenerated. Full test suite: 271 tests, the same 10 `test_ros2_run_integrity` shell-script failures on macOS as the base commit (pre-existing, unrelated).
+
+## 2026-11-17 Dashboard critique round 2 and fixes
+
+Prompt summary:
+
+- `/impeccable critique` of the redesigned dashboard (29/40; two P1, three P2), then fix all five issues and the minor ones in order (harden, layout, distill, clarify, typeset, polish) and re-run the critique. Branch `fix/dashboard-critique-r2` from `main`.
+
+Implementation decision:
+
+- Hero figure: lanes are focusable in row order and the keyboard enters on the traced S · 20 FPS lane; block dots name their condition and trace their lane on focus; ticks / labels are hidden from screen readers (the labelled marks carry the numbers); hover no longer shows a tooltip over the lanes (keyboard focus still does). The traced lane's Guard − Latest difference is set large with its interval; a zero-width interval at 0 is labelled "no misses under either policy".
+- First viewport: on short laptop screens (≤ 860 px tall) the question steps down to 46 px and the plate head is tighter, so all four lanes fit at 1280 × 720. The legend and a one-line key to ρ, pp and block moved under the figure; the full glossary sits in the plate foot.
+- Overview copy: the S · 20 FPS result is no longer repeated in the findings list (the guard and regime findings are the figure); overview numbers use one decimal throughout.
+- Owner decision: in dark mode the lead plate inverts to a white drafting sheet (light tokens and policy hues) instead of a dark band on a dark page.
+- Consistency: Mechanism's feasibility chart draws release arrows and the red past-deadline hatch like the hero; the concept figure's "Serve" is neutral ink (not the measured green); the architecture diagrams embed B612 (an `<img>` cannot use the page fonts) and colour the Latest-Frame chip; every measured figure carries a Measured stamp (the header stamp is dropped on phones); simulation key values use the estimate amber; sentence-case headings; remaining UI labels translated.
+- Routing: a view's kept selection is written back into the URL (a copied link shows what is on screen); an unknown hash shows a note above the overview.
+- Type: line lengths moved from `ch` to em (B612's "0" is 1.3× its average glyph, so the old caps allowed ~30% longer lines); 15 px joined the type ramp as `--fs-prose`; other off-ramp sizes moved to tokens. `DESIGN.md` updated.
+- The repository is named as text in both footers and the Evidence note, not linked: `tests/test_dashboard.py` forbids any `http(s)` `href` in the dashboard. No data, builder or bundle change (`build_data --check` CURRENT).
+
+## 2026-11-17 Dashboard critique round 3 and fixes
+
+Prompt summary:
+
+- Re-run `/impeccable critique` after the round-2 fixes (still 29/40, but on a new set of deeper issues; the round-2 issues were confirmed fixed and the detector advisories fell from 20 to 4). Owner: commit round 2 first, then fix all five new issues and the minor ones, notation and data framing first; dropped frames get a dashed outline.
+
+Implementation decision:
+
+- Notation: dropped frames are a dashed outline (the open bar stays "waiting"); `hbars` splits bars at a deadline reference marked `split` and draws the part past it as the red hatch (Baseline queue-depth latency, Mechanism frame age).
+- Data framing: the Baseline delay chart title is computed from the runs (MobileViT-S is already overloaded at 20 FPS with no delay; the delay pushes MobileViT-XXS past ρ = 1); the dynamic condition's context gives the run-average ρ and names the phase above the bundle's service capacity instead of calling it "not overloaded". Baseline throughput chart draws each model's service-time limit from the bundle.
+- First viewport: the answer names the rule (waiting + service can pass the deadline); the Δ head names the metric; the term key adds S / XXS and + 25 ms. The plate drops its two-item measurement list (the load-step result stays in Findings, run and hash counts move into the figure note) and the paired line no longer repeats −10.7 pp.
+- Keyboard: up / down move between lanes, left / right through a lane's block dots; a lane's keyboard tooltip is anchored inside the lane plot; a resting pointer no longer marks a second lane; the architecture image is one tab stop with its alt text, plus one "open full size" link.
+- Minor: measures on the single-column `.prose-cols` and `.limits` text, zh headline keeps "該跳過哪些 frame" together, one condition choice shared by Scheduling and Mechanism, a builder-enforced check shown as "enforced" rather than "passed", full SHA-256 on hover, remaining zh strings, noscript names the `.js` bundle. No data, builder or bundle change.
+
+## 2026-11-17 Dashboard critique round 4, repository link and PR
+
+Prompt summary:
+
+- Handle the open items in order: clickable repository link, refreshed README screenshots, push, re-run `/impeccable critique` (28/40; detector: 3 advisories, all false positives). Owner: fix the two P1 and two small P2, then open a PR; the Simulation control rework stays for later.
+
+Implementation decision:
+
+- Owner approved relaxing the frontend test: `tests/test_dashboard.py` allow-lists exactly the repository URL as an `<a href>`; `src=` and every other external URL stay forbidden (`PRODUCT.md` records the exception).
+- README screenshots in `docs/images/` regenerated with headless Chrome from the current build (light scheme, 1440 px; phone 500 px).
+- Glossary: a 95% interval that excludes 0 is described as a statement about the mean under the t-model; sign consistency across blocks is the separate block count (the old wording conflated them).
+- First viewport: the term key (Δ effective miss, pp, ρ, S / XXS, + 25 ms) moved into the plate head; on short screens the space above the plate is tightened so all four lanes still fit at 1280 × 720. The zh headline keeps 邊緣偵測器 together. Reference-line labels no longer collide with the Baseline throughput curves or end labels.

@@ -85,7 +85,7 @@
       [L("Energy estimate, dp vs layerwise", "Energy 估計值，dp vs layerwise"), red(lw && lw.estimated_energy, dp && dp.estimated_energy)],
       [L("Latency estimate, dp vs layerwise", "Latency 估計值，dp vs layerwise"), red(lw && lw.estimated_latency_ms, dp && dp.estimated_latency_ms)],
     ].map(([l, v]) => ({ label: `${esc(l)} · ${maxS} KB SRAM`, value: v === null ? "–" : fmt(-v, 1), unit: "%", detail: estDetail }))
-      .concat([{ label: L(`Subgraphs at ${maxS} KB`, `${maxS} KB 時的 subgraph 數`), value: dp ? dp.num_subgraphs : "–", unit: L(`vs ${lw ? lw.num_subgraphs : "–"} layers`, `vs ${lw ? lw.num_subgraphs : "–"} 層`), detail: `${L("max fusion depth", "最大 fusion depth")} ${dp ? dp.max_fusion_depth : "–"}` }]));
+      .concat([{ label: L(`Subgraphs at ${maxS} KB`, `${maxS} KB 時的 subgraph 數`), value: dp ? dp.num_subgraphs : "–", unit: L(`vs ${lw ? lw.num_subgraphs : "–"} layers`, `vs ${lw ? lw.num_subgraphs : "–"} 層`), detail: `${L("max fusion depth", "最大 fusion depth")} ${dp ? dp.max_fusion_depth : "–"}` }]), "est");
 
     sec.querySelector("#t1").textContent = L(`${M.label} by SRAM budget`, `不同 SRAM 預算下的 ${M.label}`);
     sec.querySelector("#s1").textContent = L(`${MODEL[st.model]} · OS profile “${st.os}” · ${M.unit} · lower is better`, `${MODEL[st.model]} · OS profile「${st.os}」· ${M.unit} · 越低越好`);

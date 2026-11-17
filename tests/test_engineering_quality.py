@@ -350,6 +350,10 @@ class ContinuousIntegrationTest(unittest.TestCase):
                 ref = match.group(1) or match.group(2)
                 if ref.startswith(("#", "data:")) or "${" in ref:
                     continue
+                # the one allow-listed outbound navigation link (see test_dashboard.FrontendTest.REPO_LINK);
+                # it is an <a href>, not a resource the site loads, so the subpath rule does not apply
+                if match.group(1) and ref == "https://github.com/samhung1205/os-aware-eda-lite":
+                    continue
                 with self.subTest(file=path.name, ref=ref):
                     self.assertFalse(ref.startswith(("/", "http:", "https:", "//")), "absolute or external")
                     self.assertNotIn("..", ref, "points outside dashboard/")

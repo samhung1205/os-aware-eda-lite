@@ -39,58 +39,61 @@
     const Mx = D.mechanism, dyn = S.dynamic;
     const fixed = S.conditions.filter((c) => !c.dynamic);
     sec.innerHTML = `
-      <div class="view-head"><h2>${L("When and Why Deadline-Aware Scheduling Helps", "Deadline-aware scheduling 何時有效、為什麼有效")}</h2>
+      <div class="view-head"><h2>${L('When and why <span class="nowrap">deadline-aware</span> scheduling helps', '<span class="nowrap">Deadline-aware</span> scheduling 何時有效、為什麼有效')}</h2>
       <p>${L("Under overload, the newest frame waiting when the worker frees up is between 0 and one inter-arrival interval old. If that age plus the service time can exceed the deadline, Latest-Frame can spend inference time on frames that then finish late. Deadline-Guard predicts this before inference, drops frames predicted to miss, and waits for the next one.",
         "過載時，worker 空出來那一刻，等待中最新的 frame 其 age 介於 0 到一個 inter-arrival 間隔之間。如果這個 age 加上 service time 可能超過 deadline，Latest-Frame 就可能把 inference 時間花在最後遲到的 frame 上。Deadline-Guard 會在 inference 前預測這種情況，丟棄預測會錯過的 frame，改等下一個。")}</p></div>
       ${conceptPanel(COND[D.primary_condition].deadline_ms)}
       <div class="fig section-gap"><div class="fig-head"><div class="titles"><h3>${L("Worst-case age of the newest frame vs the deadline", "最新 frame 的最壞情況 age vs deadline")}</h3><p class="fig-sub">${L("Waiting up to one inter-arrival interval (1000 / FPS, only when overloaded) + measured Latest-Frame service time, per fixed-rate condition", "各固定速率 condition：最多一個 inter-arrival 間隔的等待（1000 / FPS，僅過載時）+ 實測 Latest-Frame service time")}</p></div><span class="tag measured">${L("Measured", "實測")}</span></div>
-        <div class="legend"><span class="k"><span class="sw open"></span>inter-arrival (1000 / FPS)</span><span class="k"><span class="sw solid"></span>${L("service time (Latest-Frame, measured)", "service time（Latest-Frame，實測）")}</span><span class="k"><span class="sw dash"></span>deadline</span></div>
+        <div class="legend"><span class="k"><span class="sw open"></span>inter-arrival (1000 / FPS)</span><span class="k"><span class="sw solid"></span>${L("service time (Latest-Frame, measured)", "service time（Latest-Frame，實測）")}</span><span class="k"><span class="sw overshoot-sw"></span>${L("past the deadline", "超過 deadline")}</span><span class="k"><span class="sw dash"></span>deadline</span></div>
         <div class="chart" id="m1"></div><div id="m1-table" style="margin-top:var(--sp-4)"></div>
         <p class="fig-note">${esc(T(Mx, "model_note"))}</p></div>
       <div class="controls" id="m-controls" style="margin-top:var(--sp-9)"></div>
       <div class="grid">
-        <div class="span-6 fig"><div class="fig-head"><div class="titles"><h3>${L("What the effective miss is made of", "Effective miss 的組成")}</h3><p class="fig-sub" id="m2-sub"></p></div></div>
-          <div class="legend"><span class="k"><span class="sw open"></span>${L("dropped (never processed)", "dropped（從未處理）")}</span><span class="k"><span class="sw overshoot-sw"></span>${L("late (processed after the deadline)", "late（超過 deadline 才處理完）")}</span></div><div class="chart" id="m2"></div>
+        <div class="span-6 fig"><div class="fig-head"><div class="titles"><h3>${L("What the effective miss is made of", "Effective miss 的組成")}</h3><p class="fig-sub" id="m2-sub"></p></div>${X.MEAS}</div>
+          <div class="legend"><span class="k"><span class="sw dropped"></span>${L("dropped (never processed)", "dropped（從未處理）")}</span><span class="k"><span class="sw overshoot-sw"></span>${L("late (processed after the deadline)", "late（超過 deadline 才處理完）")}</span></div><div class="chart" id="m2"></div>
           <p class="fig-note">${L("Guard trades a few more drops for almost no late frames. Shares are of all published frames.", "Guard 多丟一些 frame，換來幾乎沒有 late frame。比例以所有 published frames 為分母。")}</p></div>
-        <div class="span-6 fig"><div class="fig-head"><div class="titles"><h3>${L("Queueing: frame age when inference starts", "Queueing：inference 開始時的 frame age")}</h3><p class="fig-sub" id="m3-sub"></p></div></div><div class="chart" id="m3"></div>
+        <div class="span-6 fig"><div class="fig-head"><div class="titles"><h3>${L("Queueing: frame age when inference starts", "Queueing：inference 開始時的 frame age")}</h3><p class="fig-sub" id="m3-sub"></p></div>${X.MEAS}</div><div class="legend"><span class="k"><span class="sw overshoot-sw"></span>${L("past the deadline: already late when inference started", "超過 deadline：開始 inference 時就已經遲到")}</span></div><div class="chart" id="m3"></div>
           <p class="fig-note">${L("Queues that serve the oldest frame (FIFO, legacy depth 5) make every frame wait for the whole backlog under overload.", "處理最舊 frame 的 queue（FIFO、legacy depth 5）在過載時會讓每個 frame 都等完整個 backlog。")}</p></div>
       </div>
-      <div class="fig section-gap"><div class="fig-head"><div class="titles"><h3>${L("Ablation: Adaptive − Deadline-Guard", "Ablation：Adaptive − Deadline-Guard")}</h3><p class="fig-sub" id="m4-sub"></p></div></div>
+      <div class="fig section-gap"><div class="fig-head"><div class="titles"><h3>${L("Ablation: Adaptive − Deadline-Guard", "Ablation：Adaptive − Deadline-Guard")}</h3><p class="fig-sub" id="m4-sub"></p></div>${X.MEAS}</div>
         <div class="chart" id="m4"></div><div id="m4-table"></div>
         <p class="fig-note">${L("The switch can only change a decision when ≥ 2 feasible frames are queued and estimated ρ &lt; 1. In these conditions the queue rarely holds two feasible frames, so EDF and newest-feasible pick the same frame.",
           "只有在 queue 中有 ≥ 2 個 feasible frames 且估計 ρ &lt; 1 時，switch 才可能改變決定。在這些 conditions 下 queue 很少同時有兩個 feasible frames，所以 EDF 與 newest-feasible 會選到同一個 frame。")}</p></div>
-      ${dyn.condition ? `<div class="fig section-gap"><div class="fig-head"><div class="titles"><h3>${L("Dynamic load", "動態負載")}: ${esc(COND[dyn.condition].label)}</h3><p class="fig-sub">${L(`Effective miss per phase (20 s each) · mean and min–max over ${COND[dyn.condition].n_blocks} runs per arm`, `各 phase（各 20 秒）的 effective miss · 每個 arm ${COND[dyn.condition].n_blocks} runs 的平均與 min–max`)}</p></div></div>
+      ${dyn.condition ? `<div class="fig section-gap"><div class="fig-head"><div class="titles"><h3>${L("Dynamic load", "動態負載")}: ${esc(COND[dyn.condition].label)}</h3><p class="fig-sub">${L(`Effective miss per phase (20 s each) · mean and min–max over ${COND[dyn.condition].n_blocks} runs per arm`, `各 phase（各 20 秒）的 effective miss · 每個 arm ${COND[dyn.condition].n_blocks} runs 的平均與 min–max`)}</p></div>${X.MEAS}</div>
         <div class="grid" id="m5"></div><div id="m5-table"></div></div>` : ""}`;
 
     // M1 feasibility
     C.hbars(sec.querySelector("#m1"), {
       // Below ρ = 1 the newest frame does not wait for the worker, so only the service time is drawn
       // (the same first-order model as the overview regime map).
-      rows: Mx.feasibility.map((f) => ({ label: COND[f.condition].label, dim: !f.overloaded, segments: [
-        { v: f.overloaded ? f.inter_arrival_ms : 0, open: true, name: "inter-arrival" }, { v: f.service_ms, color: "var(--ink)", name: "service" }],
+      // Time past the deadline is drawn as the red hatch, as on the overview lanes.
+      rows: Mx.feasibility.map((f) => { const wait = f.overloaded ? f.inter_arrival_ms : 0, over = Math.max(0, wait + f.service_ms - f.deadline_ms);
+        return { label: COND[f.condition].label, dim: !f.overloaded, lateValue: over > 0, segments: [
+        { v: wait, open: true, name: "inter-arrival" }, { v: f.service_ms - over, color: "var(--ink)", name: "service" }, { v: over, late: true, name: L("past the deadline", "超過 deadline") }],
         valueText: `${fmt(f.overloaded ? f.age_bound_ms : f.service_ms, 0)} ms`, valueNote: f.overloaded ? "" : L("not overloaded: no waiting", "未過載：不需等待"),
-        tip: tipRows(COND[f.condition].label, [["inter-arrival", fmt(f.inter_arrival_ms, 1) + " ms"], ["service (Latest)", fmt(f.service_ms, 1) + " ms"], [L("sum", "合計"), fmt(f.age_bound_ms, 1) + " ms"], ["ρ", fmt(f.utilization, 2)], [L("overloaded", "過載"), f.overloaded ? L("yes", "是") : L("no", "否")]]) })),
-      refs: [{ value: Mx.feasibility[0].deadline_ms, label: `deadline ${fmt(Mx.feasibility[0].deadline_ms, 0)} ms` }], xTitle: L("Milliseconds", "毫秒"), rowH: 44, ariaLabel: L("Inter-arrival plus service time versus deadline", "Inter-arrival + service time vs deadline"),
+        tip: tipRows(COND[f.condition].label, [["inter-arrival", fmt(f.inter_arrival_ms, 1) + " ms"], ["service (Latest)", fmt(f.service_ms, 1) + " ms"], [L("sum", "合計"), fmt(f.age_bound_ms, 1) + " ms"], ["ρ", fmt(f.utilization, 2)], [L("overloaded", "過載"), f.overloaded ? L("yes", "是") : L("no", "否")]]) }; }),
+      release: true, refs: [{ value: Mx.feasibility[0].deadline_ms, label: `deadline ${fmt(Mx.feasibility[0].deadline_ms, 0)} ms` }], xTitle: L("Milliseconds", "毫秒"), rowH: 44, ariaLabel: L("Inter-arrival plus service time versus deadline", "Inter-arrival + service time vs deadline"),
     });
     sec.querySelector("#m1-table").innerHTML = table(
-      [{ label: "Condition", l: true }, { label: "ρ" }, { label: "Regime", l: true, wrap: true }, { label: L("Predicted Latest late %", "預測 Latest late %") }, { label: L("Observed Latest late %", "實測 Latest late %") }, { label: L("Observed Guard late %", "實測 Guard late %") }, { label: L("Guard − Latest Δ pp [95% CI] · blocks lower", "Guard − Latest Δ pp [95% CI] · 較低的 blocks"), wrap: true }],
+      [{ label: L("Condition", "條件"), l: true }, { label: "ρ" }, { label: "Regime", l: true, wrap: true }, { label: L("Predicted Latest late %", "預測 Latest late %") }, { label: L("Observed Latest late %", "實測 Latest late %") }, { label: L("Observed Guard late %", "實測 Guard late %") }, { label: L("Guard − Latest Δ pp [95% CI] · blocks lower", "Guard − Latest Δ pp [95% CI] · 較低的 blocks"), wrap: true }],
       Mx.feasibility.map((f) => ({ hl: f.condition === D.primary_condition, cells: [esc(COND[f.condition].label), fmt(f.utilization, 2), esc(T(f, "regime")), fmt(f.predicted_latest_late_pct, 1), fmt(f.observed_latest_deadline_miss_pct, 1), fmt(f.observed_guard_deadline_miss_pct, 1),
         `${fmt(f.guard_minus_latest_eff_pp.mean, 2, true)} ${ci(f.guard_minus_latest_eff_pp, 2)} · ${f.guard_minus_latest_eff_pp.n_neg}/${COND[f.condition].n_blocks}`] })));
 
     const ctl = sec.querySelector("#m-controls");
-    control(ctl, "Condition", seg("Condition", fixed.map((c) => ({ value: c.id, label: c.label, html: esc(c.label) + (c.primary ? '<span class="star">primary</span>' : "") })), state.mc, (v) => { state.mc = v; setParams("mechanism", { mc: v }); drawCond(); }));
+    control(ctl, L("Condition", "條件"), seg(L("Condition", "條件"), condOptions((c) => !c.dynamic), state.mc, (v) => { state.mc = v; state.c = v; setParams("mechanism", { mc: v }); drawCond(); }));
+    ctl.insertAdjacentHTML("beforeend", `<span class="control-hint">${L("applies to the two figures below", "套用到下方兩張圖")}</span>`);
 
     function drawCond() {
       const cid = state.mc, c = COND[cid];
       const order = [...APP_ORDER, ...LEGACY_ORDER];
-      const groupName = (id) => (ARM[id].family === "legacy" ? L("Legacy path", "Legacy 路徑") : "Application queue");
+      const groupName = (id) => (ARM[id].family === "legacy" ? L("Legacy path", "Legacy 路徑") : L("Application queue", "Application queue 路徑"));
       sec.querySelector("#m2-sub").textContent = L(`${c.label} · mean over ${c.n_blocks} runs per arm`, `${c.label} · 每個 arm ${c.n_blocks} runs 的平均`);
       C.hbars(sec.querySelector("#m2"), {
         max: 100,
         rows: order.map((id) => { const r = armRow(cid, id);
           const drop = r.drop_rate_pct.mean, late = Math.max(0, r.late_share_pct);
           return { group: groupName(id), label: ARM[id].label, dim: ARM[id].family === "legacy",
-            segments: [{ v: drop, open: true, name: "dropped" }, { v: late, late: true, name: "late" }],
+            segments: [{ v: drop, dropped: true, name: "dropped" }, { v: late, late: true, name: "late" }],
             valueText: fmt(r.effective_miss_rate_pct.mean, 1) + "%",
             tip: tipRows(`${ARM[id].label} · ${c.label}`, [["dropped", fmt(drop, 1) + "%"], ["late", fmt(late, 1) + "%"], ["effective miss", fmt(r.effective_miss_rate_pct.mean, 1) + "%"], ["policy drops", fmt(r.app_policy_drop_rate_pct.mean, 1) + "%"], [L("DDS-unreceived / run", "DDS 未收到 / run"), fmt(r.dds_unreceived_frames.mean, 0)]]) }; }),
         xTitle: L("% of published frames", "占 published frames 的 %"), ariaLabel: L("Dropped and late share by arm", "各 arm 的 dropped 與 late 比例"),
@@ -101,7 +104,7 @@
           return { group: groupName(id), label: ARM[id].label, dim: ARM[id].family === "legacy",
             segments: [{ v: r.p50_frame_age_at_start_ms.mean, color: ARM[id].color }], valueText: `${fmt(r.p50_frame_age_at_start_ms.mean, 0)} ms`,
             tip: tipRows(`${ARM[id].label} · ${c.label}`, [[L("P50 frame age at start", "開始時 P50 frame age"), fmt(r.p50_frame_age_at_start_ms.mean, 1) + " ms"], ["mean queue wait", r.avg_queue_wait_ms.mean === null ? L("n/a (no app queue)", "n/a（無 app queue）") : fmt(r.avg_queue_wait_ms.mean, 1) + " ms"], ["max queue length", r.max_queue_len.mean === null ? "n/a" : fmt(r.max_queue_len.max, 0)], ["P50 latency", fmt(r.p50_latency_ms.mean, 1) + " ms"]]) }; }),
-        refs: [{ value: c.deadline_ms, label: "deadline" }], xTitle: L("Milliseconds", "毫秒"), ariaLabel: L("Frame age at inference start by arm", "各 arm 在 inference 開始時的 frame age"),
+        refs: [{ value: c.deadline_ms, label: "deadline", split: true }], xTitle: L("Milliseconds", "毫秒"), ariaLabel: L("Frame age at inference start by arm", "各 arm 在 inference 開始時的 frame age"),
       });
     }
     drawCond();
@@ -125,7 +128,7 @@
     C.forest(sec.querySelector("#m4"), { rows: frows, xTitle: "Δ effective miss (pp) · Adaptive − Deadline-Guard", ariaLabel: L("Ablation forest plot", "Ablation forest plot") });
     const decKeys = (o) => Object.entries(o).map(([k, v]) => `${esc(k)} ${fmt(v, 0)}`).join(" · ") || "—";
     sec.querySelector("#m4-table").innerHTML = table(
-      [{ label: "Condition", l: true }, { label: "Adaptive decisions / run", l: true }, { label: "Deadline-Guard decisions / run", l: true }, { label: "Adaptive drops / run", l: true }, { label: "Guard drops / run", l: true }],
+      [{ label: L("Condition", "條件"), l: true }, { label: "Adaptive decisions / run", l: true }, { label: "Deadline-Guard decisions / run", l: true }, { label: "Adaptive drops / run", l: true }, { label: "Guard drops / run", l: true }],
       S.conditions.map((c) => { const a = Mx.decisions.find((d) => d.condition === c.id && d.arm === "adaptive_c5_q10"), gd = Mx.decisions.find((d) => d.condition === c.id && d.arm === "guard_c5_q10");
         return { cells: [esc(c.label), decKeys(a.decisions), decKeys(gd.decisions), decKeys(a.policy_drops), decKeys(gd.policy_drops)] }; }),
       { toggle: L("Scheduler decision counts (mean per run, from the detector logs)", "Scheduler 決策次數（每個 run 的平均，取自 detector log）") });
