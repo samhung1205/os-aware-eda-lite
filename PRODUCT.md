@@ -30,7 +30,7 @@ A deadline-aware frame scheduler (Deadline-Guard) predicts, before spending infe
 
 ## Capabilities and Constraints
 
-- No build step, no framework, no external resources (tests enforce it); all paths relative and inside `dashboard/`.
+- No build step, no framework, no external resources (tests enforce it); all paths relative and inside `dashboard/`. The one outbound link is a plain `<a href>` to the project's GitHub repository (allow-listed in the test).
 - English is the default language; Traditional Chinese through the toggle or `?lang=zh-TW`. English technical terms stay in the Chinese text.
 - Light and dark colour schemes follow the system setting.
 - Measured ROS 2 results and EDA-Lite simulation estimates must stay visibly separate; estimates are always labelled as estimates.
