@@ -30,7 +30,7 @@
     sec.innerHTML = `
       <div class="hero">
         <div class="hero-main">
-          <h2>${L("Which frames should an overloaded edge detector skip?", '過載的邊緣偵測器<span class="nowrap">該跳過哪些 frame？</span>')}</h2>
+          <h2>${L("Which frames should an overloaded edge detector skip?", '過載的<span class="nowrap">邊緣偵測器</span><span class="nowrap">該跳過哪些 frame？</span>')}</h2>
         </div>
         <div class="hero-copy">
           <p class="answer-lead">${L(`The ones that can no longer make the deadline. That only happens when waiting plus service time can pass ${dl} ms.`, `跳過那些已經趕不上 deadline 的 frame。只有在「等待 + service time」可能超過 ${dl} ms 時才會發生。`)}</p>
@@ -43,6 +43,8 @@
         <div class="plate-inner">
           <div class="fig-head">
             <div class="titles"><h3>${L("Where dropping late frames pays off", "丟棄趕不上的 frame 何時有用")}</h3></div>
+            <p class="key-terms head-key">${L("<b>Δ effective miss</b> change in the share of published frames dropped or finished late · <b>pp</b> percentage points · <b>ρ</b> arrival rate × service time, overloaded above 1 · <b>S / XXS</b> MobileViT-S / -XXS · <b>+ 25 ms</b> injected service delay",
+              "<b>Δ effective miss</b> 已發佈 frame 中被丟棄或遲到比例的變化 · <b>pp</b> 百分點 · <b>ρ</b> 抵達速率 × service time，大於 1 即過載 · <b>S / XXS</b> MobileViT-S / -XXS · <b>+ 25 ms</b> 注入的 service delay")}</p>
             ${X.MEAS}</div>
           <div class="chart" id="hero-regime"></div>
           <div class="plate-key">
@@ -53,8 +55,7 @@
               <span class="k"><span class="sw ring" style="border-color:${GUARD}"></span>${L("one block", "單一 block")}</span>
               <span class="k"><span class="sw dot" style="background:${GUARD}"></span>${L("mean Δ with 95% interval", "平均 Δ 與 95% 區間")}</span>
             </div>
-            <p class="key-terms">${L("<b>S / XXS</b> MobileViT-S / MobileViT-XXS · <b>+ 25 ms</b> injected service delay · <b>ρ</b> arrival rate × service time; above 1 the detector is overloaded · <b>pp</b> percentage points · <b>block</b> one round that runs every arm once; differences are paired within it",
-              "<b>S / XXS</b> MobileViT-S / MobileViT-XXS · <b>+ 25 ms</b> 注入的 service delay · <b>ρ</b> 抵達速率 × service time，大於 1 表示過載 · <b>pp</b> 百分點 · <b>block</b> 每個 arm 各跑一次的一輪，差異在 block 內配對")}</p>
+            <p class="key-terms">${L("<b>block</b> one round that runs every arm once; differences are paired within it", "<b>block</b> 每個 arm 各跑一次的一輪，差異在 block 內配對")}</p>
           </div>
           <div class="plate-foot">
             <div>
@@ -69,7 +70,7 @@
                   <dt>ρ</dt><dd>${L("Utilisation, arrival rate × service time. Above 1 the detector cannot keep up and must skip frames.", "使用率，即抵達速率 × service time。大於 1 表示偵測器跟不上，必須跳過 frame。")}</dd>
                   <dt>Arm</dt><dd>${L("One configuration under test: the four policies that share the application queue (FIFO, Latest-Frame, Deadline-Guard, Adaptive) and two legacy paths that run inference in the DDS callback.", "一個受測配置：共用 application queue 的四種 policy（FIFO、Latest-Frame、Deadline-Guard、Adaptive），以及在 DDS callback 內執行 inference 的兩條 legacy 路徑。")}</dd>
                   <dt>Block</dt><dd>${L("One round in which every arm runs once, back to back, in rotating order. Arms are compared within a block, so slow drift of the host cancels out.", "每個 arm 依輪替順序各跑一次的一輪。比較都在 block 內進行，主機狀態的緩慢漂移因此互相抵銷。")}</dd>
-                  <dt>${L("Paired Δ, 95% CI", "Paired Δ、95% CI")}</dt><dd>${L("The mean of the per-block differences and its t-interval. An interval that stays on one side of 0 means the difference kept its sign across blocks.", "各 block 差值的平均與其 t 區間。區間整個落在 0 的同一側，表示各 block 的差異方向一致。")}</dd>
+                  <dt>${L("Paired Δ, 95% CI", "Paired Δ、95% CI")}</dt><dd>${L("The mean of the per-block differences and its 95% t-interval. An interval that excludes 0 means the mean difference is distinguishable from 0 under the t-model; whether every block moved the same way is a separate count, shown as blocks lower / higher.", "各 block 差值的平均與其 95% t 區間。區間不包含 0，表示在 t 模型下平均差異可與 0 區分；每個 block 的方向是否一致是另一回事，由「較低 / 較高的 blocks」計數呈現。")}</dd>
                 </dl></details>
             </div>
             <div class="result" role="group" aria-label="${L("Main result", "主要結果")}">

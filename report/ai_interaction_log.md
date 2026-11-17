@@ -511,3 +511,16 @@ Implementation decision:
 - First viewport: the answer names the rule (waiting + service can pass the deadline); the Δ head names the metric; the term key adds S / XXS and + 25 ms. The plate drops its two-item measurement list (the load-step result stays in Findings, run and hash counts move into the figure note) and the paired line no longer repeats −10.7 pp.
 - Keyboard: up / down move between lanes, left / right through a lane's block dots; a lane's keyboard tooltip is anchored inside the lane plot; a resting pointer no longer marks a second lane; the architecture image is one tab stop with its alt text, plus one "open full size" link.
 - Minor: measures on the single-column `.prose-cols` and `.limits` text, zh headline keeps "該跳過哪些 frame" together, one condition choice shared by Scheduling and Mechanism, a builder-enforced check shown as "enforced" rather than "passed", full SHA-256 on hover, remaining zh strings, noscript names the `.js` bundle. No data, builder or bundle change.
+
+## 2026-11-17 Dashboard critique round 4, repository link and PR
+
+Prompt summary:
+
+- Handle the open items in order: clickable repository link, refreshed README screenshots, push, re-run `/impeccable critique` (28/40; detector: 3 advisories, all false positives). Owner: fix the two P1 and two small P2, then open a PR; the Simulation control rework stays for later.
+
+Implementation decision:
+
+- Owner approved relaxing the frontend test: `tests/test_dashboard.py` allow-lists exactly the repository URL as an `<a href>`; `src=` and every other external URL stay forbidden (`PRODUCT.md` records the exception).
+- README screenshots in `docs/images/` regenerated with headless Chrome from the current build (light scheme, 1440 px; phone 500 px).
+- Glossary: a 95% interval that excludes 0 is described as a statement about the mean under the t-model; sign consistency across blocks is the separate block count (the old wording conflated them).
+- First viewport: the term key (Δ effective miss, pp, ρ, S / XXS, + 25 ms) moved into the plate head; on short screens the space above the plate is tightened so all four lanes still fit at 1280 × 720. The zh headline keeps 邊緣偵測器 together. Reference-line labels no longer collide with the Baseline throughput curves or end labels.

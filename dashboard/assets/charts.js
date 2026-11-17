@@ -398,10 +398,11 @@
         const m = lo + (hi - lo) * f;
         text(s, x(m) + 8, y(m) + 16, cfg.diag, { class: "reflabel", "text-anchor": "start" });
       }
+      const refLabels = [];
       for (const r of cfg.refs || []) {
         if (r.y !== undefined) {
           svg("line", { x1: padL, x2: W - padR, y1: y(r.y), y2: y(r.y), class: "refline" }, s);
-          text(s, padL + 6, y(r.y) - 5, r.label, { class: "reflabel" });
+          refLabels.push(r); // placed after the end labels are known (below)
         } else {
           refMark(s, x(r.x), padT + 8, H - padB, r.label, W - padR);
         }
@@ -426,7 +427,17 @@
       for (let i = 1; i < ends.length; i++) {
         if (Math.abs(ends[i].x - ends[i - 1].x) < 60 && ends[i].y - ends[i - 1].y < 16) ends[i].y = ends[i - 1].y + 16;
       }
+      // an end label that would sit on a horizontal reference line moves just above it
+      for (const e of ends) for (const r of refLabels) if (Math.abs(e.y - 4 - y(r.y)) < 7) e.y = y(r.y) - 5;
       ends.forEach((e) => text(s, e.x, e.y, e.name, { class: "vlabel" }));
+      // Reference labels sit right-aligned above their line, clear of curves rising through the left of
+      // the plot; one that would meet an end label inside the plot goes under the line instead.
+      for (const r of refLabels) {
+        if (!r.label) continue;
+        const x1 = W - padR - 4, x0 = x1 - measure(r.label, 12), ly = y(r.y);
+        const hit = ends.some((e) => e.x < x1 && e.x + measure(e.name, 12.5) > x0 && Math.abs(e.y - 4 - (ly - 10)) < 14);
+        text(s, x1, hit ? ly + 15 : ly - 6, r.label, { class: "reflabel", "text-anchor": "end" });
+      }
       if (cfg.yTitle) {
         const t = text(s, 0, 0, cfg.yTitle, { class: "axis-title", transform: `translate(11 ${(H - padB + padT) / 2}) rotate(-90)`, "text-anchor": "middle" });
         t.setAttribute("x", 0);
