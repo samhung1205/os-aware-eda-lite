@@ -220,7 +220,7 @@ An ink-on-white drafting palette with a tightly owned set of signal colours; dar
 - Borders are translucent ink: 14 % for hairlines, 34 % for stamp and callout outlines.
 
 ### Dark mode and the plate
-Under `prefers-color-scheme: dark` the ground becomes near-black (dark-paper), ink becomes dark-ink, the policy hues and signals lift (Latest #4a96f0, Guard #f0703a, Adaptive #2bb585, late #f0625a, estimate #ecbc62) and arm greys invert their order. The ink plate redefines the same token names locally (plate-ink-ground, plate-ink-ground-2, plate-line-white, with brighter policy hues and late red), so every chart drawn inside it is the same code read as white line art on black. Print forces the plate back to black on white.
+Under `prefers-color-scheme: dark` the ground becomes near-black (dark-paper), ink becomes dark-ink, the policy hues and signals lift (Latest #4a96f0, Guard #f0703a, Adaptive #2bb585, late #f0625a, estimate #ecbc62) and arm greys invert their order. The ink plate redefines the same token names locally (plate-ink-ground, plate-ink-ground-2, plate-line-white, with brighter policy hues and late red), so every chart drawn inside it is the same code read as white line art on black. In dark mode the plate inverts the other way: it takes the light-mode tokens and policy hues and becomes a white drafting sheet with black ink on the dark page, so the scheme change inverts the plate instead of erasing it (a dark plate on a dark page had a 1.09:1 ground contrast). Dark stamp tokens: measured #12281a / #2f6b40 / #5fd07c, estimate #2a2212 / #6f551c / #ecbc62. Print forces the plate back to black on white.
 
 ### Named Rules
 **The Colour Ownership Rule.** Latest blue, Guard orange and Adaptive teal belong to those three policies only; FIFO and legacy arms are grey. Never use a policy hue for decoration, a heading, a link or a UI state.
@@ -238,11 +238,11 @@ Under `prefers-color-scheme: dark` the ground becomes near-black (dark-paper), i
 **Character:** A cockpit-instrument face, designed for legibility on displays, used for everything; hierarchy comes from size and bold only. Self-hosted woff2 (OFL), no other families; Chinese text falls back to system fonts.
 
 ### Hierarchy
-- **Display** (700, 58px, 1.04, -0.028em): the overview question only. Steps to 46px at ≤1100px, 34px at ≤720px.
+- **Display** (700, 58px, 1.04, -0.028em): the overview question only. Steps to 46px at ≤1100px and on short laptop screens (≥961px wide, ≤860px tall, so all four lanes fit the first viewport at 1280 × 720), 34px at ≤720px.
 - **Headline** (700, 40px, 1.1, -0.02em): each view's heading, balanced, max 22em. 34px at ≤1100px, 28px at ≤720px.
 - **Title** (700, 26px, -0.015em): section heads and plate headings. 22px at ≤720px.
 - **Title Small** (700, 20px, 1.25): figure titles; also the one-sentence answer lead in the hero.
-- **Body** (400, 16px, 1.6): running text, kept to 62–68ch; secondary prose at 15px.
+- **Body** (400, 16px, 1.6): running text, kept to `--measure` (36em, about 70 B612 characters); secondary prose at 15px (`--fs-prose`). Notes, captions and figure subtitles at 13–14px are capped at `--measure-note` (40em, about 80 characters). Measures are set in em, not ch: B612's "0" is 1.3× its average glyph, so a ch cap admits about 30% more characters than it states.
 - **Body Small** (400, 14px): figure subtitles, controls, nav labels, table toggles.
 - **Label** (700, 13px): control labels, legends, table body text (13px regular).
 - **Caption** (12px): stamps (bold), table headers (bold), chart ticks and axis titles; tabular numerals.
@@ -287,7 +287,7 @@ Joined ink strips: tactile, flat, unmistakably selected.
 
 ### Chips (stamps)
 - **Style:** 12px bold, 3px 9px, 2 px radius, 1 px border. Measured: green wash / border / ink. Estimate: amber wash / border / ink. Neutral ("Concept illustration"): no fill, 34 % ink border, ink-2 text.
-- **Use:** says what kind of number a figure or page holds; always placed in the figure head or page header, never as a decoration.
+- **Use:** says what kind of number a figure or page holds; always placed in the figure head or page header, never as a decoration. Every measured figure carries its own stamp, so on phones (≤720px) the header stamp is dropped to keep the header to one row.
 
 ### Cards / Containers
 - There are no cards. Figures are ruled (2 px ink top rule, 16 px padding-top). The **estimate callout** is the one bordered box: amber wash, amber border, 2 px radius, 12px 16px padding.
@@ -299,13 +299,13 @@ Joined ink strips: tactile, flat, unmistakably selected.
 - **Mobile:** the axis turns vertical on the left behind an ink toggle with a chevron; ticks become horizontal, the current view gets a right-pointing arrowhead; 44px rows.
 
 ### Key-measurement list
-A two-column definition list ruled by a 1 px ink top line and hairline row separators: bold label left, 17px bold tabular value right with a 13px regular unit, a 13px ink-3 detail line beneath. Replaces stat tiles.
+A two-column definition list ruled by a 1 px ink top line and hairline row separators: bold label left, 20px bold tabular value right with a 13px regular unit (amber `--est` on the simulation page, never the measured ink), a 13px ink-3 detail line beneath. Replaces stat tiles.
 
 ### Tables
 1 px ink rules top and bottom of the wrap, ink rule under the header row, hairline rows, right-aligned tabular numbers with the first column left. Wide tables scroll inside the wrap with a 56 px right-edge fade until scrolled to the end. Long tables collapse behind a chevron `details` toggle.
 
 ### Timing diagram (signature)
-One lane per condition against a shared millisecond ruler: release arrow at t = 0, open bar for waiting / frame age, solid block for measured service, red hatch with outline for time past the deadline, a dashed deadline line with a down arrowhead crossing all lanes, value labels haloed in the ground colour. Dimension lines (e.g. 50 ms wait + 57 ms service) sit under the traced lane. Hovering or focusing a lane moves the dimension lines and the 7 % trace band to it. On first load only, a playhead draws the lanes left to right; under `prefers-reduced-motion` the finished figure is shown.
+One lane per condition against a shared millisecond ruler: release arrow at t = 0, open bar for waiting / frame age, solid block for measured service, red hatch with outline for time past the deadline, a dashed deadline line with a down arrowhead crossing all lanes, value labels haloed in the ground colour. The traced (primary) lane's difference is set at 20px bold with its 95% interval beneath it; a degenerate interval at 0 is labelled "no misses under either policy" instead of reading as no effect. Dimension lines (e.g. 50 ms wait + 57 ms service) sit under the traced lane. Hovering or focusing a lane (or one of its block dots) moves the dimension lines and the 7 % trace band to it. Lanes are focusable in row order and the keyboard enters on the traced lane; hover shows no tooltip (every number is drawn), keyboard focus does. Ticks and labels are hidden from screen readers; the labelled marks carry the numbers. The legend and a one-line key to ρ, pp and block sit directly under the figure. On first load only, a playhead draws the lanes left to right; under `prefers-reduced-motion` the finished figure is shown.
 
 ### Chart notation (all charts)
 Gridlines in grid-hairline, zero and baseline in 1.25 px ink, 12px tick labels in tick-grey; dot rows show one dot per run with a mean tick and min–max line; forest plots show mean of block differences, 95 % t-interval and open block circles; ring marks get a 2 px ground-colour knock-out. Only marks carrying a tooltip take the pointer.

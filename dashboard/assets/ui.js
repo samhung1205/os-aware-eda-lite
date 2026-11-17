@@ -44,8 +44,9 @@
     return opts.toggle ? `<details class="table-toggle"${opts.open ? " open" : ""}><summary>${esc(opts.toggle)}</summary>${t}</details>` : t;
   }
   // Key measurements: [{ label, value, unit, detail }] (label / unit / detail are trusted HTML).
-  function spec(items) {
-    return `<dl class="spec">${items.filter(Boolean).map((it) => `<div class="spec-item"><dt>${it.label}</dt>` +
+  // kind "est" sets the values in the estimate voice (simulation page), never the measured ink.
+  function spec(items, kind) {
+    return `<dl class="spec${kind === "est" ? " est" : ""}">${items.filter(Boolean).map((it) => `<div class="spec-item"><dt>${it.label}</dt>` +
       `<dd class="v">${it.value}${it.unit ? `<span class="unit">${it.unit}</span>` : ""}</dd><dd class="d">${it.detail || ""}</dd></div>`).join("")}</dl>`;
   }
   const tipRows = (title, rows) => `<b>${esc(title)}</b>` + rows.map(([k, v]) => `<div class="row"><span>${esc(k)}</span><span>${v}</span></div>`).join("");

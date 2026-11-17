@@ -480,3 +480,20 @@ Implementation decision:
 - Product and design context recorded in `PRODUCT.md`; the Impeccable working files live in `.impeccable/`.
 - Independent finish review (two rounds): the first viewport now shows all four lanes at 1440 × 780; past-deadline time is a red 45° hatch everywhere; a millisecond ruler runs across the top of the lanes; FIFO / legacy arms moved to greys so colour belongs to the three compared policies; the architecture diagram is a ruled figure; wide tables fade their hidden edge on phones. The owner chose to condense the Overview plate's measurement table to the two values not shown elsewhere on that view (Guard − Latest under the load step, constrained run count); Adaptive − Latest and saturated throughput stay on the Scheduling and Baseline views.
 - `DESIGN.md` (repo root) records the shipped design system; README screenshots in `docs/images/` regenerated. Full test suite: 271 tests, the same 10 `test_ros2_run_integrity` shell-script failures on macOS as the base commit (pre-existing, unrelated).
+
+## 2026-11-17 Dashboard critique round 2 and fixes
+
+Prompt summary:
+
+- `/impeccable critique` of the redesigned dashboard (29/40; two P1, three P2), then fix all five issues and the minor ones in order (harden, layout, distill, clarify, typeset, polish) and re-run the critique. Branch `fix/dashboard-critique-r2` from `main`.
+
+Implementation decision:
+
+- Hero figure: lanes are focusable in row order and the keyboard enters on the traced S · 20 FPS lane; block dots name their condition and trace their lane on focus; ticks / labels are hidden from screen readers (the labelled marks carry the numbers); hover no longer shows a tooltip over the lanes (keyboard focus still does). The traced lane's Guard − Latest difference is set large with its interval; a zero-width interval at 0 is labelled "no misses under either policy".
+- First viewport: on short laptop screens (≤ 860 px tall) the question steps down to 46 px and the plate head is tighter, so all four lanes fit at 1280 × 720. The legend and a one-line key to ρ, pp and block moved under the figure; the full glossary sits in the plate foot.
+- Overview copy: the S · 20 FPS result is no longer repeated in the findings list (the guard and regime findings are the figure); overview numbers use one decimal throughout.
+- Owner decision: in dark mode the lead plate inverts to a white drafting sheet (light tokens and policy hues) instead of a dark band on a dark page.
+- Consistency: Mechanism's feasibility chart draws release arrows and the red past-deadline hatch like the hero; the concept figure's "Serve" is neutral ink (not the measured green); the architecture diagrams embed B612 (an `<img>` cannot use the page fonts) and colour the Latest-Frame chip; every measured figure carries a Measured stamp (the header stamp is dropped on phones); simulation key values use the estimate amber; sentence-case headings; remaining UI labels translated.
+- Routing: a view's kept selection is written back into the URL (a copied link shows what is on screen); an unknown hash shows a note above the overview.
+- Type: line lengths moved from `ch` to em (B612's "0" is 1.3× its average glyph, so the old caps allowed ~30% longer lines); 15 px joined the type ramp as `--fs-prose`; other off-ramp sizes moved to tokens. `DESIGN.md` updated.
+- The repository is named as text in both footers and the Evidence note, not linked: `tests/test_dashboard.py` forbids any `http(s)` `href` in the dashboard. No data, builder or bundle change (`build_data --check` CURRENT).

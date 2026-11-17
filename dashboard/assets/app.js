@@ -47,7 +47,9 @@
   const blockNo = (tag) => (tag.match(/_b(\d+)$/) || [])[1] || tag;
   const ci = (e, nd) => `[${fmt(e.lo, nd)}, ${fmt(e.hi, nd)}]`;
   const { tipRows } = UI;
-  const condOptions = () => S.conditions.map((c) => ({ value: c.id, label: c.label, html: esc(c.label) + (c.primary ? `<span class="star" title="${L("primary condition, fixed in the analysis plan before the formal runs", "primary condition，正式 run 之前已在分析計畫中固定")}">primary</span>` : "") }));
+  // The space before the badge keeps the accessible name "S · 20 FPS primary", not "…FPSprimary".
+  const condOptions = (keep) => S.conditions.filter(keep || (() => true)).map((c) => ({ value: c.id, label: c.label, html: esc(c.label) + (c.primary ? ` <span class="star" title="${L("primary condition, fixed in the analysis plan before the formal runs", "primary condition，正式 run 之前已在分析計畫中固定")}">${L("primary", "主要")}</span>` : "") }));
+  const MEAS = `<span class="tag measured">${L("Measured", "實測")}</span>`;
 
   // Per-block differences for display only. They are drawn only when their mean reproduces the
   // reported paired estimate (built from the same runs), so the dots can never disagree with the KPI.
@@ -61,8 +63,9 @@
     if (!est || pts.length !== nBlocks) return [];
     const mean = pts.reduce((s, p) => s + p.v, 0) / pts.length;
     if (Math.abs(mean - est.mean) > 0.0051 + Math.abs(est.mean) * 1e-3) return [];
-    return pts.map((p) => ({ v: p.v, label: `block ${blockNo(p.block)}`,
-      tip: tipRows(`${ARM[arm].label} − ${ARM[ref].label} · block ${blockNo(p.block)}`, [["Δ", fmt(p.v, nd, true) + unit]]) }));
+    // The condition is part of every label: a block dot heard on its own must still say where it belongs.
+    return pts.map((p) => ({ v: p.v, label: `${COND[cid].label} · block ${blockNo(p.block)}`,
+      tip: tipRows(`${ARM[arm].label} − ${ARM[ref].label} · ${COND[cid].label} · block ${blockNo(p.block)}`, [["Δ", fmt(p.v, nd, true) + unit]]) }));
   }
 
   /* ---------- routing & state ---------- */
@@ -73,11 +76,13 @@
   const rendered = {};
   let shownView = null; // the view on screen before this route() call (null on first load)
   let anchor = null;    // optional panel inside the view: #evidence/limitations → #evidence-limitations
+  let unknown = null;   // a hash that names no view (shown as a note above the overview)
   function parseHash() {
     const raw = (location.hash || "#overview").slice(1);
     const [path, q] = raw.split("?");
     const [view, sub] = path.split("/");
     anchor = sub || null;
+    unknown = view && !VIEWS.includes(view) && view !== "main" ? view : null;
     const params = new URLSearchParams(q || "");
     if (params.get("c") && COND[params.get("c")]) state.c = params.get("c");
     if (params.get("mc") && COND[params.get("mc")] && !COND[params.get("mc")].dynamic) state.mc = params.get("mc");
@@ -88,6 +93,22 @@
   function setParams(view, params) {
     const q = new URLSearchParams(params).toString();
     history.replaceState(null, "", `#${view}${q ? "?" + q : ""}`);
+  }
+  // The selection a view keeps between visits, written back into the URL so a copied link shows
+  // what is on screen (a nav link is a bare #view). Defaults are left out to keep links short.
+  function viewParams(view) {
+    const p = {};
+    if (view === "scheduling") { if (state.c !== D.primary_condition) p.c = state.c; if (state.m !== "effective_miss_rate_pct") p.m = state.m; }
+    if (view === "mechanism" && state.mc !== D.primary_condition) p.mc = state.mc;
+    if (view === "baseline" && state.model !== "both") p.model = state.model;
+    return p;
+  }
+  function routeNote() {
+    let n = document.getElementById("route-note");
+    if (!unknown) { if (n) n.remove(); return; }
+    if (!n) { n = document.createElement("div"); n.id = "route-note"; n.className = "callout"; n.setAttribute("role", "status"); main.prepend(n); }
+    n.innerHTML = L(`<p>There is no section called <code>#${esc(unknown)}</code>, so this is the overview. The sections are Overview, Baseline, Scheduling, Mechanism and Evidence.</p>`,
+      `<p>沒有名為 <code>#${esc(unknown)}</code> 的分頁，因此顯示總覽。分頁包括總覽、基準測試、排程比較、運作機制與驗證證據。</p>`);
   }
   function route() {
     const view = parseHash();
@@ -103,6 +124,8 @@
     const target = anchor && document.getElementById(`${view}-${anchor}`);
     if (target) { target.scrollIntoView({ block: "start" }); if (shownView !== null) focusHeading(target.querySelector("h2, h3")); }
     else if (shownView !== null && shownView !== view) { window.scrollTo(0, 0); focusHeading(sec.querySelector("h2")); }
+    if (!anchor && !unknown) { const p = viewParams(view); if (Object.keys(p).length) setParams(view, p); }
+    routeNote();
     shownView = view;
     document.title = (TITLE[view] ? TITLE[view] + " · " : "") + "OS-Aware Edge AI Runtime";
   }
@@ -114,7 +137,7 @@
   window.addEventListener("hashchange", () => { Object.keys(rendered).forEach((k) => { if (k !== "overview" && k !== "evidence") rendered[k] = false; }); route(); });
 
   window.Dash = Object.assign({ D, C, L, T, fmt, esc, S, ARM, COND, MODEL, MODEL_COLOR, APP_ORDER, LEGACY_ORDER, METRICS, betterText,
-    armRow, pairRow, runsOf, blockNo, ci, blockDiffs, condOptions, state, setParams, views }, UI);
+    armRow, pairRow, runsOf, blockNo, ci, blockDiffs, condOptions, MEAS, state, setParams, views }, UI);
   // The view scripts load after this file; the first route runs once they have all registered.
   document.addEventListener("DOMContentLoaded", route);
 })();

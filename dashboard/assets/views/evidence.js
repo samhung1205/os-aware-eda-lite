@@ -86,7 +86,7 @@ python3 -m src.dashboard.build_data --check   # 0 = current
 
 ${L("# preview locally (binds 127.0.0.1 only)", "# 在本機預覽（只綁定 127.0.0.1）")}
 bash scripts/serve_dashboard.sh</pre>
-          <p class="fig-note">${L("Rebuilding the tables themselves from raw runs: see README → Reproducibility.", "要從 raw runs 重建表格本身，請見 README → Reproducibility。")}</p></div>
+          <p class="fig-note">${L("Rebuilding the tables themselves from raw runs: README → Reproducibility in the repository, <code>github.com/samhung1205/os-aware-eda-lite</code>.", "要從 raw runs 重建表格本身，請見 repository <code>github.com/samhung1205/os-aware-eda-lite</code> 的 README → Reproducibility。")}</p></div>
       </div>
       <details class="table-toggle section-gap"><summary>${L(`All ${D.sources.length} source files with SHA-256`, `全部 ${D.sources.length} 個來源檔與 SHA-256`)}</summary>
         ${table([{ label: L("Path", "路徑"), l: true }, { label: L("Role", "用途"), l: true }, { label: "SHA-256", l: true }], D.sources.map((s) => ({ cells: [`<code>${esc(s.path)}</code>`, esc(T(s, "role")), `<code>${s.sha256.slice(0, 16)}…</code>`] })))}</details>`;

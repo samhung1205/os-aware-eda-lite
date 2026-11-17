@@ -104,7 +104,12 @@
   function rove(container) {
     const s = container.querySelector("svg");
     const marks = [...container.querySelectorAll("[data-tip][tabindex]")];
-    marks.forEach((m, i) => m.setAttribute("tabindex", i === 0 ? "0" : "-1"));
+    // A chart can name its entry point (the hero starts on the traced lane); otherwise the first mark.
+    const entry = Math.max(0, marks.findIndex((m) => m.hasAttribute("data-entry")));
+    marks.forEach((m, i) => m.setAttribute("tabindex", i === entry ? "0" : "-1"));
+    // Ticks, labels and gridlines repeat what each mark's label already says; hide them from screen
+    // readers so the chart reads as its labelled marks only.
+    if (s) for (const el of s.children) if (!el.matches("[data-tip], defs") && !el.querySelector("[data-tip]")) el.setAttribute("aria-hidden", "true");
     if (s && marks.length > 1) {
       const base = (s.getAttribute("aria-label") || "").replace(/[.。\s]+$/, "");
       const hint = L(`${marks.length} data points; arrow keys move between them`, `${marks.length} 個資料點，可用方向鍵移動`);
@@ -161,7 +166,8 @@
   }
   function hide() { if (tipEl) tipEl.classList.remove("on"); }
   document.addEventListener("pointerover", (e) => {
-    const t = e.target.closest && e.target.closest("[data-tip]");
+    let t = e.target.closest && e.target.closest("[data-tip]");
+    if (t && t.getAttribute("data-tip-hover") === "off") t = null;
     if (t) show(t, e.clientX, e.clientY);
     // A focused mark keeps its tooltip when the (possibly resting) pointer lands on something else,
     // e.g. after keyboard focus scrolls the page under a stationary mouse.
@@ -445,6 +451,12 @@
         if (item.group) { groupLabel(s, item.y + 17, item.group); continue; }
         const r = item.row, y = item.y;
         text(s, 0, y + 4, r.label, { class: "rowlabel" + (r.dim ? " dim" : "") });
+        // optional release arrow at t = 0, the same mark as the overview lanes
+        if (cfg.release) {
+          const x0 = x(0), tip = y - barH / 2 - 7;
+          svg("line", { x1: x0, x2: x0, y1: y + barH / 2, y2: tip + 6, class: "release" }, s);
+          svg("path", { d: `M${x0 - 4},${tip + 6}H${x0 + 4}L${x0},${tip}Z`, class: "release", "stroke-width": 0 }, s);
+        }
         let acc = 0;
         const segs = r.segments.filter((sg) => (sg.v || 0) > 0);
         segs.forEach((sg, i) => {
@@ -468,8 +480,8 @@
         if (r.valueNote) { if (endX + 7 + measure(vt + " · " + r.valueNote, 12) <= W) vt += " · " + r.valueNote; else below = true; }
         let lx = endX + 7;
         for (const ref of cfg.refs || []) { const px = x(ref.value); if (px > lx - 4 && px < lx + measure(vt, 12.5) + 4) lx = px + 7; }
-        text(s, lx, y + 4, vt, { class: "vlabel" + (r.dim ? " dim" : "") });
-        if (below) text(s, labelW, y + barH / 2 + 12, r.valueNote, { class: "vlabel dim", style: "font-size:11.5px" });
+        text(s, lx, y + 4, vt, { class: "vlabel" + (r.dim ? " dim" : "") + (r.lateValue ? " strong late" : "") });
+        if (below) text(s, labelW, y + barH / 2 + 12, r.valueNote, { class: "vlabel dim small" });
         if (r.marker !== undefined && r.marker !== null) {
           svg("line", { x1: x(r.marker), x2: x(r.marker), y1: y - barH / 2 - 4, y2: y + barH / 2 + 4, stroke: "var(--ink)", "stroke-width": 2 }, s);
         }
@@ -528,7 +540,7 @@
       const narrow = W < 720;
       const rows = cfg.rows, n = rows.length;
       const def = Math.max(0, rows.findIndex((r) => r.trace));
-      const barH = 16, endW = 64, valueW = narrow ? 50 : 76;
+      const barH = 16, endW = 64, valueW = narrow ? 50 : rows.some((r) => r.trace) ? 104 : 76;
       const rowH = narrow ? 92 : 64, barY = narrow ? 32 : 16, top = 46;
       const labelW = narrow ? 0 : Math.min(200, Math.max(...rows.map((r) => Math.max(measure(r.label, 13.5), measure(r.sub || "", 12)))) + 26);
       let lx0, lx1, dx0, dx1, dTop, dRowH;
@@ -551,6 +563,8 @@
       const xt = lin(0, tDom.hi, lx0, lx1), xd = lin(dDom.lo, dDom.hi, dx0, dx1);
       const s = svg("svg", { viewBox: `0 0 ${W} ${H}`, width: W, height: H, role: "group", "aria-label": cfg.ariaLabel || "" }, el);
       const bandLayer = svg("g", null, s);
+      // lane hit areas sit under every mark, in row order, so Tab and the arrow keys walk the lanes top to bottom
+      const hitLayer = svg("g", null, s);
       // the time ruler runs across the top of the lanes; gridlines drop from it
       const rY = 18;
       svg("line", { x1: lx0, x2: lx1, y1: rY + 0.5, y2: rY + 0.5, class: "ruler" }, s);
@@ -566,7 +580,8 @@
       }
       // unit: the full axis title beside the ruler, or just "ms" at the right edge on narrow screens
       if (narrow) text(s, W, rY - 7, "ms", { class: "axis-title", "text-anchor": "end" });
-      else if (cfg.tTitle) text(s, lx1 + 10, rY + 4, cfg.tTitle, { class: "axis-title" });
+      // (left of the ruler, in the label column: beside the last tick it read as "120 ms after publish")
+      else if (cfg.tTitle) text(s, lx0 - 12, rY + 4, cfg.tTitle, { class: "axis-title", "text-anchor": "end" });
       xAxis(s, xd, dDom, dTop - 6, dBottom, { title: cfg.dTitle, zeroStrong: true, width: W });
       const pxd = xt(cfg.deadline);
       refMark(s, pxd, top - 7, narrow ? top : lanesBottom, cfg.deadlineLabel, narrow ? W : dx0 - 16);
@@ -628,12 +643,23 @@
         for (const p of r.points || []) {
           const c = svg("circle", { cx: xd(p.v), cy: yd, r: 3.4, stroke: r.color, class: "blockdot" }, s);
           tipAttrs(c, p.tip, p.label);
+          c.addEventListener("focus", () => setTrace(i));
+          c.addEventListener("blur", () => setTrace(def));
         }
         svg("circle", { cx: xd(r.mean), cy: yd, r: 5.5, fill: sig ? r.color : "var(--surface)", stroke: sig ? "var(--surface)" : r.color, "stroke-width": sig ? 2 : 1.75 }, s);
-        text(s, W, yd + 4.5, r.valueText + (narrow || !cfg.unit ? "" : cfg.unit), { "text-anchor": "end", class: "vlabel" + (sig ? " strong" : " dim") });
-        const hit = svg("rect", { x: 0, y: y0, width: W, height: rowH, class: "hit" }, s);
-        s.insertBefore(hit, bandLayer.nextSibling);
+        // A zero-width interval at 0 means neither policy missed a frame, not "no effect": say so in place.
+        if (r.zeroNote && r.lo === 0 && r.hi === 0) text(s, xd(0) - 10, yd + 4, r.zeroNote, { class: "sublabel", "text-anchor": "end" });
+        // The traced lane's difference is the page's answer: set it large, with its interval under it.
+        if (r.trace && !narrow) {
+          text(s, W, yd + 3, r.valueText + (cfg.unit || ""), { "text-anchor": "end", class: "vlabel lead" });
+          text(s, W, yd + 19, `[${fmt(r.lo, 1)}, ${fmt(r.hi, 1)}]`, { "text-anchor": "end", class: "sublabel" });
+        } else text(s, W, yd + 4.5, r.valueText + (narrow || !cfg.unit ? "" : cfg.unit), { "text-anchor": "end", class: "vlabel" + (sig ? " strong" : " dim") });
+        const hit = svg("rect", { x: 0, y: y0, width: W, height: rowH, class: "hit" }, hitLayer);
         tipAttrs(hit, r.tip, r.label);
+        // Hovering a lane already traces it and every number is drawn; the tooltip would only cover
+        // the neighbouring lanes, so it appears for keyboard focus only.
+        hit.setAttribute("data-tip-hover", "off");
+        if (i === def) hit.setAttribute("data-entry", "");
         hit.addEventListener("focus", () => setTrace(i));
         hit.addEventListener("blur", () => setTrace(def));
       });
