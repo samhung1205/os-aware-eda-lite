@@ -463,3 +463,20 @@ Implementation decision:
 - Colours: policy colours only for arms; models use neutral weights (`--model-*`); EDA-Lite schedulers use an amber estimate family (`--e*`, layerwise dashed). Light-mode series and `--muted` raised to WCAG contrast.
 - Charts: one tab stop per chart with arrow-key movement; mark names carry the tooltip values; P99 slope and simulation axes start at 0. No data, builder or bundle change (`build_data --check` CURRENT).
 - Copy: glossary ("How to read this page"), computed Ablation subtitle and block counts, no hard-coded "off this scale", legend matches drawn lines, readable OS profile names in built-in order.
+
+## 2026-11-17 Dashboard redesign: timing-diagram visual language and view split
+
+Prompt summary:
+
+- Refactor, optimise and restyle the dashboard as a front-end / UI-UX engineer, using the installed design skills; ask when unsure. Branch `feat/dashboard-redesign` from `fix/dashboard-nav-a11y`.
+
+Implementation decision:
+
+- Owner decisions: full visual redesign plus code refactor (content, numbers, five views and the measured / estimate split unchanged); primary audience is GitHub Pages portfolio visitors; self-hosted open-source fonts allowed (B612 / B612 Mono, SIL OFL, ~67 KB, downloaded with approval into `dashboard/assets/fonts/` with `OFL.txt`); English stays the default.
+- Visual direction "Timing Diagram", chosen by the owner from a direction round: the site is drawn in real-time-scheduling notation (time axis, release arrows, open bar = waiting, solid = measured service, red = past the deadline, hatch = estimated, dashed line with a down arrow = deadline). Figures sit between ink rules instead of cards; the lead figure is an inverted ink plate; navigation is a time axis with a filled arrow on the current view; controls are joined ink strips.
+- Overview regime map rebuilt as a timing diagram: one lane per fixed-rate condition with dimension lines (wait + service) on the traced lane (S · 20 FPS by default; hover / focus traces any lane), a one-time playhead sweep on first load (skipped with reduced motion). Same data and first-order rule as before.
+- Code: the 714-line `app.js` split into `app.js` (data check, lookups, routing), `ui.js` (shared controls / tables / key-measurement list) and `views/<view>.js`; `simulation.js` reuses `ui.js`. Stat tiles replaced by a key-measurement list; segmented controls gain arrow-key movement; programmatically focused headings no longer show a focus ring.
+- Architecture diagrams restyled as square line art (geometry and text unchanged). No data, builder or bundle change.
+- Product and design context recorded in `PRODUCT.md`; the Impeccable working files live in `.impeccable/`.
+- Independent finish review (two rounds): the first viewport now shows all four lanes at 1440 × 780; past-deadline time is a red 45° hatch everywhere; a millisecond ruler runs across the top of the lanes; FIFO / legacy arms moved to greys so colour belongs to the three compared policies; the architecture diagram is a ruled figure; wide tables fade their hidden edge on phones. The owner chose to condense the Overview plate's measurement table to the two values not shown elsewhere on that view (Guard − Latest under the load step, constrained run count); Adaptive − Latest and saturated throughput stay on the Scheduling and Baseline views.
+- `DESIGN.md` (repo root) records the shipped design system; README screenshots in `docs/images/` regenerated. Full test suite: 271 tests, the same 10 `test_ros2_run_integrity` shell-script failures on macOS as the base commit (pre-existing, unrelated).

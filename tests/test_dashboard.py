@@ -344,7 +344,7 @@ class FrontendTest(unittest.TestCase):
     """Static checks of the page: self-contained, five views, separate simulation entry."""
 
     def test_pages_load_no_external_resources(self):
-        for f in [*DASH.glob("*.html"), *(DASH / "assets").glob("*.js"), *(DASH / "assets").glob("*.css"),
+        for f in [*DASH.glob("*.html"), *(DASH / "assets").rglob("*.js"), *(DASH / "assets").glob("*.css"),
                   *(DASH / "assets").glob("*.svg")]:
             text = f.read_text(encoding="utf-8")
             with self.subTest(file=f.name):

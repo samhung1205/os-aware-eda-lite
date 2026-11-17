@@ -342,7 +342,7 @@ class ContinuousIntegrationTest(unittest.TestCase):
 
         site = REPO / "dashboard"
         refs = re.compile(r"""(?:src|href)\s*=\s*["']([^"']+)["']|url\(\s*["']?([^"')]+)""")
-        files = [*site.glob("*.html"), *site.glob("assets/*.js"), *site.glob("assets/*.css")]
+        files = [*site.glob("*.html"), *site.glob("assets/**/*.js"), *site.glob("assets/*.css")]
         self.assertTrue(files)
         for path in files:
             text = path.read_text(encoding="utf-8")

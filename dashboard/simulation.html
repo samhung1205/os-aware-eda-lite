@@ -7,6 +7,8 @@
   <title data-zh="EDA-Lite 模擬瀏覽器">EDA-Lite Simulation Explorer</title>
   <meta name="description" content="EDA-Lite layer-fusion simulation estimates for simplified MobileViT profiles. Cost-model units, not hardware measurements." data-zh-content="簡化 MobileViT profile 的 EDA-Lite layer-fusion 模擬估計值。單位是 cost-model units，不是硬體量測。">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="assets/fonts/b612-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/b612-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
@@ -14,14 +16,14 @@
   <header class="topbar">
     <div class="topbar-inner">
       <div class="brand">
-        <h1>OS-Aware Edge AI Runtime</h1>
+        <h1><a href="index.html#overview">OS-Aware Edge AI Runtime</a></h1>
         <span class="sub" data-zh="EDA-Lite 離線 layer-fusion cost model">EDA-Lite offline layer-fusion cost model</span>
         <span class="spacer"></span>
         <span class="tag estimate" title="Simulation outputs in cost-model units; not measured on hardware" data-zh-title="模擬輸出，單位是 cost-model units；不是硬體實測">
           <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 4.8v3.6M8 10.6v.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
           <span data-zh="模擬估計值">Simulation estimates</span>
         </span>
-        <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-nav"><span data-zh="分頁">Sections</span><span class="sr-only"><span data-zh="，目前：">, current: </span><span class="nav-current">EDA-Lite simulation</span></span><span class="chev" aria-hidden="true"></span></button>
+        <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-nav"><span data-zh="分頁">Sections</span><span class="sr-only"><span data-zh="，目前：">, current: </span><span class="nav-current">EDA-Lite simulation</span></span><svg class="chev" viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1.5l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
       </div>
       <nav class="nav" id="site-nav" aria-label="Sections" data-zh-aria-label="分頁">
         <a href="index.html#overview" data-zh="總覽">Overview</a>
@@ -54,6 +56,7 @@
   <script src="assets/i18n.js"></script>
   <script src="data/dashboard_data.js"></script>
   <script src="assets/charts.js"></script>
+  <script src="assets/ui.js"></script>
   <script src="assets/simulation.js"></script>
   <script src="assets/nav.js"></script>
 </body>

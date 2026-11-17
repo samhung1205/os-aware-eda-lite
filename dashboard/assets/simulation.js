@@ -4,6 +4,7 @@
   const D = window.DASHBOARD_DATA;
   const C = window.Charts;
   const { fmt, esc } = C;
+  const { seg, control, spec } = window.UI;
   const L = (window.I18N && window.I18N.L) || ((en) => en);
   const sec = document.getElementById("sim");
   sec.hidden = false;
@@ -45,13 +46,13 @@
       "EDA-Lite 把簡化的 MobileViT block profile 切成能放進指定 on-chip SRAM 的 fused subgraph，再用輕量 cost model 估計 DRAM traffic、energy 與 latency。它受 EDA compiler 論文啟發，但並不重現該論文。")}</p></div>
     <div class="callout est"><p>${L(`<b>Estimates, not measurements.</b> ${esc(D.simulation.note)} The verified ROS 2 results on the <a href="index.html#overview">measured dashboard</a> do not depend on anything on this page.`,
       `<b>這些是估計值，不是實測。</b> ${esc(D.simulation.note_zh || D.simulation.note)} <a href="index.html#overview">實測 dashboard</a> 上已驗證的 ROS 2 結果與本頁內容完全無關。`)}</p></div>
-    <div class="controls" id="c" style="margin-top:28px"></div>
-    <div class="stat-row" id="stats"></div>
+    <div class="controls" id="c"></div>
+    <div id="stats"></div>
     <div class="grid section-gap">
-      <div class="span-8 panel"><div class="fig-head"><div class="titles"><h3 id="t1"></h3><p class="fig-sub" id="s1"></p></div><span class="tag estimate">${L("Estimate", "估計值")}</span></div>
+      <div class="span-8 fig"><div class="fig-head"><div class="titles"><h3 id="t1"></h3><p class="fig-sub" id="s1"></p></div><span class="tag estimate">${L("Estimate", "估計值")}</span></div>
         <div class="legend" id="lg"></div><div class="chart" id="ch"></div><p class="fig-note" id="n1"></p></div>
-      <div class="span-4 panel"><h3>${L("How to read this", "怎麼看這張圖")}</h3>
-        <ul class="limits small" style="margin-top:8px">
+      <div class="span-4 fig"><h3>${L("How to read this", "怎麼看這張圖")}</h3>
+        <ul class="limits">
           <li>${L("<b>layerwise</b> runs every block alone (the no-fusion baseline).", "<b>layerwise</b>：每個 block 單獨執行（不融合的 baseline）。")}</li>
           <li>${L("<b>greedy</b> fuses left to right while the subgraph fits SRAM.", "<b>greedy</b>：由左往右融合，直到 subgraph 放不進 SRAM 為止。")}</li>
           <li>${L("<b>dp</b> finds the partition with the exact minimum OS-aware total cost (verified against an exhaustive oracle in the tests).", "<b>dp</b>：找出 OS-aware total cost 精確最小的切分（測試中已用 exhaustive oracle 驗證）。")}</li>
@@ -63,18 +64,12 @@
     </div>
     <div class="section-gap" id="tbl"></div>`;
 
-  function seg(name, options, cur, pick) {
-    const w = document.createElement("div"); w.className = "seg"; w.setAttribute("role", "group"); w.setAttribute("aria-label", name);
-    options.forEach((o) => { const b = document.createElement("button"); b.type = "button"; b.textContent = o.label; b.setAttribute("aria-pressed", String(o.value === cur));
-      b.onclick = () => { w.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", "false")); b.setAttribute("aria-pressed", "true"); pick(o.value); }; w.appendChild(b); });
-    const box = document.createElement("div"); box.className = "control";
-    box.innerHTML = `<span class="control-label">${esc(name)}</span>`; box.appendChild(w); return box;
-  }
   const c = sec.querySelector("#c");
   const upd = () => { history.replaceState(null, "", `#model=${st.model}&os=${st.os}&m=${st.m}`); draw(); };
-  c.appendChild(seg(L("Model", "模型"), Object.keys(MODEL).map((k) => ({ value: k, label: k === "mobilevit_s" ? "MobileViT-S" : "MobileViT-XXS" })), st.model, (v) => { st.model = v; upd(); }));
-  c.appendChild(seg("OS profile", profiles.map((p) => ({ value: p, label: p.replace(/_/g, " ") })), st.os, (v) => { st.os = v; upd(); }));
-  c.appendChild(seg(L("Metric", "指標"), Object.keys(METRIC).map((k) => ({ value: k, label: METRIC[k].label })), st.m, (v) => { st.m = v; upd(); }));
+  const pick = (label, options, cur, set) => control(c, label, seg(label, options, cur, (v) => { set(v); upd(); }));
+  pick(L("Model", "模型"), Object.keys(MODEL).map((k) => ({ value: k, label: k === "mobilevit_s" ? "MobileViT-S" : "MobileViT-XXS" })), st.model, (v) => { st.model = v; });
+  pick("OS profile", profiles.map((p) => ({ value: p, label: p.replace(/_/g, " ") })), st.os, (v) => { st.os = v; });
+  pick(L("Metric", "指標"), Object.keys(METRIC).map((k) => ({ value: k, label: METRIC[k].label })), st.m, (v) => { st.m = v; });
 
   function draw() {
     const M = METRIC[st.m];
@@ -84,12 +79,13 @@
     const maxS = srams[srams.length - 1];
     const lw = get("layerwise", maxS), dp = get("dp", maxS);
     const red = (a, b) => (a && b && a !== 0 ? (100 * (a - b)) / a : null);
-    sec.querySelector("#stats").innerHTML = [
+    const estDetail = L(`simulation estimate · ${esc(st.os)} profile`, `模擬估計值 · ${esc(st.os)} profile`);
+    sec.querySelector("#stats").innerHTML = spec([
       [L("DRAM traffic, dp vs layerwise", "DRAM traffic，dp vs layerwise"), red(lw && lw.dram_traffic_kb, dp && dp.dram_traffic_kb)],
       [L("Energy estimate, dp vs layerwise", "Energy 估計值，dp vs layerwise"), red(lw && lw.estimated_energy, dp && dp.estimated_energy)],
       [L("Latency estimate, dp vs layerwise", "Latency 估計值，dp vs layerwise"), red(lw && lw.estimated_latency_ms, dp && dp.estimated_latency_ms)],
-    ].map(([l, v]) => `<div class="stat"><div class="label">${esc(l)} · ${maxS} KB SRAM</div><div class="v">${v === null ? "–" : fmt(-v, 1)}<span class="unit">%</span></div><div class="d">${L(`simulation estimate · ${esc(st.os)} profile`, `模擬估計值 · ${esc(st.os)} profile`)}</div></div>`).join("")
-      + `<div class="stat"><div class="label">${L(`Subgraphs at ${maxS} KB`, `${maxS} KB 時的 subgraph 數`)}</div><div class="v">${dp ? dp.num_subgraphs : "–"}<span class="unit">${L(`vs ${lw ? lw.num_subgraphs : "–"} layers`, `vs ${lw ? lw.num_subgraphs : "–"} 層`)}</span></div><div class="d">${L("max fusion depth", "最大 fusion depth")} ${dp ? dp.max_fusion_depth : "–"}</div></div>`;
+    ].map(([l, v]) => ({ label: `${esc(l)} · ${maxS} KB SRAM`, value: v === null ? "–" : fmt(-v, 1), unit: "%", detail: estDetail }))
+      .concat([{ label: L(`Subgraphs at ${maxS} KB`, `${maxS} KB 時的 subgraph 數`), value: dp ? dp.num_subgraphs : "–", unit: L(`vs ${lw ? lw.num_subgraphs : "–"} layers`, `vs ${lw ? lw.num_subgraphs : "–"} 層`), detail: `${L("max fusion depth", "最大 fusion depth")} ${dp ? dp.max_fusion_depth : "–"}` }]));
 
     sec.querySelector("#t1").textContent = L(`${M.label} by SRAM budget`, `不同 SRAM 預算下的 ${M.label}`);
     sec.querySelector("#s1").textContent = L(`${MODEL[st.model]} · OS profile “${st.os}” · ${M.unit} · lower is better`, `${MODEL[st.model]} · OS profile「${st.os}」· ${M.unit} · 越低越好`);
