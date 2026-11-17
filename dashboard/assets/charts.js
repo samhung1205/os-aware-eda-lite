@@ -50,20 +50,68 @@
     const nd = step >= 1 ? 0 : Math.min(3, Math.ceil(-Math.log10(step)));
     return fmt(v, nd);
   }
-  function measure(str, size) { return String(str).length * (size || 12.5) * 0.56; }
+  // Approximate text width: CJK and full-width characters are about 1 em, Latin about 0.56 em.
+  function measure(str, size) {
+    let n = 0;
+    for (const ch of String(str)) n += /[\u2e80-\u9fff\uf900-\ufaff\uff00-\uffef]/.test(ch) ? 1 : 0.56;
+    return n * (size || 12.5);
+  }
   function refLabel(s, px, y, label, W) {
     const right = px + 4 + measure(label, 11.5) <= W;
     return text(s, right ? px + 4 : px - 4, y, label, { class: "reflabel", "text-anchor": right ? "start" : "end" });
   }
   function width(container) { return Math.max(280, Math.floor(container.clientWidth || 640)); }
 
+  const L = (window.I18N && window.I18N.L) || ((en) => en);
+  // Plain-text version of a tooltip ("title: key value; key value") so the accessible name carries the
+  // numbers, not just "Latest-Frame block 1".
+  const scratch = document.createElement("div");
+  function tipText(html) {
+    scratch.innerHTML = html;
+    const title = scratch.querySelector("b");
+    const rows = [...scratch.querySelectorAll(".row")].map((r) => [...r.children].map((c) => c.textContent.trim()).join(" "));
+    if (!rows.length) return scratch.textContent.replace(/\s+/g, " ").trim();
+    return (title ? title.textContent.trim() + ": " : "") + rows.join("; ");
+  }
   function tipAttrs(node, html, label) {
     if (!html) return;
     node.setAttribute("data-tip", html);
     node.setAttribute("tabindex", "0");
     node.setAttribute("role", "img");
-    if (label) node.setAttribute("aria-label", label);
+    const t = tipText(html);
+    const norm = (x) => x.replace(/[\s·:,;]+/g, " ").trim().toLowerCase();
+    node.setAttribute("aria-label", label && !norm(t).includes(norm(label)) ? `${label}: ${t}` : t || label || "");
   }
+
+  /* ---------- keyboard: one tab stop per chart, arrow keys move between its marks ---------- */
+  function rove(container) {
+    const s = container.querySelector("svg");
+    const marks = [...container.querySelectorAll("[data-tip][tabindex]")];
+    marks.forEach((m, i) => m.setAttribute("tabindex", i === 0 ? "0" : "-1"));
+    if (s && marks.length > 1) {
+      const base = (s.getAttribute("aria-label") || "").replace(/[.。\s]+$/, "");
+      const hint = L(`${marks.length} data points; arrow keys move between them`, `${marks.length} 個資料點，可用方向鍵移動`);
+      s.setAttribute("aria-label", base ? base + L(". ", "。") + hint : hint);
+    }
+  }
+  const STEP = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 };
+  document.addEventListener("keydown", (e) => {
+    const t = e.target.closest && e.target.closest("[data-tip][tabindex]");
+    const s = t && t.closest("svg");
+    if (!s || e.altKey || e.ctrlKey || e.metaKey) return;
+    const marks = [...s.querySelectorAll("[data-tip][tabindex]")];
+    const i = marks.indexOf(t);
+    let j;
+    if (e.key in STEP) j = Math.max(0, Math.min(marks.length - 1, i + STEP[e.key]));
+    else if (e.key === "Home") j = 0;
+    else if (e.key === "End") j = marks.length - 1;
+    else return;
+    e.preventDefault();
+    if (j === i) return;
+    marks[i].setAttribute("tabindex", "-1");
+    marks[j].setAttribute("tabindex", "0");
+    marks[j].focus();
+  });
 
   /* ---------- tooltip ---------- */
   let tipEl = null;
@@ -72,7 +120,9 @@
     if (!tipEl) {
       tipEl = document.createElement("div");
       tipEl.className = "tooltip";
-      tipEl.setAttribute("role", "status");
+      // Visual only: each mark's aria-label already carries the same text, so screen readers
+      // would otherwise hear it twice on every focus.
+      tipEl.setAttribute("aria-hidden", "true");
       document.body.appendChild(tipEl);
     }
     return tipEl;
@@ -125,6 +175,7 @@
       entry.w = w;
       container.innerHTML = "";
       render(container, w);
+      rove(container);
     };
     for (const e of mounted) if (e.container === container) mounted.delete(e);
     mounted.add(entry);
@@ -327,7 +378,7 @@
       for (const sr of cfg.series) {
         const pts = sr.points.slice().sort((a, b) => a.x - b.x);
         if (!cfg.scatter && pts.length > 1) {
-          svg("path", { d: pts.map((p, i) => (i ? "L" : "M") + x(p.x).toFixed(1) + "," + y(p.y).toFixed(1)).join(""), fill: "none", stroke: sr.color, "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" }, s);
+          svg("path", { d: pts.map((p, i) => (i ? "L" : "M") + x(p.x).toFixed(1) + "," + y(p.y).toFixed(1)).join(""), fill: "none", stroke: sr.color, "stroke-width": 2, "stroke-dasharray": sr.dash, "stroke-linejoin": "round", "stroke-linecap": sr.dash ? "butt" : "round" }, s);
         }
         for (const p of pts) {
           const c = svg("circle", { cx: x(p.x), cy: y(p.y), r: cfg.scatter ? 4.5 : 4, fill: sr.color, class: "ring", "fill-opacity": cfg.scatter ? 0.8 : 1 }, s);
@@ -393,8 +444,12 @@
         });
         const endX = Math.max(x(acc), r.marker !== undefined && r.marker !== null ? x(r.marker) : 0);
         let vt = r.valueText !== undefined ? r.valueText : fmt(acc, cfg.nd);
-        if (r.valueNote && endX + 7 + measure(vt + " · " + r.valueNote, 12) <= W) vt += " · " + r.valueNote;
+        // A note that does not fit after the value moves under the bar; it is never dropped, because it
+        // can be what keeps the bar from being misread.
+        let below = false;
+        if (r.valueNote) { if (endX + 7 + measure(vt + " · " + r.valueNote, 12) <= W) vt += " · " + r.valueNote; else below = true; }
         text(s, endX + 7, y + 4, vt, { class: "vlabel" + (r.dim ? " dim" : "") });
+        if (below) text(s, labelW, y + barH / 2 + 12, r.valueNote, { class: "vlabel dim", style: "font-size:11.5px" });
         if (r.marker !== undefined && r.marker !== null) {
           svg("line", { x1: x(r.marker), x2: x(r.marker), y1: y - barH / 2 - 4, y2: y + barH / 2 + 4, stroke: "var(--ink)", "stroke-width": 2 }, s);
         }
@@ -443,6 +498,71 @@
     });
   }
 
+  /* ---------- regime map: per condition, the newest frame's worst-case finish time against the
+   * deadline (left) next to the measured paired difference (right), on shared scales ---------- */
+  function regimeMap(container, cfg) {
+    return mount(container, (el, W) => {
+      const narrow = W < 640;
+      const rows = cfg.rows;
+      const labelW = narrow ? 0 : Math.min(200, Math.max(...rows.map((r) => Math.max(measure(r.label, 13), measure(r.sub || "", 11.5)))) + 20);
+      const gap = narrow ? 40 : 56, valueW = narrow ? 44 : 66;
+      const plotW = W - labelW - gap - valueW;
+      const tW = Math.round(plotW * 0.56);
+      const tx0 = labelW, tx1 = labelW + tW, dx0 = tx1 + gap, dx1 = W - valueW;
+      const rowH = narrow ? 58 : 50, top = 30, barH = 14;
+      const plotBottom = top + rows.length * rowH, H = plotBottom + 42;
+      const tDom = niceDomain(0, Math.max(cfg.deadline * 1.2, ...rows.map((r) => r.age + r.service)), narrow ? 3 : 4, { zero: true });
+      const dv = [0];
+      rows.forEach((r) => { dv.push(r.lo, r.hi, r.mean); (r.points || []).forEach((p) => dv.push(p.v)); });
+      const dDom = niceDomain(Math.min(...dv.filter(isFinite)), Math.max(...dv.filter(isFinite)), narrow ? 3 : 4, { zero: true });
+      const xt = lin(0, tDom.hi, tx0, tx1), xd = lin(dDom.lo, dDom.hi, dx0, dx1);
+      const s = svg("svg", { viewBox: `0 0 ${W} ${H}`, width: W, height: H, role: "group", "aria-label": cfg.ariaLabel || "" }, el);
+      xAxis(s, xt, tDom, top - 6, plotBottom, { title: cfg.tTitle, width: tx1 });
+      xAxis(s, xd, dDom, top - 6, plotBottom, { title: cfg.dTitle, zeroStrong: true, width: W });
+      const pxd = xt(cfg.deadline);
+      svg("line", { x1: pxd, x2: pxd, y1: top - 10, y2: plotBottom, class: "refline" }, s);
+      refLabel(s, pxd, top - 12, cfg.deadlineLabel, tx1 + gap - 4);
+      if (cfg.betterLabel) {
+        const z = xd(0), m = measure(cfg.betterLabel, 11.5);
+        if (z - 6 - m >= dx0 - gap / 2) text(s, z - 6, top - 12, cfg.betterLabel, { class: "reflabel muted-label", "text-anchor": "end" });
+        else if (z + 6 + m <= W) text(s, z + 6, top - 12, cfg.betterLabel, { class: "reflabel muted-label", "text-anchor": "start" });
+      }
+      rows.forEach((r, i) => {
+        const y0 = top + i * rowH, yc = y0 + (narrow ? 38 : rowH / 2);
+        const sig = isFinite(r.lo) && isFinite(r.hi) && (r.lo > 0 || r.hi < 0);
+        if (i) svg("line", { x1: 0, x2: W, y1: y0 + 0.5, y2: y0 + 0.5, class: "rowrule" }, s);
+        if (narrow) {
+          const t = text(s, 0, y0 + 16, r.label, { class: "rowlabel strong" });
+          if (r.sub) text(s, measure(r.label, 12.5) + 10, y0 + 16, r.sub, { class: "vlabel dim", style: "font-size:11.5px" });
+          t.setAttribute("aria-hidden", "true");
+        } else {
+          text(s, 0, yc - 2, r.label, { class: "rowlabel strong" });
+          if (r.sub) text(s, 0, yc + 14, r.sub, { class: "vlabel dim", style: "font-size:11.5px" });
+        }
+        // worst-case finish time of the newest frame: its age (0 to one inter-arrival) + service
+        const a1 = xt(r.age), b1 = xt(r.age + r.service);
+        if (r.age > 0) svg("path", { d: barPath(xt(0), a1 - 1.5, yc - barH / 2, barH, false), fill: "var(--axis)" }, s);
+        svg("path", { d: barPath(a1, b1, yc - barH / 2, barH, true), fill: "var(--ink-2)" }, s);
+        if (r.age + r.service > cfg.deadline) svg("path", { d: barPath(pxd, b1, yc - barH / 2, barH, true), class: "overshoot" }, s);
+        // paired difference: 95% interval, single blocks, mean
+        if (isFinite(r.lo) && isFinite(r.hi)) {
+          const stroke = sig ? "var(--ink)" : "var(--muted)";
+          svg("line", { x1: xd(r.lo), x2: xd(r.hi), y1: yc, y2: yc, stroke, "stroke-width": 2, "stroke-linecap": "round" }, s);
+          for (const v of [r.lo, r.hi]) svg("line", { x1: xd(v), x2: xd(v), y1: yc - 5, y2: yc + 5, stroke, "stroke-width": 1.5 }, s);
+        }
+        for (const p of r.points || []) {
+          const c = svg("circle", { cx: xd(p.v), cy: yc, r: 3.4, stroke: r.color, class: "blockdot" }, s);
+          tipAttrs(c, p.tip, p.label);
+        }
+        svg("circle", { cx: xd(r.mean), cy: yc, r: 5.5, fill: sig ? r.color : "var(--surface)", stroke: sig ? "var(--surface)" : r.color, "stroke-width": sig ? 2 : 1.75 }, s);
+        text(s, W, yc + 4, r.valueText + (narrow || !cfg.unit ? "" : cfg.unit), { "text-anchor": "end", class: "vlabel" + (sig ? " strong" : " dim") });
+        const hit = svg("rect", { x: 0, y: y0, width: W, height: rowH, class: "hit" }, s);
+        s.insertBefore(hit, s.firstChild);
+        tipAttrs(hit, r.tip, r.label);
+      });
+    });
+  }
+
   /* ---------- small CI strip for a single estimate ---------- */
   function ciStrip(container, est, opts) {
     opts = opts || {};
@@ -464,5 +584,5 @@
     });
   }
 
-  window.Charts = { dotRows, forest, lineChart, hbars, slope, ciStrip, fmt, esc, refreshVisible };
+  window.Charts = { dotRows, forest, lineChart, hbars, slope, regimeMap, ciStrip, fmt, esc, refreshVisible };
 })();

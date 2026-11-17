@@ -2,6 +2,16 @@
  * current section; on wider screens the button is hidden and the nav is a plain tab row. */
 (function () {
   "use strict";
+  // Skip link: index.html routes on the hash, so "#main" must not reach the router. Move focus to the
+  // heading of the view on screen instead (the browser scrolls it below the sticky header).
+  const skip = document.querySelector(".skip-link");
+  if (skip) skip.addEventListener("click", (e) => {
+    const h = document.querySelector("main section:not([hidden]) h2") || document.querySelector("main h2");
+    if (!h) return;
+    e.preventDefault();
+    h.setAttribute("tabindex", "-1");
+    h.focus();
+  });
   const bar = document.querySelector(".topbar");
   const btn = document.querySelector(".nav-toggle");
   const nav = document.getElementById("site-nav");

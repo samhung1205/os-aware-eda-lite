@@ -14,7 +14,8 @@
   }
   const rows = D.simulation.rows;
   const MODEL = { mobilevit_s: L("MobileViT-S (simplified)", "MobileViT-S（簡化）"), mobilevit_xxs: L("MobileViT-XXS (simplified)", "MobileViT-XXS（簡化）") };
-  const SCHED = { layerwise: { label: L("layerwise (no fusion)", "layerwise（不融合）"), color: "var(--s1)" }, greedy: { label: "greedy", color: "var(--s2)" }, dp: { label: L("dp (exact)", "dp（精確解）"), color: "var(--s3)" } };
+  // Estimate family (amber), so no simulation line can be read as a measured policy colour.
+  const SCHED = { layerwise: { label: L("layerwise (no fusion)", "layerwise（不融合）"), color: "var(--e3)", dash: "5 4" }, greedy: { label: "greedy", color: "var(--e2)" }, dp: { label: L("dp (exact)", "dp（精確解）"), color: "var(--e1)" } };
   const METRIC = {
     dram_traffic_kb: { label: "DRAM traffic", unit: "KB", nd: 0 },
     estimated_energy: { label: L("Estimated energy", "Energy 估計值"), unit: "cost units", nd: 1 },
@@ -22,7 +23,10 @@
     os_aware_total_cost: { label: "OS-aware total cost", unit: "cost units", nd: 1 },
     num_subgraphs: { label: L("Subgraphs", "Subgraph 數"), unit: L("count", "個"), nd: 0 },
   };
-  const profiles = [...new Set(rows.map((r) => r.os_profile))].sort((a, b) => (a === "pure" ? -1 : b === "pure" ? 1 : a < b ? -1 : 1));
+  // Built-in order: the compiler-only baseline first, then increasing pressure.
+  const PROFILE_ORDER = ["pure", "normal", "high_latency", "high_memory_pressure"];
+  const rank = (p) => (PROFILE_ORDER.includes(p) ? PROFILE_ORDER.indexOf(p) : PROFILE_ORDER.length);
+  const profiles = [...new Set(rows.map((r) => r.os_profile))].sort((a, b) => rank(a) - rank(b) || (a < b ? -1 : a > b ? 1 : 0));
   const params = new URLSearchParams(location.hash.slice(1));
   const st = { model: params.get("model") || "mobilevit_s", os: params.get("os") || "pure", m: params.get("m") || "dram_traffic_kb" };
   if (!MODEL[st.model]) st.model = "mobilevit_s";
@@ -69,7 +73,7 @@
   const c = sec.querySelector("#c");
   const upd = () => { history.replaceState(null, "", `#model=${st.model}&os=${st.os}&m=${st.m}`); draw(); };
   c.appendChild(seg(L("Model", "模型"), Object.keys(MODEL).map((k) => ({ value: k, label: k === "mobilevit_s" ? "MobileViT-S" : "MobileViT-XXS" })), st.model, (v) => { st.model = v; upd(); }));
-  c.appendChild(seg("OS profile", profiles.map((p) => ({ value: p, label: p })), st.os, (v) => { st.os = v; upd(); }));
+  c.appendChild(seg("OS profile", profiles.map((p) => ({ value: p, label: p.replace(/_/g, " ") })), st.os, (v) => { st.os = v; upd(); }));
   c.appendChild(seg(L("Metric", "指標"), Object.keys(METRIC).map((k) => ({ value: k, label: METRIC[k].label })), st.m, (v) => { st.m = v; upd(); }));
 
   function draw() {
@@ -90,13 +94,14 @@
     sec.querySelector("#t1").textContent = L(`${M.label} by SRAM budget`, `不同 SRAM 預算下的 ${M.label}`);
     sec.querySelector("#s1").textContent = L(`${MODEL[st.model]} · OS profile “${st.os}” · ${M.unit} · lower is better`, `${MODEL[st.model]} · OS profile「${st.os}」· ${M.unit} · 越低越好`);
     const ties = srams.every((k) => { const g = get("greedy", k), d = get("dp", k); return g && d && g.subgraphs === d.subgraphs; });
-    sec.querySelector("#lg").innerHTML = Object.keys(SCHED).map((k) => `<span class="k"><span class="sw line" style="background:${SCHED[k].color}"></span>${esc(SCHED[k].label)}</span>`).join("");
+    // When greedy and dp tie everywhere only the dp line is drawn; the legend says so instead of listing a line that is not there.
+    sec.querySelector("#lg").innerHTML = Object.keys(SCHED).filter((k) => !(ties && k === "greedy")).map((k) => `<span class="k">${SCHED[k].dash ? `<span class="sw dash" style="border-top-color:${SCHED[k].color}"></span>` : `<span class="sw line" style="background:${SCHED[k].color}"></span>`}${esc(ties && k === "dp" ? "greedy = dp" : SCHED[k].label)}</span>`).join("");
     const lx = (k) => Math.log2(k);
     C.lineChart(sec.querySelector("#ch"), {
-      series: Object.keys(SCHED).map((s) => ({ name: s === "dp" && ties ? "greedy = dp" : s === "greedy" && ties ? "" : SCHED[s].label, color: SCHED[s].color,
+      series: Object.keys(SCHED).map((s) => ({ name: s === "dp" && ties ? "greedy = dp" : s === "greedy" && ties ? "" : SCHED[s].label, color: SCHED[s].color, dash: SCHED[s].dash,
         points: srams.map((k) => get(s, k)).filter((r) => r && r.feasible).map((r) => ({ x: lx(r.sram_kb), y: r[st.m],
           tip: `<b>${esc(s)} · ${r.sram_kb} KB</b><div class="row"><span>${esc(M.label)}</span><span>${fmt(r[st.m], M.nd)}</span></div><div class="row"><span>subgraphs</span><span>${r.num_subgraphs}</span></div><div class="row"><span>peak SRAM</span><span>${fmt(r.peak_sram_kb, 0)} KB</span></div>` })) })),
-      xMin: lx(srams[0]) - 0.25, xMax: lx(maxS) + 0.25, xZero: false, xTicks: srams.map(lx), xTickFmt: (v) => String(Math.round(Math.pow(2, v))), yZero: st.m === "num_subgraphs",
+      xMin: lx(srams[0]) - 0.25, xMax: lx(maxS) + 0.25, xZero: false, xTicks: srams.map(lx), xTickFmt: (v) => String(Math.round(Math.pow(2, v))),
       xTitle: L("SRAM budget (KB, log scale)", "SRAM 預算（KB，對數刻度）"), yTitle: `${M.label} (${M.unit})`, endLabels: true, ariaLabel: L(`${M.label} versus SRAM`, `${M.label} 對 SRAM`),
     });
     sec.querySelector("#n1").textContent = ties ? L("greedy and dp choose the same partition at every SRAM budget here, so their lines coincide; ties are reported as greedy = dp, never as a greedy win.",
