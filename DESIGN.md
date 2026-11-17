@@ -189,7 +189,7 @@ Navigation is itself a time axis (ticks per view, a filled arrowhead on the curr
 - One inverted ink plate per page at most, for the lead figure, redefining the same tokens locally.
 - Colour ownership: policy hues, late red, measured green, estimate amber; nothing else is coloured.
 - One type family (B612 + B612 Mono), bold for hierarchy, tabular numerals for data.
-- Notation is consistent everywhere: open bar = waiting, solid = measured service, hatch = past deadline or estimated, dashed arrow line = the deadline.
+- Notation is consistent everywhere: open bar = waiting, solid = measured service, hatch = past deadline or estimated, dashed outline = dropped (never processed), dashed arrow line = the deadline. Any bar chart with a deadline reference splits its bars at the deadline and draws the part past it as the red hatch.
 
 ## Colors
 

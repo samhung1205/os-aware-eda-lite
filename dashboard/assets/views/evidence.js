@@ -10,9 +10,11 @@
   function renderEvidence(sec) {
     const B = D.baseline, K = D.kpis;
     // Each check shows what the bundle actually says: a failed check gets a red cross, never the green tick.
-    const mark = (pass) => pass
+    const mark = (pass) => pass === true
       ? `<svg class="ic ok" viewBox="0 0 18 18" role="img" aria-label="${L("passed", "通過")}"><circle cx="9" cy="9" r="8" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5.5 9.2l2.3 2.3 4.7-4.9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`
-      : `<svg class="ic no" viewBox="0 0 18 18" role="img" aria-label="${L("failed", "未通過")}"><circle cx="9" cy="9" r="8" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6.2 6.2l5.6 5.6M11.8 6.2l-5.6 5.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`;
+      : pass === "rule"   // enforced by the builder and its tests, not a value read from the bundle
+        ? `<svg class="ic rule" viewBox="0 0 18 18" role="img" aria-label="${L("enforced by the builder", "由 builder 強制")}"><circle cx="9" cy="9" r="8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 2"/><path d="M5.5 9.2l2.3 2.3 4.7-4.9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+        : `<svg class="ic no" viewBox="0 0 18 18" role="img" aria-label="${L("failed", "未通過")}"><circle cx="9" cy="9" r="8" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6.2 6.2l5.6 5.6M11.8 6.2l-5.6 5.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`;
     const allSame = (ctrls) => ctrls.every((x) => x.identical);
     const same = (ok) => ok
       ? `<span class="check" role="img" aria-label="${L("one value across all runs", "所有 runs 都是同一個值")}">${X.ICON.check}</span>`
@@ -36,14 +38,14 @@
             <li>${mark([...S.commits, ...B.commits].every((c) => c.dirty === false))}<div><div class="t">${L("Measured code is the committed code", "量測用的程式碼就是已 commit 的程式碼")}</div><div class="x">Phase 3: ${S.commits.map((c) => `${c.runs} runs at <code>${c.commit}</code>, dirty=${c.dirty}`).join("; ")}. Phase 2: ${B.commits.map((c) => `${c.runs} at <code>${c.commit}</code>, dirty=${c.dirty}`).join("; ")}.</div></div></li>
             <li>${mark(p3Same && p2Same)}<div><div class="t">${L("Controls identical across runs", "各 run 的控制條件一致")}</div><div class="x">${L(`${p3Same ? "All" : "Not all"} ${S.controls.length} Phase 3 and ${p2Same ? "all" : "not all"} ${B.controls.length} Phase 2 recorded controls hold a single value (table below).`,
               `Phase 3 的 ${S.controls.length} 項${p3Same ? "全部" : "並非全部"}、Phase 2 的 ${B.controls.length} 項${p2Same ? "全部" : "並非全部"}記錄控制條件都只有單一數值（見下表）。`)}</div></div></li>
-            <li>${mark(true)}<div><div class="t">${L("Excluded data cannot leak in", "排除的資料不會混入")}</div><div class="x">${L("Paths containing <code>pilot</code>, <code>legacy_unverified</code>, <code>example</code> or <code>runtime_aware</code>, and run ids outside the formal run tags, stop the build (tested).",
+            <li>${mark("rule")}<div><div class="t">${L("Excluded data cannot leak in", "排除的資料不會混入")}</div><div class="x">${L("Paths containing <code>pilot</code>, <code>legacy_unverified</code>, <code>example</code> or <code>runtime_aware</code>, and run ids outside the formal run tags, stop the build (tested).",
               "路徑含 <code>pilot</code>、<code>legacy_unverified</code>、<code>example</code> 或 <code>runtime_aware</code>，或 run id 不屬於正式 run tag，都會讓建置中止（已有測試）。")}</div></div></li>
           </ul>
           <p class="fig-note">${L("Independent gates (also in CI):", "獨立的 gate（CI 也會執行）：")} <code>python3 scripts/check_runtime_provenance.py</code> (Phase 2) ${L("and", "與")} <code>python3 scripts/check_phase3_provenance.py</code> (Phase 3) ${L("must both report VERIFIED.", "都必須回報 VERIFIED。")}</p></div>
         <div class="span-6 fig"><h3>${L("Run inventory", "Run 清單")}</h3>
           ${table([{ label: L("Dataset", "資料集"), l: true }, { label: "Runs" }, { label: L("Design", "設計"), l: true }],
             [{ cells: ["Phase 2 / Batch 2 baseline", B.n_runs, L(`${B.n_conditions} conditions × 3 runs · 60 s`, `${B.n_conditions} conditions × 3 runs · 60 秒`)] },
-             ...S.conditions.map((c) => ({ hl: c.primary, cells: [`Phase 3 · ${esc(c.label)}${c.primary ? " (primary)" : ""}`, c.n_runs, L(`${c.n_blocks} blocks × 6 arms · 65 s`, `${c.n_blocks} blocks × 6 arms · 65 秒`)] })),
+             ...S.conditions.map((c) => ({ hl: c.primary, cells: [`Phase 3 · ${esc(c.label)}${c.primary ? L(" (primary)", "（主要）") : ""}`, c.n_runs, L(`${c.n_blocks} blocks × 6 arms · 65 s`, `${c.n_blocks} blocks × 6 arms · 65 秒`)] })),
              { cells: [`<b>${L("Total", "合計")}</b>`, `<b>${K.runs.total}</b>`, ""] }])}
           <p class="fig-note">${L("Phase 2 groups:", "Phase 2 分組：")} ${Object.entries(B.run_groups).map(([k, v]) => `${esc(k)} ${v}`).join(", ")}. ${L("Warm-up: first 10 processed frames of every run excluded.", "Warm-up：每個 run 前 10 個 processed frames 不列入統計。")}</p></div>
       </div>
@@ -89,7 +91,7 @@ bash scripts/serve_dashboard.sh</pre>
           <p class="fig-note">${L("Rebuilding the tables themselves from raw runs: README → Reproducibility in the repository, <code>github.com/samhung1205/os-aware-eda-lite</code>.", "要從 raw runs 重建表格本身，請見 repository <code>github.com/samhung1205/os-aware-eda-lite</code> 的 README → Reproducibility。")}</p></div>
       </div>
       <details class="table-toggle section-gap"><summary>${L(`All ${D.sources.length} source files with SHA-256`, `全部 ${D.sources.length} 個來源檔與 SHA-256`)}</summary>
-        ${table([{ label: L("Path", "路徑"), l: true }, { label: L("Role", "用途"), l: true }, { label: "SHA-256", l: true }], D.sources.map((s) => ({ cells: [`<code>${esc(s.path)}</code>`, esc(T(s, "role")), `<code>${s.sha256.slice(0, 16)}…</code>`] })))}</details>`;
+        ${table([{ label: L("Path", "路徑"), l: true }, { label: L("Role", "用途"), l: true }, { label: "SHA-256", l: true }], D.sources.map((s) => ({ cells: [`<code>${esc(s.path)}</code>`, esc(T(s, "role")), `<code title="${s.sha256}">${s.sha256.slice(0, 16)}…</code>`] })))}</details>`;
   }
 
   X.views.evidence = renderEvidence;

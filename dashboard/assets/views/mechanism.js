@@ -50,9 +50,9 @@
       <div class="controls" id="m-controls" style="margin-top:var(--sp-9)"></div>
       <div class="grid">
         <div class="span-6 fig"><div class="fig-head"><div class="titles"><h3>${L("What the effective miss is made of", "Effective miss 的組成")}</h3><p class="fig-sub" id="m2-sub"></p></div>${X.MEAS}</div>
-          <div class="legend"><span class="k"><span class="sw open"></span>${L("dropped (never processed)", "dropped（從未處理）")}</span><span class="k"><span class="sw overshoot-sw"></span>${L("late (processed after the deadline)", "late（超過 deadline 才處理完）")}</span></div><div class="chart" id="m2"></div>
+          <div class="legend"><span class="k"><span class="sw dropped"></span>${L("dropped (never processed)", "dropped（從未處理）")}</span><span class="k"><span class="sw overshoot-sw"></span>${L("late (processed after the deadline)", "late（超過 deadline 才處理完）")}</span></div><div class="chart" id="m2"></div>
           <p class="fig-note">${L("Guard trades a few more drops for almost no late frames. Shares are of all published frames.", "Guard 多丟一些 frame，換來幾乎沒有 late frame。比例以所有 published frames 為分母。")}</p></div>
-        <div class="span-6 fig"><div class="fig-head"><div class="titles"><h3>${L("Queueing: frame age when inference starts", "Queueing：inference 開始時的 frame age")}</h3><p class="fig-sub" id="m3-sub"></p></div>${X.MEAS}</div><div class="chart" id="m3"></div>
+        <div class="span-6 fig"><div class="fig-head"><div class="titles"><h3>${L("Queueing: frame age when inference starts", "Queueing：inference 開始時的 frame age")}</h3><p class="fig-sub" id="m3-sub"></p></div>${X.MEAS}</div><div class="legend"><span class="k"><span class="sw overshoot-sw"></span>${L("past the deadline: already late when inference started", "超過 deadline：開始 inference 時就已經遲到")}</span></div><div class="chart" id="m3"></div>
           <p class="fig-note">${L("Queues that serve the oldest frame (FIFO, legacy depth 5) make every frame wait for the whole backlog under overload.", "處理最舊 frame 的 queue（FIFO、legacy depth 5）在過載時會讓每個 frame 都等完整個 backlog。")}</p></div>
       </div>
       <div class="fig section-gap"><div class="fig-head"><div class="titles"><h3>${L("Ablation: Adaptive − Deadline-Guard", "Ablation：Adaptive − Deadline-Guard")}</h3><p class="fig-sub" id="m4-sub"></p></div>${X.MEAS}</div>
@@ -80,7 +80,7 @@
         `${fmt(f.guard_minus_latest_eff_pp.mean, 2, true)} ${ci(f.guard_minus_latest_eff_pp, 2)} · ${f.guard_minus_latest_eff_pp.n_neg}/${COND[f.condition].n_blocks}`] })));
 
     const ctl = sec.querySelector("#m-controls");
-    control(ctl, L("Condition", "條件"), seg(L("Condition", "條件"), condOptions((c) => !c.dynamic), state.mc, (v) => { state.mc = v; setParams("mechanism", { mc: v }); drawCond(); }));
+    control(ctl, L("Condition", "條件"), seg(L("Condition", "條件"), condOptions((c) => !c.dynamic), state.mc, (v) => { state.mc = v; state.c = v; setParams("mechanism", { mc: v }); drawCond(); }));
     ctl.insertAdjacentHTML("beforeend", `<span class="control-hint">${L("applies to the two figures below", "套用到下方兩張圖")}</span>`);
 
     function drawCond() {
@@ -93,7 +93,7 @@
         rows: order.map((id) => { const r = armRow(cid, id);
           const drop = r.drop_rate_pct.mean, late = Math.max(0, r.late_share_pct);
           return { group: groupName(id), label: ARM[id].label, dim: ARM[id].family === "legacy",
-            segments: [{ v: drop, open: true, name: "dropped" }, { v: late, late: true, name: "late" }],
+            segments: [{ v: drop, dropped: true, name: "dropped" }, { v: late, late: true, name: "late" }],
             valueText: fmt(r.effective_miss_rate_pct.mean, 1) + "%",
             tip: tipRows(`${ARM[id].label} · ${c.label}`, [["dropped", fmt(drop, 1) + "%"], ["late", fmt(late, 1) + "%"], ["effective miss", fmt(r.effective_miss_rate_pct.mean, 1) + "%"], ["policy drops", fmt(r.app_policy_drop_rate_pct.mean, 1) + "%"], [L("DDS-unreceived / run", "DDS 未收到 / run"), fmt(r.dds_unreceived_frames.mean, 0)]]) }; }),
         xTitle: L("% of published frames", "占 published frames 的 %"), ariaLabel: L("Dropped and late share by arm", "各 arm 的 dropped 與 late 比例"),
@@ -104,7 +104,7 @@
           return { group: groupName(id), label: ARM[id].label, dim: ARM[id].family === "legacy",
             segments: [{ v: r.p50_frame_age_at_start_ms.mean, color: ARM[id].color }], valueText: `${fmt(r.p50_frame_age_at_start_ms.mean, 0)} ms`,
             tip: tipRows(`${ARM[id].label} · ${c.label}`, [[L("P50 frame age at start", "開始時 P50 frame age"), fmt(r.p50_frame_age_at_start_ms.mean, 1) + " ms"], ["mean queue wait", r.avg_queue_wait_ms.mean === null ? L("n/a (no app queue)", "n/a（無 app queue）") : fmt(r.avg_queue_wait_ms.mean, 1) + " ms"], ["max queue length", r.max_queue_len.mean === null ? "n/a" : fmt(r.max_queue_len.max, 0)], ["P50 latency", fmt(r.p50_latency_ms.mean, 1) + " ms"]]) }; }),
-        refs: [{ value: c.deadline_ms, label: "deadline" }], xTitle: L("Milliseconds", "毫秒"), ariaLabel: L("Frame age at inference start by arm", "各 arm 在 inference 開始時的 frame age"),
+        refs: [{ value: c.deadline_ms, label: "deadline", split: true }], xTitle: L("Milliseconds", "毫秒"), ariaLabel: L("Frame age at inference start by arm", "各 arm 在 inference 開始時的 frame age"),
       });
     }
     drawCond();

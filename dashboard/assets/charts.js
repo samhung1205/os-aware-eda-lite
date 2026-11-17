@@ -112,7 +112,9 @@
     if (s) for (const el of s.children) if (!el.matches("[data-tip], defs") && !el.querySelector("[data-tip]")) el.setAttribute("aria-hidden", "true");
     if (s && marks.length > 1) {
       const base = (s.getAttribute("aria-label") || "").replace(/[.。\s]+$/, "");
-      const hint = L(`${marks.length} data points; arrow keys move between them`, `${marks.length} 個資料點，可用方向鍵移動`);
+      const lanes = marks.filter((m) => m.dataset.col === "0").length;
+      const hint = lanes ? L(`${lanes} lanes and their blocks; up and down move between lanes, left and right through a lane's blocks`, `${lanes} 條 lane 與各自的 blocks；上下鍵切換 lane，左右鍵瀏覽該 lane 的 blocks`)
+        : L(`${marks.length} data points; arrow keys move between them`, `${marks.length} 個資料點，可用方向鍵移動`);
       s.setAttribute("aria-label", base ? base + L(". ", "。") + hint : hint);
     }
   }
@@ -124,7 +126,13 @@
     const marks = [...s.querySelectorAll("[data-tip][tabindex]")];
     const i = marks.indexOf(t);
     let j;
-    if (e.key in STEP) j = Math.max(0, Math.min(marks.length - 1, i + STEP[e.key]));
+    if (t.hasAttribute("data-row") && e.key in STEP) {
+      // Up / Down move between rows (to the row's lane), Left / Right along the row (lane → its block dots).
+      const row = +t.dataset.row, col = +t.dataset.col, vertical = e.key === "ArrowUp" || e.key === "ArrowDown";
+      const at = (r, c) => marks.findIndex((m) => +m.dataset.row === r && +m.dataset.col === c);
+      j = vertical ? at(row + STEP[e.key], 0) : at(row, col + STEP[e.key]);
+      if (j < 0) j = i;
+    } else if (e.key in STEP) j = Math.max(0, Math.min(marks.length - 1, i + STEP[e.key]));
     else if (e.key === "Home") j = 0;
     else if (e.key === "End") j = marks.length - 1;
     else return;
@@ -171,21 +179,25 @@
     if (t) show(t, e.clientX, e.clientY);
     // A focused mark keeps its tooltip when the (possibly resting) pointer lands on something else,
     // e.g. after keyboard focus scrolls the page under a stationary mouse.
-    else if (focusTip && focusTip.isConnected) { const r = focusTip.getBoundingClientRect(); show(focusTip, r.right, r.top); }
+    else if (focusTip && focusTip.isConnected) show(focusTip, ...anchorOf(focusTip));
     else hide();
   });
   document.addEventListener("pointermove", (e) => {
     if (tipEl && tipEl.classList.contains("on")) place(e.clientX, e.clientY);
   });
   // Keyboard focus scrolls the mark into view; keep its tooltip attached instead of hiding it.
+  const anchorOf = (t) => {
+    const r = t.getBoundingClientRect(), fx = t.getAttribute("data-tip-x");
+    return fx === null ? [r.right, r.top] : [r.left + r.width * +fx, r.bottom - 8];
+  };
   document.addEventListener("focusin", (e) => {
     const t = e.target.closest && e.target.closest("[data-tip]");
     focusTip = t || null;
-    if (t) { const r = t.getBoundingClientRect(); show(t, r.right, r.top); } else hide();
+    if (t) show(t, ...anchorOf(t)); else hide();
   });
   document.addEventListener("focusout", () => { focusTip = null; hide(); });
   window.addEventListener("scroll", () => {
-    if (focusTip && focusTip.isConnected) { const r = focusTip.getBoundingClientRect(); place(r.right, r.top); } else hide();
+    if (focusTip && focusTip.isConnected) place(...anchorOf(focusTip)); else hide();
   }, { passive: true });
 
   /* ---------- responsive mounting ---------- */
@@ -458,20 +470,31 @@
           svg("path", { d: `M${x0 - 4},${tip + 6}H${x0 + 4}L${x0},${tip}Z`, class: "release", "stroke-width": 0 }, s);
         }
         let acc = 0;
-        const segs = r.segments.filter((sg) => (sg.v || 0) > 0);
+        // A deadline reference with split: true cuts every solid segment at the deadline; the part past
+        // it is drawn as the red late hatch, the same notation as the overview lanes.
+        const cut = (cfg.refs || []).find((rf) => rf.split);
+        const segs = [];
+        r.segments.filter((sg) => (sg.v || 0) > 0).forEach((sg) => {
+          if (cut && !sg.open && !sg.late && !sg.dropped && acc < cut.value && acc + sg.v > cut.value) {
+            segs.push(Object.assign({}, sg, { v: cut.value - acc }), Object.assign({}, sg, { v: acc + sg.v - cut.value, late: true }));
+          } else segs.push(sg);
+          acc += sg.v;
+        });
+        acc = 0;
         segs.forEach((sg, i) => {
           const a = x(acc), b = x(acc + sg.v);
-          const gap = i < segs.length - 1 && !sg.open ? 2 : 0;
+          const gap = i < segs.length - 1 && !sg.open && !sg.dropped && !segs[i + 1].late ? 2 : 0;
           if (b - a - gap > 0.5) {
-            const p = sg.open
-              ? svg("rect", { x: a + 0.75, y: y - barH / 2 + 0.75, width: Math.max(0, b - a - 1.5), height: barH - 1.5, class: "wait" }, s)
-              : sg.late
-                ? svg("rect", { x: a + 0.75, y: y - barH / 2 + 0.75, width: Math.max(0, b - gap - a - 1.5), height: barH - 1.5, class: "overshoot", fill: lateFill || (lateFill = hatch(s, "hatch-late")) }, s)
-                : svg("path", { d: barPath(a, b - gap, y - barH / 2, barH), fill: sg.color }, s);
+            const box = { x: a + 0.75, y: y - barH / 2 + 0.75, width: Math.max(0, b - gap - a - 1.5), height: barH - 1.5 };
+            const p = sg.open ? svg("rect", Object.assign(box, { class: "wait" }), s)
+              : sg.dropped ? svg("rect", Object.assign(box, { class: "dropped" }), s)   // dashed outline: never processed
+                : sg.late ? svg("rect", Object.assign(box, { class: "overshoot", fill: lateFill || (lateFill = hatch(s, "hatch-late")) }), s)
+                  : svg("path", { d: barPath(a, b - gap, y - barH / 2, barH), fill: sg.color }, s);
             tipAttrs(p, sg.tip || r.tip, r.label + " " + (sg.name || ""));
           }
           acc += sg.v;
         });
+        if (cut && acc > cut.value && !r.segments.some((sg) => sg.late)) r.lateValue = true;
         const endX = Math.max(x(acc), r.marker !== undefined && r.marker !== null ? x(r.marker) : 0);
         let vt = r.valueText !== undefined ? r.valueText : fmt(acc, cfg.nd);
         // A note that does not fit after the value moves under the bar; it is never dropped, because it
@@ -540,7 +563,7 @@
       const narrow = W < 720;
       const rows = cfg.rows, n = rows.length;
       const def = Math.max(0, rows.findIndex((r) => r.trace));
-      const barH = 16, endW = 64, valueW = narrow ? 50 : rows.some((r) => r.trace) ? 104 : 76;
+      const barH = 16, endW = 64, valueW = rows.some((r) => r.trace) ? (narrow ? 74 : 104) : (narrow ? 50 : 76);
       const rowH = narrow ? 92 : 64, barY = narrow ? 32 : 16, top = 46;
       const labelW = narrow ? 0 : Math.min(200, Math.max(...rows.map((r) => Math.max(measure(r.label, 13.5), measure(r.sub || "", 12)))) + 26);
       let lx0, lx1, dx0, dx1, dTop, dRowH;
@@ -640,21 +663,24 @@
           svg("line", { x1: xd(r.lo), x2: xd(r.hi), y1: yd, y2: yd, stroke, "stroke-width": 2 }, s);
           for (const v of [r.lo, r.hi]) svg("line", { x1: xd(v), x2: xd(v), y1: yd - 5, y2: yd + 5, stroke, "stroke-width": 1.5 }, s);
         }
-        for (const p of r.points || []) {
-          const c = svg("circle", { cx: xd(p.v), cy: yd, r: 3.4, stroke: r.color, class: "blockdot" }, s);
+        (r.points || []).slice().sort((a, b) => a.v - b.v).forEach((p, k) => {
+          const c = svg("circle", { cx: xd(p.v), cy: yd, r: 3.4, stroke: r.color, class: "blockdot", "data-row": i, "data-col": k + 1 }, s);
           tipAttrs(c, p.tip, p.label);
           c.addEventListener("focus", () => setTrace(i));
           c.addEventListener("blur", () => setTrace(def));
-        }
+        });
         svg("circle", { cx: xd(r.mean), cy: yd, r: 5.5, fill: sig ? r.color : "var(--surface)", stroke: sig ? "var(--surface)" : r.color, "stroke-width": sig ? 2 : 1.75 }, s);
         // A zero-width interval at 0 means neither policy missed a frame, not "no effect": say so in place.
-        if (r.zeroNote && r.lo === 0 && r.hi === 0) text(s, xd(0) - 10, yd + 4, r.zeroNote, { class: "sublabel", "text-anchor": "end" });
+        if (r.zeroNote && r.lo === 0 && r.hi === 0) {
+          if (narrow) text(s, 0, yd + 17, r.zeroNote, { class: "sublabel" });
+          else text(s, xd(0) - 10, yd + 4, r.zeroNote, { class: "sublabel", "text-anchor": "end" });
+        }
         // The traced lane's difference is the page's answer: set it large, with its interval under it.
-        if (r.trace && !narrow) {
-          text(s, W, yd + 3, r.valueText + (cfg.unit || ""), { "text-anchor": "end", class: "vlabel lead" });
-          text(s, W, yd + 19, `[${fmt(r.lo, 1)}, ${fmt(r.hi, 1)}]`, { "text-anchor": "end", class: "sublabel" });
+        if (r.trace) {
+          text(s, W, yd + (narrow ? 0 : 3), r.valueText + (cfg.unit || ""), { "text-anchor": "end", class: "vlabel " + (narrow ? "strong" : "lead") });
+          text(s, W, yd + (narrow ? 15 : 19), `[${fmt(r.lo, 1)}, ${fmt(r.hi, 1)}]`, { "text-anchor": "end", class: "sublabel" });
         } else text(s, W, yd + 4.5, r.valueText + (narrow || !cfg.unit ? "" : cfg.unit), { "text-anchor": "end", class: "vlabel" + (sig ? " strong" : " dim") });
-        const hit = svg("rect", { x: 0, y: y0, width: W, height: rowH, class: "hit" }, hitLayer);
+        const hit = svg("rect", { x: 0, y: y0, width: W, height: rowH, class: "hit", "data-row": i, "data-col": 0, "data-tip-x": (lx0 / W).toFixed(3) }, hitLayer);
         tipAttrs(hit, r.tip, r.label);
         // Hovering a lane already traces it and every number is drawn; the tooltip would only cover
         // the neighbouring lanes, so it appears for keyboard focus only.

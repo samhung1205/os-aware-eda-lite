@@ -497,3 +497,17 @@ Implementation decision:
 - Routing: a view's kept selection is written back into the URL (a copied link shows what is on screen); an unknown hash shows a note above the overview.
 - Type: line lengths moved from `ch` to em (B612's "0" is 1.3× its average glyph, so the old caps allowed ~30% longer lines); 15 px joined the type ramp as `--fs-prose`; other off-ramp sizes moved to tokens. `DESIGN.md` updated.
 - The repository is named as text in both footers and the Evidence note, not linked: `tests/test_dashboard.py` forbids any `http(s)` `href` in the dashboard. No data, builder or bundle change (`build_data --check` CURRENT).
+
+## 2026-11-17 Dashboard critique round 3 and fixes
+
+Prompt summary:
+
+- Re-run `/impeccable critique` after the round-2 fixes (still 29/40, but on a new set of deeper issues; the round-2 issues were confirmed fixed and the detector advisories fell from 20 to 4). Owner: commit round 2 first, then fix all five new issues and the minor ones, notation and data framing first; dropped frames get a dashed outline.
+
+Implementation decision:
+
+- Notation: dropped frames are a dashed outline (the open bar stays "waiting"); `hbars` splits bars at a deadline reference marked `split` and draws the part past it as the red hatch (Baseline queue-depth latency, Mechanism frame age).
+- Data framing: the Baseline delay chart title is computed from the runs (MobileViT-S is already overloaded at 20 FPS with no delay; the delay pushes MobileViT-XXS past ρ = 1); the dynamic condition's context gives the run-average ρ and names the phase above the bundle's service capacity instead of calling it "not overloaded". Baseline throughput chart draws each model's service-time limit from the bundle.
+- First viewport: the answer names the rule (waiting + service can pass the deadline); the Δ head names the metric; the term key adds S / XXS and + 25 ms. The plate drops its two-item measurement list (the load-step result stays in Findings, run and hash counts move into the figure note) and the paired line no longer repeats −10.7 pp.
+- Keyboard: up / down move between lanes, left / right through a lane's block dots; a lane's keyboard tooltip is anchored inside the lane plot; a resting pointer no longer marks a second lane; the architecture image is one tab stop with its alt text, plus one "open full size" link.
+- Minor: measures on the single-column `.prose-cols` and `.limits` text, zh headline keeps "該跳過哪些 frame" together, one condition choice shared by Scheduling and Mechanism, a builder-enforced check shown as "enforced" rather than "passed", full SHA-256 on hover, remaining zh strings, noscript names the `.js` bundle. No data, builder or bundle change.

@@ -26,7 +26,7 @@
       </div>
       <div class="grid section-gap">
         <div class="span-7 fig" id="scheduling-paired"><div class="fig-head"><div class="titles"><h3>${L("Paired differences: policy effect", "Paired differences：policy 效果")}</h3><p class="fig-sub" id="s3-sub"></p></div>${X.MEAS}</div>
-          <div class="legend"><span class="k"><span class="sw dot" style="background:var(--ink-3)"></span>${L("mean of block differences", "block 差異的平均")}</span><span class="k"><span class="sw line" style="background:var(--ink)"></span>95% t-interval</span><span class="k"><span class="sw ring"></span>${L("one block", "單一 block")}</span></div>
+          <div class="legend"><span class="k"><span class="sw dot" style="background:var(--ink-3)"></span>${L("mean of block differences (in the first arm's colour)", "block 差異的平均（以第一個 arm 的顏色標示）")}</span><span class="k"><span class="sw line" style="background:var(--ink)"></span>95% t-interval</span><span class="k"><span class="sw ring"></span>${L("one block", "單一 block")}</span></div>
           <div class="chart" id="s3"></div>
           <p class="fig-note" id="s3-note"></p></div>
         <div class="span-5 fig"><div class="fig-head"><div class="titles"><h3>${L("Against legacy depth 1", "與 legacy depth 1 比較")}</h3><p class="fig-sub">${L("Includes the architecture difference (DDS callback vs queue + worker), so it is not attributable to a policy", "包含 architecture 差異（DDS callback vs queue + worker），所以不能歸因於 policy")}</p></div>${X.MEAS}</div><div class="chart" id="s4"></div>
@@ -41,7 +41,7 @@
         D.arms.map((a) => ({ cells: [sw(ARM[a.id].color) + esc(a.label), a.family === "legacy" ? L("Legacy (DDS callback)", "Legacy（DDS callback）") : L("Application queue + 1 worker", "Application queue + 1 個 worker"), esc(T(a, "summary"))] })))}</details>`;
 
     const ctl = sec.querySelector("#s-controls");
-    control(ctl, L("Condition", "條件"), seg(L("Condition", "條件"), condOptions(), state.c, (v) => { state.c = v; sync(); draw(); }));
+    control(ctl, L("Condition", "條件"), seg(L("Condition", "條件"), condOptions(), state.c, (v) => { state.c = v; if (!COND[v].dynamic) state.mc = v; sync(); draw(); }));
     control(ctl, L("Metric", "指標"), seg(L("Metric", "指標"), Object.keys(METRICS).map((k) => ({ value: k, label: METRICS[k].label })), state.m, (v) => { state.m = v; sync(); draw(); }));
     function sync() { setParams("scheduling", { c: state.c, m: state.m }); }
 
@@ -61,9 +61,15 @@
       const latest = armRow(cid, "latest_q10");
       const overloaded = latest.utilization.mean >= 1;
       const rho = fmt(latest.utilization.mean, 2), dl = fmt(c.deadline_ms, 0);
+      // A rate schedule is overloaded only in its phases above the model's service capacity; the
+      // whole-run ρ is an average and must not be read as "not overloaded".
+      const capS = D.kpis.capacity[c.model] && D.kpis.capacity[c.model].service_capacity;
+      const peaks = c.dynamic && capS ? [...new Set(S.dynamic.phases.filter((p) => p.target_fps > capS.mean).map((p) => fmt(p.target_fps, 0)))] : [];
+      const dynText = { en: `Rate schedule <code>${esc(c.fps_schedule || "")}</code> (FPS@seconds); ρ ≈ ${rho} averaged over the run${peaks.length ? `, but the ${peaks.join(" / ")} FPS phase is above the ${fmt(capS.mean, 1)} FPS service capacity, so it is overloaded` : ""}.`,
+        zh: `速率排程 <code>${esc(c.fps_schedule || "")}</code>（FPS@秒）；整段 run 平均 ρ ≈ ${rho}${peaks.length ? `，但 ${peaks.join(" / ")} FPS 的 phase 高於 ${fmt(capS.mean, 1)} FPS 的 service capacity，該 phase 是過載的` : ""}。` };
       sec.querySelector("#s-context").innerHTML = `<b>${esc(c.label)}</b>${c.primary ? `<span class="ctx-tag">${L("primary condition", "主要 condition")}</span>` : ""} — ` + L(
-        `${c.n_blocks} blocks × 6 arms = ${c.n_runs} runs. Application arms run at ρ ≈ ${rho} (${overloaded ? "overloaded" : "not overloaded"})${c.dynamic ? `, rate schedule <code>${esc(c.fps_schedule)}</code> (FPS@seconds)` : ""}; deadline ${dl} ms.`,
-        `${c.n_blocks} blocks × 6 arms = ${c.n_runs} runs。Application arms 的 ρ ≈ ${rho}（${overloaded ? "過載" : "未過載"}）${c.dynamic ? `，速率排程 <code>${esc(c.fps_schedule)}</code>（FPS@秒）` : ""}；deadline ${dl} ms。`);
+        `${c.n_blocks} blocks × 6 arms = ${c.n_runs} runs. ${c.dynamic ? dynText.en : `Application arms run at ρ ≈ ${rho} (${overloaded ? "overloaded" : "not overloaded"}).`} Deadline ${dl} ms.`,
+        `${c.n_blocks} blocks × 6 arms = ${c.n_runs} runs。${c.dynamic ? dynText.zh : `Application arms 的 ρ ≈ ${rho}（${overloaded ? "過載" : "未過載"}）。`}Deadline ${dl} ms。`);
 
       const refs = state.m === "p99_latency_ms" ? [{ value: c.deadline_ms, label: "deadline" }] : [];
       const focus = ["latest_q10", "guard_c5_q10", "adaptive_c5_q10"];
@@ -80,7 +86,7 @@
         band: { lo: Math.min(...focusVals), hi: Math.max(...focusVals), label: refs.length ? undefined : L("same-architecture range", "相同 architecture 範圍") }, ariaLabel: L(`${M.label} by arm, all arms`, `各 arm 的 ${M.label}（全部 arms）`) });
 
       const blocks = [...new Set(runsOf(cid, "latest_q10").map((r) => r.block))].sort();
-      sec.querySelector("#s2-sub").textContent = `${M.label} · Latest → Guard → Adaptive · ${blocks.length} blocks`;
+      sec.querySelector("#s2-sub").textContent = L(`${M.label} · Latest → Guard → Adaptive · ${blocks.length} blocks`, `${M.label} · Latest → Guard → Adaptive · ${blocks.length} 個 blocks`);
       C.slope(sec.querySelector("#s2"), {
         categories: focus.map((id) => ({ label: ARM[id].short, color: ARM[id].color })),
         lines: blocks.map((b) => {

@@ -14,19 +14,19 @@
       <div class="view-head"><h2>${L("Baseline performance: capacity, queueing and overload", "Baseline 效能：capacity、queueing 與 overload")}</h2>
       <p>${L(`${B.n_runs} constrained runs over ${B.n_conditions} conditions (3 runs each): input rate, subscriber queue depth and injected service delay. Every run uses the legacy path (inference in the DDS callback).`,
         `${B.n_conditions} 個 conditions 共 ${B.n_runs} 個 constrained runs（每個 3 runs），變因為 input rate、subscriber queue depth 與注入的 service delay。所有 run 都走 legacy 路徑（在 DDS callback 內執行 inference）。`)}</p></div>
-      <div class="controls" id="b-controls"></div>
       ${spec([
         { label: L("MobileViT-S saturated throughput", "MobileViT-S 飽和 throughput"), value: fmt(cap.mobilevit_s.mean, 1), unit: "FPS", detail: `${fmt(cap.mobilevit_s.min, 1)}–${fmt(cap.mobilevit_s.max, 1)}, n=${cap.mobilevit_s.n_runs} runs · service ${fmt(cap.mobilevit_s.service_ms_mean, 1)} ms` },
         { label: L("MobileViT-XXS saturated throughput", "MobileViT-XXS 飽和 throughput"), value: fmt(cap.mobilevit_xxs.mean, 1), unit: "FPS", detail: `${fmt(cap.mobilevit_xxs.min, 1)}–${fmt(cap.mobilevit_xxs.max, 1)}, n=${cap.mobilevit_xxs.n_runs} runs · service ${fmt(cap.mobilevit_xxs.service_ms_mean, 1)} ms` },
         { label: L("Worst drop rate below capacity (ρ &lt; 1)", "未達 capacity 時最差的 drop rate（ρ &lt; 1）"), value: fmt(dm.below_capacity_max_drop_pct, 2), unit: "%", detail: L(`worst of ${dm.below_capacity_runs} runs with ρ &lt; 1: almost every frame was delivered and processed`, `ρ &lt; 1 的 ${dm.below_capacity_runs} 個 runs 中最差者：幾乎每個 frame 都送達並處理完成`) },
         { label: L("Overload drops vs 1 − 1/ρ", "過載 drop vs 1 − 1/ρ"), value: fmt(dm.overloaded_mean_abs_gap_pp, 2), unit: L("pp mean gap", "pp 平均差距"), detail: L(`max ${fmt(dm.overloaded_max_abs_gap_pp, 2)} pp over ${dm.overloaded_runs} overloaded runs`, `${dm.overloaded_runs} 個過載 runs 中最大 ${fmt(dm.overloaded_max_abs_gap_pp, 2)} pp`) },
       ])}
-      <div class="grid section-gap">
+      <div class="controls section-gap" id="b-controls"></div>
+      <div class="grid">
         <div class="span-6 fig"><div class="fig-head"><div class="titles"><h3>${L("Throughput saturates at the service-time limit", "Throughput 在 service time 上限處飽和")}</h3><p class="fig-sub">${L("Processed vs offered FPS · input-rate sweep (depth 5, no delay) · mean of 3 runs", "Processed vs offered FPS · input-rate sweep（depth 5，無 delay）· 3 runs 平均")}</p></div>${X.MEAS}</div><div class="legend" id="b1-legend"></div><div class="chart" id="b1"></div></div>
         <div class="span-6 fig"><div class="fig-head"><div class="titles"><h3>${L("Drops follow the overload model 1 − 1/ρ", "Drop 符合過載模型 1 − 1/ρ")}</h3><p class="fig-sub">${L("Every baseline run · measured drop rate vs prediction from offered rate × service time", "每個 baseline run · 實測 drop rate vs 由 offered rate × service time 推得的預測值")}</p></div>${X.MEAS}</div><div class="legend" id="b2-legend"></div><div class="chart" id="b2"></div></div>
-        <div class="span-6 fig"><div class="fig-head"><div class="titles"><h3>${L("Under overload, queue depth sets the latency", "過載時，queue depth 決定 latency")}</h3><p class="fig-sub">${L("P50 end-to-end latency at 20 FPS by KEEP_LAST depth · bar = mean, tick = P99 · 3 runs each", "20 FPS 下各 KEEP_LAST depth 的 P50 end-to-end latency · 長條 = 平均，刻線 = P99 · 各 3 runs")}</p></div>${X.MEAS}</div><div class="chart" id="b3"></div>
+        <div class="span-6 fig"><div class="fig-head"><div class="titles"><h3>${L("Under overload, queue depth sets the latency", "過載時，queue depth 決定 latency")}</h3><p class="fig-sub">${L("P50 end-to-end latency at 20 FPS by KEEP_LAST depth · bar = mean, tick = P99 · 3 runs each", "20 FPS 下各 KEEP_LAST depth 的 P50 end-to-end latency · 長條 = 平均，刻線 = P99 · 各 3 runs")}</p></div>${X.MEAS}</div><div class="legend"><span class="k"><span class="sw overshoot-sw"></span>${L("P50 past the deadline", "P50 超過 deadline")}</span></div><div class="chart" id="b3"></div>
         <p class="fig-note">${L("The single-threaded detector always serves the oldest of the <i>depth</i> frames DDS keeps, so queue wait ≈ depth / input rate once the detector is saturated.", "單執行緒的 detector 永遠處理 DDS 保留的 <i>depth</i> 個 frame 中最舊的那個，所以 detector 飽和後，queue wait ≈ depth / input rate。")}</p></div>
-        <div class="span-6 fig"><div class="fig-head"><div class="titles"><h3>${L("Injected service delay pushes both models into overload", "注入 service delay 讓兩個模型都進入過載")}</h3><p class="fig-sub">${L("Effective miss vs artificial delay added to each inference · 20 FPS, depth 5", "Effective miss vs 每次 inference 額外加入的 artificial delay · 20 FPS，depth 5")}</p></div>${X.MEAS}</div><div class="legend" id="b4-legend"></div><div class="chart" id="b4"></div></div>
+        <div class="span-6 fig"><div class="fig-head"><div class="titles"><h3 id="b4-title"></h3><p class="fig-sub">${L("Effective miss vs artificial delay added to each inference · 20 FPS, depth 5", "Effective miss vs 每次 inference 額外加入的 artificial delay · 20 FPS，depth 5")}</p></div>${X.MEAS}</div><div class="legend" id="b4-legend"></div><div class="chart" id="b4"></div></div>
       </div>
       <div class="section-gap" id="b-table"></div>`;
 
@@ -48,6 +48,8 @@
       C.lineChart(sec.querySelector("#b1"), {
         series: models.map((m) => ({ name: MODEL[m], color: MODEL_COLOR[m],
           points: conds.filter((c) => c.family === "fps" && c.model === m).map((c) => ({ x: c.offered_fps.mean, y: c.processed_fps.mean, tip: condTip(c) })) })),
+        // the service-time limit 1000 / service ms, which is where the curves flatten
+        refs: models.filter((m) => cap[m] && cap[m].service_capacity).map((m) => ({ y: cap[m].service_capacity.mean, label: L(`${MODEL[m]} service-time limit ${fmt(cap[m].service_capacity.mean, 1)} FPS`, `${MODEL[m]} service time 上限 ${fmt(cap[m].service_capacity.mean, 1)} FPS`) })),
         diag: "processed = offered", xTitle: "Offered FPS", yTitle: "Processed FPS", endLabels: true, ariaLabel: L("Processed versus offered frames per second", "Processed vs offered FPS"),
       });
       const runs = B.runs.filter((r) => models.includes(r.model));
@@ -63,8 +65,20 @@
         rows: q.map((c) => ({ group: models.length > 1 ? MODEL[c.model] : undefined, label: `depth ${c.qos_depth}`,
           segments: [{ v: c.p50_latency_ms.mean, color: MODEL_COLOR[c.model] }], marker: c.p99_latency_ms.mean,
           valueText: `${fmt(c.p50_latency_ms.mean, 0)} ms`, tip: condTip(c) })),
-        refs: [{ value: 100, label: "deadline 100 ms" }], xTitle: "Latency (ms)", ariaLabel: L("P50 latency by queue depth", "各 queue depth 的 P50 latency"),
+        refs: [{ value: 100, label: "deadline 100 ms", split: true }], xTitle: "Latency (ms)", ariaLabel: L("P50 latency by queue depth", "各 queue depth 的 P50 latency"),
       });
+      // The title states what the runs show for the models on screen: which one the delay pushes past
+      // ρ = 1 and which one is already past it with no delay (computed, not asserted).
+      const od = B.conditions.filter((c) => c.family === "overload");
+      const rhoAt = (m) => od.filter((c) => c.model === m).sort((a, b) => a.delay_ms - b.delay_ms).map((c) => c.utilization.mean);
+      const already = models.filter((m) => rhoAt(m).length && rhoAt(m)[0] >= 1);
+      const pushed = models.filter((m) => rhoAt(m).length && rhoAt(m)[0] < 1 && Math.max(...rhoAt(m)) >= 1);
+      const ofps = fmt((od[0] || {}).input_fps, 0), names = (ms) => ms.map((m) => MODEL[m]).join(L(" and ", " 與 "));
+      sec.querySelector("#b4-title").textContent = pushed.length && already.length
+        ? L(`Injected delay pushes ${names(pushed)} into overload; ${names(already)} is overloaded at ${ofps} FPS even without it`, `注入的 delay 把 ${names(pushed)} 推進過載；${names(already)} 在 ${ofps} FPS 下不加 delay 就已過載`)
+        : pushed.length ? L(`Injected delay pushes ${names(pushed)} into overload`, `注入的 delay 把 ${names(pushed)} 推進過載`)
+          : already.length ? L(`${names(already)} is overloaded at ${ofps} FPS even without delay`, `${names(already)} 在 ${ofps} FPS 下不加 delay 就已過載`)
+            : L("Effective miss under injected service delay", "注入 service delay 下的 effective miss");
       C.lineChart(sec.querySelector("#b4"), {
         series: models.map((m) => ({ name: MODEL[m], color: MODEL_COLOR[m],
           points: conds.filter((c) => c.family === "overload" && c.model === m).map((c) => ({ x: c.delay_ms, y: c.effective_miss_rate_pct.mean, tip: condTip(c, [["delay", c.delay_ms + " ms"]]) })) })),

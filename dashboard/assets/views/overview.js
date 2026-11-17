@@ -10,7 +10,6 @@
   function renderOverview(sec) {
     const K = D.kpis;
     const g = K.guard_vs_latest_primary, ag = K.adaptive_vs_guard_primary;
-    const gd = K.guard_vs_latest_dynamic, agd = K.adaptive_vs_guard_dynamic;
     const pc = COND[D.primary_condition];
     const cap = K.capacity;
     const F = {}; D.findings.forEach((f) => { F[f.id] = f; });
@@ -31,10 +30,10 @@
     sec.innerHTML = `
       <div class="hero">
         <div class="hero-main">
-          <h2>${L("Which frames should an overloaded edge detector skip?", "過載的邊緣偵測器該跳過哪些 frame？")}</h2>
+          <h2>${L("Which frames should an overloaded edge detector skip?", '過載的邊緣偵測器<span class="nowrap">該跳過哪些 frame？</span>')}</h2>
         </div>
         <div class="hero-copy">
-          <p class="answer-lead">${L("The ones that can no longer make the deadline, and that only happens in one load regime.", "跳過那些已經趕不上 deadline 的 frame，而這種情況只出現在一種負載區間。")}</p>
+          <p class="answer-lead">${L(`The ones that can no longer make the deadline. That only happens when waiting plus service time can pass ${dl} ms.`, `跳過那些已經趕不上 deadline 的 frame。只有在「等待 + service time」可能超過 ${dl} ms 時才會發生。`)}</p>
           <p class="lede">${L("A ROS 2 benchmark of frame scheduling for a MobileViT detector on two pinned CPU cores with a 4 GiB memory limit; every run's constraints and shared-memory transport are read back and verified.",
             "在 2 顆綁定的 CPU core、4 GiB 記憶體上限下，實測 MobileViT 偵測器 frame scheduling 的 ROS 2 benchmark；每個 run 的限制條件與 shared-memory transport 都會讀回驗證。")}</p>
           <div class="links"><a href="#scheduling">${L("Compare policies", "比較各 policy")}${arrow}</a><a href="#mechanism">${L("Why it works", "為什麼有效")}${arrow}</a><a href="#evidence">${L("How it is verified", "如何驗證")}${arrow}</a></div>
@@ -54,15 +53,15 @@
               <span class="k"><span class="sw ring" style="border-color:${GUARD}"></span>${L("one block", "單一 block")}</span>
               <span class="k"><span class="sw dot" style="background:${GUARD}"></span>${L("mean Δ with 95% interval", "平均 Δ 與 95% 區間")}</span>
             </div>
-            <p class="key-terms">${L("<b>ρ</b> arrival rate × service time; above 1 the detector is overloaded · <b>pp</b> percentage points · <b>block</b> one round that runs every arm once; differences are paired within it",
-              "<b>ρ</b> 抵達速率 × service time，大於 1 表示過載 · <b>pp</b> 百分點 · <b>block</b> 每個 arm 各跑一次的一輪，差異在 block 內配對")}</p>
+            <p class="key-terms">${L("<b>S / XXS</b> MobileViT-S / MobileViT-XXS · <b>+ 25 ms</b> injected service delay · <b>ρ</b> arrival rate × service time; above 1 the detector is overloaded · <b>pp</b> percentage points · <b>block</b> one round that runs every arm once; differences are paired within it",
+              "<b>S / XXS</b> MobileViT-S / MobileViT-XXS · <b>+ 25 ms</b> 注入的 service delay · <b>ρ</b> 抵達速率 × service time，大於 1 表示過載 · <b>pp</b> 百分點 · <b>block</b> 每個 arm 各跑一次的一輪，差異在 block 內配對")}</p>
           </div>
           <div class="plate-foot">
             <div>
               <p class="answer">${L(`Of the ${FE.length} fixed-rate conditions tested, only at <b>${esc(pc.label)}</b> can the newest frame be too old to finish within ${dl} ms: up to ${fmt(fp.inter_arrival_ms, 0)} ms of waiting plus ${fmt(fp.service_ms, 0)} ms of service reaches ${fmt(fp.age_bound_ms, 0)} ms. Everywhere else the interval includes zero, and <b>Adaptive</b>, which adds a utilisation switch, lands where Deadline-Guard does.`,
                 `在測試的 ${FE.length} 個固定速率 condition 中，只有 <b>${esc(pc.label)}</b> 下最新的 frame 可能已經太舊、無法在 ${dl} ms 內完成：最多 ${fmt(fp.inter_arrival_ms, 0)} ms 的等待加上 ${fmt(fp.service_ms, 0)} ms 的 service，達到 ${fmt(fp.age_bound_ms, 0)} ms。其他 condition 的區間都包含 0；再加上 utilisation switch 的 <b>Adaptive</b>，結果與 Deadline-Guard 相同。`)}</p>
-              <p class="fig-note">${L(`Each lane: the newest frame's worst case against the ${dl} ms deadline. Right: Deadline-Guard − Latest-Frame effective miss, paired within blocks. One host, ${pc.n_blocks} blocks at the primary condition and ${nOther} at the others, latency only (random-initialised weights). An interval that includes 0 is not an equivalence test. <a href="#evidence/limitations">Limitations</a>`,
-                `每條 lane：最新 frame 的最壞情況，對照 ${dl} ms deadline。右側：Deadline-Guard − Latest-Frame 的 effective miss，在 block 內配對比較。單一主機，primary condition ${pc.n_blocks} 個 blocks、其他 condition 各 ${nOther} 個，只量 latency（random-initialised weights）。區間包含 0 不代表兩者等價。<a href="#evidence/limitations">使用限制</a>`)}</p>
+              <p class="fig-note">${L(`Each lane: the newest frame's worst case against the ${dl} ms deadline. Right: Deadline-Guard − Latest-Frame effective miss, paired within blocks. One host, ${pc.n_blocks} blocks at the primary condition and ${nOther} at the others, latency only (random-initialised weights); ${K.runs.total} constrained runs in all, ${chain} file hashes verified. An interval that includes 0 is not an equivalence test. <a href="#evidence/limitations">Limitations</a>`,
+                `每條 lane：最新 frame 的最壞情況，對照 ${dl} ms deadline。右側：Deadline-Guard − Latest-Frame 的 effective miss，在 block 內配對比較。單一主機，primary condition ${pc.n_blocks} 個 blocks、其他 condition 各 ${nOther} 個，只量 latency（random-initialised weights）；共 ${K.runs.total} 個 constrained runs，已驗證 ${chain} 個檔案 hash。區間包含 0 不代表兩者等價。<a href="#evidence/limitations">使用限制</a>`)}</p>
               <details class="table-toggle glossary"><summary>${L("All terms on this page", "本頁所有術語")}</summary>
                 <dl>
                   <dt>Effective miss</dt><dd>${L(`Share of published frames that were dropped or finished after the ${dl} ms deadline. Lower is better.`, `已發佈的 frame 中，被丟棄或超過 ${dl} ms deadline 才完成的比例，越低越好。`)}</dd>
@@ -77,14 +76,10 @@
               <p class="cmp-cap">${L(`At ${esc(pc.label)}, the primary condition · ρ ≈ ${fmt(lat.utilization.mean, 2)} · effective miss, lower is better`,
                 `${esc(pc.label)}（primary condition）· ρ ≈ ${fmt(lat.utilization.mean, 2)} · effective miss，越低越好`)}</p>
               <div class="cmp">${cmpRow("latest_q10", lat)}${cmpRow("guard_c5_q10", grd)}${cmpRow("adaptive_c5_q10", ada)}</div>
-              <p class="r-diff">${L(`<b>${fmt(g.mean, 1)} pp</b> paired difference (Deadline-Guard − Latest-Frame) · 95% CI ${ci(g, 1)} · lower in ${g.n_neg} of ${g.n_blocks} blocks · Adaptive − Deadline-Guard ${fmt(ag.mean, 1, true)} pp ${ci(ag, 1)}`,
-                `paired difference（Deadline-Guard − Latest-Frame）<b>${fmt(g.mean, 1)} pp</b> · 95% CI ${ci(g, 1)} · ${g.n_blocks} 個 blocks 中有 ${g.n_neg} 個較低 · Adaptive − Deadline-Guard ${fmt(ag.mean, 1, true)} pp ${ci(ag, 1)}`)}</p>
+              <p class="r-diff">${L(`Guard − Latest, paired within blocks: 95% CI ${ci(g, 1)} pp, lower in ${g.n_neg} of ${g.n_blocks} blocks · Adaptive − Guard ${fmt(ag.mean, 1, true)} pp ${ci(ag, 1)}`,
+                `Guard − Latest（block 內配對）：95% CI ${ci(g, 1)} pp，${g.n_blocks} 個 blocks 中有 ${g.n_neg} 個較低 · Adaptive − Guard ${fmt(ag.mean, 1, true)} pp ${ci(ag, 1)}`)}</p>
             </div>
           </div>
-          ${spec([
-            gd &&{ label: L(`Guard − Latest under a load step · ${esc(COND[gd.condition].label)}`, `負載階躍下的 Guard − Latest · ${esc(COND[gd.condition].label)}`), value: fmt(gd.mean, 1), unit: "pp", detail: `95% CI ${ci(gd, 2)} · Adaptive − Guard ${fmt(agd.mean, 2, true)} pp` },
-            { label: L("Constrained runs", "Constrained runs"), value: K.runs.total, detail: L(`${K.runs.phase2} baseline + ${K.runs.phase3} A/B in ${K.runs.phase3_blocks} blocks · ${chain} file hashes verified`, `${K.runs.phase2} baseline + ${K.runs.phase3} A/B（${K.runs.phase3_blocks} blocks）· 已驗證 ${chain} 個檔案 hash`) },
-          ])}
         </div>
       </div>
 
@@ -99,10 +94,10 @@
           <div><h4>${L("Evidence", "證據")}</h4><p>${L("Policies run interleaved in blocks under identical controls and are compared within each block. Every table on this site is rebuilt from raw per-frame logs and checked against SHA-256 manifests before the page is generated.",
             "各 policy 在相同控制條件下以 block 交錯執行，並在每個 block 內比較。網站上的每張表都從原始 per-frame log 重建，並在產生頁面前與 SHA-256 manifest 核對。")}</p></div>
         </div>
-        <div class="fig arch-panel"><div class="arch-scroll"><a href="${archSvg}" target="_blank" rel="noopener" class="arch-link" title="${L("Open the full-size diagram", "開啟完整尺寸架構圖")}">
+        <div class="fig arch-panel"><div class="arch-scroll">
           <img class="arch" src="${archSvg}" alt="${L("Architecture: image_stream_node publishes frames over Fast DDS shared memory to the MobileViT detector node. The legacy path runs inference in the DDS callback; the application path puts frames in a bounded queue served by one worker using FIFO, Latest-Frame, Deadline-Guard or Adaptive. Each run writes detector and publisher CSVs, metadata and a runtime probe; analysis tools build summaries and aggregates with SHA-256 manifests; provenance gates and the dashboard builder verify the chain. Separately, the EDA-Lite simulator turns simplified model profiles into cost-model estimates.",
             "架構圖：image_stream_node 透過 Fast DDS shared memory 把 frame 送到 MobileViT detector node。Legacy 路徑在 DDS callback 內執行 inference；application 路徑把 frame 放進 bounded queue，由一個 worker 依 FIFO、Latest-Frame、Deadline-Guard 或 Adaptive 處理。每個 run 會寫出 detector 與 publisher CSV、metadata 和 runtime probe；分析工具產生帶 SHA-256 manifest 的 summary 與 aggregate；provenance gate 與 dashboard builder 驗證整條鏈。另外，EDA-Lite simulator 把簡化的 model profile 轉成 cost-model 估計值。")}">
-        </a></div><p class="arch-open"><a href="${archSvg}" target="_blank" rel="noopener">${L("Open the full-size diagram", "開啟完整尺寸架構圖")}</a><span class="arch-hint">${L(" · or scroll sideways", " · 或左右捲動")}</span></p></div>
+</div><p class="arch-open"><a href="${archSvg}" target="_blank" rel="noopener">${L("Open the full-size diagram", "開啟完整尺寸架構圖")}</a><span class="arch-hint">${L(" · or scroll sideways", " · 或左右捲動")}</span></p></div>
       </section>
 
       <section class="section">
@@ -141,7 +136,7 @@
 
     C.regimeMap(sec.querySelector("#hero-regime"), {
       deadline: pc.deadline_ms, deadlineLabel: `deadline ${dl} ms`, unit: " pp", sweep: true,
-      waitWord: L("wait", "等待"), serviceWord: L("service", "service"), dHead: "Deadline-Guard − Latest-Frame",
+      waitWord: L("wait", "等待"), serviceWord: L("service", "service"), dHead: L("Δ effective miss · Guard − Latest", "Δ effective miss · Guard − Latest"),
       betterLabel: L("← fewer misses with Guard", "← Guard 較少 miss"),
       tTitle: L("ms after publish", "發佈後的 ms"), dTitle: "Δ effective miss (pp)",
       ariaLabel: L("Per condition: the newest frame's worst-case finish time against the deadline, and Deadline-Guard minus Latest-Frame effective miss", "各 condition：最新 frame 的最壞完成時間對照 deadline，以及 Deadline-Guard − Latest-Frame 的 effective miss"),

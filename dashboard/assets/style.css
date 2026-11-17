@@ -186,6 +186,7 @@ main { padding: var(--sp-6) 0 var(--sp-9); }
 .view-head { margin-bottom: var(--sp-7); }
 .view-head h2 { font-size: var(--fs-2xl); line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 var(--sp-4); font-weight: 700; text-wrap: balance; max-width: 22em; }
 .view-head p { color: var(--ink-2); margin: 0; max-width: var(--measure); }
+.view-head code { white-space: nowrap; }
 h3 { font-size: var(--fs-lg); line-height: 1.25; margin: 0 0 var(--sp-1); letter-spacing: -0.01em; font-weight: 700; text-wrap: balance; }
 h4 { font-size: var(--fs-body); margin: 0 0 6px; font-weight: 700; }
 p { margin: 0 0 var(--sp-3); }
@@ -254,7 +255,7 @@ p { margin: 0 0 var(--sp-3); }
 /* Short laptop screens (1280 × 720, 1366 × 768): the question steps down one size so all four lanes
    and the deadline fit in the first viewport, which is where the brief's story has to be told. */
 @media (min-width: 961px) and (max-height: 860px) {
-  .hero h2 { font-size: 46px; }
+  :root { --fs-3xl: 46px; }
   main { padding-top: var(--sp-5); }
 }
 .plate .answer { color: var(--ink-2); font-size: var(--fs-prose); max-width: var(--measure); margin: 0 0 var(--sp-4); }
@@ -316,7 +317,7 @@ p { margin: 0 0 var(--sp-3); }
 /* ---- overview: problem / approach / evidence, architecture, findings ------------------ */
 .prose-cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--sp-5) 40px; margin-bottom: var(--sp-7); }
 .prose-cols h4 { margin-bottom: var(--sp-2); }
-.prose-cols p { color: var(--ink-2); font-size: var(--fs-prose); margin: 0; }
+.prose-cols p { color: var(--ink-2); font-size: var(--fs-prose); margin: 0; max-width: var(--measure); }
 .arch-scroll { overflow-x: auto; }
 .arch { width: 100%; min-width: 760px; height: auto; display: block; }
 .arch-link { display: block; cursor: zoom-in; }
@@ -378,12 +379,16 @@ p { margin: 0 0 var(--sp-3); }
 .chart svg [data-tip] { pointer-events: visiblePainted; }
 .chart svg .hit[data-tip] { pointer-events: all; }
 .chart .hit:hover { fill: color-mix(in srgb, var(--ink) 5%, transparent); }
+/* while the keyboard traces a lane, a resting pointer must not mark a second one */
+.chart svg:focus-within .hit:hover { fill: transparent; }
 .chart [data-tip]:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 .chart .hit:focus-visible { outline-offset: -2px; }
 .chart .overshoot { stroke: var(--critical); stroke-width: 1.5; }
 .chart .hatch-late { fill: var(--critical); }
 .chart .ruler { stroke: var(--ink-2); stroke-width: 1; shape-rendering: crispEdges; }
 .chart .wait { fill: none; stroke: var(--ink-2); stroke-width: 1.5; }
+/* dropped frames: a dashed outline (taken a place, never processed); the open bar stays "waiting" */
+.chart .dropped { fill: none; stroke: var(--ink-2); stroke-width: 1.5; stroke-dasharray: 3 2; }
 .chart .svc { fill: var(--ink); }
 .chart .lane-base { stroke: var(--axis); stroke-width: 1.25; shape-rendering: crispEdges; }
 .chart .release { stroke: var(--ink); stroke-width: 1.5; fill: var(--ink); }
@@ -408,6 +413,7 @@ p { margin: 0 0 var(--sp-3); }
 .legend .sw.ring { width: 10px; border-radius: 50%; background: var(--surface) !important; border: 1.5px solid var(--ink-2); }
 .legend .sw.tick { width: 2px; height: 13px; background: var(--ink); }
 .legend .sw.open { width: 16px; border: 1.5px solid var(--ink-2); }
+.legend .sw.dropped { width: 16px; border: 1.5px dashed var(--ink-2); }
 .legend .sw.solid { width: 16px; background: var(--ink); }
 .legend .sw.hatch { width: 16px; background: repeating-linear-gradient(135deg, var(--ink-2) 0 2px, transparent 2px 5px); border: 1.5px solid var(--ink-2); }
 .legend .sw.overshoot-sw { width: 16px; background: repeating-linear-gradient(135deg, var(--critical) 0 2px, transparent 2px 5px); border: 1.5px solid var(--critical); }
@@ -470,11 +476,12 @@ details.table-toggle > .table-wrap { margin-top: var(--sp-2); }
 .status-list .ic { width: 18px; height: 18px; margin-top: 3px; }
 .status-list .ic.ok { color: var(--good); }
 .status-list .ic.no { color: var(--critical); }
+.status-list .ic.rule { color: var(--ink-2); }
 .status-list .t { font-weight: 700; }
 .status-list .x { color: var(--ink-2); font-size: var(--fs-md); margin-top: 2px; }
 pre.cmd { background: var(--surface-2); border-radius: 2px; padding: 16px 18px; overflow-x: auto; font: var(--fs-sm)/1.65 var(--mono); margin: var(--sp-3) 0 0; }
 .limits { margin: var(--sp-3) 0 0; padding-left: 18px; }
-.limits li { margin-bottom: 10px; color: var(--ink-2); font-size: var(--fs-md); padding-left: 4px; }
+.limits li { margin-bottom: 10px; color: var(--ink-2); font-size: var(--fs-md); padding-left: 4px; max-width: var(--measure-note); }
 .limits li::marker { color: var(--axis); }
 .limits li b { color: var(--ink); }
 
